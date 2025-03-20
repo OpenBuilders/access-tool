@@ -1,0 +1,18 @@
+.root {
+  height: 100%;
+  width: 100%;
+  margin: 12px 0;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.center {
+  margin: 0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

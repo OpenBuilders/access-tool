@@ -1,35 +1,45 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import '@common/styles/index.scss'
+import { ThemeContext } from '@context'
+import { AppRoot } from '@telegram-apps/telegram-ui'
+import '@telegram-apps/telegram-ui/dist/styles.css'
+import { useContext, useEffect } from 'react'
+
+import Routes from './Routes'
+
+const webApp = window.Telegram?.WebApp
+
+const HARDCODED_PLATFORM = 'ios'
+const HARDCODED_APPEARANCE = 'dark'
 
 function App() {
-  const [count, setCount] = useState(0);
+  const { darkTheme } = useContext(ThemeContext)
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      'data-theme',
+      darkTheme ? 'dark' : 'light'
+    )
+
+    if (darkTheme) {
+      window.document.documentElement.style.backgroundColor = '#1c1c1e'
+      webApp?.setHeaderColor('#1c1c1e')
+      webApp?.setBackgroundColor('#1c1c1e')
+    } else {
+      window.document.documentElement.style.backgroundColor = '#EFEFF4'
+      webApp?.setHeaderColor('#EFEFF4')
+      webApp?.setBackgroundColor('#EFEFF4')
+    }
+  }, [darkTheme])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  );
+    <AppRoot
+      // platform={HARDCODED_PLATFORM}
+      // appearance={HARDCODED_APPEARANCE}
+      id="app-tg-root"
+    >
+      {Routes}
+    </AppRoot>
+  )
 }
 
-export default App;
+export default App
