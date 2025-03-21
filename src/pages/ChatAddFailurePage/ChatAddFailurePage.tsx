@@ -1,10 +1,10 @@
-import { useAppNavigation } from '@common'
 import {
   Icon,
   PageLayout,
   TelegramMainButton,
   TelegramBackButton,
 } from '@components'
+import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { Text, Title } from '@telegram-apps/telegram-ui'
 

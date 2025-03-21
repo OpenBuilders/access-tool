@@ -1,11 +1,11 @@
 import lockLottie from '@assets/lock.json'
-import { useAppNavigation } from '@common'
 import {
   PageLayout,
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
+import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { Title, Text } from '@telegram-apps/telegram-ui'
 

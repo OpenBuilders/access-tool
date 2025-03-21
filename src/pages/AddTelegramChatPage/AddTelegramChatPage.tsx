@@ -1,11 +1,11 @@
 import chainLottie from '@assets/chain.json'
-import { useAppNavigation } from '@common'
 import {
   PageLayout,
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
+import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { Input, Link, List, Text, Title } from '@telegram-apps/telegram-ui'
 import { ChangeEvent, useState } from 'react'

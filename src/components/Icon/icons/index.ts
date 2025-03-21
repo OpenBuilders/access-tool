@@ -1,1 +1,7 @@
 export * from './lockIcon'
+export * from './trashIcon'
+export * from './plusIcon'
+export * from './pixelBadge'
+export * from './dogsBadge'
+export * from './notcoinBadge'
+export * from './toncoinBadge'

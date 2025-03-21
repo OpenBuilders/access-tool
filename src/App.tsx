@@ -1,5 +1,5 @@
-import '@common/styles/index.scss'
 import { ThemeContext } from '@context'
+import '@styles/index.scss'
 import { AppRoot } from '@telegram-apps/telegram-ui'
 import '@telegram-apps/telegram-ui/dist/styles.css'
 import { useContext, useEffect } from 'react'
