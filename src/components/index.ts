@@ -1,4 +1,5 @@
 export * from './StickerPlayer'
 export * from './PageLayout'
-export * from './MainButton'
+export * from './TelegramMainButton'
 export * from './Icon'
+export * from './TelegramBackButton'

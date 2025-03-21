@@ -1,14 +1,30 @@
 import confettiLottie from '@assets/confetti.json'
-import { PageLayout, StickerPlayer, TelegramMainButton } from '@components'
+import { useAppNavigation } from '@common'
+import {
+  PageLayout,
+  StickerPlayer,
+  TelegramBackButton,
+  TelegramMainButton,
+} from '@components'
+import { ROUTES_NAME } from '@routes'
 import { Text, Title } from '@telegram-apps/telegram-ui'
-import { useNavigate } from 'react-router-dom'
 
 import styles from './ChatAddSuccessPage.module.scss'
 
 export const ChatAddSuccessPage = () => {
-  const navigate = useNavigate()
+  const { appNavigate } = useAppNavigation()
   return (
     <PageLayout center>
+      <TelegramBackButton />
+      <TelegramMainButton
+        text="Set Access Conditions"
+        onClick={() =>
+          appNavigate({
+            path: ROUTES_NAME.CHANNEL,
+            params: { channelId: '1' },
+          })
+        }
+      />
       <StickerPlayer lottie={confettiLottie} />
       <Title weight="1" plain level="1" className={styles.title}>
         Chat Added. Configure it
@@ -17,7 +33,6 @@ export const ChatAddSuccessPage = () => {
         Great! Your chat is now connected to Gateway. Now it’s time to set
         access conditions.
       </Text>
-      <TelegramMainButton text="Set Access Conditions" onClick={() => {}} />
     </PageLayout>
   )
 }

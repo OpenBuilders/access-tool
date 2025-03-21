@@ -1,5 +1,6 @@
 import {
   AddTelegramChatPage,
+  ChannelPage,
   ChatAddFailurePage,
   ChatAddSuccessPage,
   MainPage,
@@ -11,6 +12,8 @@ export const ROUTES_NAME = {
   ADD_TELEGRAM_CHAT: '/add-telegram-chat',
   CHAT_ADD_SUCCESS: '/chat-add-success',
   CHAT_ADD_FAILURE: '/chat-add-failure',
+  CHANNEL: '/channel/:channelId',
+  CHANNEL_CONDITION: '/channel/:channelId/condition/:conditionId',
 }
 
 export default (
@@ -27,6 +30,11 @@ export default (
     <Route
       path={ROUTES_NAME.CHAT_ADD_FAILURE}
       element={<ChatAddFailurePage />}
+    />
+    <Route path={ROUTES_NAME.CHANNEL} element={<ChannelPage />} />
+    <Route
+      path={ROUTES_NAME.CHANNEL_CONDITION}
+      // element={<ChannelConditionPage />}
     />
   </Routes>
 )

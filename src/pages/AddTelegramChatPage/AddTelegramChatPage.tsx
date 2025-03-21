@@ -1,14 +1,19 @@
 import chainLottie from '@assets/chain.json'
-import { PageLayout, StickerPlayer, TelegramMainButton } from '@components'
+import { useAppNavigation } from '@common'
+import {
+  PageLayout,
+  StickerPlayer,
+  TelegramBackButton,
+  TelegramMainButton,
+} from '@components'
 import { ROUTES_NAME } from '@routes'
 import { Input, Link, List, Text, Title } from '@telegram-apps/telegram-ui'
 import { ChangeEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import styles from './AddTelegramChatPage.module.scss'
 
 export const AddTelegramChatPage = () => {
-  const navigate = useNavigate()
+  const { appNavigate } = useAppNavigation()
   const [linkValue, setLinkValue] = useState('')
 
   const handleChangeLink = (e: ChangeEvent<HTMLInputElement>) => {
@@ -17,6 +22,17 @@ export const AddTelegramChatPage = () => {
 
   return (
     <PageLayout center>
+      <TelegramBackButton
+        onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
+      />
+      <TelegramMainButton
+        text="Add First Chat"
+        onClick={() =>
+          appNavigate({
+            path: ROUTES_NAME.CHAT_ADD_SUCCESS,
+          })
+        }
+      />
       <StickerPlayer lottie={chainLottie} />
       <Title weight="1" plain level="1" className={styles.title}>
         Add Telegram Chat
@@ -36,10 +52,6 @@ export const AddTelegramChatPage = () => {
           className={styles.input}
         />
       </List>
-      <TelegramMainButton
-        text="Add First Chat"
-        onClick={() => navigate(ROUTES_NAME.CHAT_ADD_SUCCESS)}
-      />
     </PageLayout>
   )
 }
