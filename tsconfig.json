@@ -27,7 +27,8 @@
       "@common": ["src/common/index"],
       "@components": ["src/components/index"],
       "@context": ["src/context/index"],
-      "@assets": ["src/assets"]
+      "@assets": ["src/assets"],
+      "@routes": ["src/Routes"]
     },
     "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },

@@ -1,0 +1,30 @@
+.title {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.text {
+  text-align: center;
+  margin-top: 12px;
+  line-height: 22px;
+}
+
+.link {
+  margin-top: 12px;
+}
+
+.list {
+  width: 100%;
+  padding: 0;
+  margin-top: 28px;
+
+  > div {
+    padding: 0;
+  }
+}
+
+// .input {
+//   width: 100%;
+//   padding: 10px;
+//   margin-top: 28px;
+// }

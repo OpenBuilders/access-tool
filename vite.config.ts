@@ -24,6 +24,7 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@context': path.resolve(__dirname, './src/context'),
       '@assets': path.resolve(__dirname, './src/assets'),
+      '@routes': path.resolve(__dirname, './src/Routes'),
     },
   },
   plugins: [

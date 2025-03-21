@@ -33,8 +33,8 @@ function App() {
 
   return (
     <AppRoot
-      // platform={HARDCODED_PLATFORM}
-      // appearance={HARDCODED_APPEARANCE}
+      platform={HARDCODED_PLATFORM}
+      appearance={HARDCODED_APPEARANCE}
       id="app-tg-root"
     >
       {Routes}

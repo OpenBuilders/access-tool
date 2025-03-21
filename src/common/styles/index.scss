@@ -12,3 +12,15 @@ body,
   min-height: 100vh;
   min-height: 100dvh;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+span {
+  font-family: var(--tgui--font-family);
+}
