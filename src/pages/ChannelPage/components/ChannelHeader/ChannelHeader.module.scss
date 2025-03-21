@@ -1,0 +1,17 @@
+@use '@styles/commonStyles.scss';
+
+.title {
+  margin-top: 12px;
+  align-items: center;
+}
+
+.members {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.membersText {
+  color: var(--tgui--hint_color);
+}

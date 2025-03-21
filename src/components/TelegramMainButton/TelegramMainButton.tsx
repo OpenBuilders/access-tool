@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 
 interface MainButtonProps {
-  text: string
-  onClick: () => void
+  text?: string
+  onClick?: () => void
 }
 
 const webApp = window.Telegram?.WebApp
@@ -11,6 +11,12 @@ const mainButton = webApp?.MainButton
 export const TelegramMainButton = ({ text, onClick }: MainButtonProps) => {
   useEffect(() => {
     if (!webApp || !mainButton) return
+
+    if (!onClick || !text) {
+      mainButton.hide()
+      return
+    }
+
     const { button_color, button_text_color } = webApp.themeParams
 
     mainButton.setParams({

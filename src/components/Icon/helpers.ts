@@ -7,15 +7,7 @@ import {
   notcoinBadge,
   toncoinBadge,
 } from './icons'
-
-export type IconTypeName =
-  | 'lock'
-  | 'trash'
-  | 'plus'
-  | 'pixel'
-  | 'dogs'
-  | 'notcoin'
-  | 'toncoin'
+import { IconTypeName } from './types'
 
 export const getIcon = (name: IconTypeName) => {
   switch (name) {

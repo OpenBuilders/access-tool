@@ -1,5 +1,6 @@
 import chainLottie from '@assets/chain.json'
 import {
+  Container,
   PageLayout,
   StickerPlayer,
   TelegramBackButton,
@@ -8,6 +9,7 @@ import {
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { Input, Link, List, Text, Title } from '@telegram-apps/telegram-ui'
+import cn from 'classnames'
 import { ChangeEvent, useState } from 'react'
 
 import styles from './AddTelegramChatPage.module.scss'
@@ -44,14 +46,14 @@ export const AddTelegramChatPage = () => {
       <Link href="#" className={styles.link}>
         Where to find group link or chat ID?
       </Link>
-      <List className={styles.list}>
+      <Container margin="24-0-0">
         <Input
           placeholder="Link or chat ID"
           value={linkValue}
           onChange={handleChangeLink}
           className={styles.input}
         />
-      </List>
+      </Container>
     </PageLayout>
   )
 }
