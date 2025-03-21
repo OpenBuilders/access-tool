@@ -1,0 +1,29 @@
+.root {
+  height: 100%;
+  width: 100%;
+  margin: 12px 0;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  opacity: 1;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.center {
+  margin: 0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

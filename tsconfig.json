@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "es2022",
+    "moduleResolution": "Node",
+    "declaration": true,
+    "incremental": true,
+    "composite": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "sourceMap": true,
+    "noEmit": true,
+    "noLib": false,
+    "types": ["vite/client", "node"],
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@pages": ["src/pages/index"],
+      "@common": ["src/common/index"],
+      "@components": ["src/components/index"],
+      "@context": ["src/context/index"],
+      "@assets": ["src/assets"],
+      "@routes": ["src/Routes"]
+    },
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  },
+  "exclude": ["node_modules", "**/node_modules/*", "dist"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.scss",
+    "declaration.d.ts"
+  ]
+}
