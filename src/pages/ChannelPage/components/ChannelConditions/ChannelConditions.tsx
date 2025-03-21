@@ -1,13 +1,7 @@
 import { Icon } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import {
-  Cell,
-  Link,
-  Navigation,
-  Section,
-  Text,
-} from '@telegram-apps/telegram-ui'
+import { Cell, Link, Navigation, Section } from '@telegram-apps/telegram-ui'
 
 import styles from './ChannelConditions.module.scss'
 
@@ -15,7 +9,10 @@ export const ChannelConditions = () => {
   const { appNavigate } = useAppNavigation()
 
   const createCondition = () => {
-    appNavigate({ path: ROUTES_NAME.CHANNEL_CONDITION })
+    appNavigate({
+      path: ROUTES_NAME.CHANNEL_CONDITION,
+      params: { conditionId: '1' },
+    })
   }
 
   return (
