@@ -8,11 +8,28 @@ import {
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { Title, Text } from '@telegram-apps/telegram-ui'
+import { useEffect } from 'react'
+
+import { useUserActions } from '@store'
 
 import styles from './MainPage.module.scss'
 
 export const MainPage = () => {
   const { appNavigate } = useAppNavigation()
+  const { fetchUser } = useUserActions()
+
+  const fetchUserA = async () => {
+    try {
+      await fetchUser()
+    } catch (error) {
+      console.error('🚀 ~ fetchUserA ~ error:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserA()
+  }, [])
+
   return (
     <PageLayout center>
       <TelegramBackButton />

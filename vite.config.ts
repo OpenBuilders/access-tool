@@ -30,6 +30,8 @@ export default defineConfig({
       '@store': path.resolve(__dirname, './src/store'),
       '@types': path.resolve(__dirname, './src/common/types'),
       '@styles': path.resolve(__dirname, './src/common/styles'),
+      '@config': path.resolve(__dirname, './src/config'),
+      '@services': path.resolve(__dirname, './src/services'),
     },
   },
   plugins: [

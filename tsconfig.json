@@ -33,7 +33,9 @@
       "@utils": ["src/common/utils"],
       "@store": ["src/store"],
       "@types": ["src/common/types"],
-      "@styles": ["src/common/styles"]
+      "@styles": ["src/common/styles"],
+      "@config": ["src/config"],
+      "@services": ["src/services/index"]
     },
     "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },

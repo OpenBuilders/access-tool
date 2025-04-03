@@ -12,12 +12,14 @@
   "dependencies": {
     "@telegram-apps/telegram-ui": "^2.1.8",
     "classnames": "^2.5.1",
+    "ky": "^1.8.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-lottie": "^1.2.10",
     "react-router-dom": "^7.4.0",
     "vite-plugin-node-polyfills": "^0.23.0",
-    "vite-plugin-svgr": "^4.3.0"
+    "vite-plugin-svgr": "^4.3.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
