@@ -1,0 +1,26 @@
+.title {
+  margin-top: 32px;
+  align-items: center;
+}
+
+.controls {
+  margin-top: 44px;
+}
+
+.grayText {
+  color: var(--tgui--hint_color);
+}
+
+.uploadInput {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+
+  label {
+    width: auto;
+  }
+  svg {
+    display: none;
+  }
+}

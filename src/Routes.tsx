@@ -4,6 +4,7 @@ import {
   ChatAddFailurePage,
   ChatAddSuccessPage,
   MainPage,
+  NewConditionPage,
 } from '@pages'
 import { Route, Routes } from 'react-router-dom'
 
@@ -34,7 +35,7 @@ export default (
     <Route path={ROUTES_NAME.CHANNEL} element={<ChannelPage />} />
     <Route
       path={ROUTES_NAME.CHANNEL_CONDITION}
-      // element={<ChannelConditionPage />}
+      element={<NewConditionPage />}
     />
   </Routes>
 )

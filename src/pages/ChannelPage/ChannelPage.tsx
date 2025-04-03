@@ -24,7 +24,9 @@ export const ChannelPage = () => {
       <TelegramBackButton
         onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
       />
-      <TelegramMainButton />
+      <TelegramMainButton
+        onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
+      />
       <ChannelHeader />
       <Container margin="8-0-0">
         <ChannelConditions />

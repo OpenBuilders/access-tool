@@ -1,11 +1,16 @@
+import { useToast } from '@common'
 import { Icon } from '@components'
-import { Cell, Section, Text } from '@telegram-apps/telegram-ui'
+import { Cell, Section, Snackbar, Text } from '@telegram-apps/telegram-ui'
 
 import styles from './ChannelActions.module.scss'
 
 export const ChannelActions = () => {
+  const { showToast } = useToast()
   const handleDelete = () => {
     console.log('delete')
+    showToast({
+      description: 'Message returned to the list',
+    })
   }
 
   return (
