@@ -6,15 +6,11 @@ import { ContainerMarginType } from './types'
 
 interface ContainerProps {
   children: React.ReactNode
-  margin?: ContainerMarginType
+  className?: string
 }
 
-export const Container = ({ children, margin }: ContainerProps) => {
+export const Container = ({ children, className }: ContainerProps) => {
   return (
-    <List
-      className={cn(styles.container, margin && styles[`margin-${margin}`])}
-    >
-      {children}
-    </List>
+    <List className={cn(styles.container, className || '')}>{children}</List>
   )
 }

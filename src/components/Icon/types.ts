@@ -6,5 +6,7 @@ export type IconTypeName =
   | 'dogs'
   | 'notcoin'
   | 'toncoin'
+  | 'forwardArrow'
+  | 'gatewayBot'
 
-export type IconSize = 112 | 100 | 28 | 24
+export type IconSize = 112 | 100 | 28 | 24 | 7

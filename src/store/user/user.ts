@@ -1,36 +1,68 @@
 import { create } from 'zustand'
 
-import { ApiService } from '@services'
+import config from '@config'
+import { AuthService, LocalStorageService } from '@services'
 
-import { fetchUserAPI } from './api'
+import { createSelectors } from '../types'
+import { authenticateUserAPI, fetchUserAPI, fetchUserChatsAPI } from './api'
+import { User, Chat } from './types'
 
 interface UserStore {
-  user: any
+  isAuthenticated: boolean
+  user: User | null
+  userChats: Chat[] | null
 }
 
 interface UserActions {
   actions: {
-    fetchUser: () => void
+    fetchUserAction: () => void
+    fetchUserChatsAction: () => void
+    authenticateUserAction: () => void
   }
 }
 
 export const useUserStore = create<UserStore & UserActions>((set) => ({
+  isAuthenticated: false,
   user: null,
+  userChats: null,
   actions: {
-    fetchUser: async () => {
+    authenticateUserAction: async () => {
+      if (config.isDev) {
+        set({ isAuthenticated: true })
+        return
+      }
+
+      const { data, ok, error } = await authenticateUserAPI()
+
+      if (!ok || !data?.access_token) {
+        throw new Error(error)
+      }
+
+      AuthService.setCredentials({ accessToken: data?.access_token })
+
+      set({ isAuthenticated: true })
+    },
+    fetchUserAction: async () => {
       const { data, ok, error } = await fetchUserAPI()
 
       if (!ok) {
         throw new Error(error)
       }
 
-      console.log(data)
-
       set({ user: data })
+    },
+    fetchUserChatsAction: async () => {
+      const { data, ok, error } = await fetchUserChatsAPI()
+
+      if (!ok) {
+        throw new Error(error)
+      }
+
+      set({ userChats: data })
     },
   },
 }))
 
 export const useUserActions = () => useUserStore((state) => state.actions)
 
-export const useUser = () => useUserStore((state) => ({ user: state.user }))
+export const useUser = createSelectors(useUserStore)

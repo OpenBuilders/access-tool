@@ -1,0 +1,54 @@
+.mt4 {
+  margin-top: 4px;
+}
+
+.mt8 {
+  margin-top: 8px;
+}
+
+.mt12 {
+  margin-top: 12px;
+}
+
+.mt16 {
+  margin-top: 16px;
+}
+
+.mt24 {
+  margin-top: 24px;
+}
+
+.mtAuto {
+  margin-top: auto;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.pr12 {
+  padding-right: 12px;
+}
+
+.pl12 {
+  padding-left: 12px;
+}
+
+.py12 {
+  padding: 12px 0;
+}
+
+.colorPrimary {
+  color: var(--tgui--text_color);
+}
+
+.colorHint {
+  color: var(--tgui--hint_color);
+}
+
+.fixedBottom {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+}

@@ -1,4 +1,4 @@
-import Config from '@config'
+import config from '@config'
 
 import { LocalStorageService } from './LocalStorageService'
 
@@ -6,7 +6,7 @@ interface AuthServiceCredentials {
   accessToken: string | null
 }
 
-const accessTokenName = 'jwt'
+const accessTokenName = 'accessToken'
 
 export class AuthService {
   static setCredentials(credentials: AuthServiceCredentials) {
@@ -14,9 +14,9 @@ export class AuthService {
   }
 
   static getCredentials(): AuthServiceCredentials {
-    if (Config.isDev && Config.accessToken) {
+    if (config.isDev && config.accessToken) {
       return {
-        accessToken: Config.accessToken,
+        accessToken: config.accessToken,
       }
     }
 

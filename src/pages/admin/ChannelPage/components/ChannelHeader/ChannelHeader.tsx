@@ -22,7 +22,7 @@ export const ChannelHeader = () => {
   return (
     <>
       <Icon name="pixel" size={100} />
-      <Title level="1" weight="1" plain className={styles.title}>
+      {/* <Title level="1" weight="1" plain className={styles.title}>
         Not Pixel Holders
       </Title>
       <div className={styles.members}>
@@ -49,7 +49,7 @@ export const ChannelHeader = () => {
           value={description}
           onChange={handleChangeDescription}
         />
-      </Container>
+      </Container> */}
     </>
   )
 }

@@ -74,11 +74,11 @@ export const NewConditionPage = () => {
           </SegmentedControlItem>
         ))}
       </SegmentedControl>
-      {ConditionComponent && (
+      {/* {ConditionComponent && (
         <Container margin="24-0-0">
           <ConditionComponent />
         </Container>
-      )}
+      )} */}
     </PageLayout>
   )
 }

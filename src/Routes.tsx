@@ -10,11 +10,11 @@ import { Route, Routes } from 'react-router-dom'
 
 export const ROUTES_NAME = {
   MAIN: '/',
-  ADD_TELEGRAM_CHAT: '/add-telegram-chat',
-  CHAT_ADD_SUCCESS: '/chat-add-success',
-  CHAT_ADD_FAILURE: '/chat-add-failure',
-  CHANNEL: '/channel/:channelId',
-  CHANNEL_CONDITION: '/channel/:channelId/condition/:conditionId',
+  ADD_TELEGRAM_CHAT: '/admin/add-telegram-chat',
+  CHAT_ADD_SUCCESS: '/admin/chat-add-success',
+  CHAT_ADD_FAILURE: '/admin/chat-add-failure',
+  CHANNEL: '/admin/channel/:channelSlug',
+  CHANNEL_CONDITION: '/admin/channel/:channelSlug/condition/:conditionId',
 }
 
 export default (
