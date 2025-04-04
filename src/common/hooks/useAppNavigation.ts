@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 interface AppNavigateParams {
-  channelSlug?: string
+  chatSlug?: string
   conditionId?: string
 }
 
@@ -18,15 +18,13 @@ export const useAppNavigation = () => {
       const { path, params } = options
       let url = path
 
-      if (params?.channelSlug) {
-        url = url.replace(':channelSlug', params.channelSlug)
+      if (params?.chatSlug) {
+        url = url.replace(':chatSlug', params.chatSlug)
       }
 
       if (params?.conditionId) {
         url = url.replace(':conditionId', params.conditionId)
       }
-
-      console.log(url)
 
       navigate(url, { replace: true })
     },

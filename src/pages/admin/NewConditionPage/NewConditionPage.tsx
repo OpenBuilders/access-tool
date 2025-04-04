@@ -57,7 +57,7 @@ export const NewConditionPage = () => {
   return (
     <PageLayout>
       <TelegramBackButton
-        onClick={() => appNavigate({ path: ROUTES_NAME.CHANNEL })}
+        onClick={() => appNavigate({ path: ROUTES_NAME.CHAT })}
       />
       <TelegramMainButton />
       <Title level="1" weight="1" plain className={styles.title}>

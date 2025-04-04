@@ -32,8 +32,8 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
               className={commonStyles.py10}
               onClick={() =>
                 appNavigate({
-                  path: ROUTES_NAME.CHANNEL,
-                  params: { channelSlug: channel.slug },
+                  path: ROUTES_NAME.CHAT,
+                  params: { chatSlug: channel.slug },
                 })
               }
             >

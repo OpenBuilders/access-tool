@@ -14,10 +14,11 @@ import { useChatActions } from '@store'
 
 import { ChannelActions, ChannelConditions, ChannelHeader } from './components'
 
-export const ChannelPage = () => {
+export const ChatPage = () => {
   const { channelSlug } = useParams<{ channelSlug: string }>()
   const { appNavigate } = useAppNavigation()
   const [isRedirect, setIsRedirect] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const { fetchChatAction } = useChatActions()
 
@@ -32,7 +33,9 @@ export const ChannelPage = () => {
   }
 
   useEffect(() => {
+    setIsLoading(true)
     fetchChat()
+    setIsLoading(false)
   }, [channelSlug])
 
   useEffect(() => {
@@ -41,9 +44,7 @@ export const ChannelPage = () => {
     }
   }, [isRedirect])
 
-  if (!channelSlug) {
-    return null
-  }
+  if (isLoading) return null
 
   return (
     <PageLayout>

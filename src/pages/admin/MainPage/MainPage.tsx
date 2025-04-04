@@ -10,7 +10,7 @@ import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { Title, Caption, Link } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useUser, useUserActions } from '@store'
 
@@ -21,14 +21,25 @@ export const MainPage = () => {
   const { appNavigate } = useAppNavigation()
   const { fetchUserChatsAction } = useUserActions()
   const { userChats } = useUser()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const fetchUserChats = async () => {
+    try {
+      await fetchUserChatsAction()
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   useEffect(() => {
-    fetchUserChatsAction()
+    setIsLoading(true)
+    fetchUserChats()
+    setIsLoading(false)
   }, [])
 
-  if (!userChats) return null
+  if (isLoading) return null
 
-  const isEmpty = userChats.length === 0
+  const isEmpty = !userChats || !userChats?.length
 
   return (
     <PageLayout center={isEmpty}>

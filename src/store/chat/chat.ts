@@ -2,9 +2,10 @@ import { create } from 'zustand'
 
 import { createSelectors } from '../types'
 import { fetchChatAPI } from './api'
+import { Chat } from './types'
 
 interface ChatStore {
-  chat: any
+  chat: Chat | null
 }
 
 interface ChatActions {
@@ -22,8 +23,6 @@ export const useChatStore = create<ChatStore & ChatActions>((set) => ({
       if (!ok) {
         throw new Error(error)
       }
-
-      console.log(data)
 
       set({ chat: data })
     },

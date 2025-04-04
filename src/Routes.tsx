@@ -1,6 +1,6 @@
 import {
   AddBotToChatPage,
-  ChannelPage,
+  ChatPage,
   CheckingBotAddedPage,
   MainPage,
   NewConditionPage,
@@ -12,13 +12,11 @@ import { Route, Routes } from 'react-router-dom'
 export const ROUTES_NAME = {
   MAIN: '/',
   ADD_TELEGRAM_CHAT: '/admin/add-telegram-chat',
-  CHAT_ADD_SUCCESS: '/admin/chat-add-success',
-  CHAT_ADD_FAILURE: '/admin/chat-add-failure',
-  CHANNEL: '/admin/channel/:channelSlug',
-  CHANNEL_CONDITION: '/admin/channel/:channelSlug/condition/:conditionId',
-  GRANT_PERMISSIONS: '/admin/grant-permissions/:channelSlug',
-  CHECKING_BOT_ADDED: '/admin/checking-bot-added/:channelSlug',
-  BOT_ADDED_SUCCESS: '/admin/bot-added-success/:channelSlug',
+  CHAT: '/admin/chat/:channelSlug',
+  CHAT_CONDITION: '/admin/chat/:chatSlug/condition/:conditionId',
+  GRANT_PERMISSIONS: '/admin/grant-permissions/:chatSlug',
+  CHECKING_BOT_ADDED: '/admin/checking-bot-added/:chatSlug',
+  BOT_ADDED_SUCCESS: '/admin/bot-added-success/:chatSlug',
 }
 
 export default (
@@ -28,11 +26,8 @@ export default (
       path={ROUTES_NAME.ADD_TELEGRAM_CHAT}
       element={<AddBotToChatPage />}
     />
-    <Route path={ROUTES_NAME.CHANNEL} element={<ChannelPage />} />
-    <Route
-      path={ROUTES_NAME.CHANNEL_CONDITION}
-      element={<NewConditionPage />}
-    />
+    <Route path={ROUTES_NAME.CHAT} element={<ChatPage />} />
+    <Route path={ROUTES_NAME.CHAT_CONDITION} element={<NewConditionPage />} />
     <Route
       path={ROUTES_NAME.GRANT_PERMISSIONS}
       element={<GrantPermissionsPage />}

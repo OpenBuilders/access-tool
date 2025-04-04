@@ -10,7 +10,7 @@ export const ChannelConditions = () => {
 
   const createCondition = () => {
     appNavigate({
-      path: ROUTES_NAME.CHANNEL_CONDITION,
+      path: ROUTES_NAME.CHAT_CONDITION,
       params: { conditionId: '1' },
     })
   }

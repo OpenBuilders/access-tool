@@ -7,14 +7,40 @@ import {
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
-import { useAppNavigation } from '@hooks'
+import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import '@styles/index.scss'
 import { Title, Text } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+
+import { useChatActions } from '@store'
 
 export const BotAddedSuccessPage = () => {
+  const { chatSlug } = useParams<{ chatSlug: string }>()
   const { appNavigate } = useAppNavigation()
+  const { fetchChatAction } = useChatActions()
+  const { pageNotFound } = useError()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const fetchChat = async () => {
+    if (!chatSlug) return
+    try {
+      await fetchChatAction(chatSlug)
+    } catch (error) {
+      console.error(error)
+      pageNotFound('Chat not found')
+    }
+  }
+
+  useEffect(() => {
+    setIsLoading(true)
+    fetchChat()
+    setIsLoading(false)
+  }, [chatSlug])
+
+  if (isLoading) return null
 
   return (
     <PageLayout center>
@@ -25,8 +51,8 @@ export const BotAddedSuccessPage = () => {
         text="Next"
         onClick={() => {
           appNavigate({
-            path: ROUTES_NAME.CHANNEL,
-            params: { channelSlug: 'test' },
+            path: ROUTES_NAME.CHAT,
+            params: { chatSlug: 'test' },
           })
         }}
       />
