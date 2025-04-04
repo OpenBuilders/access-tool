@@ -26,7 +26,9 @@ export const useAppNavigation = () => {
         url = url.replace(':conditionId', params.conditionId)
       }
 
-      navigate(url)
+      console.log(url)
+
+      navigate(url, { replace: true })
     },
   }
 }

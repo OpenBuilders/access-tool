@@ -8,8 +8,8 @@ export const pixelBadge = (
   >
     <rect width="40" height="40" rx="20" fill="black" />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M28 12H12V28H28V12ZM23 17H17V23H23V17Z"
       fill="white"
     />

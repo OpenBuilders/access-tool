@@ -1,0 +1,50 @@
+import confettiLottie from '@assets/confetti.json'
+import commonStyles from '@common/styles/commonStyles.module.scss'
+import {
+  Icon,
+  PageLayout,
+  StickerPlayer,
+  TelegramBackButton,
+  TelegramMainButton,
+} from '@components'
+import { useAppNavigation } from '@hooks'
+import { ROUTES_NAME } from '@routes'
+import '@styles/index.scss'
+import { Title, Text } from '@telegram-apps/telegram-ui'
+import cn from 'classnames'
+
+export const BotAddedSuccessPage = () => {
+  const { appNavigate } = useAppNavigation()
+
+  return (
+    <PageLayout center>
+      <TelegramBackButton
+        onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
+      />
+      <TelegramMainButton
+        text="Next"
+        onClick={() => {
+          appNavigate({
+            path: ROUTES_NAME.CHANNEL,
+            params: { channelSlug: 'test' },
+          })
+        }}
+      />
+      <StickerPlayer lottie={confettiLottie} />
+      <Title
+        weight="1"
+        plain
+        level="1"
+        className={cn(commonStyles.textCenter, commonStyles.mt16)}
+      >
+        Added.
+        <br />
+        Now, Configure It!
+      </Title>
+      <Text className={cn(commonStyles.textCenter, commonStyles.mt12)}>
+        Great! Your group is now connected to Gateway. Now it’s time to set
+        access conditions.
+      </Text>
+    </PageLayout>
+  )
+}

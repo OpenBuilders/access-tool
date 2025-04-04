@@ -14,7 +14,7 @@ const devConfig: Config = {
   apiHost: 'https://gate.essentis.xyz/api',
   botName: 'ggooccttaa_bot',
   botLink: 'https://t.me/ggooccttaa_bot',
-  CDN: 'https://stickerbot.fra1.cdn.digitaloceanspaces.com',
+  CDN: 'https://pub-afc0b291195b4529b0de88319506f30b.r2.dev',
   tonConnectManifestUrl: 'https://cdn.stickerdom.store/manifest.json',
   accessToken: import.meta.env.VITE_ACCESS_TOKEN,
 }
@@ -24,7 +24,7 @@ const prodConfig: Config = {
   apiHost: 'https://gate.essentis.xyz/api',
   botName: 'ggooccttaa_bot',
   botLink: 'https://t.me/ggooccttaa_bot',
-  CDN: 'https://stickerbot.fra1.cdn.digitaloceanspaces.com',
+  CDN: 'https://pub-afc0b291195b4529b0de88319506f30b.r2.dev',
   tonConnectManifestUrl: 'https://cdn.stickerdom.store/manifest.json',
 }
 

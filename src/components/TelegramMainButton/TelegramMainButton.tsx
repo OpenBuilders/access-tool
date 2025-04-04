@@ -3,16 +3,21 @@ import { useEffect } from 'react'
 interface MainButtonProps {
   text?: string
   onClick?: () => void
+  hidden?: boolean
 }
 
 const webApp = window.Telegram?.WebApp
 const mainButton = webApp?.MainButton
 
-export const TelegramMainButton = ({ text, onClick }: MainButtonProps) => {
+export const TelegramMainButton = ({
+  text,
+  onClick,
+  hidden,
+}: MainButtonProps) => {
   useEffect(() => {
     if (!webApp || !mainButton) return
 
-    if (!onClick || !text) {
+    if (!onClick || !text || hidden) {
       mainButton.hide()
       return
     }

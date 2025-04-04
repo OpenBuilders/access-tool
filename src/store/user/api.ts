@@ -1,6 +1,6 @@
 import { ApiService, ApiServiceResponse } from '@services'
 
-import { AuthenticatedUser, Chat, User } from './types'
+import { AuthenticatedUser, UserChat, User } from './types'
 
 const webApp = window.Telegram.WebApp
 
@@ -26,9 +26,9 @@ export const fetchUserAPI = async (): Promise<ApiServiceResponse<User>> => {
 }
 
 export const fetchUserChatsAPI = async (): Promise<
-  ApiServiceResponse<Chat[]>
+  ApiServiceResponse<UserChat[]>
 > => {
-  const response = await ApiService.get<Chat[]>({
+  const response = await ApiService.get<UserChat[]>({
     endpoint: '/admin/chats',
   })
 

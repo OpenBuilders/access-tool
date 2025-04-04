@@ -10,10 +10,11 @@ import {
   Text,
 } from '@telegram-apps/telegram-ui'
 
-import { Chat, useUser } from '@store'
+import config from '@config'
+import { UserChat } from '@store'
 
 interface ChannelsListProps {
-  channels: Chat[]
+  channels: UserChat[]
 }
 
 export const ChannelsList = ({ channels }: ChannelsListProps) => {
@@ -22,25 +23,19 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
     <Container className={commonStyles.mt24}>
       <Section header="Groups & Channels">
         {channels.map((channel) => (
-          <Navigation
-            key={channel.id}
-            className={commonStyles.pr12}
-            onClick={() =>
-              appNavigate({
-                path: ROUTES_NAME.CHANNEL,
-                params: { channelSlug: channel.slug },
-              })
-            }
-          >
+          <Navigation key={channel.id} className={commonStyles.pr12}>
             <Cell
               before={
-                <Avatar
-                  size={40}
-                  src={`https://pub-afc0b291195b4529b0de88319506f30b.r2.dev/${channel.logoPath}`}
-                />
+                <Avatar size={40} src={`${config.CDN}/${channel.logoPath}`} />
               }
               description="1,232 members"
               className={commonStyles.py10}
+              onClick={() =>
+                appNavigate({
+                  path: ROUTES_NAME.CHANNEL,
+                  params: { channelSlug: channel.slug },
+                })
+              }
             >
               <Text className={commonStyles.colorPrimary}>{channel.title}</Text>
             </Cell>

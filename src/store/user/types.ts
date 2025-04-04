@@ -14,7 +14,7 @@ export type User = {
   walletAddress: string | null
 }
 
-export type Chat = {
+export type UserChat = {
   id: number
   username: string | null
   title: string

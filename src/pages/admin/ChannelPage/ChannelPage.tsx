@@ -1,3 +1,4 @@
+import commonStyles from '@common/styles/commonStyles.module.scss'
 import {
   Container,
   PageLayout,
@@ -6,16 +7,41 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+
+import { useChatActions } from '@store'
 
 import { ChannelActions, ChannelConditions, ChannelHeader } from './components'
 
 export const ChannelPage = () => {
-  const { channelId } = useParams<{ channelId: string }>()
+  const { channelSlug } = useParams<{ channelSlug: string }>()
   const { appNavigate } = useAppNavigation()
+  const [isRedirect, setIsRedirect] = useState(false)
 
-  if (!channelId) {
-    appNavigate({ path: ROUTES_NAME.MAIN })
+  const { fetchChatAction } = useChatActions()
+
+  const fetchChat = async () => {
+    if (!channelSlug) return
+    try {
+      await fetchChatAction(channelSlug)
+    } catch (error) {
+      console.error(error)
+      setIsRedirect(true)
+    }
+  }
+
+  useEffect(() => {
+    fetchChat()
+  }, [channelSlug])
+
+  useEffect(() => {
+    if (isRedirect) {
+      appNavigate({ path: ROUTES_NAME.MAIN })
+    }
+  }, [isRedirect])
+
+  if (!channelSlug) {
     return null
   }
 
@@ -28,10 +54,10 @@ export const ChannelPage = () => {
         onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
       />
       <ChannelHeader />
-      <Container margin="8-0-0">
+      <Container className={commonStyles.mt8}>
         <ChannelConditions />
       </Container>
-      <Container margin="24-0-0">
+      <Container className={commonStyles.mt24}>
         <ChannelActions />
       </Container>
     </PageLayout>

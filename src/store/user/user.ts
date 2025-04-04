@@ -5,12 +5,12 @@ import { AuthService, LocalStorageService } from '@services'
 
 import { createSelectors } from '../types'
 import { authenticateUserAPI, fetchUserAPI, fetchUserChatsAPI } from './api'
-import { User, Chat } from './types'
+import { User, UserChat } from './types'
 
 interface UserStore {
   isAuthenticated: boolean
   user: User | null
-  userChats: Chat[] | null
+  userChats: UserChat[] | null
 }
 
 interface UserActions {

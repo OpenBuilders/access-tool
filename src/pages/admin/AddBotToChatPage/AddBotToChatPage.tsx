@@ -15,7 +15,7 @@ import config from '@config'
 
 const webApp = window.Telegram.WebApp
 
-export const AddTelegramChatPage = () => {
+export const AddBotToChatPage = () => {
   const { appNavigate } = useAppNavigation()
 
   return (
@@ -26,8 +26,8 @@ export const AddTelegramChatPage = () => {
       <TelegramMainButton
         text="Add Gateway Bot"
         onClick={() => {
-          webApp.openLink(
-            `tg://resolve?domain=addlist&admin=@${config.botName}`
+          webApp.openTelegramLink(
+            `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
           )
         }}
       />
