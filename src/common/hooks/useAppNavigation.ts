@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 interface AppNavigateParams {
   chatSlug?: string
-  conditionId?: string
+  conditionId?: number
 }
 
 interface AppNavigation {
@@ -23,7 +23,7 @@ export const useAppNavigation = () => {
       }
 
       if (params?.conditionId) {
-        url = url.replace(':conditionId', params.conditionId)
+        url = url.replace(':conditionId', params.conditionId.toString())
       }
 
       navigate(url, { replace: true })

@@ -96,9 +96,11 @@ export const ApiService = {
   }): Promise<ApiServiceResponse<T>> => {
     try {
       const { retry, cache, signal, ...searchParams } = options
+      const searchParamsValue =
+        Object.keys(options).length > 0 ? searchParams : undefined
       const response = await api
         .get(`${host ?? apiHost}${endpoint}`, {
-          searchParams: searchParams as QueryParams,
+          searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
             limit: 3,
             methods: ['get'],
@@ -131,10 +133,12 @@ export const ApiService = {
   }): Promise<ApiServiceResponse<T>> => {
     try {
       const { retry, cache, signal, ...searchParams } = options
+      const searchParamsValue =
+        Object.keys(options).length > 0 ? searchParams : undefined
       const response = await api
         .post(`${host ?? apiHost}${endpoint}`, {
           json: data,
-          searchParams: searchParams as QueryParams,
+          searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
             limit: 3,
             methods: ['post'],
@@ -167,10 +171,12 @@ export const ApiService = {
   }): Promise<ApiServiceResponse<T>> => {
     try {
       const { retry, cache, signal, ...searchParams } = options
+      const searchParamsValue =
+        Object.keys(options).length > 0 ? searchParams : undefined
       const response = await api
         .put(`${host ?? apiHost}${endpoint}`, {
           json: data,
-          searchParams: searchParams as QueryParams,
+          searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
             limit: 3,
             methods: ['put'],
@@ -201,9 +207,11 @@ export const ApiService = {
   }): Promise<ApiServiceResponse<T>> => {
     try {
       const { retry, cache, signal, ...searchParams } = options
+      const searchParamsValue =
+        Object.keys(options).length > 0 ? searchParams : undefined
       const response = await api
         .delete(`${host ?? apiHost}${endpoint}`, {
-          searchParams: searchParams as QueryParams,
+          searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
             limit: 3,
             methods: ['delete'],

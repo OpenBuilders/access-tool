@@ -12,7 +12,7 @@ import { Route, Routes } from 'react-router-dom'
 export const ROUTES_NAME = {
   MAIN: '/',
   ADD_TELEGRAM_CHAT: '/admin/add-telegram-chat',
-  CHAT: '/admin/chat/:channelSlug',
+  CHAT: '/admin/chat/:chatSlug',
   CHAT_CONDITION: '/admin/chat/:chatSlug/condition/:conditionId',
   GRANT_PERMISSIONS: '/admin/grant-permissions/:chatSlug',
   CHECKING_BOT_ADDED: '/admin/checking-bot-added/:chatSlug',

@@ -1,48 +1,41 @@
-import commonStyles from '@common/styles/commonStyles.module.scss'
-import {
-  Container,
-  PageLayout,
-  TelegramBackButton,
-  TelegramMainButton,
-} from '@components'
-import { useAppNavigation } from '@hooks'
+import { PageLayout, TelegramBackButton, TelegramMainButton } from '@components'
+import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import commonStyles from '@styles/commonStyles.module.scss'
+import { Skeleton } from '@telegram-apps/telegram-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useChatActions } from '@store'
+import { useChat, useChatActions } from '@store'
 
-import { ChannelActions, ChannelConditions, ChannelHeader } from './components'
+import { ChatConditions, ChatHeader } from './components'
 
 export const ChatPage = () => {
-  const { channelSlug } = useParams<{ channelSlug: string }>()
+  const { chatSlug } = useParams<{ chatSlug: string }>()
   const { appNavigate } = useAppNavigation()
-  const [isRedirect, setIsRedirect] = useState(false)
+
   const [isLoading, setIsLoading] = useState(false)
+  const { pageNotFound } = useError()
 
   const { fetchChatAction } = useChatActions()
 
   const fetchChat = async () => {
-    if (!channelSlug) return
+    if (!chatSlug) return
     try {
-      await fetchChatAction(channelSlug)
+      await fetchChatAction(chatSlug)
     } catch (error) {
       console.error(error)
-      setIsRedirect(true)
+      pageNotFound('Chat not found')
     }
   }
 
   useEffect(() => {
     setIsLoading(true)
     fetchChat()
-    setIsLoading(false)
-  }, [channelSlug])
-
-  useEffect(() => {
-    if (isRedirect) {
-      appNavigate({ path: ROUTES_NAME.MAIN })
-    }
-  }, [isRedirect])
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+  }, [chatSlug])
 
   if (isLoading) return null
 
@@ -51,16 +44,9 @@ export const ChatPage = () => {
       <TelegramBackButton
         onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
       />
-      <TelegramMainButton
-        onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
-      />
-      <ChannelHeader />
-      <Container className={commonStyles.mt8}>
-        <ChannelConditions />
-      </Container>
-      <Container className={commonStyles.mt24}>
-        <ChannelActions />
-      </Container>
+      <TelegramMainButton hidden />
+      <ChatHeader />
+      <ChatConditions />
     </PageLayout>
   )
 }

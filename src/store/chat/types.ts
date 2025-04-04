@@ -4,14 +4,14 @@ export type Chat = {
 }
 
 export type ChatInstance = {
-  description: string
+  description: string | null
   id: number
   insufficientPrivileges: boolean
   isEligible: boolean
   isForum: boolean
   isMember: boolean
   joinUrl: string
-  logoPath: string
+  logoPath: string | null
   slug: string
   title: string
   username: string | null

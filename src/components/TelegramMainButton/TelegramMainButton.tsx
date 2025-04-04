@@ -15,7 +15,10 @@ export const TelegramMainButton = ({
   hidden,
 }: MainButtonProps) => {
   useEffect(() => {
-    if (!webApp || !mainButton) return
+    if (!webApp || !mainButton) {
+      mainButton?.hide()
+      return
+    }
 
     if (!onClick || !text || hidden) {
       mainButton.hide()
