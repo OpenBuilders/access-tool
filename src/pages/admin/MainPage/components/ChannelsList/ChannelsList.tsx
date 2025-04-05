@@ -9,6 +9,7 @@ import {
   Section,
   Text,
 } from '@telegram-apps/telegram-ui'
+import cn from 'classnames'
 
 import config from '@config'
 import { UserChat } from '@store'
@@ -20,7 +21,7 @@ interface ChannelsListProps {
 export const ChannelsList = ({ channels }: ChannelsListProps) => {
   const { appNavigate } = useAppNavigation()
   return (
-    <Container className={commonStyles.mt24}>
+    <Container className={cn(commonStyles.mt24, commonStyles.mb24)}>
       <Section header="Groups & Channels">
         {channels.map((channel) => (
           <Navigation key={channel.id} className={commonStyles.pr12}>

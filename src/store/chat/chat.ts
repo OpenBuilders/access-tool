@@ -2,10 +2,11 @@ import { create } from 'zustand'
 
 import { createSelectors } from '../types'
 import { fetchChatAPI, updateChatAPI } from './api'
-import { Chat, ChatInstance } from './types'
+import { Chat, ChatInstance, ChatRule } from './types'
 
 interface ChatStore {
-  chat: Chat | null
+  chat: ChatInstance | null
+  rules: ChatRule[] | null
 }
 
 interface ChatActions {
@@ -15,8 +16,9 @@ interface ChatActions {
   }
 }
 
-export const useChatStore = create<ChatStore & ChatActions>((set) => ({
+const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
   chat: null,
+  rules: null,
   actions: {
     fetchChatAction: async (slug) => {
       const { data, ok, error } = await fetchChatAPI(slug)
@@ -25,7 +27,7 @@ export const useChatStore = create<ChatStore & ChatActions>((set) => ({
         throw new Error(error)
       }
 
-      set({ chat: data })
+      set({ chat: data?.chat, rules: data?.rules })
     },
     updateChatAction: async (slug, values) => {
       const { data, ok, error } = await updateChatAPI(slug, values)
@@ -34,7 +36,13 @@ export const useChatStore = create<ChatStore & ChatActions>((set) => ({
         throw new Error(error)
       }
 
-      set({ chat: data })
+      if (!data) {
+        throw new Error('Chat data not found')
+      }
+
+      set({
+        chat: data,
+      })
     },
   },
 }))

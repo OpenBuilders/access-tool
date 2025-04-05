@@ -11,48 +11,42 @@ import { SegmentedControlItem } from '@telegram-apps/telegram-ui/dist/components
 import { useState } from 'react'
 
 import styles from './NewConditionPage.module.scss'
-import {
-  APICondition,
-  IDCondition,
-  NFTCondition,
-  TokenCondition,
-} from './components'
 
-const CONDITIONS = [
-  {
-    value: 'token',
-    name: 'Token',
-  },
-  {
-    value: 'nft',
-    name: 'NFT',
-  },
-  {
-    value: 'id',
-    name: 'ID',
-  },
-  {
-    value: 'api',
-    name: 'API',
-  },
-]
+// const CONDITIONS = [
+//   {
+//     value: 'token',
+//     name: 'Token',
+//   },
+//   {
+//     value: 'nft',
+//     name: 'NFT',
+//   },
+//   {
+//     value: 'id',
+//     name: 'ID',
+//   },
+//   {
+//     value: 'api',
+//     name: 'API',
+//   },
+// ]
 
-const COMPONENTS = {
-  token: TokenCondition,
-  nft: NFTCondition,
-  id: IDCondition,
-  api: APICondition,
-}
+// const COMPONENTS = {
+//   token: TokenCondition,
+//   nft: NFTCondition,
+//   id: IDCondition,
+//   api: APICondition,
+// }
 
-export const NewConditionPage = () => {
+export const ConditionPage = () => {
   const { appNavigate } = useAppNavigation()
   const [condition, setCondition] = useState('token')
 
-  let ConditionComponent = null
+  // let ConditionComponent = null
 
-  if (condition) {
-    ConditionComponent = COMPONENTS[condition as keyof typeof COMPONENTS]
-  }
+  // if (condition) {
+  //   ConditionComponent = COMPONENTS[condition as keyof typeof COMPONENTS]
+  // }
 
   return (
     <PageLayout>
@@ -63,8 +57,8 @@ export const NewConditionPage = () => {
       <Title level="1" weight="1" plain className={styles.title}>
         Add condition
       </Title>
-      <SegmentedControl className={styles.controls}>
-        {CONDITIONS.map((c) => (
+      {/* <SegmentedControl className={styles.controls}> */}
+      {/* {CONDITIONS.map((c) => (
           <SegmentedControlItem
             key={c.name}
             onClick={() => setCondition(c.value)}
@@ -72,8 +66,8 @@ export const NewConditionPage = () => {
           >
             {c.name}
           </SegmentedControlItem>
-        ))}
-      </SegmentedControl>
+        ))} */}
+      {/* </SegmentedControl> */}
       {/* {ConditionComponent && (
         <Container margin="24-0-0">
           <ConditionComponent />

@@ -21,7 +21,7 @@ interface UserActions {
   }
 }
 
-export const useUserStore = create<UserStore & UserActions>((set) => ({
+const useUserStore = create<UserStore & UserActions>((set) => ({
   isAuthenticated: false,
   user: null,
   userChats: null,

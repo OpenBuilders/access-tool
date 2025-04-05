@@ -19,27 +19,27 @@ import styles from './ChatHeader.module.scss'
 export const ChatHeader = () => {
   const { chat } = useChat()
   const { updateChatAction } = useChatActions()
-  const [description, setDescription] = useState(chat?.chat?.description ?? '')
+  const [description, setDescription] = useState(chat?.description ?? '')
 
   const handleChangeDescription = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value)
   }
 
   const handleUpdateChat = () => {
-    if (!chat?.chat?.slug) return
-    updateChatAction(chat?.chat?.slug, { description })
+    if (!chat?.slug) return
+    updateChatAction(chat?.slug, { description })
   }
 
   return (
     <>
       <Image
-        src={`${config.CDN}/${chat?.chat?.logoPath}`}
+        src={`${config.CDN}/${chat?.logoPath}`}
         fallbackIcon={<p>😔</p>}
         size={96}
         className={commonStyles.rounded}
       />
       <Title level="1" weight="1" plain className={commonStyles.mt12}>
-        {chat?.chat?.title}
+        {chat?.title}
       </Title>
       <div className={cn(styles.members, commonStyles.mt12)}>
         <AvatarStack>

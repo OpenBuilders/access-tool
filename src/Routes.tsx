@@ -3,7 +3,7 @@ import {
   ChatPage,
   CheckingBotAddedPage,
   MainPage,
-  NewConditionPage,
+  ConditionPage,
   GrantPermissionsPage,
   BotAddedSuccessPage,
 } from '@pages'
@@ -14,6 +14,7 @@ export const ROUTES_NAME = {
   ADD_TELEGRAM_CHAT: '/admin/add-telegram-chat',
   CHAT: '/admin/chat/:chatSlug',
   CHAT_CONDITION: '/admin/chat/:chatSlug/condition/:conditionId',
+  CHAT_NEW_CONDITION: '/admin/chat/:chatSlug/new-condition',
   GRANT_PERMISSIONS: '/admin/grant-permissions/:chatSlug',
   CHECKING_BOT_ADDED: '/admin/checking-bot-added/:chatSlug',
   BOT_ADDED_SUCCESS: '/admin/bot-added-success/:chatSlug',
@@ -27,7 +28,8 @@ export default (
       element={<AddBotToChatPage />}
     />
     <Route path={ROUTES_NAME.CHAT} element={<ChatPage />} />
-    <Route path={ROUTES_NAME.CHAT_CONDITION} element={<NewConditionPage />} />
+    <Route path={ROUTES_NAME.CHAT_CONDITION} element={<ConditionPage />} />
+    <Route path={ROUTES_NAME.CHAT_NEW_CONDITION} element={<ConditionPage />} />
     <Route
       path={ROUTES_NAME.GRANT_PERMISSIONS}
       element={<GrantPermissionsPage />}

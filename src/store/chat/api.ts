@@ -15,8 +15,8 @@ export const fetchChatAPI = async (
 export const updateChatAPI = async (
   slug: string,
   data: Partial<ChatInstance>
-): Promise<ApiServiceResponse<Chat>> => {
-  const response = await ApiService.put<Chat>({
+): Promise<ApiServiceResponse<ChatInstance>> => {
+  const response = await ApiService.put<ChatInstance>({
     endpoint: `/admin/chats/${slug}`,
     data,
   })
