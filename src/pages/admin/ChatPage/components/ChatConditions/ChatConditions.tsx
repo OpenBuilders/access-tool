@@ -22,7 +22,6 @@ export const ChatConditions = () => {
       appNavigate({
         path: ROUTES_NAME.CHAT_NEW_CONDITION,
         params: {
-          conditionId: condition?.id,
           chatSlug: chat?.slug,
         },
       })

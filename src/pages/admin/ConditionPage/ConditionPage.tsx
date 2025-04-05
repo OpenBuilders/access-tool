@@ -7,6 +7,7 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import commonStyles from '@styles/common.module.scss'
 import {
   Cell,
   Section,
@@ -14,11 +15,11 @@ import {
   Select,
   Title,
 } from '@telegram-apps/telegram-ui'
-import { SegmentedControlItem } from '@telegram-apps/telegram-ui/dist/components/Navigation/SegmentedControl/components/SegmentedControlItem/SegmentedControlItem'
 import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import styles from './ConditionPage.module.scss'
+import { Jettons } from './components'
 
 // const CONDITIONS = [
 //   {
@@ -47,11 +48,10 @@ import styles from './ConditionPage.module.scss'
 // }
 
 export const ConditionPage = () => {
-  const { pathname } = useLocation()
   const { appNavigate } = useAppNavigation()
-  const [condition, setCondition] = useState('token')
+  const { conditionId } = useParams<{ conditionId: string }>()
 
-  const isNewCondition = pathname.includes('new-condition')
+  const isNewCondition = !conditionId
 
   // let ConditionComponent = null
 
@@ -69,20 +69,7 @@ export const ConditionPage = () => {
         Add condition
       </Title>
       <Container>
-        <Section>
-          <Cell
-            after={
-              <AppSelect
-                options={[
-                  { value: 'token', label: 'Token' },
-                  { value: 'nft', label: 'NFT' },
-                ]}
-              />
-            }
-          >
-            Choose type
-          </Cell>
-        </Section>
+        <Jettons />
       </Container>
       {/* {ConditionComponent && (
         <Container margin="24-0-0">

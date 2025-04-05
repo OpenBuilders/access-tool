@@ -10,7 +10,7 @@ interface ConditionStore {
 
 interface ConditionActions {
   actions: {
-    createConditionJettonAction: (chatSlug: string) => Promise<ConditionJetton>
+    createConditionJettonAction: (chatSlug: string) => void
   }
 }
 
@@ -27,10 +27,6 @@ const useConditionStore = create<ConditionStore & ConditionActions>((set) => ({
       if (!data) {
         throw new Error('Condition data not found')
       }
-
-      set({ condition: data })
-
-      return data
     },
   },
 }))

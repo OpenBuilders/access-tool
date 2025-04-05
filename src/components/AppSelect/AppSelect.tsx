@@ -4,7 +4,7 @@ import styles from './AppSelect.module.scss'
 interface AppSelectProps {
   options: Array<{
     value: string
-    label: string
+    name: string
   }>
   onChange?: (value: string) => void
   value?: string
@@ -31,7 +31,7 @@ export const AppSelect = ({
         )}
         {options.map((option) => (
           <option key={option.value} value={option.value}>
-            {option.label}
+            {option.name}
           </option>
         ))}
       </select>

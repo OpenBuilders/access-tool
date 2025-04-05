@@ -30,6 +30,10 @@
   text-align: center;
 }
 
+.textRight {
+  text-align: right;
+}
+
 .pr12 {
   padding-right: 12px;
 }
@@ -61,7 +65,15 @@
   right: 16px;
 }
 
-.skeleton {
-  width: 100%;
-  border-radius: 12px;
+.input {
+  padding: 0;
+}
+
+.afterInput {
+  padding: 0;
+  gap: 4px;
+  input {
+    text-align: right;
+    color: var(--tgui--hint_color);
+  }
 }
