@@ -1,4 +1,5 @@
 import {
+  AppSelect,
   Container,
   PageLayout,
   TelegramBackButton,
@@ -6,11 +7,18 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { SegmentedControl, Title } from '@telegram-apps/telegram-ui'
+import {
+  Cell,
+  Section,
+  SegmentedControl,
+  Select,
+  Title,
+} from '@telegram-apps/telegram-ui'
 import { SegmentedControlItem } from '@telegram-apps/telegram-ui/dist/components/Navigation/SegmentedControl/components/SegmentedControlItem/SegmentedControlItem'
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
-import styles from './NewConditionPage.module.scss'
+import styles from './ConditionPage.module.scss'
 
 // const CONDITIONS = [
 //   {
@@ -39,8 +47,11 @@ import styles from './NewConditionPage.module.scss'
 // }
 
 export const ConditionPage = () => {
+  const { pathname } = useLocation()
   const { appNavigate } = useAppNavigation()
   const [condition, setCondition] = useState('token')
+
+  const isNewCondition = pathname.includes('new-condition')
 
   // let ConditionComponent = null
 
@@ -57,17 +68,22 @@ export const ConditionPage = () => {
       <Title level="1" weight="1" plain className={styles.title}>
         Add condition
       </Title>
-      {/* <SegmentedControl className={styles.controls}> */}
-      {/* {CONDITIONS.map((c) => (
-          <SegmentedControlItem
-            key={c.name}
-            onClick={() => setCondition(c.value)}
-            selected={c.value === condition}
+      <Container>
+        <Section>
+          <Cell
+            after={
+              <AppSelect
+                options={[
+                  { value: 'token', label: 'Token' },
+                  { value: 'nft', label: 'NFT' },
+                ]}
+              />
+            }
           >
-            {c.name}
-          </SegmentedControlItem>
-        ))} */}
-      {/* </SegmentedControl> */}
+            Choose type
+          </Cell>
+        </Section>
+      </Container>
       {/* {ConditionComponent && (
         <Container margin="24-0-0">
           <ConditionComponent />

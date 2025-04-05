@@ -7,6 +7,7 @@ import {
   notcoinBadge,
   toncoinBadge,
   gatewayBot,
+  doubleChevron,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -28,5 +29,7 @@ export const getIcon = (name: IconTypeName) => {
       return toncoinBadge
     case 'gatewayBot':
       return gatewayBot
+    case 'doubleChevron':
+      return doubleChevron
   }
 }

@@ -8,5 +8,5 @@ export type IconTypeName =
   | 'toncoin'
   | 'forwardArrow'
   | 'gatewayBot'
-
-export type IconSize = 112 | 100 | 28 | 24 | 7
+  | 'doubleChevron'
+export type IconSize = 112 | 100 | 28 | 24 | 12 | 7

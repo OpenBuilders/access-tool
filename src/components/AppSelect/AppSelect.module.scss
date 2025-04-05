@@ -1,0 +1,30 @@
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appSelect {
+  appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--tgui--link_color);
+  font-size: 17px;
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  option {
+    color: var(--tgui--link_color);
+    background: transparent;
+  }
+}
+
+.icon {
+  color: var(--tgui--link_color);
+}
