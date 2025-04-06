@@ -1,8 +1,8 @@
 .container {
   width: 100%;
-  padding: 0;
+  padding: 0 !important;
 
   > div {
-    padding: 0;
+    padding: 0 !important;
   }
 }

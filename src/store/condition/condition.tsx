@@ -4,6 +4,7 @@ import { createSelectors } from '../types'
 import {
   createConditionJettonApi,
   createConditionNFTCollectionApi,
+  fetchConditionJettonApi,
   prefetchJettonsApi,
   prefetchNFTCollectionsApi,
 } from './api'
@@ -36,6 +37,7 @@ interface ConditionActions {
     prefetchJettonAction: (
       address: string
     ) => Promise<PrefetchJetton | undefined>
+    fetchConditionJettonAction: (chatSlug: string, conditionId: string) => void
   }
 }
 
@@ -46,6 +48,22 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
     actions: {
       setInitialConditionAction: (condition: Condition) => {
         set({ condition })
+      },
+
+      fetchConditionJettonAction: async (
+        chatSlug: string,
+        conditionId: string
+      ) => {
+        const { data, ok, error } = await fetchConditionJettonApi(
+          chatSlug,
+          conditionId
+        )
+
+        if (!ok) {
+          throw new Error(error)
+        }
+
+        set({ condition: data as ConditionJetton })
       },
 
       createConditionJettonAction: async (chatSlug: string) => {

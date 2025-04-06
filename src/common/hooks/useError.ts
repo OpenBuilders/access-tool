@@ -1,9 +1,8 @@
+import { useToast } from '@components'
 import { ROUTES_NAME } from '@routes'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { useAppNavigation } from './useAppNavigation'
-import { useToast } from './useToast'
 
 export const useError = () => {
   const { appNavigate } = useAppNavigation()
@@ -19,8 +18,8 @@ export const useError = () => {
   return {
     pageNotFound: (error: string) => {
       showToast({
-        description: error,
-        icon: 'error',
+        message: error,
+        type: 'error',
       })
       setIsRedirect(true)
     },

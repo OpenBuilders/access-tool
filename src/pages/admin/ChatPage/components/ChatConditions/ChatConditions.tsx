@@ -27,7 +27,11 @@ export const ChatConditions = () => {
   const navigateToConditionPage = (rule: ChatRule) => {
     appNavigate({
       path: ROUTES_NAME.CHAT_CONDITION,
-      params: { conditionId: rule.id, chatSlug: chat?.slug },
+      params: {
+        conditionId: rule.id,
+        chatSlug: chat?.slug,
+        conditionType: rule.category,
+      },
     })
   }
 
@@ -35,13 +39,14 @@ export const ChatConditions = () => {
     <Container className={cn(commonStyles.mt8, commonStyles.mb24)}>
       <Section header="Who can Join">
         {rules?.map((rule) => (
-          <Cell
-            Component={Navigation}
+          <Navigation
             key={`${rule.id}_${rule.title}`}
-            onClick={() => navigateToConditionPage(rule)}
+            className={commonStyles.pr16}
           >
-            {rule.title}
-          </Cell>
+            <Cell onClick={() => navigateToConditionPage(rule)}>
+              {rule.title}
+            </Cell>
+          </Navigation>
         ))}
         <Cell
           Component={Link}

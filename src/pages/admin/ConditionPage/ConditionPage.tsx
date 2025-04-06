@@ -16,7 +16,7 @@ import {
   Title,
 } from '@telegram-apps/telegram-ui'
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import {
   INITIAL_CONDITION_JETTON,
@@ -27,121 +27,121 @@ import {
 import styles from './ConditionPage.module.scss'
 import { Jettons, NFT } from './components'
 import { CONDITION_TYPES } from './constants'
-
-// const CONDITIONS = [
-//   {
-//     value: 'token',
-//     name: 'Token',
-//   },
-//   {
-//     value: 'nft',
-//     name: 'NFT',
-//   },
-//   {
-//     value: 'id',
-//     name: 'ID',
-//   },
-//   {
-//     value: 'api',
-//     name: 'API',
-//   },
-// ]
-
-// const COMPONENTS = {
-//   token: TokenCondition,
-//   nft: NFTCondition,
-//   id: IDCondition,
-//   api: APICondition,
-// }
+import { ConditionModule, NewConditionModule } from './modules'
 
 export const ConditionPage = () => {
-  const { appNavigate } = useAppNavigation()
-  const { conditionId, chatSlug } = useParams<{
-    conditionId: string
-    chatSlug: string
-  }>()
+  const { pathname } = useLocation()
 
-  const {
-    createConditionJettonAction,
-    setInitialConditionAction,
-    createConditionNFTCollectionAction,
-  } = useConditionActions()
+  const isNewCondition = pathname.includes('new-condition')
 
-  const conditionType = new URLSearchParams(window.location.search).get(
-    'conditionType'
-  )
+  if (isNewCondition) return <NewConditionModule />
 
-  const isNewCondition = !conditionId
+  return <ConditionModule />
+  // const { appNavigate } = useAppNavigation()
+  // const params = useParams<{
+  //   conditionId: string
+  //   chatSlug: string
+  //   conditionType: string
+  // }>()
 
-  const CONDITIONS = {
-    jettons: {
-      Component: Jettons,
-      onCreate: () => createConditionJettonAction,
-      initialState: INITIAL_CONDITION_JETTON,
-    },
-    'nft-collections': {
-      Component: NFT,
-      onCreate: () => createConditionNFTCollectionAction,
-      initialState: INITIAL_CONDITION_NFT_COLLECTION,
-    },
-  }
+  // const conditonTypeParam = params.conditionType
+  // const chatSlugParam = params.chatSlug
+  // const conditionIdParam = params.conditionId
 
-  useEffect(() => {
-    if (isNewCondition && conditionType) {
-      const { initialState } =
-        CONDITIONS[conditionType as keyof typeof CONDITIONS]
-      setInitialConditionAction(initialState)
-      appNavigate({
-        path: ROUTES_NAME.CHAT_NEW_CONDITION,
-        params: { chatSlug },
-        queryParams: { conditionType },
-      })
-    }
-  }, [conditionType])
+  // const {
+  //   createConditionJettonAction,
+  //   setInitialConditionAction,
+  //   createConditionNFTCollectionAction,
+  //   fetchConditionJettonAction,
+  // } = useConditionActions()
 
-  if (!conditionType) return null
+  // const currentConditionType = new URLSearchParams(window.location.search).get(
+  //   'conditionType'
+  // )
 
-  const ConditionComponent =
-    CONDITIONS[conditionType as keyof typeof CONDITIONS]?.Component || null
+  // const isNewCondition = !conditionIdParam
 
-  const ConditionAction =
-    CONDITIONS[conditionType as keyof typeof CONDITIONS]?.onCreate || (() => {})
+  // const CONDITIONS = {
+  //   jettons: {
+  //     Component: Jettons,
+  //     onCreate: () => createConditionJettonAction,
+  //     initialState: INITIAL_CONDITION_JETTON,
+  //   },
+  //   'nft-collections': {
+  //     Component: NFT,
+  //     onCreate: () => createConditionNFTCollectionAction,
+  //     initialState: INITIAL_CONDITION_NFT_COLLECTION,
+  //   },
+  // }
 
-  return (
-    <PageLayout>
-      <TelegramBackButton
-        onClick={() => appNavigate({ path: ROUTES_NAME.CHAT })}
-      />
-      <TelegramMainButton onClick={ConditionAction} />
-      <Title level="1" weight="1" plain className={styles.title}>
-        Add condition
-      </Title>
-      <Container>
-        <Section>
-          <Cell
-            after={
-              <AppSelect
-                onChange={(value) =>
-                  appNavigate({
-                    path: ROUTES_NAME.CHAT_NEW_CONDITION,
-                    queryParams: { conditionType: value },
-                  })
-                }
-                options={CONDITION_TYPES}
-                value={conditionType}
-              />
-            }
-          >
-            Choose type
-          </Cell>
-        </Section>
-        {ConditionComponent && <ConditionComponent />}
-      </Container>
-      {/* {ConditionComponent && (
-        <Container margin="24-0-0">
-          <ConditionComponent />
-        </Container>
-      )} */}
-    </PageLayout>
-  )
+  // const fetchConditionJetton = async () => {
+  //   if (!chatSlugParam || !conditionIdParam) return
+  //   try {
+  //     await fetchConditionJettonAction(chatSlugParam, conditionIdParam)
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   if (isNewCondition && currentConditionType) {
+  //     const { initialState } =
+  //       CONDITIONS[currentConditionType as keyof typeof CONDITIONS]
+  //     setInitialConditionAction(initialState)
+  //     appNavigate({
+  //       path: ROUTES_NAME.CHAT_NEW_CONDITION,
+  //       params: { chatSlug: chatSlugParam },
+  //       queryParams: { currentConditionType },
+  //     })
+  //   }
+  // }, [currentConditionType])
+
+  // useEffect(() => {
+  //   if (!conditonTypeParam) return
+  //   fetchConditionJetton()
+  // }, [conditonTypeParam])
+
+  // if (!currentConditionType) return null
+
+  // const ConditionComponent =
+  //   CONDITIONS[currentConditionType as keyof typeof CONDITIONS]?.Component ||
+  //   null
+
+  // const ConditionAction =
+  //   CONDITIONS[currentConditionType as keyof typeof CONDITIONS]?.onCreate ||
+  //   (() => {})
+
+  // return (
+  //   <PageLayout>
+  //     <TelegramBackButton
+  //       onClick={() => appNavigate({ path: ROUTES_NAME.CHAT })}
+  //     />
+  //     <TelegramMainButton hidden={!isNewCondition} onClick={ConditionAction} />
+  //     <Title level="1" weight="1" plain className={styles.title}>
+  //       {isNewCondition ? 'Add condition' : 'Edit condition'}
+  //     </Title>
+  //     <Container>
+  //       <Section>
+  //         <Cell
+  //           after={
+  //             <AppSelect
+  //               onChange={(value) =>
+  //                 appNavigate({
+  //                   path: ROUTES_NAME.CHAT_NEW_CONDITION,
+  //                   queryParams: { currentConditionType: value },
+  //                 })
+  //               }
+  //               options={CONDITION_TYPES}
+  //               value={currentConditionType}
+  //               disabled={!isNewCondition}
+  //             />
+  //           }
+  //         >
+  //           Choose type
+  //         </Cell>
+  //       </Section>
+  //       {ConditionComponent && <ConditionComponent />}
+  //     </Container>
+  //   </PageLayout>
+  // )
 }

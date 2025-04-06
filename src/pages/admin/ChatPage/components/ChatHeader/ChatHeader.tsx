@@ -1,8 +1,10 @@
-import { Container } from '@components'
+import { Container, Icon } from '@components'
+import { useClipboard } from '@hooks'
 import commonStyles from '@styles/commonStyles.module.scss'
 import {
   Avatar,
   AvatarStack,
+  Button,
   Image,
   Input,
   Text,
@@ -16,19 +18,51 @@ import { useChat, useChatActions } from '@store'
 
 import styles from './ChatHeader.module.scss'
 
+const webApp = window.Telegram?.WebApp
+
 export const ChatHeader = () => {
-  const { chat } = useChat()
+  const { chat, rules } = useChat()
   const { updateChatAction } = useChatActions()
   const [description, setDescription] = useState(chat?.description ?? '')
+
+  const isMobile =
+    webApp.platform === 'ios' ||
+    webApp.platform === 'android' ||
+    webApp.platform === 'android_x'
 
   const handleChangeDescription = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value)
   }
 
+  const { copy } = useClipboard()
+
   const handleUpdateChat = () => {
     if (!chat?.slug) return
     updateChatAction(chat?.slug, { description })
   }
+
+  const handleShareLink = () => {
+    if (!chat?.slug) return
+    webApp.HapticFeedback.impactOccurred('soft')
+
+    const url = `${config.botLink}/${chat?.slug}`
+
+    if (isMobile) {
+      webApp.openTelegramLink(
+        `https://t.me/share/url?url=${encodeURI(url)}&text=${chat.title}`
+      )
+    } else {
+      copy(url, 'Link copied!')
+    }
+  }
+
+  const handleCopyLink = () => {
+    if (!chat?.slug) return
+    const url = `${config.botLink}/${chat?.slug}`
+    copy(url, 'Link copied!')
+  }
+
+  const showLinks = rules && rules?.length > 0
 
   return (
     <>
@@ -58,6 +92,23 @@ export const ChatHeader = () => {
         </AvatarStack>
         <Text className={commonStyles.colorHint}>24 members</Text>
       </div>
+      {showLinks && (
+        <div className={cn(commonStyles.mt24, styles.links)}>
+          <Button
+            before={<Icon name="share" size={24} />}
+            size="l"
+            mode="filled"
+            stretched
+            style={{ gap: '4px' }}
+            onClick={handleShareLink}
+          >
+            Share
+          </Button>
+          <Button size="l" mode="bezeled" stretched onClick={handleCopyLink}>
+            Copy Link
+          </Button>
+        </div>
+      )}
       <Container className={commonStyles.mt24}>
         <Input
           placeholder="Short Description"

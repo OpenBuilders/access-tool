@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 interface AppNavigateParams {
   chatSlug?: string
   conditionId?: number
+  conditionType?: string
 }
 
 interface AppNavigation {
@@ -25,6 +26,10 @@ export const useAppNavigation = () => {
 
       if (params?.conditionId) {
         url = url.replace(':conditionId', params.conditionId.toString())
+      }
+
+      if (params?.conditionType) {
+        url = url.replace(':conditionType', params.conditionType)
       }
 
       if (queryParams) {

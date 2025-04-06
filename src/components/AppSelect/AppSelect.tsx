@@ -9,6 +9,7 @@ interface AppSelectProps {
   onChange?: (value: string) => void
   value?: string
   placeholder?: string
+  disabled?: boolean
 }
 
 export const AppSelect = ({
@@ -16,6 +17,7 @@ export const AppSelect = ({
   onChange,
   value,
   placeholder,
+  disabled,
 }: AppSelectProps) => {
   return (
     <div className={styles.selectWrapper}>
@@ -23,6 +25,7 @@ export const AppSelect = ({
         className={styles.appSelect}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
+        disabled={disabled}
       >
         {placeholder && (
           <option value="" disabled>

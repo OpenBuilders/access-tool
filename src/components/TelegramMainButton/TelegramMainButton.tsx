@@ -4,6 +4,7 @@ interface MainButtonProps {
   text?: string
   onClick?: () => void
   hidden?: boolean
+  disabled?: boolean
 }
 
 const webApp = window.Telegram?.WebApp
@@ -13,6 +14,7 @@ export const TelegramMainButton = ({
   text,
   onClick,
   hidden,
+  disabled,
 }: MainButtonProps) => {
   useEffect(() => {
     if (!webApp || !mainButton) {
@@ -42,6 +44,16 @@ export const TelegramMainButton = ({
       mainButton.hide()
     }
   }, [text])
+
+  useEffect(() => {
+    if (!webApp || !mainButton) return
+
+    if (disabled) {
+      mainButton.disable()
+    } else {
+      mainButton.enable()
+    }
+  }, [disabled])
 
   useEffect(() => {
     if (!webApp || !mainButton) return

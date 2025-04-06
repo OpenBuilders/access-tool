@@ -9,4 +9,6 @@ export type IconTypeName =
   | 'forwardArrow'
   | 'gatewayBot'
   | 'doubleChevron'
+  | 'share'
+
 export type IconSize = 112 | 100 | 28 | 24 | 12 | 7

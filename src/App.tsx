@@ -1,3 +1,4 @@
+import { ToastProvider } from '@components'
 import { ThemeContext } from '@context'
 import '@styles/index.scss'
 import { AppRoot } from '@telegram-apps/telegram-ui'
@@ -70,7 +71,7 @@ function App() {
       appearance={HARDCODED_APPEARANCE}
       id="app-tg-root"
     >
-      {Routes}
+      <ToastProvider>{Routes}</ToastProvider>
     </AppRoot>
   )
 }
