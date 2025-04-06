@@ -1,37 +1,24 @@
 import { Container, Icon } from '@components'
-import { useAppNavigation, useToast } from '@hooks'
+import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import commonStyles from '@styles/commonStyles.module.scss'
 import { Cell, Link, Navigation, Section } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
 
-import { useChat, ChatRule, useConditionActions, useCondition } from '@store'
+import { useChat, ChatRule } from '@store'
 
 export const ChatConditions = () => {
   const { appNavigate } = useAppNavigation()
   const { chat, rules } = useChat()
 
-  const { createConditionJettonAction } = useConditionActions()
-  const { showToast } = useToast()
-
   const createCondition = async () => {
     if (!chat?.slug) return
-    try {
-      const condition = await createConditionJettonAction(chat?.slug)
-
-      appNavigate({
-        path: ROUTES_NAME.CHAT_NEW_CONDITION,
-        params: {
-          chatSlug: chat?.slug,
-        },
-      })
-    } catch (error) {
-      console.error(error)
-      showToast({
-        description: 'Failed to create condition',
-        icon: 'error',
-      })
-    }
+    appNavigate({
+      path: ROUTES_NAME.CHAT_NEW_CONDITION,
+      params: {
+        chatSlug: chat?.slug,
+      },
+    })
   }
 
   const navigateToConditionPage = (rule: ChatRule) => {

@@ -1,4 +1,4 @@
-export type Condition = ConditionJetton
+export type Condition = ConditionJetton | ConditionNFTCollection
 
 export type ConditionCategory = 'jetton' | 'nft_collection'
 
@@ -13,8 +13,10 @@ export type ConditionCore = {
   promoteUrl: string
 }
 
-export type ConditionJetton = ConditionCore & {
+export type ConditionJetton = Partial<ConditionCore> & {
   category: 'jetton'
+  address: string
+  amount: number
 }
 
 export type ConditionNFTCollectionAttribute = {
@@ -22,7 +24,17 @@ export type ConditionNFTCollectionAttribute = {
   value: string
 }
 
-export type ConditionNFTCollection = ConditionCore & {
+export type ConditionNFTCollection = Partial<ConditionCore> & {
   category: 'nft_collection'
   requiredAttributes: ConditionNFTCollectionAttribute[]
+}
+
+export type PrefetchJetton = {
+  address: string
+  name: string
+  description: string | null
+  symbol: string
+  logoPath: string
+  isEnabled: boolean
+  totalSupply: number
 }

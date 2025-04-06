@@ -1,6 +1,6 @@
 import { ApiService, ApiServiceResponse } from '@services'
 
-import { ConditionJetton } from './types'
+import { ConditionJetton, PrefetchJetton } from './types'
 
 // Jettons
 
@@ -197,9 +197,11 @@ export const deleteConditionWhitelistExternalApi = async (
 
 // Other
 
-export const fetchJettonsApi = async (): Promise<ApiServiceResponse<any>> => {
-  const response = await ApiService.get<any>({
-    endpoint: `/admin/resources/prefetch/jettons`,
+export const fetchJettonsListApi = async (
+  address: string
+): Promise<ApiServiceResponse<PrefetchJetton>> => {
+  const response = await ApiService.get<PrefetchJetton>({
+    endpoint: `/admin/resources/prefetch/jettons?address=${address}`,
   })
 
   return response

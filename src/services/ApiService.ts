@@ -102,7 +102,7 @@ export const ApiService = {
         .get(`${host ?? apiHost}${endpoint}`, {
           searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
-            limit: 3,
+            limit: 1,
             methods: ['get'],
             statusCodes: STATUS_CODES,
           },
@@ -140,7 +140,7 @@ export const ApiService = {
           json: data,
           searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
-            limit: 3,
+            limit: 1,
             methods: ['post'],
             statusCodes: STATUS_CODES,
           },
@@ -178,7 +178,7 @@ export const ApiService = {
           json: data,
           searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
-            limit: 3,
+            limit: 1,
             methods: ['put'],
             statusCodes: STATUS_CODES,
           },
@@ -213,7 +213,7 @@ export const ApiService = {
         .delete(`${host ?? apiHost}${endpoint}`, {
           searchParams: searchParamsValue as QueryParams,
           retry: retry ?? {
-            limit: 3,
+            limit: 1,
             methods: ['delete'],
             statusCodes: STATUS_CODES,
           },
