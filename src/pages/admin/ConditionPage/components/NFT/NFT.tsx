@@ -2,7 +2,7 @@ import { AppSelect } from '@components'
 import cs from '@styles/commonStyles.module.scss'
 import { Cell, Image, Input, Section, Text } from '@telegram-apps/telegram-ui'
 import debounce from 'debounce'
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 
 import config from '@config'
 import {
@@ -10,32 +10,33 @@ import {
   useCondition,
   useConditionActions,
   ConditionJetton,
+  ConditionNFTCollection,
 } from '@store'
 
-import { JETTONS_CATEGORIES } from './constants'
-import { validateJettonsCondition } from './helpers'
+import { NFT_COLLECTIONS } from './constants'
+import { validateNFTCollectionCondition } from './helpers'
 
-export const Jettons = () => {
+export const NFT = () => {
   const { condition, isValid } = useCondition()
   const {
     handleChangeConditionFieldAction,
-    prefetchJettonAction,
+    prefetchNFTCollectionAction,
     setIsValidAction,
   } = useConditionActions()
 
-  const [prefetchJetton, setPrefetchJetton] = useState<PrefetchJetton | null>(
-    null
-  )
+  const [prefetchNFTCollection, setPrefetchNFTCollection] = useState<
+    any | null
+  >(null)
 
-  const debouncedPrefetchJetton = useCallback(
+  const debouncedPrefetchNFTCollection = useCallback(
     debounce(async (address: string) => {
       try {
-        const jetton = await prefetchJettonAction(address)
-        if (!jetton) return
-        setPrefetchJetton(jetton)
+        const nftCollection = await prefetchNFTCollectionAction(address)
+        if (!nftCollection) return
+        setPrefetchNFTCollection(nftCollection)
       } catch (error) {
         console.error(error)
-        setPrefetchJetton(null)
+        setPrefetchNFTCollection(null)
       }
     }, 250),
     []
@@ -50,12 +51,12 @@ export const Jettons = () => {
     const updatedCondition = {
       ...condition,
       [field]: value,
-    } as ConditionJetton
+    } as ConditionNFTCollection
 
-    const validationResult = validateJettonsCondition(updatedCondition)
+    const validationResult = validateNFTCollectionCondition(updatedCondition)
 
     if (field === 'address') {
-      debouncedPrefetchJetton(value.toString())
+      debouncedPrefetchNFTCollection(value.toString())
     }
 
     setIsValidAction(validationResult)
@@ -71,7 +72,7 @@ export const Jettons = () => {
     </Section>
   )
 
-  if (prefetchJetton) {
+  if (prefetchNFTCollection) {
     AddressComponent = (
       <Section className={cs.mt24} footer="TON (The Open Network)">
         <Input
@@ -82,10 +83,12 @@ export const Jettons = () => {
           }
         />
         <Cell
-          before={<Image src={`${config.CDN}/${prefetchJetton.logoPath}`} />}
-          subtitle={prefetchJetton.symbol}
+          before={
+            <Image src={`${config.CDN}/${prefetchNFTCollection.logoPath}`} />
+          }
+          subtitle={prefetchNFTCollection.symbol}
         >
-          {prefetchJetton.name}
+          {prefetchNFTCollection.name}
         </Cell>
       </Section>
     )
@@ -94,7 +97,9 @@ export const Jettons = () => {
   return (
     <>
       <Section className={cs.mt24}>
-        <Cell after={<AppSelect options={JETTONS_CATEGORIES} />}>Category</Cell>
+        <Cell after={<AppSelect options={NFT_COLLECTIONS} />}>
+          NFT Collection
+        </Cell>
       </Section>
       {AddressComponent}
       <Section className={cs.mt24}>
@@ -111,7 +116,7 @@ export const Jettons = () => {
             />
           }
         >
-          Amount
+          # of NFTs
         </Cell>
         <Cell>{isValid ? 'Valid' : 'Invalid'}</Cell>
       </Section>

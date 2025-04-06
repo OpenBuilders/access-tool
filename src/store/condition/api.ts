@@ -1,19 +1,21 @@
 import { ApiService, ApiServiceResponse } from '@services'
 
-import { ConditionJetton, PrefetchJetton } from './types'
+import {
+  ConditionJetton,
+  ConditionNFTCollection,
+  PrefetchJetton,
+  PrefetchNFTCollection,
+} from './types'
 
 // Jettons
 
 export const createConditionJettonApi = async (
-  chatSlug: string
+  chatSlug: string,
+  data: ConditionJetton
 ): Promise<ApiServiceResponse<ConditionJetton>> => {
   const response = await ApiService.post<ConditionJetton>({
     endpoint: `/admin/chats/${chatSlug}/rules/jettons`,
-    data: {
-      expected: 88,
-      address:
-        '0:2f956143c461769579baef2e32cc2d7bc18283f40d20bb03e432cd603ac33ffc',
-    },
+    data,
   })
 
   return response
@@ -57,7 +59,8 @@ export const deleteConditionJettonApi = async (
 // NFT Collection
 
 export const createConditionNFTCollectionApi = async (
-  chatSlug: string
+  chatSlug: string,
+  data: ConditionNFTCollection
 ): Promise<ApiServiceResponse<any>> => {
   const response = await ApiService.post<any>({
     endpoint: `/admin/chats/${chatSlug}/rules/nft-collections`,
@@ -197,7 +200,7 @@ export const deleteConditionWhitelistExternalApi = async (
 
 // Other
 
-export const fetchJettonsListApi = async (
+export const prefetchJettonsApi = async (
   address: string
 ): Promise<ApiServiceResponse<PrefetchJetton>> => {
   const response = await ApiService.get<PrefetchJetton>({
@@ -207,11 +210,11 @@ export const fetchJettonsListApi = async (
   return response
 }
 
-export const fetchNDTCollectionsApi = async (): Promise<
-  ApiServiceResponse<any>
-> => {
-  const response = await ApiService.get<any>({
-    endpoint: `/admin/resources/prefetch/nft-collections`,
+export const prefetchNFTCollectionsApi = async (
+  address: string
+): Promise<ApiServiceResponse<PrefetchNFTCollection>> => {
+  const response = await ApiService.get<PrefetchNFTCollection>({
+    endpoint: `/admin/resources/prefetch/nft-collections?address=${address}`,
   })
 
   return response

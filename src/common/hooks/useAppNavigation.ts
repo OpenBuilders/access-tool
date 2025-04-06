@@ -8,6 +8,7 @@ interface AppNavigateParams {
 interface AppNavigation {
   path: string
   params?: AppNavigateParams
+  queryParams?: Record<string, string>
 }
 
 export const useAppNavigation = () => {
@@ -15,7 +16,7 @@ export const useAppNavigation = () => {
 
   return {
     appNavigate: (options: AppNavigation) => {
-      const { path, params } = options
+      const { path, params, queryParams } = options
       let url = path
 
       if (params?.chatSlug) {
@@ -24,6 +25,10 @@ export const useAppNavigation = () => {
 
       if (params?.conditionId) {
         url = url.replace(':conditionId', params.conditionId.toString())
+      }
+
+      if (queryParams) {
+        url = url + '?' + new URLSearchParams(queryParams).toString()
       }
 
       navigate(url, { replace: true })

@@ -18,6 +18,9 @@ export const ChatConditions = () => {
       params: {
         chatSlug: chat?.slug,
       },
+      queryParams: {
+        conditionType: 'jettons',
+      },
     })
   }
 

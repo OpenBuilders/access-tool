@@ -15,11 +15,18 @@ import {
   Select,
   Title,
 } from '@telegram-apps/telegram-ui'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import {
+  INITIAL_CONDITION_JETTON,
+  INITIAL_CONDITION_NFT_COLLECTION,
+  useConditionActions,
+} from '@store'
+
 import styles from './ConditionPage.module.scss'
-import { Jettons } from './components'
+import { Jettons, NFT } from './components'
+import { CONDITION_TYPES } from './constants'
 
 // const CONDITIONS = [
 //   {
@@ -49,27 +56,86 @@ import { Jettons } from './components'
 
 export const ConditionPage = () => {
   const { appNavigate } = useAppNavigation()
-  const { conditionId } = useParams<{ conditionId: string }>()
+  const { conditionId, chatSlug } = useParams<{
+    conditionId: string
+    chatSlug: string
+  }>()
+
+  const {
+    createConditionJettonAction,
+    setInitialConditionAction,
+    createConditionNFTCollectionAction,
+  } = useConditionActions()
+
+  const conditionType = new URLSearchParams(window.location.search).get(
+    'conditionType'
+  )
 
   const isNewCondition = !conditionId
 
-  // let ConditionComponent = null
+  const CONDITIONS = {
+    jettons: {
+      Component: Jettons,
+      onCreate: () => createConditionJettonAction,
+      initialState: INITIAL_CONDITION_JETTON,
+    },
+    'nft-collections': {
+      Component: NFT,
+      onCreate: () => createConditionNFTCollectionAction,
+      initialState: INITIAL_CONDITION_NFT_COLLECTION,
+    },
+  }
 
-  // if (condition) {
-  //   ConditionComponent = COMPONENTS[condition as keyof typeof COMPONENTS]
-  // }
+  useEffect(() => {
+    if (isNewCondition && conditionType) {
+      const { initialState } =
+        CONDITIONS[conditionType as keyof typeof CONDITIONS]
+      setInitialConditionAction(initialState)
+      appNavigate({
+        path: ROUTES_NAME.CHAT_NEW_CONDITION,
+        params: { chatSlug },
+        queryParams: { conditionType },
+      })
+    }
+  }, [conditionType])
+
+  if (!conditionType) return null
+
+  const ConditionComponent =
+    CONDITIONS[conditionType as keyof typeof CONDITIONS]?.Component || null
+
+  const ConditionAction =
+    CONDITIONS[conditionType as keyof typeof CONDITIONS]?.onCreate || (() => {})
 
   return (
     <PageLayout>
       <TelegramBackButton
         onClick={() => appNavigate({ path: ROUTES_NAME.CHAT })}
       />
-      <TelegramMainButton />
+      <TelegramMainButton onClick={ConditionAction} />
       <Title level="1" weight="1" plain className={styles.title}>
         Add condition
       </Title>
       <Container>
-        <Jettons />
+        <Section>
+          <Cell
+            after={
+              <AppSelect
+                onChange={(value) =>
+                  appNavigate({
+                    path: ROUTES_NAME.CHAT_NEW_CONDITION,
+                    queryParams: { conditionType: value },
+                  })
+                }
+                options={CONDITION_TYPES}
+                value={conditionType}
+              />
+            }
+          >
+            Choose type
+          </Cell>
+        </Section>
+        {ConditionComponent && <ConditionComponent />}
       </Container>
       {/* {ConditionComponent && (
         <Container margin="24-0-0">

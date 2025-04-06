@@ -26,10 +26,23 @@ export type ConditionNFTCollectionAttribute = {
 
 export type ConditionNFTCollection = Partial<ConditionCore> & {
   category: 'nft_collection'
+  address: string
+  amount: number
   requiredAttributes: ConditionNFTCollectionAttribute[]
 }
 
 export type PrefetchJetton = {
+  address: string
+  name: string
+  description: string | null
+  symbol: string
+  logoPath: string
+  isEnabled: boolean
+  totalSupply: number
+}
+
+// TODO: проверить тип
+export type PrefetchNFTCollection = {
   address: string
   name: string
   description: string | null
