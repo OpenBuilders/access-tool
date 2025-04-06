@@ -83,7 +83,14 @@ export const NewConditionModule = () => {
   return (
     <PageLayout>
       <TelegramBackButton
-        onClick={() => appNavigate({ path: ROUTES_NAME.CHAT })}
+        onClick={() =>
+          appNavigate({
+            path: ROUTES_NAME.CHAT,
+            params: {
+              chatSlug: chatSlugParam,
+            },
+          })
+        }
       />
       <TelegramMainButton disabled={!isValid} onClick={ConditionAction} />
       <Title level="1" weight="1" plain className={styles.title}>

@@ -12,10 +12,11 @@ import {
   ConditionJetton,
 } from '@store'
 
+import { ConditionComponentProps } from '../types'
 import { JETTONS_CATEGORIES } from './constants'
 import { validateJettonsCondition } from './helpers'
 
-export const Jettons = () => {
+export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
   const { condition, isValid } = useCondition()
   const {
     handleChangeConditionFieldAction,
@@ -41,6 +42,8 @@ export const Jettons = () => {
     []
   )
 
+  const addressField = isNewCondition ? 'address' : 'blockchainAddress'
+
   const handleChangeConditionField = (
     field: string,
     value: string | number
@@ -54,7 +57,7 @@ export const Jettons = () => {
 
     const validationResult = validateJettonsCondition(updatedCondition)
 
-    if (field === 'address') {
+    if (field === addressField) {
       debouncedPrefetchJetton(value.toString())
     }
 
@@ -65,8 +68,10 @@ export const Jettons = () => {
     <Section className={cs.mt24} footer="TON (The Open Network)">
       <Input
         placeholder="Jetton Address"
-        value={(condition as ConditionJetton)?.address || ''}
-        onChange={(e) => handleChangeConditionField('address', e.target.value)}
+        value={(condition as ConditionJetton)?.[addressField] || ''}
+        onChange={(e) =>
+          handleChangeConditionField(addressField, e.target.value)
+        }
       />
     </Section>
   )
@@ -76,9 +81,9 @@ export const Jettons = () => {
       <Section className={cs.mt24} footer="TON (The Open Network)">
         <Input
           placeholder="Jetton Address"
-          value={(condition as ConditionJetton)?.address || ''}
+          value={(condition as ConditionJetton)?.[addressField] || ''}
           onChange={(e) =>
-            handleChangeConditionField('address', e.target.value)
+            handleChangeConditionField(addressField, e.target.value)
           }
         />
         <Cell
@@ -104,9 +109,9 @@ export const Jettons = () => {
               type="number"
               className={cs.afterInput}
               after={<Text className={cs.colorHint}>TON</Text>}
-              value={(condition as ConditionJetton)?.amount || 0}
+              value={(condition as ConditionJetton)?.expected || 0}
               onChange={(e) =>
-                handleChangeConditionField('amount', e.target.value)
+                handleChangeConditionField('expected', e.target.value)
               }
             />
           }

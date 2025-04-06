@@ -16,7 +16,6 @@ export type ConditionCore = {
 export type ConditionJetton = Partial<ConditionCore> & {
   category: 'jetton'
   address: string
-  amount: number
 }
 
 export type ConditionNFTCollectionAttribute = {
@@ -27,7 +26,6 @@ export type ConditionNFTCollectionAttribute = {
 export type ConditionNFTCollection = Partial<ConditionCore> & {
   category: 'nft_collection'
   address: string
-  amount: number
   requiredAttributes: ConditionNFTCollectionAttribute[]
 }
 
