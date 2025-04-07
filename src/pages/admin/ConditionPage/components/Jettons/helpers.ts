@@ -8,7 +8,7 @@ export const validateJettonAddress = (address?: string): boolean => {
 
 export const validateAmount = (amount?: number): boolean => {
   if (!amount) return false
-  return !isNaN(amount) && amount > 0 && amount <= 1000000000
+  return !isNaN(amount) && amount > 0
 }
 
 export const validateJettonsCondition = (condition: ConditionJetton) => {

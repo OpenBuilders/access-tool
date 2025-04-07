@@ -6,10 +6,9 @@ export const validateNFTCollectionAddress = (address: string): boolean => {
   return addressRegex.test(address)
 }
 
-export const validateAmount = (amount: number): boolean => {
-  console.log(amount)
+export const validateAmount = (amount?: number): boolean => {
   if (!amount) return false
-  return !isNaN(amount) && amount > 0 && amount <= 1000000000
+  return !isNaN(amount) && amount > 0
 }
 
 export const validateNFTCollectionCondition = (
@@ -19,6 +18,6 @@ export const validateNFTCollectionCondition = (
 
   return (
     validateNFTCollectionAddress(condition.address) &&
-    validateAmount(condition.amount)
+    validateAmount(condition?.expected)
   )
 }
