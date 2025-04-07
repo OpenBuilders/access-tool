@@ -4,6 +4,7 @@ import { createSelectors } from '../types'
 import {
   createConditionJettonApi,
   createConditionNFTCollectionApi,
+  deleteConditionJettonApi,
   fetchConditionJettonApi,
   prefetchJettonsApi,
   prefetchNFTCollectionsApi,
@@ -24,8 +25,13 @@ interface ConditionStore {
 interface ConditionActions {
   actions: {
     setInitialConditionAction: (condition: Condition) => void
+    // Jetton Actions
+    fetchConditionJettonAction: (chatSlug: string, conditionId: string) => void
     createConditionJettonAction: (chatSlug: string) => void
+    deleteConditionJettonAction: (chatSlug: string, conditionId: string) => void
+    // NFT Collection Actions
     createConditionNFTCollectionAction: (chatSlug: string) => void
+    // Common Actions
     handleChangeConditionFieldAction: (
       field: string,
       value: string | number
@@ -37,7 +43,6 @@ interface ConditionActions {
     prefetchJettonAction: (
       address: string
     ) => Promise<PrefetchJetton | undefined>
-    fetchConditionJettonAction: (chatSlug: string, conditionId: string) => void
   }
 }
 
@@ -66,6 +71,21 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
         set({ condition: data as ConditionJetton })
       },
 
+      deleteConditionJettonAction: async (
+        chatSlug: string,
+        conditionId: string
+      ) => {
+        const { ok, error } = await deleteConditionJettonApi(
+          chatSlug,
+          conditionId
+        )
+
+        if (!ok) {
+          throw new Error(error)
+        }
+
+        set({ condition: null })
+      },
       createConditionJettonAction: async (chatSlug: string) => {
         const { ok, error } = await createConditionJettonApi(
           chatSlug,

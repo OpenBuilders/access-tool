@@ -4,11 +4,15 @@ import {
   TelegramMainButton,
   TelegramBackButton,
   PageLayout,
+  Icon,
+  DialogModal,
+  useToast,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import cs from '@styles/commonStyles.module.scss'
 import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useCondition, useConditionActions } from '@store'
@@ -29,30 +33,59 @@ export const ConditionModule = () => {
   const conditionTypeParam = params.conditionType
   const chatSlugParam = params.chatSlug
 
-  const { fetchConditionJettonAction } = useConditionActions()
+  const { showToast } = useToast()
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const { fetchConditionJettonAction, deleteConditionJettonAction } =
+    useConditionActions()
   const { condition } = useCondition()
 
   const CONDITIONS = {
     jetton: {
       Component: Jettons,
-      onDelete: () => () => {
-        console.log('deleted jetton')
-      },
-      fetchMethod: (chatSlug: string, conditionId: string) =>
-        fetchConditionJettonAction(chatSlug, conditionId),
+      onDelete: deleteConditionJettonAction,
+      fetchMethod: fetchConditionJettonAction,
     },
     'nft-collections': {
       Component: NFT,
-      onDelete: () => () => {
+      onDelete: () => {
         console.log('deleted nft')
       },
       fetchMethod: () => {},
     },
   }
 
+  const handleOpenDialog = () => setIsDialogOpen(true)
+
+  const deleteCondition = async () => {
+    if (!chatSlugParam || !conditionIdParam) return
+    try {
+      const { onDelete } =
+        CONDITIONS[conditionTypeParam as keyof typeof CONDITIONS]
+      await onDelete(chatSlugParam, conditionIdParam)
+      setIsDialogOpen(false)
+      appNavigate({
+        path: ROUTES_NAME.CHAT,
+        params: {
+          chatSlug: chatSlugParam,
+        },
+      })
+      showToast({
+        message: 'Condition removed',
+        type: 'success',
+      })
+    } catch (error) {
+      console.error(error)
+      showToast({
+        message: 'Failed to remove condition',
+        type: 'error',
+      })
+    }
+  }
+
   const fetchCondition = async () => {
     if (!chatSlugParam || !conditionIdParam) return
-    console.log(conditionTypeParam)
     try {
       const { fetchMethod } =
         CONDITIONS[conditionTypeParam as keyof typeof CONDITIONS]
@@ -72,10 +105,6 @@ export const ConditionModule = () => {
 
   const ConditionComponent =
     CONDITIONS[conditionTypeParam as keyof typeof CONDITIONS]?.Component || null
-
-  const ConditionAction =
-    CONDITIONS[conditionTypeParam as keyof typeof CONDITIONS]?.onDelete ||
-    (() => {})
 
   return (
     <PageLayout>
@@ -114,7 +143,25 @@ export const ConditionModule = () => {
           </Cell>
         </Section>
         {ConditionComponent && <ConditionComponent />}
+        <Section className={cs.mt24}>
+          <Cell
+            className={cs.colorDanger}
+            before={<Icon name="trash" size={24} />}
+            onClick={handleOpenDialog}
+          >
+            Remove Condition
+          </Cell>
+        </Section>
       </Container>
+      <DialogModal
+        active={isDialogOpen}
+        title="Remove Condition?"
+        description="Removing this condition will delete all created dependencies. Are you sure you want to remove?"
+        confirmText="Remove"
+        closeText="Cancel"
+        onClose={() => setIsDialogOpen(false)}
+        onDelete={deleteCondition}
+      />
     </PageLayout>
   )
 }

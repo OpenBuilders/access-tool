@@ -9,6 +9,7 @@ import {
   gatewayBot,
   doubleChevron,
   share,
+  trash,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -34,5 +35,7 @@ export const getIcon = (name: IconTypeName) => {
       return doubleChevron
     case 'share':
       return share
+    case 'trash':
+      return trash
   }
 }

@@ -10,5 +10,5 @@ export type IconTypeName =
   | 'gatewayBot'
   | 'doubleChevron'
   | 'share'
-
+  | 'trash'
 export type IconSize = 112 | 100 | 28 | 24 | 12 | 7

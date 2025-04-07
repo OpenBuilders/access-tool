@@ -1,3 +1,7 @@
+.mt2 {
+  margin-top: 2px;
+}
+
 .mt4 {
   margin-top: 4px;
 }
@@ -54,8 +58,21 @@
   color: var(--tgui--text_color);
 }
 
+.colorLink {
+  color: var(--tgui--link_color);
+}
+
 .colorHint {
   color: var(--tgui--hint_color);
+}
+
+.colorDanger {
+  color: var(--tgui--destructive_text_color);
+  svg {
+    path {
+      fill: var(--tgui--destructive_text_color);
+    }
+  }
 }
 
 .rounded {

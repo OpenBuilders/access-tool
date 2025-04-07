@@ -66,7 +66,9 @@ export const MainPage = () => {
           commonStyles.textCenter
         )}
       >
-        This is open source contributed by independent developers, as part of
+        This is open source contributed by independent
+        <br />
+        developers, as part of
         <Link href="https://t.me/telegram_tools"> Telegram Tools</Link>
       </Caption>
     </PageLayout>
