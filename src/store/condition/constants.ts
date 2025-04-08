@@ -1,4 +1,8 @@
-import { ConditionJetton, ConditionNFTCollection } from './types'
+import {
+  ConditionJetton,
+  ConditionNFTCollection,
+  ConditionWhitelistExternal,
+} from './types'
 
 export const INITIAL_CONDITION_JETTON: ConditionJetton = {
   category: 'jetton',
@@ -7,8 +11,17 @@ export const INITIAL_CONDITION_JETTON: ConditionJetton = {
 }
 
 export const INITIAL_CONDITION_NFT_COLLECTION: ConditionNFTCollection = {
-  category: 'nft_collection',
+  category: 'nft_collections',
   address: '',
   expected: 0,
   requiredAttributes: [],
 }
+
+export const INITIAL_CONDITION_WHITELIST_EXTERNAL: ConditionWhitelistExternal =
+  {
+    category: 'whitelist_external',
+    name: '',
+    description: '',
+    url: '',
+    users: [],
+  }

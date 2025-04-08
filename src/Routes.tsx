@@ -14,7 +14,7 @@ export const ROUTES_NAME = {
   ADD_TELEGRAM_CHAT: '/admin/add-telegram-chat',
   CHAT: '/admin/chat/:chatSlug',
   CHAT_CONDITION: '/admin/chat/:chatSlug/condition/:conditionId/:conditionType',
-  CHAT_NEW_CONDITION: '/admin/chat/:chatSlug/new-condition',
+  CHAT_NEW_CONDITION: '/admin/chat/:chatSlug/new-condition/:conditionType',
   GRANT_PERMISSIONS: '/admin/grant-permissions/:chatSlug',
   CHECKING_BOT_ADDED: '/admin/checking-bot-added/:chatSlug',
   BOT_ADDED_SUCCESS: '/admin/bot-added-success/:chatSlug',

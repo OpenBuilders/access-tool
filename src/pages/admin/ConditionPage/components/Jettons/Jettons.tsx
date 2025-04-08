@@ -1,14 +1,14 @@
 import cs from '@styles/commonStyles.module.scss'
 import { Cell, Image, Input, Section, Text } from '@telegram-apps/telegram-ui'
 import debounce from 'debounce'
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import config from '@config'
 import {
-  PrefetchJetton,
   useCondition,
   useConditionActions,
   ConditionJetton,
+  ConditionType,
 } from '@store'
 
 import { ConditionComponentProps } from '../types'
@@ -16,25 +16,21 @@ import { validateJettonsCondition } from './helpers'
 
 export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
   const { condition } = useCondition()
-  const {
-    handleChangeConditionFieldAction,
-    prefetchJettonAction,
-    setIsValidAction,
-  } = useConditionActions()
+  const { handleChangeConditionFieldAction, setIsValidAction } =
+    useConditionActions()
 
-  const [prefetchJetton, setPrefetchJetton] = useState<PrefetchJetton | null>(
-    null
-  )
+  const { prefetchedConditionData } = useCondition()
+  const { prefetchConditionDataAction } = useConditionActions()
 
   const debouncedPrefetchJetton = useCallback(
     debounce(async (address: string) => {
       try {
-        const jetton = await prefetchJettonAction(address)
-        if (!jetton) return
-        setPrefetchJetton(jetton)
+        await prefetchConditionDataAction(
+          condition?.category as ConditionType,
+          address
+        )
       } catch (error) {
         console.error(error)
-        setPrefetchJetton(null)
       }
     }, 250),
     []
@@ -50,6 +46,7 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
 
     const updatedCondition = {
       ...condition,
+      category: condition?.category,
       [field]: value,
     } as ConditionJetton
 
@@ -63,9 +60,12 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
   }
 
   useEffect(() => {
-    if (condition?.blockchainAddress || condition?.address) {
+    if (
+      !isNewCondition &&
+      (condition?.blockchainAddress || (condition as ConditionJetton)?.address)
+    ) {
       debouncedPrefetchJetton(
-        condition?.blockchainAddress || condition?.address
+        condition?.blockchainAddress || (condition as ConditionJetton)?.address
       )
     }
   }, [])
@@ -82,7 +82,7 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
     </Section>
   )
 
-  if (prefetchJetton) {
+  if (prefetchedConditionData) {
     AddressComponent = (
       <Section className={cs.mt24} footer="TON (The Open Network)">
         <Input
@@ -93,10 +93,12 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
           }
         />
         <Cell
-          before={<Image src={`${config.CDN}/${prefetchJetton.logoPath}`} />}
-          subtitle={prefetchJetton.symbol}
+          before={
+            <Image src={`${config.CDN}/${prefetchedConditionData.logoPath}`} />
+          }
+          subtitle={prefetchedConditionData.symbol}
         >
-          {prefetchJetton.name}
+          {prefetchedConditionData.name}
         </Cell>
       </Section>
     )

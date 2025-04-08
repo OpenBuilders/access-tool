@@ -17,8 +17,6 @@ export const ChatConditions = () => {
       path: ROUTES_NAME.CHAT_NEW_CONDITION,
       params: {
         chatSlug: chat?.slug,
-      },
-      queryParams: {
         conditionType: 'jetton',
       },
     })

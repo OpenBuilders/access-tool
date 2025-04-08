@@ -1,10 +1,42 @@
-export type Condition = ConditionJetton | ConditionNFTCollection
+export type Condition =
+  | ConditionJetton
+  | ConditionNFTCollection
+  | ConditionWhitelistExternal
 
-export type ConditionCategory = 'jetton' | 'nft_collection'
+export type ConditionType =
+  | 'jetton'
+  | 'nft_collections'
+  | 'whitelist'
+  | 'whitelist_external'
+
+export interface ConditionFetchArgs {
+  type: ConditionType
+  chatSlug: string
+  conditionId: string
+}
+
+export interface ConditionUpdateArgs {
+  type: ConditionType
+  chatSlug: string
+  conditionId: string
+  data: Condition
+}
+
+export interface ConditionCreateArgs {
+  type: ConditionType
+  chatSlug: string
+  data: Condition
+}
+
+export interface ConditionDeleteArgs {
+  type: ConditionType
+  chatSlug: string
+  conditionId: string
+}
 
 export type ConditionCore = {
   id: number
-  category: ConditionCategory
+  category: ConditionType
   title: string
   expected: number
   photoUrl: string
@@ -24,12 +56,12 @@ export type ConditionNFTCollectionAttribute = {
 }
 
 export type ConditionNFTCollection = Partial<ConditionCore> & {
-  category: 'nft_collection'
+  category: 'nft_collections'
   address: string
   requiredAttributes: ConditionNFTCollectionAttribute[]
 }
 
-export type PrefetchJetton = {
+export type PrefetchedConditionData = {
   address: string
   name: string
   description: string | null
@@ -39,13 +71,10 @@ export type PrefetchJetton = {
   totalSupply: number
 }
 
-// TODO: проверить тип
-export type PrefetchNFTCollection = {
-  address: string
+export type ConditionWhitelistExternal = Partial<ConditionCore> & {
+  category: 'whitelist_external'
   name: string
-  description: string | null
-  symbol: string
-  logoPath: string
-  isEnabled: boolean
-  totalSupply: number
+  description: string
+  url?: string
+  users?: number[]
 }

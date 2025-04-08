@@ -2,83 +2,79 @@ import { create } from 'zustand'
 
 import { createSelectors } from '../types'
 import {
-  createConditionJettonApi,
-  createConditionNFTCollectionApi,
-  deleteConditionJettonApi,
-  fetchConditionJettonApi,
-  prefetchJettonsApi,
-  prefetchNFTCollectionsApi,
+  createConditionApi,
+  deleteConditionApi,
+  fetchConditionApi,
+  prefetchConditionDataApi,
+  updateConditionApi,
 } from './api'
+import { getConditionInitialState } from './helpers'
 import {
   Condition,
-  ConditionJetton,
-  ConditionNFTCollection,
-  PrefetchJetton,
-  PrefetchNFTCollection,
+  ConditionCreateArgs,
+  ConditionDeleteArgs,
+  ConditionFetchArgs,
+  ConditionType,
+  ConditionUpdateArgs,
+  PrefetchedConditionData,
 } from './types'
 
 interface ConditionStore {
   isValid: boolean
+  isFieldChanged: boolean
   condition: Condition | null
+  prefetchedConditionData: PrefetchedConditionData | null
 }
 
 interface ConditionActions {
   actions: {
     setInitialConditionAction: (condition: Condition) => void
-    // Jetton Actions
-    fetchConditionJettonAction: (chatSlug: string, conditionId: string) => void
-    createConditionJettonAction: (chatSlug: string) => void
-    deleteConditionJettonAction: (chatSlug: string, conditionId: string) => void
-    // NFT Collection Actions
-    createConditionNFTCollectionAction: (chatSlug: string) => void
+    // Condition Actions
+    fetchConditionAction: (args: ConditionFetchArgs) => void
+    updateConditionAction: (args: ConditionUpdateArgs) => void
+    createConditionAction: (args: ConditionCreateArgs) => void
+    deleteConditionAction: (args: ConditionDeleteArgs) => void
     // Common Actions
     handleChangeConditionFieldAction: (
       field: string,
       value: string | number
     ) => void
     setIsValidAction: (value: boolean) => void
-    prefetchNFTCollectionAction: (
-      address: string
-    ) => Promise<PrefetchNFTCollection | undefined>
-    prefetchJettonAction: (
-      address: string
-    ) => Promise<PrefetchJetton | undefined>
+    prefetchConditionDataAction: (type: ConditionType, address: string) => void
+    resetPrefetchedConditionDataAction: () => void
   }
 }
 
 const useConditionStore = create<ConditionStore & ConditionActions>(
   (set, get) => ({
     isValid: false,
+    isFieldChanged: false,
     condition: null,
+    prefetchedConditionData: null,
     actions: {
       setInitialConditionAction: (condition: Condition) => {
         set({ condition })
       },
 
-      fetchConditionJettonAction: async (
-        chatSlug: string,
-        conditionId: string
-      ) => {
-        const { data, ok, error } = await fetchConditionJettonApi(
-          chatSlug,
-          conditionId
-        )
+      fetchConditionAction: async (args: ConditionFetchArgs) => {
+        if (!args.conditionId) {
+          const initialCondition = getConditionInitialState(args.type)
+
+          set({ condition: initialCondition })
+          return
+        }
+
+        const { data, ok, error } = await fetchConditionApi(args)
 
         if (!ok) {
           throw new Error(error)
         }
 
-        set({ condition: data as ConditionJetton })
+        set({ condition: data })
       },
 
-      deleteConditionJettonAction: async (
-        chatSlug: string,
-        conditionId: string
-      ) => {
-        const { ok, error } = await deleteConditionJettonApi(
-          chatSlug,
-          conditionId
-        )
+      createConditionAction: async (args: ConditionCreateArgs) => {
+        const { ok, error } = await createConditionApi(args)
 
         if (!ok) {
           throw new Error(error)
@@ -86,31 +82,31 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
 
         set({ condition: null })
       },
-      createConditionJettonAction: async (chatSlug: string) => {
-        const { ok, error } = await createConditionJettonApi(
-          chatSlug,
-          get().condition as ConditionJetton
-        )
+
+      updateConditionAction: async (args: ConditionUpdateArgs) => {
+        const { ok, error } = await updateConditionApi(args)
 
         if (!ok) {
           throw new Error(error)
         }
+
+        set({ condition: null, isFieldChanged: false })
       },
 
-      createConditionNFTCollectionAction: async (chatSlug: string) => {
-        const { ok, error } = await createConditionNFTCollectionApi(
-          chatSlug,
-          get().condition as ConditionNFTCollection
-        )
+      deleteConditionAction: async (args: ConditionDeleteArgs) => {
+        const { ok, error } = await deleteConditionApi(args)
 
         if (!ok) {
           throw new Error(error)
         }
+
+        set({ condition: null })
       },
 
       handleChangeConditionFieldAction: (field, value) => {
         set((state) => ({
           ...state,
+          isFieldChanged: true,
           condition: {
             ...state.condition,
             [field]: value,
@@ -124,23 +120,22 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
           isValid: value,
         }))
       },
-      prefetchJettonAction: async (address) => {
-        const { data, ok, error } = await prefetchJettonsApi(address)
+
+      prefetchConditionDataAction: async (type, address) => {
+        const { data, ok, error } = await prefetchConditionDataApi(
+          type,
+          address
+        )
 
         if (!ok) {
           throw new Error(error)
         }
 
-        return data
+        set({ prefetchedConditionData: data })
       },
-      prefetchNFTCollectionAction: async (address) => {
-        const { data, ok, error } = await prefetchNFTCollectionsApi(address)
 
-        if (!ok) {
-          throw new Error(error)
-        }
-
-        return data
+      resetPrefetchedConditionDataAction: () => {
+        set({ prefetchedConditionData: null })
       },
     },
   })

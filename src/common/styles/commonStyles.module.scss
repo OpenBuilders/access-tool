@@ -1,25 +1,25 @@
 .mt2 {
-  margin-top: 2px;
+  margin-top: 2px !important;
 }
 
 .mt4 {
-  margin-top: 4px;
+  margin-top: 4px !important;
 }
 
 .mt8 {
-  margin-top: 8px;
+  margin-top: 8px !important;
 }
 
 .mt12 {
-  margin-top: 12px;
+  margin-top: 12px !important;
 }
 
 .mt16 {
-  margin-top: 16px;
+  margin-top: 16px !important;
 }
 
 .mt24 {
-  margin-top: 24px;
+  margin-top: 24px !important;
 }
 
 .mtAuto {
@@ -39,15 +39,23 @@
 }
 
 .pr12 {
-  padding-right: 12px;
+  padding-right: 12px !important;
 }
 
 .pr16 {
-  padding-right: 16px;
+  padding-right: 16px !important;
 }
 
 .pl12 {
-  padding-left: 12px;
+  padding-left: 12px !important;
+}
+
+.pl16 {
+  padding-left: 16px !important;
+}
+
+.pl32 {
+  padding-left: 32px !important;
 }
 
 .py12 {

@@ -2,41 +2,38 @@ import { AppSelect } from '@components'
 import cs from '@styles/commonStyles.module.scss'
 import { Cell, Image, Input, Section, Text } from '@telegram-apps/telegram-ui'
 import debounce from 'debounce'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import config from '@config'
 import {
-  PrefetchJetton,
   useCondition,
   useConditionActions,
   ConditionJetton,
   ConditionNFTCollection,
+  ConditionType,
 } from '@store'
 
+import { ConditionComponentProps } from '../types'
 import { NFT_COLLECTIONS } from './constants'
 import { validateNFTCollectionCondition } from './helpers'
 
-export const NFT = () => {
-  const { condition } = useCondition()
+export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
+  const { condition, prefetchedConditionData } = useCondition()
   const {
     handleChangeConditionFieldAction,
-    prefetchNFTCollectionAction,
     setIsValidAction,
+    prefetchConditionDataAction,
   } = useConditionActions()
-
-  const [prefetchNFTCollection, setPrefetchNFTCollection] = useState<
-    any | null
-  >(null)
 
   const debouncedPrefetchNFTCollection = useCallback(
     debounce(async (address: string) => {
       try {
-        const nftCollection = await prefetchNFTCollectionAction(address)
-        if (!nftCollection) return
-        setPrefetchNFTCollection(nftCollection)
+        await prefetchConditionDataAction(
+          condition?.category as ConditionType,
+          address
+        )
       } catch (error) {
         console.error(error)
-        setPrefetchNFTCollection(null)
       }
     }, 250),
     []
@@ -62,6 +59,19 @@ export const NFT = () => {
     setIsValidAction(validationResult)
   }
 
+  useEffect(() => {
+    if (
+      !isNewCondition &&
+      (condition?.blockchainAddress ||
+        (condition as ConditionNFTCollection)?.address)
+    ) {
+      debouncedPrefetchNFTCollection(
+        condition?.blockchainAddress ||
+          (condition as ConditionNFTCollection)?.address
+      )
+    }
+  }, [])
+
   let AddressComponent = (
     <Section className={cs.mt24} footer="TON (The Open Network)">
       <Input
@@ -72,7 +82,7 @@ export const NFT = () => {
     </Section>
   )
 
-  if (prefetchNFTCollection) {
+  if (prefetchedConditionData) {
     AddressComponent = (
       <Section className={cs.mt24} footer="TON (The Open Network)">
         <Input
@@ -84,11 +94,11 @@ export const NFT = () => {
         />
         <Cell
           before={
-            <Image src={`${config.CDN}/${prefetchNFTCollection.logoPath}`} />
+            <Image src={`${config.CDN}/${prefetchedConditionData.logoPath}`} />
           }
-          subtitle={prefetchNFTCollection.symbol}
+          subtitle={prefetchedConditionData.symbol}
         >
-          {prefetchNFTCollection.name}
+          {prefetchedConditionData.name}
         </Cell>
       </Section>
     )
@@ -96,11 +106,11 @@ export const NFT = () => {
 
   return (
     <>
-      <Section className={cs.mt24}>
+      {/* <Section className={cs.mt24}>
         <Cell after={<AppSelect options={NFT_COLLECTIONS} />}>
           NFT Collection
         </Cell>
-      </Section>
+      </Section> */}
       {AddressComponent}
       <Section className={cs.mt24}>
         <Cell

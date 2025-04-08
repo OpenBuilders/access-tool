@@ -1,18 +1,26 @@
+import { Jettons, NFT, WhitelistExternal } from './components'
+
 export const CONDITION_TYPES = [
   {
-    value: 'jettons',
-    name: 'Jettons',
+    value: 'jetton',
+    name: 'Jetton',
   },
   {
-    value: 'nft-collections',
+    value: 'nft_collections',
     name: 'NFT',
   },
+  // {
+  //   value: 'whitelist',
+  //   name: 'Whitelist',
+  // },
   {
-    value: 'whitelist',
-    name: 'Whitelist',
-  },
-  {
-    value: 'whitelist-external',
-    name: 'Whitelist External',
+    value: 'whitelist_external',
+    name: 'List of Users',
   },
 ]
+
+export const CONDITION_COMPONENTS = {
+  jetton: Jettons,
+  nft_collections: NFT,
+  whitelist_external: WhitelistExternal,
+}
