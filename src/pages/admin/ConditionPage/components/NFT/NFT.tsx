@@ -106,10 +106,12 @@ export const NFT = () => {
         <Cell
           after={
             <Input
-              type="number"
+              type="text"
+              pattern="[0-9]*"
+              inputMode="numeric"
               className={cs.afterInput}
               after={<Text className={cs.colorHint}>TON</Text>}
-              value={(condition as ConditionJetton)?.expected || 0}
+              value={(condition as ConditionJetton)?.expected}
               onChange={(e) =>
                 handleChangeConditionField('expected', e.target.value)
               }

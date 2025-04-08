@@ -7,9 +7,11 @@ import cn from 'classnames'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useChatActions } from '@store'
+import { useChat, useChatActions } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
+
+const webApp = window.Telegram.WebApp
 
 export const ChatPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
@@ -18,6 +20,7 @@ export const ChatPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const { pageNotFound } = useError()
 
+  const { rules } = useChat()
   const { fetchChatAction } = useChatActions()
 
   const fetchChat = async () => {
@@ -40,12 +43,23 @@ export const ChatPage = () => {
 
   if (isLoading) return null
 
+  const showMainButton = rules && rules?.length > 0
+
+  const handleOpenGroupChat = () => {
+    if (!chatSlug) return
+    webApp.openTelegramLink(`https://t.me/${chatSlug}`)
+  }
+
   return (
     <PageLayout>
       <TelegramBackButton
         onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
       />
-      <TelegramMainButton hidden />
+      <TelegramMainButton
+        hidden={!showMainButton}
+        text="Open Group Chat"
+        onClick={handleOpenGroupChat}
+      />
       <ChatHeader />
       <ChatConditions />
       <div className={cn(commonStyles.mtAuto, commonStyles.textCenter)}>
