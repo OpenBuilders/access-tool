@@ -6,6 +6,7 @@ import {
   ConditionPage,
   GrantPermissionsPage,
   BotAddedSuccessPage,
+  ClientTasksPage,
 } from '@pages'
 import { Route, Routes } from 'react-router-dom'
 
@@ -18,6 +19,7 @@ export const ROUTES_NAME = {
   GRANT_PERMISSIONS: '/admin/grant-permissions/:chatSlug',
   CHECKING_BOT_ADDED: '/admin/checking-bot-added/:chatSlug',
   BOT_ADDED_SUCCESS: '/admin/bot-added-success/:chatSlug',
+  CLIENT_TASKS: '/client/:clientChatSlug/tasks',
 }
 
 export default (
@@ -42,5 +44,6 @@ export default (
       path={ROUTES_NAME.BOT_ADDED_SUCCESS}
       element={<BotAddedSuccessPage />}
     />
+    <Route path={ROUTES_NAME.CLIENT_TASKS} element={<ClientTasksPage />} />
   </Routes>
 )

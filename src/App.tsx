@@ -1,13 +1,15 @@
 import { ToastProvider } from '@components'
 import { ThemeContext } from '@context'
+import { useAppNavigation } from '@hooks'
 import '@styles/index.scss'
 import { AppRoot } from '@telegram-apps/telegram-ui'
 import '@telegram-apps/telegram-ui/dist/styles.css'
+import { checkStartAppParams } from '@utils'
 import { useContext, useEffect } from 'react'
 
 import { useUser, useUserActions } from '@store'
 
-import Routes from './Routes'
+import Routes, { ROUTES_NAME } from './Routes'
 
 const webApp = window.Telegram?.WebApp
 
@@ -15,6 +17,7 @@ const HARDCODED_PLATFORM = 'ios'
 const HARDCODED_APPEARANCE = 'dark'
 
 function App() {
+  const { appNavigate } = useAppNavigation()
   const { darkTheme } = useContext(ThemeContext)
 
   const { authenticateUserAction, fetchUserAction } = useUserActions()
@@ -54,6 +57,16 @@ function App() {
   }, [darkTheme])
 
   useEffect(() => {
+    const ch = checkStartAppParams()
+    if (ch) {
+      appNavigate({
+        path: ROUTES_NAME.CLIENT_TASKS,
+        params: {
+          clientChatSlug: ch,
+        },
+      })
+      return
+    }
     authenticateUser()
   }, [])
 

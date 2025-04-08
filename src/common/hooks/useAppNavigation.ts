@@ -4,6 +4,7 @@ interface AppNavigateParams {
   chatSlug?: string
   conditionId?: number
   conditionType?: string
+  clientChatSlug?: string
 }
 
 interface AppNavigation {
@@ -34,6 +35,10 @@ export const useAppNavigation = () => {
 
       if (queryParams) {
         url = url + '?' + new URLSearchParams(queryParams).toString()
+      }
+
+      if (params?.clientChatSlug) {
+        url = url.replace(':clientChatSlug', params.clientChatSlug)
       }
 
       navigate(url, { replace: true })
