@@ -17,7 +17,7 @@ import { NFT_COLLECTIONS } from './constants'
 import { validateNFTCollectionCondition } from './helpers'
 
 export const NFT = () => {
-  const { condition, isValid } = useCondition()
+  const { condition } = useCondition()
   const {
     handleChangeConditionFieldAction,
     prefetchNFTCollectionAction,
@@ -109,16 +109,15 @@ export const NFT = () => {
               type="number"
               className={cs.afterInput}
               after={<Text className={cs.colorHint}>TON</Text>}
-              value={(condition as ConditionJetton)?.amount || 0}
+              value={(condition as ConditionJetton)?.expected || 0}
               onChange={(e) =>
-                handleChangeConditionField('amount', e.target.value)
+                handleChangeConditionField('expected', e.target.value)
               }
             />
           }
         >
           # of NFTs
         </Cell>
-        <Cell>{isValid ? 'Valid' : 'Invalid'}</Cell>
       </Section>
     </>
   )

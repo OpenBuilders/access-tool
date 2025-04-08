@@ -5,22 +5,14 @@ import {
   TelegramMainButton,
   PageLayout,
 } from '@components'
-import { useAppNavigation } from '@hooks'
+import { useAppNavigation, useConditionData } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
-import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import {
-  INITIAL_CONDITION_NFT_COLLECTION,
-  INITIAL_CONDITION_JETTON,
-  useConditionActions,
-  useCondition,
-} from '@store'
+import { useCondition } from '@store'
 
 import styles from '../../ConditionPage.module.scss'
-import { Jettons } from '../../components/Jettons'
-import { NFT } from '../../components/NFT'
 import { CONDITION_TYPES } from '../../constants'
 
 export const NewConditionModule = () => {
@@ -32,53 +24,12 @@ export const NewConditionModule = () => {
   }>()
   const chatSlugParam = params.chatSlug
 
-  const {
-    createConditionJettonAction,
-    setInitialConditionAction,
-    createConditionNFTCollectionAction,
-  } = useConditionActions()
-
   const { isValid } = useCondition()
 
-  const currentConditionType = new URLSearchParams(window.location.search).get(
-    'conditionType'
-  )
+  const { ConditionComponent, createConditionMethod, initialState } =
+    useConditionData(true)
 
-  const CONDITIONS = {
-    jettons: {
-      Component: Jettons,
-      onCreate: () => createConditionJettonAction,
-      initialState: INITIAL_CONDITION_JETTON,
-    },
-    'nft-collections': {
-      Component: NFT,
-      onCreate: () => createConditionNFTCollectionAction,
-      initialState: INITIAL_CONDITION_NFT_COLLECTION,
-    },
-  }
-
-  useEffect(() => {
-    if (currentConditionType) {
-      const { initialState } =
-        CONDITIONS[currentConditionType as keyof typeof CONDITIONS]
-      setInitialConditionAction(initialState)
-      appNavigate({
-        path: ROUTES_NAME.CHAT_NEW_CONDITION,
-        params: { chatSlug: chatSlugParam },
-        queryParams: { conditionType: currentConditionType },
-      })
-    }
-  }, [currentConditionType])
-
-  if (!currentConditionType) return null
-
-  const ConditionComponent =
-    CONDITIONS[currentConditionType as keyof typeof CONDITIONS]?.Component ||
-    null
-
-  const ConditionAction =
-    CONDITIONS[currentConditionType as keyof typeof CONDITIONS]?.onCreate ||
-    (() => {})
+  if (!ConditionComponent) return null
 
   return (
     <PageLayout>
@@ -92,7 +43,11 @@ export const NewConditionModule = () => {
           })
         }
       />
-      <TelegramMainButton disabled={!isValid} onClick={ConditionAction} />
+      <TelegramMainButton
+        text="Create Condition"
+        disabled={!isValid}
+        onClick={createConditionMethod}
+      />
       <Title level="1" weight="1" plain className={styles.title}>
         Add condition
       </Title>
@@ -108,14 +63,14 @@ export const NewConditionModule = () => {
                   })
                 }
                 options={CONDITION_TYPES}
-                value={currentConditionType}
+                value={initialState.type}
               />
             }
           >
             Choose type
           </Cell>
         </Section>
-        {ConditionComponent && <ConditionComponent />}
+        {ConditionComponent && <ConditionComponent isNewCondition />}
       </Container>
     </PageLayout>
   )

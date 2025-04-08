@@ -72,9 +72,11 @@ export const ChatHeader = () => {
         size={96}
         className={commonStyles.rounded}
       />
-      <Title level="1" weight="1" plain className={commonStyles.mt12}>
-        {chat?.title}
-      </Title>
+      <div className={commonStyles.mt12}>
+        <Title level="1" weight="1" plain>
+          {chat?.title}
+        </Title>
+      </div>
       <div className={cn(styles.members, commonStyles.mt12)}>
         <AvatarStack>
           {[

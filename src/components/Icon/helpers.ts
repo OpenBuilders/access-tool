@@ -35,7 +35,5 @@ export const getIcon = (name: IconTypeName) => {
       return doubleChevron
     case 'share':
       return share
-    case 'trash':
-      return trash
   }
 }

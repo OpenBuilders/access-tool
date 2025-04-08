@@ -63,24 +63,29 @@ export const TelegramMainButton = ({
     })
   }, [text])
 
-  // if (webApp.platform === 'unknown' && process.env.NODE_ENV !== 'production') {
-  //   return (
-  //     <button
-  //       onClick={onClick}
-  //       style={{
-  //         width: '100%',
-  //         position: 'fixed',
-  //         bottom: 0,
-  //         left: 0,
-  //         right: 0,
-  //         zIndex: 1000,
-  //         height: '56px',
-  //       }}
-  //     >
-  //       {text}
-  //     </button>
-  //   )
-  // }
+  if (
+    webApp.platform === 'unknown' &&
+    process.env.NODE_ENV !== 'production' &&
+    !hidden
+  ) {
+    return (
+      <button
+        onClick={onClick}
+        style={{
+          width: '100%',
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          height: '56px',
+        }}
+        disabled={disabled}
+      >
+        {text}
+      </button>
+    )
+  }
 
   return null
 }

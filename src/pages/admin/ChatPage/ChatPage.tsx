@@ -48,17 +48,13 @@ export const ChatPage = () => {
       <TelegramMainButton hidden />
       <ChatHeader />
       <ChatConditions />
-      <Caption
-        className={cn(
-          commonStyles.mtAuto,
-          commonStyles.colorHint,
-          commonStyles.textCenter
-        )}
-      >
-        To delete this page from Gateway,
-        <br />
-        remove @gateway_bot from admins
-      </Caption>
+      <div className={cn(commonStyles.mtAuto, commonStyles.textCenter)}>
+        <Caption className={commonStyles.colorHint}>
+          To delete this page from Gateway,
+          <br />
+          remove @gateway_bot from admins
+        </Caption>
+      </div>
     </PageLayout>
   )
 }

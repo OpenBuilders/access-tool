@@ -1,8 +1,7 @@
-import { AppSelect } from '@components'
 import cs from '@styles/commonStyles.module.scss'
 import { Cell, Image, Input, Section, Text } from '@telegram-apps/telegram-ui'
 import debounce from 'debounce'
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import config from '@config'
 import {
@@ -13,11 +12,10 @@ import {
 } from '@store'
 
 import { ConditionComponentProps } from '../types'
-import { JETTONS_CATEGORIES } from './constants'
 import { validateJettonsCondition } from './helpers'
 
 export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
-  const { condition, isValid } = useCondition()
+  const { condition } = useCondition()
   const {
     handleChangeConditionFieldAction,
     prefetchJettonAction,
@@ -64,6 +62,14 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
     setIsValidAction(validationResult)
   }
 
+  useEffect(() => {
+    if (condition?.blockchainAddress || condition?.address) {
+      debouncedPrefetchJetton(
+        condition?.blockchainAddress || condition?.address
+      )
+    }
+  }, [])
+
   let AddressComponent = (
     <Section className={cs.mt24} footer="TON (The Open Network)">
       <Input
@@ -98,18 +104,20 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
 
   return (
     <>
-      <Section className={cs.mt24}>
+      {/* <Section className={cs.mt24}>
         <Cell after={<AppSelect options={JETTONS_CATEGORIES} />}>Category</Cell>
-      </Section>
+      </Section> */}
       {AddressComponent}
       <Section className={cs.mt24}>
         <Cell
           after={
             <Input
-              type="number"
+              type="text"
+              pattern="[0-9]*"
+              inputMode="numeric"
               className={cs.afterInput}
               after={<Text className={cs.colorHint}>TON</Text>}
-              value={(condition as ConditionJetton)?.expected || 0}
+              value={(condition as ConditionJetton)?.expected}
               onChange={(e) =>
                 handleChangeConditionField('expected', e.target.value)
               }
@@ -118,7 +126,6 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
         >
           Amount
         </Cell>
-        <Cell>{isValid ? 'Valid' : 'Invalid'}</Cell>
       </Section>
     </>
   )

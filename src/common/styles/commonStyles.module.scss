@@ -91,8 +91,8 @@
 }
 
 .afterInput {
-  padding: 0;
-  gap: 4px;
+  padding: 0 !important;
+  gap: 4px !important;
   input {
     text-align: right;
     color: var(--tgui--hint_color);
