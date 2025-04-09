@@ -22,7 +22,7 @@ export const List = ({
       {header && (
         <Block margin="bottom" marginValue={6}>
           <Block margin="left" marginValue={16}>
-            <Text type="caption" color="hint" uppercase>
+            <Text type="caption" color="tertiary" uppercase>
               {header}
             </Text>
           </Block>
@@ -39,7 +39,7 @@ export const List = ({
       {footer && (
         <Block margin="top" marginValue={6}>
           <Block margin="left" marginValue={16}>
-            <Text type="caption" color="hint" uppercase>
+            <Text type="caption" color="tertiary" uppercase>
               {footer}
             </Text>
           </Block>

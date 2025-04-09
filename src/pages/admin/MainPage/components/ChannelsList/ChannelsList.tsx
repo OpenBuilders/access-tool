@@ -35,6 +35,11 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
                   {channel.title}
                 </Text>
               }
+              after={
+                <Text type="text" color="tertiary">
+                  Ton
+                </Text>
+              }
               chevron
               before={
                 <Image src={channel.logoPath} size={24} borderRadius={50} />

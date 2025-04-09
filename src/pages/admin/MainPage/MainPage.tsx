@@ -64,7 +64,7 @@ export const MainPage = () => {
       </Block>
       {isEmpty ? <EmptyList /> : <ChannelsList channels={adminChats} />}
       <Block fixed="bottom">
-        <Text align="center" type="caption" color="hint">
+        <Text align="center" type="caption" color="tertiary">
           This is open source contributed by independent
           <br />
           developers, as part of
