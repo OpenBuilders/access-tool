@@ -20,7 +20,8 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
     useConditionActions()
 
   const { prefetchedConditionData } = useCondition()
-  const { prefetchConditionDataAction } = useConditionActions()
+  const { prefetchConditionDataAction, resetPrefetchedConditionDataAction } =
+    useConditionActions()
 
   const debouncedPrefetchJetton = useCallback(
     debounce(async (address: string) => {
@@ -31,6 +32,7 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
         )
       } catch (error) {
         console.error(error)
+        resetPrefetchedConditionDataAction()
       }
     }, 250),
     []
@@ -118,7 +120,11 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
               pattern="[0-9]*"
               inputMode="numeric"
               className={cs.afterInput}
-              after={<Text className={cs.colorHint}>TON</Text>}
+              after={
+                <Text className={cs.colorHint}>
+                  {prefetchedConditionData?.symbol || ''}
+                </Text>
+              }
               value={(condition as ConditionJetton)?.expected}
               onChange={(e) =>
                 handleChangeConditionField('expected', e.target.value)

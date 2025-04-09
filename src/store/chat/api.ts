@@ -1,6 +1,6 @@
 import { ApiService, ApiServiceResponse } from '@services'
 
-import { Chat, ChatInstance } from './types'
+import { AdminChat, Chat, ChatInstance } from './types'
 
 export const fetchChatAPI = async (
   slug: string
@@ -19,6 +19,26 @@ export const updateChatAPI = async (
   const response = await ApiService.put<ChatInstance>({
     endpoint: `/admin/chats/${slug}`,
     data,
+  })
+
+  return response
+}
+
+export const fetchAdminUserChatsAPI = async (): Promise<
+  ApiServiceResponse<AdminChat[]>
+> => {
+  const response = await ApiService.get<AdminChat[]>({
+    endpoint: '/admin/chats',
+  })
+
+  return response
+}
+
+export const fetchUserChatAPI = async (
+  slug: string
+): Promise<ApiServiceResponse<Chat>> => {
+  const response = await ApiService.get<Chat>({
+    endpoint: `/chats/${slug}`,
   })
 
   return response

@@ -27,7 +27,7 @@ export const CheckingBotAddedPage = () => {
     if (!chatSlug) return
     try {
       await fetchChatAction(chatSlug)
-      if (chat?.chat?.insufficientPrivileges) {
+      if (chat?.insufficientPrivileges) {
         appNavigate({
           path: ROUTES_NAME.BOT_ADDED_SUCCESS,
           params: { chatSlug },

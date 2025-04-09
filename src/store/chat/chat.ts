@@ -1,24 +1,35 @@
 import { create } from 'zustand'
 
 import { createSelectors } from '../types'
-import { fetchChatAPI, updateChatAPI } from './api'
-import { Chat, ChatInstance, ChatRule } from './types'
+import {
+  fetchAdminUserChatsAPI,
+  fetchChatAPI,
+  fetchUserChatAPI,
+  updateChatAPI,
+} from './api'
+import { AdminChat, Chat, ChatInstance, ChatRule } from './types'
 
 interface ChatStore {
+  adminChats: AdminChat[] | null
   chat: ChatInstance | null
   rules: ChatRule[] | null
+  chatWallet: string | null
 }
 
 interface ChatActions {
   actions: {
     fetchChatAction: (slug: string) => void
     updateChatAction: (slug: string, data: Partial<ChatInstance>) => void
+    fetchAdminUserChatsAction: () => void
+    fetchUserChatAction: (slug: string) => void
   }
 }
 
 const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
   chat: null,
   rules: null,
+  adminChats: null,
+  chatWallet: null,
   actions: {
     fetchChatAction: async (slug) => {
       const { data, ok, error } = await fetchChatAPI(slug)
@@ -43,6 +54,24 @@ const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
       set({
         chat: data,
       })
+    },
+    fetchAdminUserChatsAction: async () => {
+      const { data, ok, error } = await fetchAdminUserChatsAPI()
+
+      if (!ok) {
+        throw new Error(error)
+      }
+
+      set({ adminChats: data })
+    },
+    fetchUserChatAction: async (slug) => {
+      const { data, ok, error } = await fetchUserChatAPI(slug)
+
+      if (!ok) {
+        throw new Error(error)
+      }
+
+      set({ chat: data?.chat, rules: data?.rules, chatWallet: data?.wallet })
     },
   },
 }))

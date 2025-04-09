@@ -5,6 +5,7 @@ interface MainButtonProps {
   onClick?: () => void
   hidden?: boolean
   disabled?: boolean
+  isLoading?: boolean
 }
 
 const webApp = window.Telegram?.WebApp
@@ -15,6 +16,7 @@ export const TelegramMainButton = ({
   onClick,
   hidden,
   disabled,
+  isLoading,
 }: MainButtonProps) => {
   useEffect(() => {
     if (!webApp || !mainButton) {
@@ -62,6 +64,16 @@ export const TelegramMainButton = ({
       text: text || 'Continue',
     })
   }, [text])
+
+  useEffect(() => {
+    if (!webApp || !mainButton) return
+
+    if (isLoading) {
+      mainButton.showProgress()
+    } else {
+      mainButton.hideProgress()
+    }
+  }, [isLoading])
 
   if (
     webApp.platform === 'unknown' &&

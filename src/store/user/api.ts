@@ -1,6 +1,6 @@
 import { ApiService, ApiServiceResponse } from '@services'
 
-import { AuthenticatedUser, UserChat, User } from './types'
+import { AuthenticatedUser, ChatTaskComplete, User, WalletData } from './types'
 
 const webApp = window.Telegram.WebApp
 
@@ -24,11 +24,51 @@ export const fetchUserAPI = async (): Promise<ApiServiceResponse<User>> => {
   return response
 }
 
-export const fetchUserChatsAPI = async (): Promise<
-  ApiServiceResponse<UserChat[]>
-> => {
-  const response = await ApiService.get<UserChat[]>({
-    endpoint: '/admin/chats',
+export const connectWalletAPI = async (
+  chatSlug: string,
+  walletData: WalletData
+): Promise<ApiServiceResponse<any>> => {
+  const response = await ApiService.post<any>({
+    endpoint: '/users/wallet',
+    data: {
+      chatSlug: chatSlug,
+      walletDetails: walletData,
+    },
+  })
+
+  return response
+}
+
+export const connectExistingWalletAPI = async (
+  chatSlug: string,
+  wallet: string
+): Promise<ApiServiceResponse<any>> => {
+  const response = await ApiService.put<any>({
+    endpoint: '/users/wallet',
+    data: {
+      chatSlug: chatSlug,
+      walletAddress: wallet,
+    },
+  })
+
+  return response
+}
+
+export const disconnectWalletAPI = async (
+  chatSlug: string
+): Promise<ApiServiceResponse<any>> => {
+  const response = await ApiService.delete<any>({
+    endpoint: `/users/wallet?chatSlug=${chatSlug}`,
+  })
+
+  return response
+}
+
+export const completeChatTasksAPI = async (
+  taskId: string
+): Promise<ApiServiceResponse<ChatTaskComplete>> => {
+  const response = await ApiService.get<ChatTaskComplete>({
+    endpoint: `/system/async-tasks/${taskId}`,
   })
 
   return response

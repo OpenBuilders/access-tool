@@ -1,6 +1,7 @@
 export type Chat = {
   chat: ChatInstance
   rules: ChatRule[]
+  wallet?: string
 }
 
 export type ChatInstance = {
@@ -30,6 +31,19 @@ export type ChatRule = {
   photoUrl: string
   blockchainAddress: string
   isEnabled: boolean
-  requiredAttributes: ChatRuleAttribute[]
+  actual: number
+  isEligible: boolean
   promoteUrl: string
+  requiredAttributes?: ChatRuleAttribute[]
+}
+
+export type AdminChat = {
+  id: number
+  username: string | null
+  title: string
+  description: string
+  slug: string
+  isForum: boolean
+  logoPath: string
+  insufficientPrivileges: boolean
 }

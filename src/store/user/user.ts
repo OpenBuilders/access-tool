@@ -4,20 +4,33 @@ import config from '@config'
 import { AuthService, LocalStorageService } from '@services'
 
 import { createSelectors } from '../types'
-import { authenticateUserAPI, fetchUserAPI, fetchUserChatsAPI } from './api'
-import { User, UserChat } from './types'
+import {
+  authenticateUserAPI,
+  completeChatTasksAPI,
+  connectExistingWalletAPI,
+  connectWalletAPI,
+  fetchUserAPI,
+} from './api'
+import { User, WalletData } from './types'
 
 interface UserStore {
   isAuthenticated: boolean
   user: User | null
-  userChats: UserChat[] | null
 }
 
 interface UserActions {
   actions: {
     fetchUserAction: () => void
-    fetchUserChatsAction: () => void
     authenticateUserAction: () => void
+    connectWalletAction: (
+      chatSlug: string,
+      wallet: WalletData
+    ) => Promise<string>
+    connectExistingWalletAction: (
+      chatSlug: string,
+      wallet: string
+    ) => Promise<string>
+    completeChatTaskAction: (taskId: string) => void
   }
 }
 
@@ -26,7 +39,6 @@ const webApp = window.Telegram.WebApp
 const useUserStore = create<UserStore & UserActions>((set) => ({
   isAuthenticated: false,
   user: null,
-  userChats: null,
   actions: {
     authenticateUserAction: async () => {
       if (config.isDev && !webApp.initData) {
@@ -53,14 +65,37 @@ const useUserStore = create<UserStore & UserActions>((set) => ({
 
       set({ user: data })
     },
-    fetchUserChatsAction: async () => {
-      const { data, ok, error } = await fetchUserChatsAPI()
+    connectWalletAction: async (chatSlug: string, wallet: WalletData) => {
+      const { data, ok, error } = await connectWalletAPI(chatSlug, wallet)
+
+      if (!ok || !data?.user || !data?.taskId) {
+        throw new Error(error)
+      }
+
+      set({ user: data.user })
+      return data?.taskId
+    },
+    connectExistingWalletAction: async (chatSlug: string, wallet: string) => {
+      const { data, ok, error } = await connectExistingWalletAPI(
+        chatSlug,
+        wallet
+      )
+
+      if (!ok || !data?.user || !data?.taskId) {
+        throw new Error(error)
+      }
+
+      set({ user: data.user })
+      return data?.taskId
+    },
+    completeChatTaskAction: async (taskId: string) => {
+      const { data, ok, error } = await completeChatTasksAPI(taskId)
 
       if (!ok) {
         throw new Error(error)
       }
 
-      set({ userChats: data })
+      console.log(data)
     },
   },
 }))
