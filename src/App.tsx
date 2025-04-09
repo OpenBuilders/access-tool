@@ -85,17 +85,17 @@ function App() {
   return (
     <TonConnectUIProvider
       manifestUrl={config.tonConnectManifestUrl}
-      // actionsConfiguration={{
-      //   twaReturnUrl: `https://t.me/${config.botName}?startapp=ch_${clientChatSlug}`,
-      // }}
+      actionsConfiguration={{
+        twaReturnUrl: `https://t.me/${config.botName}?startapp=ch_${clientChatSlug}`,
+      }}
     >
-      <AppRoot
+      {/* <AppRoot
         platform={HARDCODED_PLATFORM}
         appearance={HARDCODED_APPEARANCE}
         id="app-tg-root"
-      >
-        <ToastProvider>{Routes}</ToastProvider>
-      </AppRoot>
+      > */}
+      <ToastProvider>{Routes}</ToastProvider>
+      {/* </AppRoot> */}
     </TonConnectUIProvider>
   )
 }

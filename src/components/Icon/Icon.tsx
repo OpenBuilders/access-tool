@@ -6,7 +6,7 @@ import { IconSize, IconTypeName } from './types'
 
 interface IconProps {
   name: IconTypeName
-  size: IconSize
+  size?: IconSize
 }
 
 export const Icon = ({ name, size }: IconProps) => {
@@ -15,6 +15,8 @@ export const Icon = ({ name, size }: IconProps) => {
   if (!IconName) return null
 
   return (
-    <div className={cn(styles.icon, styles[`size-${size}`])}>{IconName}</div>
+    <div className={cn(styles.icon, size && styles[`size-${size}`])}>
+      {IconName}
+    </div>
   )
 }

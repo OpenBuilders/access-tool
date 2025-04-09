@@ -13,4 +13,6 @@ export type IconTypeName =
   | 'trash'
   | 'check'
   | 'cross'
+  | 'chevron'
+
 export type IconSize = 112 | 100 | 28 | 24 | 20 | 16 | 12 | 7

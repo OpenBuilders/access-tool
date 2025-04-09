@@ -1,26 +1,42 @@
+@use './themes.scss' as *;
+@use './variables.scss' as *;
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
+  font-family:
+    -apple-system, 'SF Pro Text', 'SF Pro Rounded', 'SF UI Text', system-ui,
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 html,
-body,
-#root,
-#app-tg-root {
+body {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
+  color: var(--color-textIconsPrimary);
+  background-color: var(--color-backgroundPrimary);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-a,
-span {
-  font-family: var(--tgui--font-family);
+::-webkit-scrollbar {
+  width: 0;
+}
+
+::-webkit-scrollbar-track {
+  visibility: hidden;
+}
+
+::-webkit-scrollbar-thumb {
+  visibility: hidden;
+}
+
+::-webkit-scrollbar:window-inactive {
+  visibility: hidden;
+}
+
+body::-webkit-scrollbar {
+  /*Chrome, Safari, Edge*/
+  display: none;
 }
