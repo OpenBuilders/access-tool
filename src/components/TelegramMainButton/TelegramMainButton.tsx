@@ -89,7 +89,7 @@ export const TelegramMainButton = ({
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 1000,
+          zIndex: 10000000000000000,
           height: '56px',
         }}
         disabled={disabled}
