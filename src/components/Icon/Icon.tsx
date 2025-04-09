@@ -1,15 +1,16 @@
 import cn from 'classnames'
 
 import styles from './Icon.module.scss'
-import { getIcon, IconTypeName } from './helpers'
+import { getIcon } from './helpers'
+import { IconSize, IconTypeName } from './types'
 
 interface IconProps {
   name: IconTypeName
-  size: 112
+  size: IconSize
 }
 
 export const Icon = ({ name, size }: IconProps) => {
-  const IconName = getIcon(name as IconTypeName)
+  const IconName = getIcon(name)
 
   if (!IconName) return null
 

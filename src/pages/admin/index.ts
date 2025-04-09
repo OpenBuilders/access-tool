@@ -1,0 +1,7 @@
+export * from './AddBotToChatPage'
+export * from './CheckingBotAddedPage'
+export * from './MainPage'
+export * from './ChatPage'
+export * from './ConditionPage'
+export * from './BotAddedSuccessPage'
+export * from './GrantPermissionsPage'

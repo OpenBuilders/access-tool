@@ -1,0 +1,197 @@
+.toast {
+  position: absolute;
+  z-index: 9000000000000000;
+  left: 16px;
+  right: 16px;
+  bottom: 24px;
+  font-family: var(--tgui--font-family) !important;
+}
+
+.toastContentWrapper {
+  transition:
+    opacity 0.25s ease,
+    transform 0.4s ease;
+  opacity: 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(30px);
+  width: 100%;
+  transform: translateY(10px);
+}
+
+.toastOpened {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toastContent {
+  color: #fff;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-right: 13px;
+    transition:
+      opacity 0.25s ease 0.15s,
+      transform 0.5s cubic-bezier(0.7, 0, 0.7, 1.5) 0.15s;
+  }
+}
+
+.type-success {
+  svg {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  &.toastOpened {
+    svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+.type-error {
+  svg {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+
+  &.toastOpened {
+    svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+.type-copy {
+  svg {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  &.toastOpened {
+    svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+.type-unsubscribe {
+  svg {
+    opacity: 0;
+  }
+
+  &.toastOpened {
+    svg {
+      opacity: 1;
+      animation: shake 1s linear;
+    }
+  }
+}
+
+.type-subscribe {
+  svg {
+    opacity: 0;
+  }
+
+  &.toastOpened {
+    svg {
+      opacity: 1;
+      animation: shake 1s linear;
+    }
+  }
+}
+
+.type-loading {
+  .toastContent {
+    padding-left: 52px;
+    position: relative;
+  }
+
+  svg {
+    position: absolute;
+    left: 13px;
+  }
+
+  &.toastOpened {
+    svg {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: rotate(0deg) scale(0);
+  }
+  5% {
+    transform: rotate(5deg);
+  }
+  10% {
+    transform: rotate(0deg);
+  }
+  15% {
+    transform: rotate(-5deg);
+  }
+  20% {
+    transform: rotate(7deg);
+  }
+  25% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-7deg);
+  }
+  35% {
+    transform: rotate(10deg);
+  }
+  40% {
+    transform: rotate(0deg);
+  }
+  45% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+  55% {
+    transform: rotate(0deg);
+  }
+  60% {
+    transform: rotate(-7deg);
+  }
+  65% {
+    transform: rotate(5deg) scale(1);
+  }
+  70% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+  80% {
+    transform: rotate(3deg);
+  }
+  85% {
+    transform: rotate(0deg);
+  }
+  90% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}

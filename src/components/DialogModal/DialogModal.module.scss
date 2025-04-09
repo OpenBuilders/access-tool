@@ -1,0 +1,75 @@
+.dialogModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.2s;
+}
+
+.dialogModalActive {
+  opacity: 1;
+  visibility: visible;
+  z-index: 100;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    visibility: hidden;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.dialogModalOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dialogModalContent {
+  background-color: var(--tgui--bg_color);
+  border-radius: 8px;
+  max-width: 270px;
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.dialogModalContentHeader {
+  padding: 16px;
+}
+
+.dialogModalContentFooter {
+  border-top: 1px solid var(--tgui--outline);
+  display: flex;
+  width: 100%;
+}
+
+.dialogModalContentFooterButton {
+  height: 44px;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:last-child {
+    border-left: 1px solid var(--tgui--outline);
+  }
+}
