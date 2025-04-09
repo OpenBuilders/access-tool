@@ -1,15 +1,12 @@
 import {
   lockIcon,
-  trashIcon,
   plusIcon,
-  pixelBadge,
-  dogsBadge,
-  notcoinBadge,
-  toncoinBadge,
   gatewayBot,
   doubleChevron,
   share,
   trash,
+  check,
+  cross,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -18,22 +15,18 @@ export const getIcon = (name: IconTypeName) => {
     case 'lock':
       return lockIcon
     case 'trash':
-      return trashIcon
+      return trash
     case 'plus':
       return plusIcon
-    case 'pixel':
-      return pixelBadge
-    case 'dogs':
-      return dogsBadge
-    case 'notcoin':
-      return notcoinBadge
-    case 'toncoin':
-      return toncoinBadge
     case 'gatewayBot':
       return gatewayBot
     case 'doubleChevron':
       return doubleChevron
     case 'share':
       return share
+    case 'check':
+      return check
+    case 'cross':
+      return cross
   }
 }

@@ -1,6 +1,6 @@
 import { Container, Icon } from '@components'
 import { useClipboard } from '@hooks'
-import commonStyles from '@styles/commonStyles.module.scss'
+import cs from '@styles/commonStyles.module.scss'
 import {
   Avatar,
   AvatarStack,
@@ -70,14 +70,14 @@ export const ChatHeader = () => {
         src={`${config.CDN}/${chat?.logoPath}`}
         fallbackIcon={<p>😔</p>}
         size={96}
-        className={commonStyles.rounded}
+        className={cs.rounded}
       />
-      <div className={commonStyles.mt12}>
+      <div className={cn(cs.mt12, cs.textCenter)}>
         <Title level="1" weight="1" plain>
           {chat?.title}
         </Title>
       </div>
-      <div className={cn(styles.members, commonStyles.mt12)}>
+      {/* <div className={cn(styles.members, commonStyles.mt12)}>
         <AvatarStack>
           {[
             <Avatar
@@ -93,9 +93,9 @@ export const ChatHeader = () => {
           ]}
         </AvatarStack>
         <Text className={commonStyles.colorHint}>24 members</Text>
-      </div>
+      </div> */}
       {showLinks && (
-        <div className={cn(commonStyles.mt24, styles.links)}>
+        <div className={cn(cs.mt24, styles.links)}>
           <Button
             before={<Icon name="share" size={24} />}
             size="l"
@@ -111,7 +111,7 @@ export const ChatHeader = () => {
           </Button>
         </div>
       )}
-      <Container className={commonStyles.mt24}>
+      <Container className={cs.mt24}>
         <Input
           placeholder="Short Description"
           value={description}

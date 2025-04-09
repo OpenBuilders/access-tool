@@ -7,6 +7,9 @@ import {
   GrantPermissionsPage,
   BotAddedSuccessPage,
   ClientTasksPage,
+  ClientConnectedWalletPage,
+  ClientWalletsListPage,
+  ClientJoinPage,
 } from '@pages'
 import { Route, Routes } from 'react-router-dom'
 
@@ -19,7 +22,10 @@ export const ROUTES_NAME = {
   GRANT_PERMISSIONS: '/admin/grant-permissions/:chatSlug',
   CHECKING_BOT_ADDED: '/admin/checking-bot-added/:chatSlug',
   BOT_ADDED_SUCCESS: '/admin/bot-added-success/:chatSlug',
-  CLIENT_TASKS: '/client/:clientChatSlug/tasks',
+  CLIENT_TASKS: '/client/:clientChatSlug',
+  CLIENT_CONNECTED_WALLET: '/client/:clientChatSlug/connected-wallet',
+  CLIENT_WALLETS_LIST: '/client/:clientChatSlug/wallets-list',
+  CLIENT_JOIN: '/client/:clientChatSlug/join',
 }
 
 export default (
@@ -45,5 +51,14 @@ export default (
       element={<BotAddedSuccessPage />}
     />
     <Route path={ROUTES_NAME.CLIENT_TASKS} element={<ClientTasksPage />} />
+    <Route
+      path={ROUTES_NAME.CLIENT_CONNECTED_WALLET}
+      element={<ClientConnectedWalletPage />}
+    />
+    <Route
+      path={ROUTES_NAME.CLIENT_WALLETS_LIST}
+      element={<ClientWalletsListPage />}
+    />
+    <Route path={ROUTES_NAME.CLIENT_JOIN} element={<ClientJoinPage />} />
   </Routes>
 )

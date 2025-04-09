@@ -11,16 +11,24 @@ export type User = {
   isPremium: boolean
   languageCode: string
   photoUrl: string | null
-  walletAddress: string | null
+  wallets: string[]
 }
 
-export type UserChat = {
-  id: number
-  username: string | null
-  title: string
-  description: string
-  slug: string
-  isForum: boolean
-  logoPath: string
-  insufficientPrivileges: boolean
+export type ChatTaskComplete = {
+  status: 'string'
+  message: 'string'
+}
+
+export type WalletData = {
+  tonProof: {
+    timestamp: number
+    domain: {
+      lengthBytes: number
+      value: string
+    }
+    signature: string
+    payload: string
+  }
+  walletAddress: string
+  publicKey: string
 }

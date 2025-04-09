@@ -12,10 +12,10 @@ import {
 import cn from 'classnames'
 
 import config from '@config'
-import { UserChat } from '@store'
+import { AdminChat } from '@store'
 
 interface ChannelsListProps {
-  channels: UserChat[]
+  channels: AdminChat[]
 }
 
 export const ChannelsList = ({ channels }: ChannelsListProps) => {
@@ -24,12 +24,15 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
     <Container className={cn(commonStyles.mt24, commonStyles.mb24)}>
       <Section header="Groups & Channels">
         {channels.map((channel) => (
-          <Navigation key={channel.id} className={commonStyles.pr12}>
+          <Navigation
+            key={channel.id}
+            className={cn(commonStyles.py6, commonStyles.pr12)}
+          >
             <Cell
               before={
                 <Avatar size={40} src={`${config.CDN}/${channel.logoPath}`} />
               }
-              description="1,232 members"
+              description=""
               className={commonStyles.py10}
               onClick={() =>
                 appNavigate({

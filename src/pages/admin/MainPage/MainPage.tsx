@@ -12,20 +12,20 @@ import { Title, Caption, Link } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
 
-import { useUser, useUserActions } from '@store'
+import { useChat, useChatActions, useUser, useUserActions } from '@store'
 
 import { ChannelsList } from './components'
 import { EmptyList } from './components'
 
 export const MainPage = () => {
   const { appNavigate } = useAppNavigation()
-  const { fetchUserChatsAction } = useUserActions()
-  const { userChats } = useUser()
+  const { fetchAdminUserChatsAction } = useChatActions()
+  const { adminChats } = useChat()
   const [isLoading, setIsLoading] = useState(false)
 
-  const fetchUserChats = async () => {
+  const fetchAdminUserChats = async () => {
     try {
-      await fetchUserChatsAction()
+      await fetchAdminUserChatsAction()
     } catch (error) {
       console.error(error)
     }
@@ -33,13 +33,13 @@ export const MainPage = () => {
 
   useEffect(() => {
     setIsLoading(true)
-    fetchUserChats()
+    fetchAdminUserChats()
     setIsLoading(false)
   }, [])
 
   if (isLoading) return null
 
-  const isEmpty = !userChats || !userChats?.length
+  const isEmpty = !adminChats || !adminChats?.length
 
   return (
     <PageLayout center={isEmpty}>
@@ -58,7 +58,7 @@ export const MainPage = () => {
         <br />
         and Channels
       </Title>
-      {isEmpty ? <EmptyList /> : <ChannelsList channels={userChats} />}
+      {isEmpty ? <EmptyList /> : <ChannelsList channels={adminChats} />}
       <Caption
         className={cn(
           isEmpty ? commonStyles.fixedBottom : commonStyles.mtAuto,

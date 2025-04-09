@@ -8,11 +8,11 @@ import {
   DialogModal,
   useToast,
 } from '@components'
-import { useAppNavigation, useConditionData } from '@hooks'
+import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import cs from '@styles/commonStyles.module.scss'
 import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
