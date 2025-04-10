@@ -116,6 +116,13 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
               pattern="[0-9]*"
               inputMode="numeric"
               textColor="tertiary"
+              after={
+                prefetchedConditionData ? (
+                  <Text type="text" color="tertiary">
+                    {prefetchedConditionData?.symbol}
+                  </Text>
+                ) : null
+              }
               value={(condition as ConditionJetton)?.expected}
               onChange={(value) =>
                 handleChangeConditionField('expected', value)

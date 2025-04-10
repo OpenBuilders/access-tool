@@ -1,4 +1,5 @@
 import {
+  Block,
   Container,
   PageLayout,
   TelegramBackButton,
@@ -71,9 +72,9 @@ export const ClientTasksPage = () => {
         isLoading={isLoading}
       />
       <ChatHeader />
-      <Container className={cs.mt24}>
+      <Block margin="top" marginValue={24}>
         <ChatConditions />
-      </Container>
+      </Block>
     </PageLayout>
   )
 }

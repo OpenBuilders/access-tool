@@ -29,6 +29,7 @@ export interface ListInputProps {
     | 'search'
     | 'email'
     | 'url'
+  after?: React.ReactNode
 }
 
 export const ListInput: React.FC<ListInputProps> = ({
@@ -48,6 +49,7 @@ export const ListInput: React.FC<ListInputProps> = ({
   id,
   textColor = 'primary',
   inputMode,
+  after,
   onBlur,
 }) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -57,27 +59,30 @@ export const ListInput: React.FC<ListInputProps> = ({
   }
 
   return (
-    <input
-      className={cn(
-        styles.listInput,
-        textColor && styles[`listInput-${textColor}`],
-        className
-      )}
-      type={type}
-      value={value}
-      onChange={handleChange}
-      onBlur={onBlur}
-      placeholder={placeholder}
-      disabled={disabled}
-      autoComplete={autoComplete}
-      maxLength={maxLength}
-      minLength={minLength}
-      pattern={pattern}
-      required={required}
-      readOnly={readOnly}
-      name={name}
-      id={id}
-      inputMode={inputMode}
-    />
+    <div className={styles.listInputContainer}>
+      <input
+        className={cn(
+          styles.listInput,
+          textColor && styles[`listInput-${textColor}`],
+          className
+        )}
+        type={type}
+        value={value}
+        onChange={handleChange}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        disabled={disabled}
+        autoComplete={autoComplete}
+        maxLength={maxLength}
+        minLength={minLength}
+        pattern={pattern}
+        required={required}
+        readOnly={readOnly}
+        name={name}
+        id={id}
+        inputMode={inputMode}
+      />
+      <div>{after}</div>
+    </div>
   )
 }

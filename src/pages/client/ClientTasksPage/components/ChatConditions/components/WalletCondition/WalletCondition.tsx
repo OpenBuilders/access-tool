@@ -1,8 +1,7 @@
-import { Icon } from '@components'
+import { Icon, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import cs from '@styles/commonStyles.module.scss'
-import { Cell, Navigation, Text } from '@telegram-apps/telegram-ui'
 import { toUserFriendlyAddress, useTonConnectUI } from '@tonconnect/ui-react'
 import { collapseAddress } from '@utils'
 import { useEffect } from 'react'
@@ -122,15 +121,16 @@ export const WalletCondition = () => {
 
   if (!chatWallet) {
     return (
-      <Navigation className={cs.pr12}>
-        <Cell
-          before={<Icon name="cross" size={20} />}
-          className={cs.py10}
-          onClick={handleOpenWalletConnect}
-        >
-          <Text className={cs.colorPrimary}>Connect Wallet</Text>
-        </Cell>
-      </Navigation>
+      <ListItem
+        chevron
+        onClick={handleOpenWalletConnect}
+        before={<Icon name="cross" size={20} />}
+        text={
+          <Text type="text" color="primary">
+            Connect Wallet
+          </Text>
+        }
+      />
     )
   }
 
@@ -145,15 +145,16 @@ export const WalletCondition = () => {
   const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
 
   return (
-    <Navigation className={cs.pr12}>
-      <Cell
-        before={<Icon name="check" size={20} />}
-        className={cs.py10}
-        after={collapsedAddress}
-        onClick={navigateToConnectedWalletPage}
-      >
-        <Text className={cs.colorPrimary}>Connect Wallet</Text>
-      </Cell>
-    </Navigation>
+    <ListItem
+      chevron
+      onClick={navigateToConnectedWalletPage}
+      before={<Icon name="check" size={20} />}
+      after={collapsedAddress}
+      text={
+        <Text type="text" color="primary">
+          Connect Wallet
+        </Text>
+      }
+    />
   )
 }

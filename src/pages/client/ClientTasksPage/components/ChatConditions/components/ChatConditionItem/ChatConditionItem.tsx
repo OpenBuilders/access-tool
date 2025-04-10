@@ -1,4 +1,4 @@
-import { Icon } from '@components'
+import { Icon, ListItem } from '@components'
 import cs from '@styles/commonStyles.module.scss'
 import { Cell, Navigation, Text } from '@telegram-apps/telegram-ui'
 
@@ -27,25 +27,21 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
 
   if (isEligible) {
     return (
-      <Cell
-        before={<Icon name="check" size={24} />}
-        description={renderAttributes()}
-      >
-        <Text className={cs.colorPrimary}>{title}</Text>
-      </Cell>
+      <ListItem
+        before={<Icon name="check" size={20} />}
+        text={<Text type="text">{title}</Text>}
+        // description={renderAttributes()}
+      />
     )
   }
 
   return (
-    <Navigation className={cs.pr12}>
-      <Cell
-        before={<Icon name="cross" size={20} />}
-        description={renderAttributes()}
-        className={cs.py10}
-        onClick={handleOpenLink}
-      >
-        <Text className={cs.colorPrimary}>{title}</Text>
-      </Cell>
-    </Navigation>
+    <ListItem
+      chevron
+      onClick={handleOpenLink}
+      before={<Icon name="cross" size={20} />}
+      text={<Text type="text">{title}</Text>}
+      // description={renderAttributes()}
+    />
   )
 }

@@ -11,6 +11,7 @@ interface ListItemProps {
   after?: React.ReactNode
   chevron?: boolean
   onClick?: () => void
+  disabled?: boolean
 }
 
 export const ListItem = ({
@@ -20,17 +21,22 @@ export const ListItem = ({
   before,
   after,
   chevron,
+  disabled,
   onClick,
 }: ListItemProps) => {
   const handleClick = () => {
-    if (onClick) {
+    if (onClick && !disabled) {
       onClick()
     }
   }
 
   return (
     <div
-      className={cn(styles.container, onClick && styles.clickable)}
+      className={cn(
+        styles.container,
+        onClick && styles.clickable,
+        disabled && styles.disabled
+      )}
       onClick={handleClick}
     >
       <div className={styles.left}>

@@ -1,3 +1,9 @@
+.listInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .listInput {
   background-color: transparent;
   color: var(--color-textIconsPrimary);

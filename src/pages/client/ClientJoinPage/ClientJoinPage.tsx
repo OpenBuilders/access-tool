@@ -1,14 +1,17 @@
 import confettiLottie from '@assets/confetti.json'
 import {
+  Block,
   Container,
+  Image,
   PageLayout,
   Sheet,
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
+  Text,
 } from '@components'
 import cs from '@styles/commonStyles.module.scss'
-import { Image, Text, Title } from '@telegram-apps/telegram-ui'
+// import { Image, Text, Title } from '@telegram-apps/telegram-ui'
 import { goTo } from '@utils'
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
@@ -69,27 +72,30 @@ export const ClientJoinPage = () => {
       <TelegramBackButton />
       <TelegramMainButton text="Join Group" onClick={handleJoinGroup} />
       <StickerPlayer lottie={confettiLottie} />
-      <Title weight="1" plain level="1" className={cn(cs.textCenter, cs.mt16)}>
-        Welcome to
-        <br />
-        {chat.title}
-      </Title>
-      <Text className={cn(cs.textCenter, cs.mt12)}>{chat.description}</Text>
+      <Block margin="top" marginValue={8}>
+        <Text type="title1" align="center" weight="bold">
+          Welcome to
+          <br />
+          {chat.title}
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={8}>
+        <Text type="text" align="center" color="tertiary">
+          {chat.description}
+        </Text>
+      </Block>
       <Sheet opened={isSheetOpened} onClose={() => setIsSheetOpened(false)}>
-        <Image
-          src={`${config.CDN}/${chat?.logoPath}`}
-          fallbackIcon={<p>😔</p>}
-          size={96}
-          className={cs.rounded}
-        />
-        <div className={cn(cs.mt12, cs.textCenter)}>
-          <Title level="1" weight="1" plain>
-            {chat?.title}
-          </Title>
-        </div>
-        <div className={cn(cs.mt8, cs.textCenter)}>
-          <Text>{chat?.description}</Text>
-        </div>
+        <Image src={chat?.logoPath} borderRadius={50} size={112} />
+        <Block margin="top" marginValue={8}>
+          <Text type="title1" align="center" weight="bold">
+            {chat.title}
+          </Text>
+        </Block>
+        <Block margin="top" marginValue={8}>
+          <Text type="text" align="center" color="tertiary">
+            {chat.description}
+          </Text>
+        </Block>
       </Sheet>
     </PageLayout>
   )

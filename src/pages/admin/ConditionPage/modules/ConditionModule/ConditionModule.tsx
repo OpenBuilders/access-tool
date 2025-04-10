@@ -1,6 +1,5 @@
 import {
   AppSelect,
-  Container,
   TelegramMainButton,
   TelegramBackButton,
   PageLayout,
@@ -13,8 +12,6 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import cs from '@styles/commonStyles.module.scss'
-// import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -25,7 +22,6 @@ import {
   useConditionActions,
 } from '@store'
 
-import styles from '../../ConditionPage.module.scss'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
 
 export const ConditionModule = () => {
@@ -117,6 +113,7 @@ export const ConditionModule = () => {
       <Block margin="top" marginValue={44}>
         <ListItem
           text="Condition type"
+          disabled
           after={
             <AppSelect
               onChange={() => {}}

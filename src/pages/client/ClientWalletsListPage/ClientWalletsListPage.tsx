@@ -1,20 +1,11 @@
 import walletLottie from '@assets/wallet.json'
-import { Container, StickerPlayer } from '@components'
+import { Block, List, ListItem, StickerPlayer, Text } from '@components'
 import { TelegramBackButton, TelegramMainButton } from '@components'
 import { PageLayout } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import cs from '@styles/commonStyles.module.scss'
-import {
-  Title,
-  Text,
-  Section,
-  Cell,
-  Navigation,
-} from '@telegram-apps/telegram-ui'
 import { toUserFriendlyAddress } from '@tonconnect/ui-react'
 import { collapseAddress } from '@utils'
-import cn from 'classnames'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -86,32 +77,34 @@ export const ClientWalletsListPage = () => {
         onClick={navigateToTasksPageWithWalletConnect}
       />
       <StickerPlayer lottie={walletLottie} />
-      <Title weight="2" plain level="1" className={cn(cs.textCenter, cs.mt16)}>
-        Select a Wallet
-      </Title>
-      <Text className={cn(cs.textCenter, cs.mt8, cs.colorHint)}>
-        These are the wallets you’ve previously connected — choose one or add a
-        new one.
-      </Text>
-      <Container className={cs.mt24}>
-        <Section>
+      <Block margin="top" marginValue={16}>
+        <Text type="title1" align="center" weight="medium">
+          Select a Wallet
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={8}>
+        <Text type="text" align="center" color="tertiary">
+          These are the wallets you’ve previously
+          <br />
+          connected — choose one or add a new one.
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={24}>
+        <List>
           {walletList.map((wallet) => {
             const userFriendlyAddress = toUserFriendlyAddress(wallet)
             const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
-
             return (
-              <Navigation className={cs.pr12}>
-                <Cell
-                  className={cs.py10}
-                  onClick={() => connectExistingWallet(wallet)}
-                >
-                  <Text className={cs.colorPrimary}>{collapsedAddress}</Text>
-                </Cell>
-              </Navigation>
+              <ListItem
+                key={wallet}
+                text={<Text type="text">{collapsedAddress}</Text>}
+                chevron
+                onClick={() => connectExistingWallet(wallet)}
+              />
             )
           })}
-        </Section>
-      </Container>
+        </List>
+      </Block>
     </PageLayout>
   )
 }
