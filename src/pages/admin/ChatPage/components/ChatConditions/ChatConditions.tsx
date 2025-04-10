@@ -1,8 +1,7 @@
-import { Container, Icon } from '@components'
+import { Block, Container, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import commonStyles from '@styles/commonStyles.module.scss'
-import { Cell, Link, Navigation, Section } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
 
 import { useChat, ChatRule } from '@store'
@@ -34,26 +33,51 @@ export const ChatConditions = () => {
   }
 
   return (
-    <Container className={cn(commonStyles.mt8, commonStyles.mb24)}>
-      <Section header="Who can Join">
-        {rules?.map((rule) => (
-          <Navigation
-            key={`${rule.id}_${rule.title}`}
-            className={commonStyles.pr16}
-          >
-            <Cell onClick={() => navigateToConditionPage(rule)}>
-              {rule.title}
-            </Cell>
-          </Navigation>
-        ))}
-        <Cell
-          Component={Link}
-          before={<Icon name="plus" size={28} />}
+    <>
+      <Block margin="top" marginValue={24}>
+        <List header="Who can Join">
+          {rules?.map((rule) => (
+            <ListItem
+              key={rule.id}
+              chevron
+              text={rule.title}
+              onClick={() => navigateToConditionPage(rule)}
+            />
+          ))}
+        </List>
+      </Block>
+      <Block margin="top" marginValue={rules?.length ? 12 : 0}>
+        <ListItem
+          text={
+            <Text type="text" color="accent">
+              Add Condition
+            </Text>
+          }
           onClick={createCondition}
-        >
-          Add Condition
-        </Cell>
-      </Section>
-    </Container>
+          before={<Icon name="plus" size={24} />}
+        />
+      </Block>
+    </>
+    // <Container className={cn(commonStyles.mt8, commonStyles.mb24)}>
+    //   <Section header="Who can Join">
+    //     {rules?.map((rule) => (
+    //       <Navigation
+    //         key={`${rule.id}_${rule.title}`}
+    //         className={commonStyles.pr16}
+    //       >
+    //         <Cell onClick={() => navigateToConditionPage(rule)}>
+    //           {rule.title}
+    //         </Cell>
+    //       </Navigation>
+    //     ))}
+    //     <Cell
+    //       Component={Link}
+    //       before={<Icon name="plus" size={28} />}
+    //       onClick={createCondition}
+    //     >
+    //       Add Condition
+    //     </Cell>
+    //   </Section>
+    // </Container>
   )
 }

@@ -1,10 +1,7 @@
-import { AppSelect } from '@components'
-import cs from '@styles/commonStyles.module.scss'
-import { Cell, Image, Input, Section, Text } from '@telegram-apps/telegram-ui'
+import { Block, Image, List, ListInput, ListItem } from '@components'
 import debounce from 'debounce'
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import config from '@config'
 import {
   useCondition,
   useConditionActions,
@@ -14,7 +11,6 @@ import {
 } from '@store'
 
 import { ConditionComponentProps } from '../types'
-import { NFT_COLLECTIONS } from './constants'
 import { validateNFTCollectionCondition } from './helpers'
 
 export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
@@ -72,65 +68,49 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
     }
   }, [])
 
-  let AddressComponent = (
-    <Section className={cs.mt24} footer="TON (The Open Network)">
-      <Input
-        placeholder="Jetton Address"
-        value={(condition as ConditionJetton)?.address || ''}
-        onChange={(e) => handleChangeConditionField('address', e.target.value)}
-      />
-    </Section>
-  )
-
-  if (prefetchedConditionData) {
-    AddressComponent = (
-      <Section className={cs.mt24} footer="TON (The Open Network)">
-        <Input
-          placeholder="Jetton Address"
-          value={(condition as ConditionJetton)?.address || ''}
-          onChange={(e) =>
-            handleChangeConditionField('address', e.target.value)
-          }
-        />
-        <Cell
-          before={
-            <Image src={`${config.CDN}/${prefetchedConditionData.logoPath}`} />
-          }
-          subtitle={prefetchedConditionData.symbol}
-        >
-          {prefetchedConditionData.name}
-        </Cell>
-      </Section>
-    )
-  }
-
   return (
     <>
-      {/* <Section className={cs.mt24}>
-        <Cell after={<AppSelect options={NFT_COLLECTIONS} />}>
-          NFT Collection
-        </Cell>
-      </Section> */}
-      {AddressComponent}
-      <Section className={cs.mt24}>
-        <Cell
+      <Block margin="top" marginValue={24}>
+        <List footer="TON (The Open Network)">
+          <ListItem>
+            <ListInput
+              placeholder="NFT Collection Address"
+              value={(condition as ConditionJetton)?.address || ''}
+              onChange={(value) => handleChangeConditionField('address', value)}
+            />
+          </ListItem>
+          {prefetchedConditionData && (
+            <ListItem
+              before={
+                <Image
+                  src={prefetchedConditionData?.logoPath}
+                  size={40}
+                  borderRadius={8}
+                />
+              }
+              text={prefetchedConditionData?.name}
+              description={prefetchedConditionData?.symbol}
+            />
+          )}
+        </List>
+      </Block>
+      <Block margin="top" marginValue={24}>
+        <ListItem
+          text="# of NFTs"
           after={
-            <Input
+            <ListInput
               type="text"
               pattern="[0-9]*"
               inputMode="numeric"
-              className={cs.afterInput}
-              after={<Text className={cs.colorHint}>TON</Text>}
+              textColor="tertiary"
               value={(condition as ConditionJetton)?.expected}
-              onChange={(e) =>
-                handleChangeConditionField('expected', e.target.value)
+              onChange={(value) =>
+                handleChangeConditionField('expected', value)
               }
             />
           }
-        >
-          # of NFTs
-        </Cell>
-      </Section>
+        />
+      </Block>
     </>
   )
 }

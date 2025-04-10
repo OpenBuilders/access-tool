@@ -8,7 +8,7 @@ interface ListProps {
   children: React.ReactNode
   header?: string
   footer?: React.ReactNode | string
-  separatorLeftGap?: 40 | 24
+  separatorLeftGap?: 40 | 24 // равен размеру картинки в before
 }
 
 export const List = ({
@@ -39,7 +39,7 @@ export const List = ({
       {footer && (
         <Block margin="top" marginValue={6}>
           <Block margin="left" marginValue={16}>
-            <Text type="caption" color="tertiary" uppercase>
+            <Text type="caption" color="tertiary">
               {footer}
             </Text>
           </Block>

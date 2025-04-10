@@ -1,22 +1,18 @@
-import { Container, Icon } from '@components'
-import { useClipboard } from '@hooks'
-import cs from '@styles/commonStyles.module.scss'
 import {
-  Avatar,
-  AvatarStack,
+  Block,
   Button,
+  Icon,
   Image,
-  Input,
+  List,
+  ListInput,
+  ListItem,
   Text,
-  Title,
-} from '@telegram-apps/telegram-ui'
-import cn from 'classnames'
-import { ChangeEvent, useState } from 'react'
+} from '@components'
+import { useClipboard } from '@hooks'
+import { useState } from 'react'
 
 import config from '@config'
 import { useChat, useChatActions } from '@store'
-
-import styles from './ChatHeader.module.scss'
 
 const webApp = window.Telegram?.WebApp
 
@@ -30,8 +26,8 @@ export const ChatHeader = () => {
     webApp.platform === 'android' ||
     webApp.platform === 'android_x'
 
-  const handleChangeDescription = (e: ChangeEvent<HTMLInputElement>) => {
-    setDescription(e.target.value)
+  const handleChangeDescription = (value: string) => {
+    setDescription(value)
   }
 
   const { copy } = useClipboard()
@@ -59,6 +55,7 @@ export const ChatHeader = () => {
   const handleCopyLink = () => {
     if (!chat?.slug) return
     const url = `${config.botLink}?startapp=ch_${chat?.slug}`
+    webApp.HapticFeedback.impactOccurred('soft')
     copy(url, 'Link copied!')
   }
 
@@ -66,59 +63,49 @@ export const ChatHeader = () => {
 
   return (
     <>
-      <Image
-        src={`${config.CDN}/${chat?.logoPath}`}
-        fallbackIcon={<p>😔</p>}
-        size={96}
-        className={cs.rounded}
-      />
-      <div className={cn(cs.mt12, cs.textCenter)}>
-        <Title level="1" weight="1" plain>
+      <Image size={112} src={chat?.logoPath} borderRadius={50} />
+      <Block margin="top" marginValue={12}>
+        <Text type="title" align="center" weight="bold">
           {chat?.title}
-        </Title>
-      </div>
-      {/* <div className={cn(styles.members, commonStyles.mt12)}>
-        <AvatarStack>
-          {[
-            <Avatar
-              key="avatar-1"
-              size={28}
-              src="https://avatars.githubusercontent.com/u/84640980?v=4"
-            />,
-            <Avatar
-              key="avatar-2"
-              size={28}
-              src="https://avatars.githubusercontent.com/u/1234567?v=4"
-            />,
-          ]}
-        </AvatarStack>
-        <Text className={commonStyles.colorHint}>24 members</Text>
-      </div> */}
+        </Text>
+      </Block>
       {showLinks && (
-        <div className={cn(cs.mt24, styles.links)}>
-          <Button
-            before={<Icon name="share" size={24} />}
-            size="l"
-            mode="filled"
-            stretched
-            style={{ gap: '4px' }}
-            onClick={handleShareLink}
-          >
-            Share
-          </Button>
-          <Button size="l" mode="bezeled" stretched onClick={handleCopyLink}>
-            Copy Link
-          </Button>
-        </div>
+        <Block
+          margin="top"
+          marginValue={24}
+          row
+          justify="between"
+          align="center"
+          gap={12}
+        >
+          <div style={{ flex: 1 }}>
+            <Button
+              type="primary"
+              prefix={<Icon name="share" size={24} />}
+              onClick={handleShareLink}
+            >
+              Share
+            </Button>
+          </div>
+          <div style={{ flex: 1 }}>
+            <Button type="accent" onClick={handleCopyLink}>
+              Copy
+            </Button>
+          </div>
+        </Block>
       )}
-      <Container className={cs.mt24}>
-        <Input
-          placeholder="Short Description"
-          value={description}
-          onChange={handleChangeDescription}
-          onBlur={handleUpdateChat}
-        />
-      </Container>
+      <Block margin="top" marginValue={24}>
+        <List header="Description">
+          <ListItem>
+            <ListInput
+              placeholder="Short Description"
+              value={description}
+              onChange={handleChangeDescription}
+              onBlur={handleUpdateChat}
+            />
+          </ListItem>
+        </List>
+      </Block>
     </>
   )
 }

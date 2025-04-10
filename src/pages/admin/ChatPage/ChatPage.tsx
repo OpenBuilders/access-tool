@@ -1,8 +1,13 @@
-import { PageLayout, TelegramBackButton, TelegramMainButton } from '@components'
+import {
+  Block,
+  PageLayout,
+  TelegramBackButton,
+  TelegramMainButton,
+  Text,
+} from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import commonStyles from '@styles/commonStyles.module.scss'
-import { Caption } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -62,13 +67,20 @@ export const ChatPage = () => {
       />
       <ChatHeader />
       <ChatConditions />
-      <div className={cn(commonStyles.mtAuto, commonStyles.textCenter)}>
+      <Block margin="top" marginValue="auto">
+        <Text type="caption" align="center" color="tertiary">
+          To delete this page from Gateway,
+          <br />
+          remove @gateway_bot from admins
+        </Text>
+      </Block>
+      {/* <div className={cn(commonStyles.mtAuto, commonStyles.textCenter)}>
         <Caption className={commonStyles.colorHint}>
           To delete this page from Gateway,
           <br />
           remove @gateway_bot from admins
         </Caption>
-      </div>
+      </div> */}
     </PageLayout>
   )
 }

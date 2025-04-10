@@ -4,7 +4,8 @@ import { Icon } from '../Icon'
 import styles from './ListItem.module.scss'
 
 interface ListItemProps {
-  text: React.ReactNode
+  text?: React.ReactNode
+  children?: React.ReactNode
   description?: React.ReactNode
   before?: React.ReactNode
   after?: React.ReactNode
@@ -14,6 +15,7 @@ interface ListItemProps {
 
 export const ListItem = ({
   text,
+  children,
   description,
   before,
   after,
@@ -34,8 +36,9 @@ export const ListItem = ({
       <div className={styles.left}>
         {before || null}
         <div className={styles.content}>
-          {text}
-          {description || null}
+          <div>{text || null}</div>
+          <div>{description || null}</div>
+          {children || null}
         </div>
       </div>
       <div className={styles.right}>

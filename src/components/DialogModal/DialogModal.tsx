@@ -1,8 +1,8 @@
 import cs from '@styles/commonStyles.module.scss'
-import { Caption, Text } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
 
+import { Text } from '../Text'
 import styles from './DialogModal.module.scss'
 
 interface DialogModalProps {
@@ -50,10 +50,14 @@ export const DialogModal = (props: DialogModalProps) => {
       <div className={styles.dialogModalContent}>
         <div className={styles.dialogModalContentHeader}>
           <div className={cs.textCenter}>
-            <Text weight="2">{title}</Text>
+            <Text type="text" weight="medium" align="center">
+              {title}
+            </Text>
           </div>
           <div className={cn(cs.mt4, cs.textCenter)}>
-            <Caption>{description}</Caption>
+            <Text type="caption" color="primary" align="center">
+              {description}
+            </Text>
           </div>
         </div>
         <div className={styles.dialogModalContentFooter}>
@@ -61,7 +65,9 @@ export const DialogModal = (props: DialogModalProps) => {
             className={cn(styles.dialogModalContentFooterButton, cs.colorLink)}
             onClick={onClose}
           >
-            <Text>{closeText}</Text>
+            <Text type="text" color="accent">
+              {closeText}
+            </Text>
           </div>
           <div
             className={cn(
@@ -70,7 +76,9 @@ export const DialogModal = (props: DialogModalProps) => {
             )}
             onClick={handleClick}
           >
-            <Text>{confirmText}</Text>
+            <Text type="text" color="danger">
+              {confirmText}
+            </Text>
           </div>
         </div>
       </div>

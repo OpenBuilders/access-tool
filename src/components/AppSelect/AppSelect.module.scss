@@ -10,7 +10,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: var(--tgui--link_color);
+  color: var(--color-accentsBrandCommunity);
   font-size: 17px;
   cursor: pointer;
   width: 100%;
@@ -20,12 +20,12 @@
   }
 
   option {
-    color: var(--tgui--link_color);
+    color: var(--color-accentsBrandCommunity);
     background: transparent;
     text-align: right;
   }
 }
 
 .icon {
-  color: var(--tgui--link_color);
+  color: var(--color-accentsBrandCommunity);
 }

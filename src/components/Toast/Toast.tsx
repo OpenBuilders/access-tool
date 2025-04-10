@@ -5,16 +5,13 @@ import { createPortal } from 'react-dom'
 import { ToastElement, ToastOptions } from './ToastElement'
 
 const ToastContainer = ({ toasts }: any) => {
-  const root = document.getElementById('app-tg-root')
-  if (!root) return null
-
   return createPortal(
     toasts.map((item: any) => (
       <ToastElement key={item.id} id={item.id} options={item.options}>
         {item.options.message}
       </ToastElement>
     )),
-    root
+    document.body
   )
 }
 

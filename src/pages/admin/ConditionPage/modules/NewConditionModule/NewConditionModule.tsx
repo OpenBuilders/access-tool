@@ -5,10 +5,12 @@ import {
   TelegramMainButton,
   PageLayout,
   useToast,
+  Text,
+  Block,
+  ListItem,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -94,25 +96,24 @@ export const NewConditionModule = () => {
         disabled={!isValid}
         onClick={handleCreateCondition}
       />
-      <Title level="1" weight="1" plain className={styles.title}>
-        Add condition
-      </Title>
-      <Container>
-        <Section>
-          <Cell
-            after={
-              <AppSelect
-                onChange={(value) => handleChangeType(value)}
-                options={CONDITION_TYPES}
-                value={condition?.category}
-              />
-            }
-          >
-            Choose type
-          </Cell>
-        </Section>
-        {Component && <Component isNewCondition />}
-      </Container>
+      <Block margin="top" marginValue={32}>
+        <Text type="title1" weight="bold" align="center">
+          Add condition
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={44}>
+        <ListItem
+          text="Choose type"
+          after={
+            <AppSelect
+              onChange={(value) => handleChangeType(value)}
+              options={CONDITION_TYPES}
+              value={condition?.category}
+            />
+          }
+        />
+      </Block>
+      {Component && <Component isNewCondition />}
     </PageLayout>
   )
 }

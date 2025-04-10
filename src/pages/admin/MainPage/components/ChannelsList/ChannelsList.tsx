@@ -1,12 +1,7 @@
-import commonStyles from '@common/styles/commonStyles.module.scss'
-import { Block, Container, Icon, Image, List, ListItem } from '@components'
-import { Text } from '@components'
+import { Block, Image, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { Avatar, Cell, Navigation, Section } from '@telegram-apps/telegram-ui'
-import cn from 'classnames'
 
-import config from '@config'
 import { AdminChat } from '@store'
 
 interface ChannelsListProps {
@@ -35,11 +30,6 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
                   {channel.title}
                 </Text>
               }
-              after={
-                <Text type="text" color="tertiary">
-                  Ton
-                </Text>
-              }
               chevron
               before={
                 <Image src={channel.logoPath} size={24} borderRadius={50} />
@@ -50,31 +40,5 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
         })}
       </List>
     </Block>
-    // <Container className={cn(commonStyles.mt24, commonStyles.mb24)}>
-    //   <Section header="Groups & Channels">
-    //     {channels.map((channel) => (
-    //       <Navigation
-    //         key={channel.id}
-    //         className={cn(commonStyles.py6, commonStyles.pr12)}
-    //       >
-    //         <Cell
-    //           before={
-    //             <Avatar size={40} src={`${config.CDN}/${channel.logoPath}`} />
-    //           }
-    //           description=""
-    //           className={commonStyles.py10}
-    //           onClick={() =>
-    //             appNavigate({
-    //               path: ROUTES_NAME.CHAT,
-    //               params: { chatSlug: channel.slug },
-    //             })
-    //           }
-    //         >
-    //           <Text className={commonStyles.colorPrimary}>{channel.title}</Text>
-    //         </Cell>
-    //       </Navigation>
-    //     ))}
-    //   </Section>
-    // </Container>
   )
 }

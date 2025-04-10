@@ -1,5 +1,4 @@
 import lockLottie from '@assets/lock.json'
-import commonStyles from '@common/styles/commonStyles.module.scss'
 import {
   Block,
   PageLayout,
@@ -10,11 +9,9 @@ import {
 import { Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { Title, Caption, Link } from '@telegram-apps/telegram-ui'
-import cn from 'classnames'
 import { useEffect, useState } from 'react'
 
-import { useChat, useChatActions, useUser, useUserActions } from '@store'
+import { useChat, useChatActions } from '@store'
 
 import { ChannelsList } from './components'
 import { EmptyList } from './components'

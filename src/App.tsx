@@ -94,7 +94,7 @@ function App() {
         appearance={HARDCODED_APPEARANCE}
         id="app-tg-root"
       > */}
-      <ToastProvider>{Routes}</ToastProvider>
+      {Routes}
       {/* </AppRoot> */}
     </TonConnectUIProvider>
   )

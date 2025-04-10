@@ -5,21 +5,22 @@ import config from '@config'
 import styles from './Image.module.scss'
 
 interface ImageProps {
-  src: string
+  src?: string | null
   size: 24 | 40 | 112
-  borderRadius?: 50 | 12
+  borderRadius?: 50 | 12 | 8
 }
 
 export const Image = ({ src, size, borderRadius }: ImageProps) => {
   if (!src)
     return (
       <div
+        className={cn(
+          styles.emptyImage,
+          borderRadius && styles[`border-radius-${borderRadius}`]
+        )}
         style={{
           width: size,
           height: size,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
         }}
       >
         😔

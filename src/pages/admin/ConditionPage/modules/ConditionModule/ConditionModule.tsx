@@ -7,11 +7,14 @@ import {
   Icon,
   DialogModal,
   useToast,
+  Block,
+  Text,
+  ListItem,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import cs from '@styles/commonStyles.module.scss'
-import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
+// import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -106,36 +109,36 @@ export const ConditionModule = () => {
         disabled={!isValid || !isFieldChanged}
         onClick={handleUpdateCondition}
       />
-      <Title level="1" weight="1" plain className={styles.title}>
-        Edit condition
-      </Title>
-      <Container>
-        <Section>
-          <Cell
-            disabled
-            after={
-              <AppSelect
-                onChange={() => {}}
-                options={CONDITION_TYPES}
-                value={condition?.category}
-                disabled
-              />
-            }
-          >
-            Condition type
-          </Cell>
-        </Section>
-        {Component && <Component />}
-        <Section className={cs.mt24}>
-          <Cell
-            className={cs.colorDanger}
-            before={<Icon name="trash" size={24} />}
-            onClick={handleOpenDialog}
-          >
-            Remove Condition
-          </Cell>
-        </Section>
-      </Container>
+      <Block margin="top" marginValue={32}>
+        <Text type="title1" weight="bold" align="center">
+          Edit condition
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={44}>
+        <ListItem
+          text="Condition type"
+          after={
+            <AppSelect
+              onChange={() => {}}
+              options={CONDITION_TYPES}
+              value={condition?.category}
+              disabled
+            />
+          }
+        />
+      </Block>
+      {Component && <Component />}
+      <Block margin="top" marginValue={24}>
+        <ListItem
+          text={
+            <Text type="text" color="danger">
+              Remove Condition
+            </Text>
+          }
+          before={<Icon name="trash" size={24} />}
+          onClick={handleOpenDialog}
+        />
+      </Block>
       <DialogModal
         active={isDialogOpen}
         title="Remove Condition?"

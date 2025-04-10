@@ -2,7 +2,6 @@ import { useToast } from '@components'
 import cs from '@styles/commonStyles.module.scss'
 import { Caption, Cell, FileInput, Section } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
-import { useState } from 'react'
 
 import {
   ConditionWhitelistExternal,
@@ -100,6 +99,8 @@ export const WhitelistExternal = (props: ConditionComponentProps) => {
       setIsValidAction(false)
     }
   }
+
+  return null
 
   let UploadComponent = (
     <Section

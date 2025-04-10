@@ -1,9 +1,7 @@
-import cs from '@styles/commonStyles.module.scss'
-import { Cell, Image, Input, Section, Text } from '@telegram-apps/telegram-ui'
+import { Block, Image, List, ListInput, ListItem, Text } from '@components'
 import debounce from 'debounce'
 import { useCallback, useEffect } from 'react'
 
-import config from '@config'
 import {
   useCondition,
   useConditionActions,
@@ -72,69 +70,60 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
     }
   }, [])
 
-  let AddressComponent = (
-    <Section className={cs.mt24} footer="TON (The Open Network)">
-      <Input
-        placeholder="Jetton Address"
-        value={(condition as ConditionJetton)?.[addressField] || ''}
-        onChange={(e) =>
-          handleChangeConditionField(addressField, e.target.value)
-        }
-      />
-    </Section>
-  )
-
-  if (prefetchedConditionData) {
-    AddressComponent = (
-      <Section className={cs.mt24} footer="TON (The Open Network)">
-        <Input
-          placeholder="Jetton Address"
-          value={(condition as ConditionJetton)?.[addressField] || ''}
-          onChange={(e) =>
-            handleChangeConditionField(addressField, e.target.value)
-          }
-        />
-        <Cell
-          before={
-            <Image src={`${config.CDN}/${prefetchedConditionData.logoPath}`} />
-          }
-          subtitle={prefetchedConditionData.symbol}
-        >
-          {prefetchedConditionData.name}
-        </Cell>
-      </Section>
-    )
-  }
-
   return (
     <>
-      {/* <Section className={cs.mt24}>
-        <Cell after={<AppSelect options={JETTONS_CATEGORIES} />}>Category</Cell>
-      </Section> */}
-      {AddressComponent}
-      <Section className={cs.mt24}>
-        <Cell
+      <Block margin="top" marginValue={24}>
+        <List footer="TON (The Open Network)">
+          <ListItem>
+            <ListInput
+              placeholder="Jetton Address"
+              value={(condition as ConditionJetton)?.[addressField] || ''}
+              onChange={(value) =>
+                handleChangeConditionField(addressField, value)
+              }
+            />
+          </ListItem>
+          {prefetchedConditionData && (
+            <ListItem
+              before={
+                <Image
+                  src={prefetchedConditionData?.logoPath}
+                  size={40}
+                  borderRadius={8}
+                />
+              }
+              text={
+                <Text type="text" weight="medium">
+                  {prefetchedConditionData?.name}
+                </Text>
+              }
+              description={
+                <Text type="caption" color="tertiary">
+                  {prefetchedConditionData?.symbol}
+                </Text>
+              }
+            />
+          )}
+        </List>
+      </Block>
+      {/* TODO: добавить after */}
+      <Block margin="top" marginValue={24}>
+        <ListItem
+          text="Amount"
           after={
-            <Input
+            <ListInput
               type="text"
               pattern="[0-9]*"
               inputMode="numeric"
-              className={cs.afterInput}
-              after={
-                <Text className={cs.colorHint}>
-                  {prefetchedConditionData?.symbol || ''}
-                </Text>
-              }
+              textColor="tertiary"
               value={(condition as ConditionJetton)?.expected}
-              onChange={(e) =>
-                handleChangeConditionField('expected', e.target.value)
+              onChange={(value) =>
+                handleChangeConditionField('expected', value)
               }
             />
           }
-        >
-          Amount
-        </Cell>
-      </Section>
+        />
+      </Block>
     </>
   )
 }

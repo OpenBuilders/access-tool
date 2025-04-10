@@ -11,12 +11,17 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
 }
 
 .right {
   display: flex;
   align-items: center;
   gap: 10px;
+
+  input {
+    text-align: right;
+  }
 }
 
 .content {
@@ -24,6 +29,7 @@
   flex-direction: column;
   justify-content: center;
   gap: 2px;
+  width: 100%;
 }
 
 .clickable {

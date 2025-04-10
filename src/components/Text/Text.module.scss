@@ -39,7 +39,7 @@
 }
 
 .accent {
-  color: var(--color-appliedLink);
+  color: var(--color-accentsBrandCommunity);
 }
 
 .tertiary {
@@ -52,6 +52,10 @@
 
 .primary {
   color: var(--color-textIconsPrimary);
+}
+
+.danger {
+  color: var(--color-accentsRed);
 }
 
 .center {

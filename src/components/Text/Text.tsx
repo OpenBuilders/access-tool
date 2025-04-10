@@ -6,7 +6,7 @@ interface TextProps {
   children: React.ReactNode | string
   type: 'title' | 'title1' | 'text' | 'link' | 'caption'
   align?: 'left' | 'center' | 'right'
-  color?: 'primary' | 'tertiary' | 'secondary' | 'accent'
+  color?: 'primary' | 'tertiary' | 'secondary' | 'accent' | 'danger'
   weight?: 'normal' | 'medium' | 'bold'
   href?: string
   as?: 'p' | 'span' | 'div' | 'a'
