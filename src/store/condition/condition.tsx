@@ -76,6 +76,8 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
       createConditionAction: async (args: ConditionCreateArgs) => {
         const { ok, error } = await createConditionApi(args)
 
+        console.log(error)
+
         if (!ok) {
           throw new Error(error)
         }

@@ -1,5 +1,4 @@
 import sandwatchLottie from '@assets/sandwatch.json'
-import commonStyles from '@common/styles/commonStyles.module.scss'
 import {
   Block,
   PageLayout,
@@ -10,9 +9,6 @@ import {
 } from '@components'
 import { useAppNavigation, useError, useInterval } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import '@styles/index.scss'
-import cn from 'classnames'
-import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useChat, useChatActions } from '@store'
@@ -21,7 +17,7 @@ export const CheckingBotAddedPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
   const { appNavigate } = useAppNavigation()
   const { fetchChatAction } = useChatActions()
-  const { pageNotFound } = useError()
+  const { adminChatNotFound } = useError()
   const { chat } = useChat()
 
   const fetchChat = async () => {
@@ -36,7 +32,7 @@ export const CheckingBotAddedPage = () => {
       }
     } catch (error) {
       console.error(error)
-      pageNotFound('Chat not found')
+      adminChatNotFound()
     }
   }
 

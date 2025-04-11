@@ -19,13 +19,19 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
     handleChangeConditionFieldAction,
     setIsValidAction,
     prefetchConditionDataAction,
+    resetPrefetchedConditionDataAction,
   } = useConditionActions()
 
   const debouncedPrefetchNFTCollection = useCallback(
-    debounce(async (address: string) => {
+    debounce(async (address?: string) => {
+      if (!address) {
+        resetPrefetchedConditionDataAction()
+        return
+      }
+
       try {
         await prefetchConditionDataAction(
-          condition?.category as ConditionType,
+          condition?.type as ConditionType,
           address
         )
       } catch (error) {

@@ -2,12 +2,16 @@ export type Condition =
   | ConditionJetton
   | ConditionNFTCollection
   | ConditionWhitelistExternal
+  | ConditionTGPremium
+  | ConditionToncoin
 
 export type ConditionType =
   | 'jetton'
   | 'nft_collections'
   | 'whitelist'
   | 'whitelist_external'
+  | 'tg_premium'
+  | 'toncoin'
 
 export interface ConditionFetchArgs {
   type: ConditionType
@@ -34,32 +38,120 @@ export interface ConditionDeleteArgs {
   conditionId: string
 }
 
-export type ConditionCore = {
+export interface ConditionJetton {
   id: number
-  category: ConditionType
+  type: 'jetton'
   title: string
   expected: number
   photoUrl: string
   blockchainAddress: string
   isEnabled: boolean
+  asset: string
+  category: string
+  promoteUrl: string
+  address?: string
+}
+
+export interface ConditionNFTCollection {
+  id: number
+  type: 'nft_collections'
+  title: string
+  expected: number
+  photoUrl: string
+  blockchainAddress: string
+  isEnabled: boolean
+  asset: string
+  category: string
+  promoteUrl: string
+  address?: string
+}
+
+export interface ConditionToncoin {
+  id: number
+  type: 'toncoin'
+  title: string
+  expected: number
+  photoUrl: string
+  blockchainAddress: string
+  isEnabled: boolean
+  asset: string
+  category: string
   promoteUrl: string
 }
 
-export type ConditionJetton = Partial<ConditionCore> & {
-  category: 'jetton'
-  address: string
+export interface ConditionWhitelist {
+  id: number
+  type: 'whitelist'
+  chatId: number
+  name: string
+  description: string
+  createdAt: string
+  updatedAt: string
+  isEnabled: boolean
+  users: number[]
 }
 
-export type ConditionNFTCollectionAttribute = {
-  traitType: string
-  value: string
+export interface ConditionWhitelistExternal {
+  id: number
+  type: 'whitelist_external'
+  chatId: number
+  name: string
+  description: string
+  createdAt: string
+  updatedAt: string
+  isEnabled: boolean
+  blockchainAddress: string
+  users: number[]
+  url: string
 }
 
-export type ConditionNFTCollection = Partial<ConditionCore> & {
-  category: 'nft_collections'
-  address: string
-  requiredAttributes: ConditionNFTCollectionAttribute[]
+export interface ConditionTGPremium {
+  id: number
+  type: string
+  title: string
+  expected: number
+  photoUrl: string
+  blockchainAddress: string
+  isEnabled: boolean
+  asset: string
+  category: string
+  promoteUrl: string
 }
+
+// export type ConditionCore = {
+//   id: number
+//   category: ConditionType
+//   title: string
+//   expected: number
+//   photoUrl: string
+//   blockchainAddress: string
+//   isEnabled: boolean
+//   promoteUrl: string
+// }
+
+// export type ConditionJetton = Partial<ConditionCore> & {
+//   category: 'jetton'
+//   address: string
+// }
+
+// export type ConditionNFTCollectionAttribute = {
+//   traitType: string
+//   value: string
+// }
+
+// export type ConditionNFTCollection = Partial<ConditionCore> & {
+//   category: 'nft_collections'
+//   address: string
+//   requiredAttributes: ConditionNFTCollectionAttribute[]
+// }
+
+// export type ConditionWhitelistExternal = Partial<ConditionCore> & {
+//   category: 'whitelist_external'
+//   name: string
+//   description: string
+//   url?: string
+//   users?: number[]
+// }
 
 export type PrefetchedConditionData = {
   address: string
@@ -69,12 +161,4 @@ export type PrefetchedConditionData = {
   logoPath: string
   isEnabled: boolean
   totalSupply: number
-}
-
-export type ConditionWhitelistExternal = Partial<ConditionCore> & {
-  category: 'whitelist_external'
-  name: string
-  description: string
-  url?: string
-  users?: number[]
 }

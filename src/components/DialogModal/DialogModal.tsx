@@ -1,7 +1,7 @@
-import cs from '@styles/commonStyles.module.scss'
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
 
+import { Block } from '../Block'
 import { Text } from '../Text'
 import styles from './DialogModal.module.scss'
 
@@ -49,20 +49,20 @@ export const DialogModal = (props: DialogModalProps) => {
       <div className={styles.dialogModalOverlay} onClick={onClose} />
       <div className={styles.dialogModalContent}>
         <div className={styles.dialogModalContentHeader}>
-          <div className={cs.textCenter}>
+          <Block>
             <Text type="text" weight="medium" align="center">
               {title}
             </Text>
-          </div>
-          <div className={cn(cs.mt4, cs.textCenter)}>
+          </Block>
+          <Block margin="top" marginValue={4}>
             <Text type="caption" color="primary" align="center">
               {description}
             </Text>
-          </div>
+          </Block>
         </div>
         <div className={styles.dialogModalContentFooter}>
           <div
-            className={cn(styles.dialogModalContentFooterButton, cs.colorLink)}
+            className={styles.dialogModalContentFooterButton}
             onClick={onClose}
           >
             <Text type="text" color="accent">
@@ -70,13 +70,10 @@ export const DialogModal = (props: DialogModalProps) => {
             </Text>
           </div>
           <div
-            className={cn(
-              styles.dialogModalContentFooterButton,
-              onDelete ? cs.colorDanger : cs.colorLink
-            )}
+            className={styles.dialogModalContentFooterButton}
             onClick={handleClick}
           >
-            <Text type="text" color="danger">
+            <Text type="text" color={onDelete ? 'danger' : 'accent'}>
               {confirmText}
             </Text>
           </div>

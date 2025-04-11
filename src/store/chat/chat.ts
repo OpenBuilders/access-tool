@@ -35,7 +35,7 @@ const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
       const { data, ok, error } = await fetchChatAPI(slug)
 
       if (!ok) {
-        throw new Error(error)
+        throw new Error(error || 'Chat not found')
       }
 
       set({ chat: data?.chat, rules: data?.rules })

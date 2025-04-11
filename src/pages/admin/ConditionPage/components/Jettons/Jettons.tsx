@@ -22,10 +22,15 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
     useConditionActions()
 
   const debouncedPrefetchJetton = useCallback(
-    debounce(async (address: string) => {
+    debounce(async (address?: string) => {
+      if (!address) {
+        resetPrefetchedConditionDataAction()
+        return
+      }
+
       try {
         await prefetchConditionDataAction(
-          condition?.category as ConditionType,
+          condition?.type as ConditionType,
           address
         )
       } catch (error) {
@@ -46,7 +51,7 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
 
     const updatedCondition = {
       ...condition,
-      category: condition?.category,
+      category: condition?.type,
       [field]: value,
     } as ConditionJetton
 

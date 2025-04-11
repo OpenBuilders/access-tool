@@ -1,4 +1,5 @@
 // src/services/ApiService.ts
+import { API_VALIDATION_ERROR } from '@utils'
 import ky, { HTTPError, Options } from 'ky'
 
 import config from '@config'
@@ -34,9 +35,15 @@ const handleError = async (
   if (err instanceof HTTPError) {
     try {
       const errorData = await err.response.json()
+      if (Array.isArray(errorData.detail) && errorData.detail[0]?.input) {
+        return {
+          ok: err.response.ok,
+          error: API_VALIDATION_ERROR,
+        }
+      }
       return {
         ok: err.response.ok,
-        error: errorData.detail || 'Server error',
+        error: errorData.detail || 'Something went wrong',
       }
     } catch {
       return {

@@ -12,7 +12,7 @@ import cn from 'classnames'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useChat, useChatActions } from '@store'
+import { useApp, useAppActions, useChat, useChatActions } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
 
@@ -22,8 +22,10 @@ export const ChatPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
   const { appNavigate } = useAppNavigation()
 
-  const [isLoading, setIsLoading] = useState(false)
-  const { pageNotFound } = useError()
+  const { isLoading } = useApp()
+  const { toggleIsLoadingAction } = useAppActions()
+
+  const { adminChatNotFound } = useError()
 
   const { rules } = useChat()
   const { fetchChatAction } = useChatActions()
@@ -34,16 +36,14 @@ export const ChatPage = () => {
       await fetchChatAction(chatSlug)
     } catch (error) {
       console.error(error)
-      pageNotFound('Chat not found')
+      adminChatNotFound()
     }
   }
 
   useEffect(() => {
-    setIsLoading(true)
+    toggleIsLoadingAction(true)
     fetchChat()
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
+    toggleIsLoadingAction(false)
   }, [chatSlug])
 
   if (isLoading) return null
@@ -74,13 +74,6 @@ export const ChatPage = () => {
           remove @gateway_bot from admins
         </Text>
       </Block>
-      {/* <div className={cn(commonStyles.mtAuto, commonStyles.textCenter)}>
-        <Caption className={commonStyles.colorHint}>
-          To delete this page from Gateway,
-          <br />
-          remove @gateway_bot from admins
-        </Caption>
-      </div> */}
     </PageLayout>
   )
 }

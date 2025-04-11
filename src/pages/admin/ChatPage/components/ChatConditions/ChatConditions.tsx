@@ -56,26 +56,5 @@ export const ChatConditions = () => {
         />
       </Block>
     </>
-    // <Container className={cn(commonStyles.mt8, commonStyles.mb24)}>
-    //   <Section header="Who can Join">
-    //     {rules?.map((rule) => (
-    //       <Navigation
-    //         key={`${rule.id}_${rule.title}`}
-    //         className={commonStyles.pr16}
-    //       >
-    //         <Cell onClick={() => navigateToConditionPage(rule)}>
-    //           {rule.title}
-    //         </Cell>
-    //       </Navigation>
-    //     ))}
-    //     <Cell
-    //       Component={Link}
-    //       before={<Icon name="plus" size={28} />}
-    //       onClick={createCondition}
-    //     >
-    //       Add Condition
-    //     </Cell>
-    //   </Section>
-    // </Container>
   )
 }

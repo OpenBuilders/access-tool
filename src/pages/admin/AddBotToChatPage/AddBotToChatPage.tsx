@@ -8,7 +8,7 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import '@styles/index.scss'
+import { useParams } from 'react-router-dom'
 
 import config from '@config'
 
@@ -16,7 +16,8 @@ const webApp = window.Telegram.WebApp
 
 export const AddBotToChatPage = () => {
   const { appNavigate } = useAppNavigation()
-
+  const { chatSlug } = useParams<{ chatSlug: string }>()
+  const chatSlugParam = chatSlug || ''
   const navigateToMainPage = () => {
     appNavigate({ path: ROUTES_NAME.MAIN })
   }
@@ -25,6 +26,10 @@ export const AddBotToChatPage = () => {
     webApp.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
+    appNavigate({
+      path: ROUTES_NAME.CHECKING_BOT_ADDED,
+      params: { chatSlug: chatSlugParam },
+    })
   }
 
   return (

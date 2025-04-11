@@ -68,6 +68,14 @@ export const NewConditionModule = () => {
       })
     } catch (error) {
       console.error(error)
+      if (error instanceof Error) {
+        showToast({
+          message: error.message,
+          type: 'error',
+        })
+        return
+      }
+
       showToast({
         message: 'Failed to create condition',
         type: 'error',
@@ -106,7 +114,7 @@ export const NewConditionModule = () => {
             <AppSelect
               onChange={(value) => handleChangeType(value)}
               options={CONDITION_TYPES}
-              value={condition?.category}
+              value={condition?.type}
             />
           }
         />

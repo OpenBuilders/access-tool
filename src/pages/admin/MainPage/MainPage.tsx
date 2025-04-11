@@ -9,9 +9,9 @@ import {
 import { Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
-import { useChat, useChatActions } from '@store'
+import { useChat, useChatActions, useApp, useAppActions } from '@store'
 
 import { ChannelsList } from './components'
 import { EmptyList } from './components'
@@ -20,7 +20,8 @@ export const MainPage = () => {
   const { appNavigate } = useAppNavigation()
   const { fetchAdminUserChatsAction } = useChatActions()
   const { adminChats } = useChat()
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading } = useApp()
+  const { toggleIsLoadingAction } = useAppActions()
 
   const fetchAdminUserChats = async () => {
     try {
@@ -31,9 +32,9 @@ export const MainPage = () => {
   }
 
   useEffect(() => {
-    setIsLoading(true)
+    toggleIsLoadingAction(true)
     fetchAdminUserChats()
-    setIsLoading(false)
+    toggleIsLoadingAction(false)
   }, [])
 
   if (isLoading) return null
