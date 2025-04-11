@@ -1,10 +1,7 @@
-import cn from 'classnames'
+import { List, ListItem, Text } from '@components'
+import Papa from 'papaparse'
 import { useState } from 'react'
 
-import { Icon } from '../Icon'
-import { List } from '../List/List'
-import { ListItem } from '../ListItem'
-import { Text } from '../Text'
 import styles from './ListUpload.module.scss'
 import { FileData } from './types'
 
@@ -49,6 +46,24 @@ export const ListUpload = ({
     })
   }
 
+  const parseCSV = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: false,
+        skipEmptyLines: true,
+        complete: (results) => {
+          // results.data будет типа string[][]
+          const rawData = results.data as string[][]
+          const extractedIds = rawData.map((row) => row[0])
+          resolve(extractedIds.join(','))
+        },
+        error: (error) => {
+          reject(new Error('Failed to parse CSV'))
+        },
+      })
+    })
+  }
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -63,7 +78,14 @@ export const ListUpload = ({
         throw new Error('Invalid file type')
       }
 
-      const content = await readFileContent(file)
+      let content: any
+
+      if (fileExtension === 'csv') {
+        content = await parseCSV(file)
+        content = JSON.stringify(content.split(','))
+      } else {
+        content = await readFileContent(file)
+      }
 
       const contentData = JSON.parse(content)
 
@@ -114,7 +136,7 @@ export const ListUpload = ({
         }
         after={
           <Text type="text" color="accent">
-            {fileData?.name ? 'Change file' : 'Upload'}
+            {fileData?.name ? fileData.name : 'Upload'}
           </Text>
         }
       >

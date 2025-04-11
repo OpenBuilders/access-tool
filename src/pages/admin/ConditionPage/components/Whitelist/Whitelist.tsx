@@ -153,11 +153,6 @@ export const Whitelist = (props: ConditionComponentProps) => {
             </Text>
           }
         /> */}
-        {!!(condition as ConditionWhitelistExternal)?.users?.length && (
-          <ListItem
-            text={`${(condition as ConditionWhitelistExternal)?.users?.length} Users Added`}
-          />
-        )}
       </List>
     </Block>
   )
