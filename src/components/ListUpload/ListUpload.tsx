@@ -13,6 +13,7 @@ interface ListUploadProps {
   className?: string
   text?: string
   showPreview?: boolean
+  uploadedFile?: any
 }
 
 export const ListUpload = ({
@@ -23,8 +24,14 @@ export const ListUpload = ({
   className,
   text = 'Upload',
   showPreview = true,
+  uploadedFile,
 }: ListUploadProps) => {
-  const [fileData, setFileData] = useState<FileData | null>(null)
+  const [fileData, setFileData] = useState<FileData | null>({
+    name: uploadedFile?.name,
+    url: uploadedFile?.url,
+    description: uploadedFile?.description,
+    users: uploadedFile?.users,
+  })
 
   const readFileContent = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
