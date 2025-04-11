@@ -1,6 +1,4 @@
-import { useToast } from '@components'
-import cs from '@styles/commonStyles.module.scss'
-import { Caption, Cell, FileInput, Section } from '@telegram-apps/telegram-ui'
+import { Block, List, ListItem, Text, useToast } from '@components'
 import cn from 'classnames'
 
 import {
@@ -100,70 +98,99 @@ export const WhitelistExternal = (props: ConditionComponentProps) => {
     }
   }
 
-  return null
-
-  let UploadComponent = (
-    <Section
-      className={cs.mt24}
-      footer={
-        <Caption className={cn(cs.pl16, cs.colorHint)}>
-          Supported formats:
-          <ul className={cs.pl32}>
-            <li>CSV — one ID per line, no header</li>
-            <li>JSON — array of strings or numbers (e.g. ["123", "456"])</li>
-            <li>TXT — plain text with one ID per line or valid JSON array</li>
-          </ul>
-        </Caption>
-      }
-    >
-      <Cell
-        after={
-          <FileInput
-            className={styles.upload}
-            onChange={handleChangeConditionField}
-            label="Upload"
-            accept={ALLOWED_FILE_TYPES}
-          />
-        }
-      >
-        Upload CSV, JSON or TXT
-      </Cell>
-    </Section>
-  )
-
-  if (!!(condition as ConditionWhitelistExternal)?.users?.length) {
-    UploadComponent = (
-      <Section
-        className={cs.mt24}
+  return (
+    <Block margin="top" marginValue={24}>
+      <List
         footer={
-          <Caption className={cn(cs.pl16, cs.colorHint)}>
+          <Text type="caption" color="tertiary">
             Supported formats:
-            <ul className={cs.pl32}>
+            <ul>
               <li>CSV — one ID per line, no header</li>
               <li>JSON — array of strings or numbers (e.g. ["123", "456"])</li>
               <li>TXT — plain text with one ID per line or valid JSON array</li>
             </ul>
-          </Caption>
+          </Text>
         }
       >
-        <Cell
+        <ListItem
+          text="Upload CSV, JSON or TXT"
           after={
-            <FileInput
-              className={styles.upload}
-              onChange={handleChangeConditionField}
-              label="Change file"
-              accept={ALLOWED_FILE_TYPES}
-            />
+            <Text type="text" color="accent">
+              Upload
+            </Text>
           }
-        >
-          Upload CSV, JSON or TXT
-        </Cell>
-        <Cell>
-          {(condition as ConditionWhitelistExternal)?.users?.length} Users Added
-        </Cell>
-      </Section>
-    )
-  }
+        />
+        {!!(condition as ConditionWhitelistExternal)?.users?.length && (
+          <ListItem
+            text={`${(condition as ConditionWhitelistExternal)?.users?.length} Users Added`}
+          />
+        )}
+      </List>
+    </Block>
+  )
 
-  return UploadComponent
+  // let UploadComponent = (
+  //   <Section
+  //     className={cs.mt24}
+  //     footer={
+  //       <Caption className={cn(cs.pl16, cs.colorHint)}>
+  //         Supported formats:
+  //         <ul className={cs.pl32}>
+  //           <li>CSV — one ID per line, no header</li>
+  //           <li>JSON — array of strings or numbers (e.g. ["123", "456"])</li>
+  //           <li>TXT — plain text with one ID per line or valid JSON array</li>
+  //         </ul>
+  //       </Caption>
+  //     }
+  //   >
+  //     <Cell
+  //       after={
+  //         <FileInput
+  //           className={styles.upload}
+  //           onChange={handleChangeConditionField}
+  //           label="Upload"
+  //           accept={ALLOWED_FILE_TYPES}
+  //         />
+  //       }
+  //     >
+  //       Upload CSV, JSON or TXT
+  //     </Cell>
+  //   </Section>
+  // )
+
+  // if (!!(condition as ConditionWhitelistExternal)?.users?.length) {
+  //   UploadComponent = (
+  //     <Section
+  //       className={cs.mt24}
+  //       footer={
+  //         <Caption className={cn(cs.pl16, cs.colorHint)}>
+  //           Supported formats:
+  //           <ul className={cs.pl32}>
+  //             <li>CSV — one ID per line, no header</li>
+  //             <li>JSON — array of strings or numbers (e.g. ["123", "456"])</li>
+  //             <li>TXT — plain text with one ID per line or valid JSON array</li>
+  //           </ul>
+  //         </Caption>
+  //       }
+  //     >
+  //       <Cell
+  //         after={
+  //           <FileInput
+  //             className={styles.upload}
+  //             onChange={handleChangeConditionField}
+  //             label="Change file"
+  //             accept={ALLOWED_FILE_TYPES}
+  //           />
+  //         }
+  //       >
+  //         Upload CSV, JSON or TXT
+  //       </Cell>
+  //       <Cell>
+  //         {(condition as ConditionWhitelistExternal)?.users?.length} Users Added
+  //       </Cell>
+  //     </Section>
+  //   )
+  // }
+
+  // return UploadComponent
 }

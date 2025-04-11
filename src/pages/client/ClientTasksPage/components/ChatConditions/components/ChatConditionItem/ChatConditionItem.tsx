@@ -1,6 +1,4 @@
-import { Icon, ListItem } from '@components'
-import cs from '@styles/commonStyles.module.scss'
-import { Cell, Navigation, Text } from '@telegram-apps/telegram-ui'
+import { Icon, ListItem, Text } from '@components'
 
 import { ChatRule } from '@store'
 
@@ -19,7 +17,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
 
   const renderAttributes = () => {
     return requiredAttributes?.map((attribute) => (
-      <Text key={attribute.traitType}>
+      <Text type="caption" color="tertiary" key={attribute.traitType}>
         {attribute.value} {attribute.traitType}
       </Text>
     ))
@@ -30,7 +28,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
       <ListItem
         before={<Icon name="check" size={20} />}
         text={<Text type="text">{title}</Text>}
-        // description={renderAttributes()}
+        description={renderAttributes()}
       />
     )
   }
@@ -41,7 +39,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
       onClick={handleOpenLink}
       before={<Icon name="cross" size={20} />}
       text={<Text type="text">{title}</Text>}
-      // description={renderAttributes()}
+      description={renderAttributes()}
     />
   )
 }

@@ -1,6 +1,5 @@
 import {
   AppSelect,
-  Container,
   TelegramBackButton,
   TelegramMainButton,
   PageLayout,
@@ -20,7 +19,6 @@ import {
   useConditionActions,
 } from '@store'
 
-import styles from '../../ConditionPage.module.scss'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
 
 export const NewConditionModule = () => {

@@ -1,13 +1,11 @@
 import {
   Block,
-  Container,
   PageLayout,
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import cs from '@styles/commonStyles.module.scss'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 

@@ -1,8 +1,6 @@
-import { Block, Container, Icon, List, ListItem, Text } from '@components'
+import { Block, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import commonStyles from '@styles/commonStyles.module.scss'
-import cn from 'classnames'
 
 import { useChat, ChatRule } from '@store'
 

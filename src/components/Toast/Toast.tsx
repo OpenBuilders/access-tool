@@ -1,4 +1,3 @@
-import { Text } from '@telegram-apps/telegram-ui'
 import React, { useCallback, useContext, useState } from 'react'
 import { createPortal } from 'react-dom'
 

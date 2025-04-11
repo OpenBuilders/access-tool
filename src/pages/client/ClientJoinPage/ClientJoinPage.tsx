@@ -1,7 +1,6 @@
 import confettiLottie from '@assets/confetti.json'
 import {
   Block,
-  Container,
   Image,
   PageLayout,
   Sheet,
@@ -10,14 +9,10 @@ import {
   TelegramMainButton,
   Text,
 } from '@components'
-import cs from '@styles/commonStyles.module.scss'
-// import { Image, Text, Title } from '@telegram-apps/telegram-ui'
 import { goTo } from '@utils'
-import cn from 'classnames'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import config from '@config'
 import { useChat, useChatActions } from '@store'
 
 const webApp = window.Telegram.WebApp

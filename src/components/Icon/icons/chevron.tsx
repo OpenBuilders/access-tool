@@ -6,7 +6,7 @@ export const chevron = (
     viewBox="0 0 7 12"
     fill="none"
   >
-    <g clip-path="url(#clip0_676_8031)">
+    <g clipPath="url(#clip0_676_8031)">
       <path
         d="M1 1L6 6L1 11"
         stroke="#C8C7CC"
