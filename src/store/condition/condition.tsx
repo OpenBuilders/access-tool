@@ -5,12 +5,14 @@ import {
   createConditionApi,
   deleteConditionApi,
   fetchConditionApi,
+  fetchConditionCategoriesApi,
   prefetchConditionDataApi,
   updateConditionApi,
 } from './api'
-import { getConditionInitialState } from './helpers'
+import { INITIAL_CONDITION } from './constants'
 import {
   Condition,
+  ConditionCategory,
   ConditionCreateArgs,
   ConditionDeleteArgs,
   ConditionFetchArgs,
@@ -21,7 +23,7 @@ import {
 
 interface ConditionStore {
   isValid: boolean
-  isFieldChanged: boolean
+  isSaved: boolean
   condition: Condition | null
   prefetchedConditionData: PrefetchedConditionData | null
 }
@@ -42,14 +44,17 @@ interface ConditionActions {
     setIsValidAction: (value: boolean) => void
     prefetchConditionDataAction: (type: ConditionType, address: string) => void
     resetPrefetchedConditionDataAction: () => void
+    fetchConditionCategoriesAction: (
+      type: ConditionType
+    ) => Promise<ConditionCategory[] | undefined>
   }
 }
 
 const useConditionStore = create<ConditionStore & ConditionActions>(
   (set, get) => ({
     isValid: false,
-    isFieldChanged: false,
-    condition: null,
+    isSaved: false,
+    condition: INITIAL_CONDITION,
     prefetchedConditionData: null,
     actions: {
       setInitialConditionAction: (condition: Condition) => {
@@ -57,13 +62,6 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
       },
 
       fetchConditionAction: async (args: ConditionFetchArgs) => {
-        if (!args.conditionId) {
-          const initialCondition = getConditionInitialState(args.type)
-
-          set({ condition: initialCondition })
-          return
-        }
-
         const { data, ok, error } = await fetchConditionApi(args)
 
         if (!ok) {
@@ -73,10 +71,26 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
         set({ condition: data })
       },
 
+      fetchConditionCategoriesAction: async (type: ConditionType) => {
+        if (
+          type !== 'jetton' &&
+          type !== 'nft_collection' &&
+          type !== 'toncoin'
+        ) {
+          return
+        }
+
+        const { data, ok, error } = await fetchConditionCategoriesApi(type)
+
+        if (!ok) {
+          throw new Error(error)
+        }
+
+        return data
+      },
+
       createConditionAction: async (args: ConditionCreateArgs) => {
         const { ok, error } = await createConditionApi(args)
-
-        console.log(error)
 
         if (!ok) {
           throw new Error(error)
@@ -92,7 +106,7 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
           throw new Error(error)
         }
 
-        set({ condition: null, isFieldChanged: false })
+        set({ condition: null, isSaved: true })
       },
 
       deleteConditionAction: async (args: ConditionDeleteArgs) => {
@@ -108,7 +122,7 @@ const useConditionStore = create<ConditionStore & ConditionActions>(
       handleChangeConditionFieldAction: (field, value) => {
         set((state) => ({
           ...state,
-          isFieldChanged: true,
+          isSaved: false,
           condition: {
             ...state.condition,
             [field]: value,

@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
-
-import { ConditionType, useCondition, useConditionActions } from '@store'
+import { PageLayout } from '@components'
+import { TelegramBackButton } from '@components'
+import { useAppNavigation } from '@hooks'
+import { ROUTES_NAME } from '@routes'
+import { useParams } from 'react-router-dom'
 
 import { ConditionModule, NewConditionModule } from './modules'
 
@@ -9,35 +10,32 @@ export const ConditionPage = () => {
   const params = useParams<{
     conditionId: string
     chatSlug: string
-    conditionType: string
   }>()
 
+  const { appNavigate } = useAppNavigation()
+
   const chatSlugParam = params.chatSlug || ''
-  const conditionTypeParam = params.conditionType || ''
   const conditionIdParam = params.conditionId || ''
 
-  const { fetchConditionAction } = useConditionActions()
-  const { condition } = useCondition()
-
-  const fetchCondition = async () => {
-    try {
-      await fetchConditionAction({
-        type: conditionTypeParam as ConditionType,
-        chatSlug: chatSlugParam,
-        conditionId: conditionIdParam,
-      })
-    } catch (error) {
-      console.error(error)
-    }
+  const navigateToChatPage = () => {
+    appNavigate({
+      path: ROUTES_NAME.CHAT,
+      params: { chatSlug: chatSlugParam },
+    })
   }
 
-  useEffect(() => {
-    fetchCondition()
-  }, [conditionIdParam, conditionTypeParam])
+  if (!conditionIdParam)
+    return (
+      <PageLayout>
+        <TelegramBackButton onClick={navigateToChatPage} />
+        <NewConditionModule />
+      </PageLayout>
+    )
 
-  if (!condition) return null
-
-  if (!conditionIdParam) return <NewConditionModule />
-
-  return <ConditionModule />
+  return (
+    <PageLayout>
+      <TelegramBackButton onClick={navigateToChatPage} />
+      <ConditionModule />
+    </PageLayout>
+  )
 }

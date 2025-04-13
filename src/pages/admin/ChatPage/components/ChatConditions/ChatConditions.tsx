@@ -2,7 +2,7 @@ import { Block, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 
-import { useChat, ChatRule } from '@store'
+import { useChat, ChatRule, Condition } from '@store'
 
 export const ChatConditions = () => {
   const { appNavigate } = useAppNavigation()
@@ -19,13 +19,13 @@ export const ChatConditions = () => {
     })
   }
 
-  const navigateToConditionPage = (rule: ChatRule) => {
+  const navigateToConditionPage = (rule: Condition) => {
     appNavigate({
       path: ROUTES_NAME.CHAT_CONDITION,
       params: {
         conditionId: rule.id,
         chatSlug: chat?.slug,
-        conditionType: rule.category,
+        conditionType: rule.type,
       },
     })
   }

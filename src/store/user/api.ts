@@ -7,7 +7,6 @@ const webApp = window.Telegram.WebApp
 export const authenticateUserAPI = async (): Promise<
   ApiServiceResponse<AuthenticatedUser>
 > => {
-  console.log(webApp)
   const response = await ApiService.post<AuthenticatedUser>({
     endpoint: '/auth/telegram',
     data: { initDataRaw: webApp.initData },

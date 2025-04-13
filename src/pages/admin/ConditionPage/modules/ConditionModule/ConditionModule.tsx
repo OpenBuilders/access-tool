@@ -12,7 +12,7 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -39,10 +39,28 @@ export const ConditionModule = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { condition, isValid, isFieldChanged } = useCondition()
-  const { deleteConditionAction, updateConditionAction } = useConditionActions()
+  const { condition, isValid, isSaved } = useCondition()
+  const { deleteConditionAction, updateConditionAction, fetchConditionAction } =
+    useConditionActions()
 
   const handleOpenDialog = () => setIsDialogOpen(true)
+
+  const fetchCondition = async () => {
+    if (!conditionIdParam || !chatSlugParam || !conditionTypeParam) return
+    try {
+      await fetchConditionAction({
+        type: conditionTypeParam as ConditionType,
+        chatSlug: chatSlugParam,
+        conditionId: conditionIdParam,
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCondition()
+  }, [conditionIdParam, conditionTypeParam])
 
   const navigateToChatPage = () => {
     appNavigate({
@@ -53,10 +71,14 @@ export const ConditionModule = () => {
     })
   }
 
+  if (!condition) return null
+
   const Component =
     CONDITION_COMPONENTS[
       conditionTypeParam as keyof typeof CONDITION_COMPONENTS
     ]
+
+  console.log(conditionTypeParam)
 
   if (!Component) return null
 
@@ -98,11 +120,10 @@ export const ConditionModule = () => {
   }
 
   return (
-    <PageLayout>
-      <TelegramBackButton onClick={navigateToChatPage} />
+    <>
       <TelegramMainButton
         text="Save"
-        disabled={!isValid || !isFieldChanged}
+        disabled={!isValid || !isSaved}
         onClick={handleUpdateCondition}
       />
       <Block margin="top" marginValue={32}>
@@ -118,7 +139,7 @@ export const ConditionModule = () => {
             <AppSelect
               onChange={() => {}}
               options={CONDITION_TYPES}
-              value={condition?.category}
+              value={condition?.type}
               disabled
             />
           }
@@ -145,6 +166,6 @@ export const ConditionModule = () => {
         onClose={() => setIsDialogOpen(false)}
         onDelete={handleDeleteCondition}
       />
-    </PageLayout>
+    </>
   )
 }

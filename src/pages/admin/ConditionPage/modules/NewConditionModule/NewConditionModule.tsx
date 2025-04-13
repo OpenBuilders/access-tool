@@ -10,6 +10,7 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -20,6 +21,7 @@ import {
 } from '@store'
 
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
+import { createUpdatedData } from './helpers'
 
 export const NewConditionModule = () => {
   const { appNavigate } = useAppNavigation()
@@ -52,14 +54,26 @@ export const NewConditionModule = () => {
     })
   }
 
-  if (!Component) return null
+  useEffect(() => {
+    if (conditionTypeParam) {
+      handleChangeConditionFieldAction('type', conditionTypeParam)
+    }
+  }, [conditionTypeParam])
+
+  if (!Component || !condition) return null
 
   const handleCreateCondition = async () => {
     try {
+      const updatedData = createUpdatedData(condition as Condition)
+
+      if (!updatedData) {
+        throw new Error('Failed to create condition. Try again later')
+      }
+
       await createConditionAction({
         type: conditionTypeParam as ConditionType,
         chatSlug: chatSlugParam,
-        data: condition as Condition,
+        data: updatedData,
       })
       navigateToChatPage()
       showToast({
@@ -85,7 +99,7 @@ export const NewConditionModule = () => {
 
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
-    handleChangeConditionFieldAction('category', value)
+    handleChangeConditionFieldAction('type', value)
     appNavigate({
       path: ROUTES_NAME.CHAT_NEW_CONDITION,
       params: {
@@ -94,9 +108,9 @@ export const NewConditionModule = () => {
       },
     })
   }
+
   return (
-    <PageLayout>
-      <TelegramBackButton onClick={navigateToChatPage} />
+    <>
       <TelegramMainButton
         text="Create Condition"
         disabled={!isValid}
@@ -120,6 +134,6 @@ export const NewConditionModule = () => {
         />
       </Block>
       {Component && <Component isNewCondition />}
-    </PageLayout>
+    </>
   )
 }

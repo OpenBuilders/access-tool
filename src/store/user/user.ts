@@ -94,8 +94,6 @@ const useUserStore = create<UserStore & UserActions>((set) => ({
       if (!ok) {
         throw new Error(error)
       }
-
-      console.log(data)
     },
   },
 }))

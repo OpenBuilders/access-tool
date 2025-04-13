@@ -1,12 +1,10 @@
-import { useEffect } from 'react'
+import { memo, useEffect } from 'react'
 
 interface TelegramBackButtonProps {
   onClick?: () => void
 }
 
-export const TelegramBackButton: React.FC<TelegramBackButtonProps> = ({
-  onClick,
-}) => {
+const TelegramBackButtonMemo = ({ onClick }: TelegramBackButtonProps) => {
   useEffect(() => {
     const webApp = window.Telegram?.WebApp
     if (!webApp || !onClick) return
@@ -29,3 +27,5 @@ export const TelegramBackButton: React.FC<TelegramBackButtonProps> = ({
 
   return null
 }
+
+export const TelegramBackButton = memo(TelegramBackButtonMemo)

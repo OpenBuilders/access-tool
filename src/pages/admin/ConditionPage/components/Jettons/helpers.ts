@@ -1,4 +1,4 @@
-import { ConditionJetton } from '@store'
+import { Condition } from '@store'
 
 export const validateJettonAddress = (address?: string): boolean => {
   if (!address) return false
@@ -11,7 +11,7 @@ export const validateAmount = (amount?: number): boolean => {
   return !isNaN(amount) && amount > 0
 }
 
-export const validateJettonsCondition = (condition: ConditionJetton) => {
+export const validateJettonsCondition = (condition: Condition) => {
   if (!condition) return false
 
   return (

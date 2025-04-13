@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+import { Condition } from '../condition'
 import { createSelectors } from '../types'
 import {
   fetchAdminUserChatsAPI,
@@ -12,7 +13,7 @@ import { AdminChat, Chat, ChatInstance, ChatRule } from './types'
 interface ChatStore {
   adminChats: AdminChat[] | null
   chat: ChatInstance | null
-  rules: ChatRule[] | null
+  rules: Condition[] | null
   chatWallet: string | null
 }
 

@@ -2,6 +2,7 @@ import { ApiService, ApiServiceResponse } from '@services'
 
 import {
   Condition,
+  ConditionCategory,
   ConditionCreateArgs,
   ConditionDeleteArgs,
   ConditionFetchArgs,
@@ -10,11 +11,13 @@ import {
   PrefetchedConditionData,
 } from './types'
 
-const ConditionTypePath = {
+const ConditionTypePath: Record<ConditionType, string> = {
   jetton: 'jettons',
-  nft_collections: 'nft-collections',
+  nft_collection: 'nft-collections',
   whitelist: 'whitelist',
   whitelist_external: 'whitelist-external',
+  premium: 'premium',
+  toncoin: 'toncoin',
 }
 
 // Jettons
@@ -52,7 +55,7 @@ export const updateConditionApi = async (
   let formData = {
     ...data,
   }
-  if (data?.category === 'jetton' || data?.category === 'nft_collections') {
+  if (data?.type === 'jetton' || data?.type === 'nft_collection') {
     formData = {
       ...formData,
       address: data?.address || data?.blockchainAddress || '',
@@ -87,6 +90,17 @@ export const prefetchConditionDataApi = async (
   const path = ConditionTypePath[type]
   const response = await ApiService.get<PrefetchedConditionData>({
     endpoint: `/admin/resources/prefetch/${path}?address=${address}`,
+  })
+
+  return response
+}
+
+export const fetchConditionCategoriesApi = async (
+  type: ConditionType
+): Promise<ApiServiceResponse<ConditionCategory[]>> => {
+  const path = ConditionTypePath[type]
+  const response = await ApiService.get<ConditionCategory[]>({
+    endpoint: `/admin/resources/categories/${path}`,
   })
 
   return response

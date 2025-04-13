@@ -1,12 +1,20 @@
-import { Block, Image, List, ListInput, ListItem, Text } from '@components'
+import {
+  AppSelect,
+  Block,
+  Image,
+  List,
+  ListInput,
+  ListItem,
+  Text,
+} from '@components'
 import debounce from 'debounce'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
   useCondition,
   useConditionActions,
-  ConditionJetton,
   ConditionType,
+  Condition,
 } from '@store'
 
 import { ConditionComponentProps } from '../types'
@@ -14,12 +22,20 @@ import { validateJettonsCondition } from './helpers'
 
 export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
   const { condition } = useCondition()
-  const { handleChangeConditionFieldAction, setIsValidAction } =
-    useConditionActions()
+
+  const [categoriesData, setCategoriesData] = useState<any>(null)
+
+  const [activeAsset, setActiveAsset] = useState<any>(null)
+  const [activeCategory, setActiveCategory] = useState<any>(null)
 
   const { prefetchedConditionData } = useCondition()
-  const { prefetchConditionDataAction, resetPrefetchedConditionDataAction } =
-    useConditionActions()
+  const {
+    prefetchConditionDataAction,
+    resetPrefetchedConditionDataAction,
+    setIsValidAction,
+    fetchConditionCategoriesAction,
+    handleChangeConditionFieldAction,
+  } = useConditionActions()
 
   const debouncedPrefetchJetton = useCallback(
     debounce(async (address?: string) => {
@@ -47,71 +63,143 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
     field: string,
     value: string | number
   ) => {
-    handleChangeConditionFieldAction(field, value)
-
-    const updatedCondition = {
+    const updatedState = {
       ...condition,
-      category: condition?.type,
       [field]: value,
-    } as ConditionJetton
+    }
 
-    const validationResult = validateJettonsCondition(updatedCondition)
+    handleChangeConditionFieldAction(field, value)
+    const validationResult = validateJettonsCondition(updatedState as Condition)
 
     if (field === addressField) {
       debouncedPrefetchJetton(value.toString())
     }
 
+    if (field === 'asset') {
+      setActiveAsset(value)
+    }
+
+    if (field === 'category') {
+      setActiveCategory(value)
+    }
+
     setIsValidAction(validationResult)
   }
 
-  useEffect(() => {
-    if (
-      !isNewCondition &&
-      (condition?.blockchainAddress || (condition as ConditionJetton)?.address)
-    ) {
-      debouncedPrefetchJetton(
-        condition?.blockchainAddress || (condition as ConditionJetton)?.address
-      )
+  const fetchConditionCategories = async () => {
+    try {
+      const result = await fetchConditionCategoriesAction('jetton')
+
+      if (!result) {
+        throw new Error('Failed to fetch condition categories')
+      }
+      let categoriesDataResult = result.map((asset) => {
+        return {
+          value: asset.asset,
+          name: asset.asset,
+          categories: asset.categories.map((category) => ({
+            value: category,
+            name: category,
+          })),
+        }
+      })
+      setCategoriesData(categoriesDataResult)
+
+      if (condition?.asset) {
+        setActiveAsset(condition?.asset)
+      } else {
+        setActiveAsset(categoriesDataResult[0].value)
+      }
+
+      if (condition?.category) {
+        setActiveCategory(condition?.category)
+      } else {
+        setActiveCategory(categoriesDataResult[0].categories[0].value)
+      }
+    } catch (error) {
+      console.error(error)
     }
+  }
+
+  useEffect(() => {
+    if (!isNewCondition) {
+      debouncedPrefetchJetton(condition?.blockchainAddress)
+    }
+    fetchConditionCategories()
   }, [])
+
+  if (!categoriesData) return null
 
   return (
     <>
       <Block margin="top" marginValue={24}>
-        <List footer="TON (The Open Network)">
-          <ListItem>
-            <ListInput
-              placeholder="Jetton Address"
-              value={(condition as ConditionJetton)?.[addressField] || ''}
-              onChange={(value) =>
-                handleChangeConditionField(addressField, value)
-              }
-            />
-          </ListItem>
-          {prefetchedConditionData && (
-            <ListItem
-              before={
-                <Image
-                  src={prefetchedConditionData?.logoPath}
-                  size={40}
-                  borderRadius={8}
-                />
-              }
-              text={
-                <Text type="text" weight="medium">
-                  {prefetchedConditionData?.name}
-                </Text>
-              }
-              description={
-                <Text type="caption" color="tertiary">
-                  {prefetchedConditionData?.symbol}
-                </Text>
-              }
-            />
-          )}
+        <List>
+          <ListItem
+            text="Category"
+            after={
+              <AppSelect
+                onChange={(value) => handleChangeConditionField('asset', value)}
+                value={activeAsset}
+                options={categoriesData.map((asset: any) => ({
+                  value: asset.value,
+                  name: asset.name,
+                }))}
+              />
+            }
+          />
+          <ListItem
+            text="Category Option"
+            after={
+              <AppSelect
+                onChange={(value) =>
+                  handleChangeConditionField('category', value)
+                }
+                value={activeCategory}
+                options={categoriesData
+                  .find((asset: any) => asset.value === activeAsset)
+                  ?.categories.map((category: any) => ({
+                    value: category.value,
+                    name: category.name,
+                  }))}
+              />
+            }
+          />
         </List>
+        <Block margin="top" marginValue={24}>
+          <List footer="TON (The Open Network)">
+            <ListItem>
+              <ListInput
+                placeholder="Jetton Address"
+                value={condition?.[addressField] || ''}
+                onChange={(value) =>
+                  handleChangeConditionField(addressField, value)
+                }
+              />
+            </ListItem>
+            {prefetchedConditionData && (
+              <ListItem
+                before={
+                  <Image
+                    src={prefetchedConditionData?.logoPath}
+                    size={40}
+                    borderRadius={8}
+                  />
+                }
+                text={
+                  <Text type="text" weight="medium">
+                    {prefetchedConditionData?.name}
+                  </Text>
+                }
+                description={
+                  <Text type="caption" color="tertiary">
+                    {prefetchedConditionData?.symbol}
+                  </Text>
+                }
+              />
+            )}
+          </List>
+        </Block>
       </Block>
-      {/* TODO: добавить after */}
       <Block margin="top" marginValue={24}>
         <ListItem
           text="Amount"
@@ -128,7 +216,7 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
                   </Text>
                 ) : null
               }
-              value={(condition as ConditionJetton)?.expected}
+              value={condition?.expected}
               onChange={(value) =>
                 handleChangeConditionField('expected', value)
               }
