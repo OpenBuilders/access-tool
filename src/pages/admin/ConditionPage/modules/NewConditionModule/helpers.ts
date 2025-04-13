@@ -34,5 +34,11 @@ export const createUpdatedData = (condition: Condition) => {
     }
   }
 
+  if (condition.type === 'premium') {
+    return {
+      isEnabled: condition.isEnabled,
+    }
+  }
+
   return condition
 }

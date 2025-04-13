@@ -25,20 +25,6 @@ export type ChatRuleAttribute = {
   value: string
 }
 
-export type ChatRule = {
-  id: number
-  category: string
-  title: string
-  expected: number
-  photoUrl: string
-  blockchainAddress: string
-  isEnabled: boolean
-  actual: number
-  isEligible: boolean
-  promoteUrl: string
-  requiredAttributes?: ChatRuleAttribute[]
-}
-
 export type AdminChat = {
   id: number
   username: string | null

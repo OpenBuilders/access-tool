@@ -39,7 +39,7 @@ interface ConditionActions {
     // Common Actions
     handleChangeConditionFieldAction: (
       field: string,
-      value: string | number
+      value: string | number | boolean
     ) => void
     setIsValidAction: (value: boolean) => void
     prefetchConditionDataAction: (type: ConditionType, address: string) => void
@@ -53,7 +53,7 @@ interface ConditionActions {
 const useConditionStore = create<ConditionStore & ConditionActions>(
   (set, get) => ({
     isValid: false,
-    isSaved: false,
+    isSaved: true,
     condition: INITIAL_CONDITION,
     prefetchedConditionData: null,
     actions: {

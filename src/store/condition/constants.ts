@@ -13,7 +13,9 @@ export const INITIAL_CONDITION: Condition = {
   id: 0,
   title: '',
   photoUrl: '',
-  isEnabled: false,
+  isEnabled: true,
   asset: '',
   promoteUrl: '',
+  isEligible: false,
+  actual: 0,
 }

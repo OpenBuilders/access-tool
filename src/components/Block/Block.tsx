@@ -21,6 +21,23 @@ interface BlockProps {
     | 32
     | 44
     | 'auto'
+  padding?: 'top' | 'bottom' | 'left' | 'right'
+  paddingValue?:
+    | 0
+    | 2
+    | 4
+    | 6
+    | 8
+    | 10
+    | 12
+    | 14
+    | 16
+    | 18
+    | 20
+    | 24
+    | 32
+    | 44
+    | 'auto'
   fixed?: 'top' | 'bottom'
   row?: boolean
   gap?: 0 | 2 | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 18 | 20 | 24
@@ -37,6 +54,8 @@ export const Block = ({
   gap,
   justify,
   align,
+  padding,
+  paddingValue,
 }: BlockProps) => {
   const marginStyle = {
     marginTop: margin === 'top' ? marginValue : 0,
@@ -45,9 +64,15 @@ export const Block = ({
     marginRight: margin === 'right' ? marginValue : 0,
   }
 
+  const paddingStyle = {
+    paddingTop: padding === 'top' ? paddingValue : 0,
+    paddingBottom: padding === 'bottom' ? paddingValue : 0,
+    paddingLeft: padding === 'left' ? paddingValue : 0,
+    paddingRight: padding === 'right' ? paddingValue : 0,
+  }
   return (
     <div
-      style={marginStyle}
+      style={{ ...marginStyle, ...paddingStyle }}
       className={cn(
         styles.root,
         fixed && styles[fixed],

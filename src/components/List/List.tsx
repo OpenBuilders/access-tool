@@ -38,7 +38,7 @@ export const List = ({
       </div>
       {footer && (
         <Block margin="top" marginValue={6}>
-          <Block margin="left" marginValue={16}>
+          <Block padding="left" paddingValue={16}>
             <Text type="caption" color="tertiary" as="div">
               {footer}
             </Text>

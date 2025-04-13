@@ -1,26 +1,28 @@
 import { Icon, ListItem, Text } from '@components'
 
-import { ChatRule } from '@store'
+import { Condition } from '@store'
 
 interface ChatConditionItemProps {
-  condition: ChatRule
+  condition: Condition
 }
 
 const webApp = window.Telegram.WebApp
 
 export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
-  const { title, isEligible, requiredAttributes } = condition
+  const { title, isEligible, promoteUrl, category, asset } = condition
 
   const handleOpenLink = () => {
+    if (!promoteUrl) return
+
     webApp.openLink(condition.promoteUrl)
   }
 
   const renderAttributes = () => {
-    return requiredAttributes?.map((attribute) => (
-      <Text type="caption" color="tertiary" key={attribute.traitType}>
-        {attribute.value} {attribute.traitType}
+    return (
+      <Text type="caption" color="tertiary">
+        {asset} {category}
       </Text>
-    ))
+    )
   }
 
   if (isEligible) {
@@ -35,7 +37,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
 
   return (
     <ListItem
-      chevron
+      chevron={!!promoteUrl}
       onClick={handleOpenLink}
       before={<Icon name="cross" size={20} />}
       text={<Text type="text">{title}</Text>}

@@ -78,8 +78,6 @@ export const ConditionModule = () => {
       conditionTypeParam as keyof typeof CONDITION_COMPONENTS
     ]
 
-  console.log(conditionTypeParam)
-
   if (!Component) return null
 
   const handleDeleteCondition = async () => {
@@ -123,7 +121,7 @@ export const ConditionModule = () => {
     <>
       <TelegramMainButton
         text="Save"
-        disabled={!isValid || !isSaved}
+        disabled={!isValid || isSaved}
         onClick={handleUpdateCondition}
       />
       <Block margin="top" marginValue={32}>

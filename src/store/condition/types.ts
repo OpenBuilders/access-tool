@@ -27,6 +27,8 @@ export type Condition = {
   users?: number[]
   name?: string
   description?: string
+  isEligible?: boolean
+  actual?: number
 }
 
 export type PrefetchedConditionData = {

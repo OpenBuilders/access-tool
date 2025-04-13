@@ -12,6 +12,7 @@ interface ListItemProps {
   chevron?: boolean
   onClick?: () => void
   disabled?: boolean
+  paddingY?: 10 | 6
 }
 
 export const ListItem = ({
@@ -23,6 +24,7 @@ export const ListItem = ({
   chevron,
   disabled,
   onClick,
+  paddingY = 10,
 }: ListItemProps) => {
   const handleClick = () => {
     if (onClick && !disabled) {
@@ -35,7 +37,8 @@ export const ListItem = ({
       className={cn(
         styles.container,
         onClick && styles.clickable,
-        disabled && styles.disabled
+        disabled && styles.disabled,
+        paddingY && styles[`paddingY-${paddingY}`]
       )}
       onClick={handleClick}
     >
