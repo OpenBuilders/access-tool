@@ -1,0 +1,71 @@
+.title {
+  font-size: 28px;
+  font-style: normal;
+  letter-spacing: 0.38px;
+}
+
+.title1 {
+  font-size: 26px;
+  font-style: normal;
+}
+
+.text {
+  text-align: center;
+  font-size: 17px;
+  font-style: normal;
+  letter-spacing: -0.43px;
+}
+
+.caption {
+  font-size: 13px;
+  font-style: normal;
+  letter-spacing: -0.08px;
+}
+
+.normal {
+  font-weight: 400;
+}
+
+.medium {
+  font-weight: 500;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.accent {
+  color: var(--color-accentsBrandCommunity);
+}
+
+.tertiary {
+  color: var(--color-textIconsTertiary);
+}
+
+.secondary {
+  color: var(--color-textIconsSecondary);
+}
+
+.primary {
+  color: var(--color-textIconsPrimary);
+}
+
+.danger {
+  color: var(--color-accentsRed);
+}
+
+.center {
+  text-align: center;
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+}

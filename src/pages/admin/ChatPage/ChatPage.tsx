@@ -1,13 +1,18 @@
-import { PageLayout, TelegramBackButton, TelegramMainButton } from '@components'
+import {
+  Block,
+  PageLayout,
+  TelegramBackButton,
+  TelegramMainButton,
+  Text,
+} from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import commonStyles from '@styles/commonStyles.module.scss'
-import { Caption } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useChat, useChatActions } from '@store'
+import { useApp, useAppActions, useChat, useChatActions } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
 
@@ -17,8 +22,10 @@ export const ChatPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
   const { appNavigate } = useAppNavigation()
 
-  const [isLoading, setIsLoading] = useState(false)
-  const { pageNotFound } = useError()
+  const { isLoading } = useApp()
+  const { toggleIsLoadingAction } = useAppActions()
+
+  const { adminChatNotFound } = useError()
 
   const { rules } = useChat()
   const { fetchChatAction } = useChatActions()
@@ -29,16 +36,14 @@ export const ChatPage = () => {
       await fetchChatAction(chatSlug)
     } catch (error) {
       console.error(error)
-      pageNotFound('Chat not found')
+      adminChatNotFound()
     }
   }
 
   useEffect(() => {
-    setIsLoading(true)
+    toggleIsLoadingAction(true)
     fetchChat()
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
+    toggleIsLoadingAction(false)
   }, [chatSlug])
 
   if (isLoading) return null
@@ -62,13 +67,13 @@ export const ChatPage = () => {
       />
       <ChatHeader />
       <ChatConditions />
-      <div className={cn(commonStyles.mtAuto, commonStyles.textCenter)}>
-        <Caption className={commonStyles.colorHint}>
+      <Block margin="top" marginValue="auto">
+        <Text type="caption" align="center" color="tertiary">
           To delete this page from Gateway,
           <br />
           remove @gateway_bot from admins
-        </Caption>
-      </div>
+        </Text>
+      </Block>
     </PageLayout>
   )
 }

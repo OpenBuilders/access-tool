@@ -1,0 +1,75 @@
+// $font-display: -apple-system, "SF Pro Text", "SF UI Text", system-ui,
+//   "Helvetica Neue", Helvetica, Arial, sans-serif;
+// $font-display-ios-rounded:
+//   "SF Pro Rounded",
+//   -apple-system,
+//   "SF Pro Text",
+//   "SF UI Text",
+//   system-ui,
+//   "Helvetica Neue",
+//   Helvetica,
+//   Arial,
+//   sans-serif;
+// $font-display-material: Roboto, system-ui, Noto, Helvetica, Arial, sans-serif;
+
+$palette-white: #fff;
+
+$k-device-pixel-ratio: 2;
+$body-padding: 16px;
+$safe-area-left: 16px;
+$safe-area-right: 16px;
+
+$palette-transparentDark80: #262629;
+$palette-transparentDark75: #000000bf;
+$palette-transparentDark60: #00000099;
+$palette-transparentDark50: #0000007f;
+$palette-transparentDark40: #0000000a;
+$palette-transparentDark30: #0000004c;
+$palette-transparentDark12: #0000001e;
+$palette-transparentDark8: #00000014;
+$palette-transparentDark5: #0000000c;
+$palette-transparentWhite80: #f7f7f9;
+$palette-transparentWhite75: #ffffffbf;
+$palette-transparentWhite60: #ffffff99;
+$palette-transparentWhite50: #ffffff7f;
+$palette-transparentWhite40: #ffffff0a;
+$palette-transparentWhite30: #ffffff4c;
+$palette-transparentWhite12: #ffffff1e;
+$palette-transparentWhite8: #ffffff14;
+$palette-transparentWhite5: #ffffff0c;
+$palette-transparentWhite0: #ffffff00;
+$palette-transparentDark0: #00000000;
+$palette-transparent15: rgba(0, 0, 0, 0.15);
+$palette-dark100: #000000;
+$palette-dark96: #111112;
+$palette-dark90: #1c1c1e;
+$palette-dark85: #262629;
+$palette-dark80: #313135;
+$palette-white100: #ffffff;
+$palette-grey50: #3d3d3d7f;
+$palette-brandAccent: #496aeb;
+$palette-brandCommunity: #007aff;
+$palette-brandNotcoin: #42a0ff;
+$palette-brandExploreWhite: #ffffff;
+$palette-brandExploreYellow: #fdc626;
+$palette-brandLight: #758eef;
+$palette-brandLightBg: #f0f4ff;
+$palette-brandDarkBg: #1d2334;
+$palette-extraRed: #ff5a50;
+$palette-extraRed15: #ff5a5026;
+$palette-extraRed10: #ff5a5019;
+$palette-extraGreenLight: #15da40;
+$palette-extraGreenDark: #00ca14;
+$palette-extraEmojiPinkLight: #f9e2f6;
+$palette-extraEmojiRedLight: #ffdddd;
+$palette-extraEmojiGreyLight: #f0f0f0;
+$palette-extraEmojiWarmLight: #fbf0df;
+$palette-extraEmojiGreenLight: #eaf9e5;
+$palette-extraEmojiBlueLight: #eaf4ff;
+$palette-dark4: #efeff4;
+
+$elevation-light-1: 0px 10px 60px rgba(0, 0, 0, 0.1);
+$elevation-dark-1: 0px 10px 60px rgba(0, 0, 0, 0.7);
+
+$stroke-white: #f2f2f2;
+$stroke-black: #252527;

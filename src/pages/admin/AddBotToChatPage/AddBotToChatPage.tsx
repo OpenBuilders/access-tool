@@ -1,15 +1,14 @@
-import commonStyles from '@common/styles/commonStyles.module.scss'
 import {
+  Block,
   Icon,
   PageLayout,
   TelegramBackButton,
   TelegramMainButton,
+  Text,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import '@styles/index.scss'
-import { Title, Text } from '@telegram-apps/telegram-ui'
-import cn from 'classnames'
+import { useParams } from 'react-router-dom'
 
 import config from '@config'
 
@@ -17,35 +16,38 @@ const webApp = window.Telegram.WebApp
 
 export const AddBotToChatPage = () => {
   const { appNavigate } = useAppNavigation()
+  const { chatSlug } = useParams<{ chatSlug: string }>()
+  const chatSlugParam = chatSlug || ''
+  const navigateToMainPage = () => {
+    appNavigate({ path: ROUTES_NAME.MAIN })
+  }
+
+  const addGatewayBot = () => {
+    webApp.openTelegramLink(
+      `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
+    )
+    appNavigate({
+      path: ROUTES_NAME.CHECKING_BOT_ADDED,
+      params: { chatSlug: chatSlugParam },
+    })
+  }
 
   return (
     <PageLayout center>
-      <TelegramBackButton
-        onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
-      />
-      <TelegramMainButton
-        text="Add Gateway Bot"
-        onClick={() => {
-          webApp.openTelegramLink(
-            `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
-          )
-        }}
-      />
+      <TelegramBackButton onClick={navigateToMainPage} />
+      <TelegramMainButton text="Add Group or Channel" onClick={addGatewayBot} />
       <Icon name="gatewayBot" size={112} />
-      <Title
-        weight="1"
-        plain
-        level="1"
-        className={cn(commonStyles.textCenter, commonStyles.mt16)}
-      >
-        Add Gateway Bot
-        <br />
-        to The Group or Channel
-      </Title>
-      <Text className={cn(commonStyles.textCenter, commonStyles.mt12)}>
-        Gateway bot require admin access to control who can join the group or
-        channel.Telegram bots can’t read messages inside the group chat.
-      </Text>
+      <Block margin="top" marginValue={16}>
+        <Text type="title" align="center" weight="bold">
+          Add Gateway Bot to The Group or Channel
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={12}>
+        <Text align="center" type="text">
+          Gateway bot require admin access to control who can join the group or
+          channel.Telegram bots can’t read messages inside the group chat.
+        </Text>
+      </Block>
     </PageLayout>
   )
 }

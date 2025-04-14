@@ -1,12 +1,12 @@
-import commonStyles from '@common/styles/commonStyles.module.scss'
-import { Text } from '@telegram-apps/telegram-ui'
-import cn from 'classnames'
+import { Block, Text } from '@components'
 
 export const EmptyList = () => {
   return (
-    <Text className={cn(commonStyles.textCenter, commonStyles.mt16)}>
-      Connect your Telegram group and set up token-gated access in just a few
-      clicks. Control who joins and engage with your private community.
-    </Text>
+    <Block margin="top" marginValue={12}>
+      <Text align="center" type="text">
+        Connect your Telegram group and set up gated access in just a few
+        clicks. Control who joins and engage with your private community.
+      </Text>
+    </Block>
   )
 }

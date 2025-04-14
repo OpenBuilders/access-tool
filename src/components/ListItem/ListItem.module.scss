@@ -1,0 +1,49 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: var(--color-backgroundSecondary);
+  border-radius: 10px;
+}
+
+.paddingY-6 {
+  padding: 6px 16px;
+}
+
+.paddingY-10 {
+  padding: 10px 16px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input {
+    text-align: right;
+  }
+}
+
+.disabled {
+  opacity: 0.5;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.clickable {
+  cursor: pointer;
+}

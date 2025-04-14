@@ -1,0 +1,18 @@
+.emptyImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-backgroundSecondary);
+}
+
+.border-radius-12 {
+  border-radius: 12px;
+}
+
+.border-radius-50 {
+  border-radius: 50%;
+}
+
+.border-radius-8 {
+  border-radius: 8px;
+}

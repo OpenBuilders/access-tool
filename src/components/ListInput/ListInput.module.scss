@@ -1,0 +1,29 @@
+.listInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.listInput {
+  background-color: transparent;
+  color: var(--color-textIconsPrimary);
+  font-size: 17px;
+  font-weight: 400;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.listInput-secondary {
+  color: var(--color-textIconsSecondary);
+}
+
+.listInput-tertiary {
+  color: var(--color-textIconsTertiary);
+}
+
+.listInput-accent {
+  color: var(--color-textIconsAccent);
+}

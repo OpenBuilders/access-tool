@@ -1,4 +1,4 @@
-import { Jettons, NFT, WhitelistExternal } from './components'
+import { Jettons, NFT, Premium, Toncoin, Whitelist } from './components'
 
 export const CONDITION_TYPES = [
   {
@@ -6,21 +6,27 @@ export const CONDITION_TYPES = [
     name: 'Jetton',
   },
   {
-    value: 'nft_collections',
+    value: 'toncoin',
+    name: 'Toncoin',
+  },
+  {
+    value: 'nft_collection',
     name: 'NFT',
   },
-  // {
-  //   value: 'whitelist',
-  //   name: 'Whitelist',
-  // },
   {
-    value: 'whitelist_external',
+    value: 'whitelist',
     name: 'List of Users',
+  },
+  {
+    value: 'premium',
+    name: 'Telegram Premium',
   },
 ]
 
 export const CONDITION_COMPONENTS = {
   jetton: Jettons,
-  nft_collections: NFT,
-  whitelist_external: WhitelistExternal,
+  nft_collection: NFT,
+  whitelist: Whitelist,
+  toncoin: Toncoin,
+  premium: Premium,
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+import { Condition } from '../condition'
 import { createSelectors } from '../types'
 import {
   fetchAdminUserChatsAPI,
@@ -12,7 +13,7 @@ import { AdminChat, Chat, ChatInstance, ChatRule } from './types'
 interface ChatStore {
   adminChats: AdminChat[] | null
   chat: ChatInstance | null
-  rules: ChatRule[] | null
+  rules: Condition[] | null
   chatWallet: string | null
 }
 
@@ -35,7 +36,7 @@ const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
       const { data, ok, error } = await fetchChatAPI(slug)
 
       if (!ok) {
-        throw new Error(error)
+        throw new Error(error || 'Chat not found')
       }
 
       set({ chat: data?.chat, rules: data?.rules })

@@ -7,6 +7,7 @@ import {
   trash,
   check,
   cross,
+  chevron,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -28,5 +29,7 @@ export const getIcon = (name: IconTypeName) => {
       return check
     case 'cross':
       return cross
+    case 'chevron':
+      return chevron
   }
 }

@@ -1,51 +1,47 @@
-import { Icon } from '@components'
-import cs from '@styles/commonStyles.module.scss'
-import { Cell, Navigation, Text } from '@telegram-apps/telegram-ui'
+import { Icon, ListItem, Text } from '@components'
 
-import { ChatRule } from '@store'
+import { Condition } from '@store'
 
 interface ChatConditionItemProps {
-  condition: ChatRule
+  condition: Condition
 }
 
 const webApp = window.Telegram.WebApp
 
 export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
-  const { title, isEligible, requiredAttributes } = condition
+  const { title, isEligible, promoteUrl, category, asset } = condition
 
   const handleOpenLink = () => {
+    if (!promoteUrl) return
+
     webApp.openLink(condition.promoteUrl)
   }
 
   const renderAttributes = () => {
-    return requiredAttributes?.map((attribute) => (
-      <Text key={attribute.traitType}>
-        {attribute.value} {attribute.traitType}
+    return (
+      <Text type="caption" color="tertiary">
+        {asset} {category}
       </Text>
-    ))
+    )
   }
 
   if (isEligible) {
     return (
-      <Cell
-        before={<Icon name="check" size={24} />}
+      <ListItem
+        before={<Icon name="check" size={20} />}
+        text={<Text type="text">{title}</Text>}
         description={renderAttributes()}
-      >
-        <Text className={cs.colorPrimary}>{title}</Text>
-      </Cell>
+      />
     )
   }
 
   return (
-    <Navigation className={cs.pr12}>
-      <Cell
-        before={<Icon name="cross" size={20} />}
-        description={renderAttributes()}
-        className={cs.py10}
-        onClick={handleOpenLink}
-      >
-        <Text className={cs.colorPrimary}>{title}</Text>
-      </Cell>
-    </Navigation>
+    <ListItem
+      chevron={!!promoteUrl}
+      onClick={handleOpenLink}
+      before={<Icon name="cross" size={20} />}
+      text={<Text type="text">{title}</Text>}
+      description={renderAttributes()}
+    />
   )
 }

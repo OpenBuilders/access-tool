@@ -1,0 +1,48 @@
+.list {
+  > div {
+    // border-top: 1px solid var(--color-appliedSeparator);
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 1px;
+      width: 100%;
+      background-color: var(--color-appliedSeparator);
+    }
+
+    &:first-child {
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      &:after {
+        display: none;
+      }
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+  }
+}
+
+.listWithSeparator-24 {
+  > div {
+    &:after {
+      left: calc(24px + 16px + 10px);
+    }
+  }
+}
+
+.listWithSeparator-40 {
+  > div {
+    &:after {
+      left: calc(40px + 16px + 10px);
+    }
+  }
+}

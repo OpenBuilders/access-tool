@@ -10,11 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@telegram-apps/telegram-ui": "^2.1.8",
     "@tonconnect/ui-react": "^2.1.0",
+    "@types/papaparse": "^5.3.15",
     "classnames": "^2.5.1",
     "debounce": "^2.2.0",
     "ky": "^1.8.0",
+    "papaparse": "^5.5.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-lottie": "^1.2.10",

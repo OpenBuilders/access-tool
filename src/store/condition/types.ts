@@ -1,64 +1,34 @@
-export type Condition =
-  | ConditionJetton
-  | ConditionNFTCollection
-  | ConditionWhitelistExternal
-
-export type ConditionType =
-  | 'jetton'
-  | 'nft_collections'
-  | 'whitelist'
-  | 'whitelist_external'
-
-export interface ConditionFetchArgs {
-  type: ConditionType
-  chatSlug: string
-  conditionId: string
-}
-
-export interface ConditionUpdateArgs {
-  type: ConditionType
-  chatSlug: string
-  conditionId: string
-  data: Condition
-}
-
-export interface ConditionCreateArgs {
-  type: ConditionType
-  chatSlug: string
-  data: Condition
-}
-
-export interface ConditionDeleteArgs {
-  type: ConditionType
-  chatSlug: string
-  conditionId: string
-}
-
-export type ConditionCore = {
-  id: number
-  category: ConditionType
-  title: string
-  expected: number
-  photoUrl: string
-  blockchainAddress: string
-  isEnabled: boolean
-  promoteUrl: string
-}
-
-export type ConditionJetton = Partial<ConditionCore> & {
-  category: 'jetton'
-  address: string
-}
-
-export type ConditionNFTCollectionAttribute = {
+export interface ConditionNFTCollectionAttribute {
   traitType: string
   value: string
 }
 
-export type ConditionNFTCollection = Partial<ConditionCore> & {
-  category: 'nft_collections'
-  address: string
-  requiredAttributes: ConditionNFTCollectionAttribute[]
+export type ConditionType =
+  | 'jetton'
+  | 'nft_collection'
+  | 'whitelist'
+  | 'whitelist_external'
+  | 'premium'
+  | 'toncoin'
+
+export type Condition = {
+  id: number
+  type: ConditionType
+  title: string
+  expected: number
+  photoUrl: string
+  blockchainAddress?: string
+  isEnabled: boolean
+  asset: string
+  category?: string
+  promoteUrl: string
+  address?: string
+  requiredAttributes?: ConditionNFTCollectionAttribute[]
+  users?: number[]
+  name?: string
+  description?: string
+  isEligible?: boolean
+  actual?: number
 }
 
 export type PrefetchedConditionData = {
@@ -71,10 +41,32 @@ export type PrefetchedConditionData = {
   totalSupply: number
 }
 
-export type ConditionWhitelistExternal = Partial<ConditionCore> & {
-  category: 'whitelist_external'
-  name: string
-  description: string
-  url?: string
-  users?: number[]
+export type ConditionCategory = {
+  asset: string
+  categories: string[]
+}
+
+export interface ConditionFetchArgs {
+  type: ConditionType
+  chatSlug: string
+  conditionId: string
+}
+
+export interface ConditionUpdateArgs {
+  type: ConditionType
+  chatSlug: string
+  conditionId: string
+  data: Partial<Condition>
+}
+
+export interface ConditionCreateArgs {
+  type: ConditionType
+  chatSlug: string
+  data: Partial<Condition>
+}
+
+export interface ConditionDeleteArgs {
+  type: ConditionType
+  chatSlug: string
+  conditionId: string
 }

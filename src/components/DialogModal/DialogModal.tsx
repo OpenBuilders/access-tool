@@ -1,8 +1,8 @@
-import cs from '@styles/commonStyles.module.scss'
-import { Caption, Text } from '@telegram-apps/telegram-ui'
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
 
+import { Block } from '../Block'
+import { Text } from '../Text'
 import styles from './DialogModal.module.scss'
 
 interface DialogModalProps {
@@ -49,28 +49,33 @@ export const DialogModal = (props: DialogModalProps) => {
       <div className={styles.dialogModalOverlay} onClick={onClose} />
       <div className={styles.dialogModalContent}>
         <div className={styles.dialogModalContentHeader}>
-          <div className={cs.textCenter}>
-            <Text weight="2">{title}</Text>
-          </div>
-          <div className={cn(cs.mt4, cs.textCenter)}>
-            <Caption>{description}</Caption>
-          </div>
+          <Block>
+            <Text type="text" weight="medium" align="center">
+              {title}
+            </Text>
+          </Block>
+          <Block margin="top" marginValue={4}>
+            <Text type="caption" color="primary" align="center">
+              {description}
+            </Text>
+          </Block>
         </div>
         <div className={styles.dialogModalContentFooter}>
           <div
-            className={cn(styles.dialogModalContentFooterButton, cs.colorLink)}
+            className={styles.dialogModalContentFooterButton}
             onClick={onClose}
           >
-            <Text>{closeText}</Text>
+            <Text type="text" color="accent">
+              {closeText}
+            </Text>
           </div>
           <div
-            className={cn(
-              styles.dialogModalContentFooterButton,
-              onDelete ? cs.colorDanger : cs.colorLink
-            )}
+            className={styles.dialogModalContentFooterButton}
             onClick={handleClick}
           >
-            <Text>{confirmText}</Text>
+            <Text type="text" color={onDelete ? 'danger' : 'accent'}>
+              {confirmText}
+            </Text>
           </div>
         </div>
       </div>

@@ -1,9 +1,6 @@
-import { ToastProvider } from '@components'
 import { ThemeContext } from '@context'
 import { useAppNavigation } from '@hooks'
 import '@styles/index.scss'
-import { AppRoot } from '@telegram-apps/telegram-ui'
-import '@telegram-apps/telegram-ui/dist/styles.css'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { checkStartAppParams } from '@utils'
 import { useContext, useEffect } from 'react'
@@ -15,9 +12,6 @@ import { useUser, useUserActions } from '@store'
 import Routes, { ROUTES_NAME } from './Routes'
 
 const webApp = window.Telegram?.WebApp
-
-const HARDCODED_PLATFORM = 'ios'
-const HARDCODED_APPEARANCE = 'dark'
 
 function App() {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
@@ -85,17 +79,11 @@ function App() {
   return (
     <TonConnectUIProvider
       manifestUrl={config.tonConnectManifestUrl}
-      // actionsConfiguration={{
-      //   twaReturnUrl: `https://t.me/${config.botName}?startapp=ch_${clientChatSlug}`,
-      // }}
+      actionsConfiguration={{
+        twaReturnUrl: `https://t.me/${config.botName}?startapp=ch_${clientChatSlug}`,
+      }}
     >
-      <AppRoot
-        platform={HARDCODED_PLATFORM}
-        appearance={HARDCODED_APPEARANCE}
-        id="app-tg-root"
-      >
-        <ToastProvider>{Routes}</ToastProvider>
-      </AppRoot>
+      {Routes}
     </TonConnectUIProvider>
   )
 }

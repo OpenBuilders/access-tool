@@ -1,18 +1,18 @@
 import {
   AppSelect,
-  Container,
   TelegramMainButton,
   TelegramBackButton,
   PageLayout,
   Icon,
   DialogModal,
   useToast,
+  Block,
+  Text,
+  ListItem,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import cs from '@styles/commonStyles.module.scss'
-import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -22,7 +22,6 @@ import {
   useConditionActions,
 } from '@store'
 
-import styles from '../../ConditionPage.module.scss'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
 
 export const ConditionModule = () => {
@@ -40,10 +39,28 @@ export const ConditionModule = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { condition, isValid, isFieldChanged } = useCondition()
-  const { deleteConditionAction, updateConditionAction } = useConditionActions()
+  const { condition, isValid, isSaved } = useCondition()
+  const { deleteConditionAction, updateConditionAction, fetchConditionAction } =
+    useConditionActions()
 
   const handleOpenDialog = () => setIsDialogOpen(true)
+
+  const fetchCondition = async () => {
+    if (!conditionIdParam || !chatSlugParam || !conditionTypeParam) return
+    try {
+      await fetchConditionAction({
+        type: conditionTypeParam as ConditionType,
+        chatSlug: chatSlugParam,
+        conditionId: conditionIdParam,
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCondition()
+  }, [conditionIdParam, conditionTypeParam])
 
   const navigateToChatPage = () => {
     appNavigate({
@@ -53,6 +70,8 @@ export const ConditionModule = () => {
       },
     })
   }
+
+  if (!condition) return null
 
   const Component =
     CONDITION_COMPONENTS[
@@ -99,43 +118,43 @@ export const ConditionModule = () => {
   }
 
   return (
-    <PageLayout>
-      <TelegramBackButton onClick={navigateToChatPage} />
+    <>
       <TelegramMainButton
         text="Save"
-        disabled={!isValid || !isFieldChanged}
+        disabled={!isValid || isSaved}
         onClick={handleUpdateCondition}
       />
-      <Title level="1" weight="1" plain className={styles.title}>
-        Edit condition
-      </Title>
-      <Container>
-        <Section>
-          <Cell
-            disabled
-            after={
-              <AppSelect
-                onChange={() => {}}
-                options={CONDITION_TYPES}
-                value={condition?.category}
-                disabled
-              />
-            }
-          >
-            Condition type
-          </Cell>
-        </Section>
-        {Component && <Component />}
-        <Section className={cs.mt24}>
-          <Cell
-            className={cs.colorDanger}
-            before={<Icon name="trash" size={24} />}
-            onClick={handleOpenDialog}
-          >
-            Remove Condition
-          </Cell>
-        </Section>
-      </Container>
+      <Block margin="top" marginValue={32}>
+        <Text type="title1" weight="bold" align="center">
+          Edit condition
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={44}>
+        <ListItem
+          text="Condition type"
+          disabled
+          after={
+            <AppSelect
+              onChange={() => {}}
+              options={CONDITION_TYPES}
+              value={condition?.type}
+              disabled
+            />
+          }
+        />
+      </Block>
+      {Component && <Component />}
+      <Block margin="top" marginValue={24}>
+        <ListItem
+          text={
+            <Text type="text" color="danger">
+              Remove Condition
+            </Text>
+          }
+          before={<Icon name="trash" size={24} />}
+          onClick={handleOpenDialog}
+        />
+      </Block>
       <DialogModal
         active={isDialogOpen}
         title="Remove Condition?"
@@ -145,6 +164,6 @@ export const ConditionModule = () => {
         onClose={() => setIsDialogOpen(false)}
         onDelete={handleDeleteCondition}
       />
-    </PageLayout>
+    </>
   )
 }

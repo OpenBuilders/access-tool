@@ -1,35 +1,39 @@
-import { AppSelect } from '@components'
-import cs from '@styles/commonStyles.module.scss'
-import { Cell, Image, Input, Section, Text } from '@telegram-apps/telegram-ui'
+import { AppSelect, Block, Image, List, ListInput, ListItem } from '@components'
 import debounce from 'debounce'
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import config from '@config'
-import {
-  useCondition,
-  useConditionActions,
-  ConditionJetton,
-  ConditionNFTCollection,
-  ConditionType,
-} from '@store'
+import { useCondition, useConditionActions, ConditionType } from '@store'
 
 import { ConditionComponentProps } from '../types'
-import { NFT_COLLECTIONS } from './constants'
 import { validateNFTCollectionCondition } from './helpers'
 
 export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
+  const [categoriesData, setCategoriesData] = useState<any>(null)
   const { condition, prefetchedConditionData } = useCondition()
+
+  const [activeAsset, setActiveAsset] = useState<any>(condition?.asset || null)
+  const [activeCategory, setActiveCategory] = useState<any>(
+    condition?.category || null
+  )
+
   const {
     handleChangeConditionFieldAction,
     setIsValidAction,
     prefetchConditionDataAction,
+    resetPrefetchedConditionDataAction,
+    fetchConditionCategoriesAction,
   } = useConditionActions()
 
   const debouncedPrefetchNFTCollection = useCallback(
-    debounce(async (address: string) => {
+    debounce(async (address?: string) => {
+      if (!address) {
+        resetPrefetchedConditionDataAction()
+        return
+      }
+
       try {
         await prefetchConditionDataAction(
-          condition?.category as ConditionType,
+          condition?.type as ConditionType,
           address
         )
       } catch (error) {
@@ -48,7 +52,7 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
     const updatedCondition = {
       ...condition,
       [field]: value,
-    } as ConditionNFTCollection
+    }
 
     const validationResult = validateNFTCollectionCondition(updatedCondition)
 
@@ -56,81 +60,152 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
       debouncedPrefetchNFTCollection(value.toString())
     }
 
-    setIsValidAction(validationResult)
+    if (field === 'asset') {
+      setActiveAsset(value)
+    }
+
+    if (field === 'category') {
+      setActiveCategory(value)
+    }
+
+    if (value !== 'Any' || activeAsset !== 'Any') {
+      setIsValidAction(true)
+    } else {
+      setIsValidAction(validationResult)
+    }
+  }
+
+  const fetchConditionCategories = async () => {
+    try {
+      const result = await fetchConditionCategoriesAction('nft_collection')
+
+      if (!result) {
+        throw new Error('Failed to fetch condition categories')
+      }
+      let categoriesDataResult = result.map((asset) => {
+        return {
+          value: asset.asset,
+          name: asset.asset,
+          categories: asset.categories.map((category) => ({
+            value: category,
+            name: category,
+          })),
+        }
+      })
+      setCategoriesData(categoriesDataResult)
+
+      if (condition?.asset) {
+        setActiveAsset(condition?.asset)
+      } else {
+        setActiveAsset(categoriesDataResult[0].value)
+      }
+
+      if (condition?.category && condition?.asset) {
+        setActiveCategory(condition?.category)
+      } else {
+        setActiveCategory(categoriesDataResult[0].categories[0].value)
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   useEffect(() => {
-    if (
-      !isNewCondition &&
-      (condition?.blockchainAddress ||
-        (condition as ConditionNFTCollection)?.address)
-    ) {
-      debouncedPrefetchNFTCollection(
-        condition?.blockchainAddress ||
-          (condition as ConditionNFTCollection)?.address
-      )
+    if (!isNewCondition) {
+      debouncedPrefetchNFTCollection(condition?.blockchainAddress)
     }
+    fetchConditionCategories()
   }, [])
 
-  let AddressComponent = (
-    <Section className={cs.mt24} footer="TON (The Open Network)">
-      <Input
-        placeholder="Jetton Address"
-        value={(condition as ConditionJetton)?.address || ''}
-        onChange={(e) => handleChangeConditionField('address', e.target.value)}
-      />
-    </Section>
-  )
+  if (!categoriesData) return null
 
-  if (prefetchedConditionData) {
-    AddressComponent = (
-      <Section className={cs.mt24} footer="TON (The Open Network)">
-        <Input
-          placeholder="Jetton Address"
-          value={(condition as ConditionJetton)?.address || ''}
-          onChange={(e) =>
-            handleChangeConditionField('address', e.target.value)
-          }
-        />
-        <Cell
-          before={
-            <Image src={`${config.CDN}/${prefetchedConditionData.logoPath}`} />
-          }
-          subtitle={prefetchedConditionData.symbol}
-        >
-          {prefetchedConditionData.name}
-        </Cell>
-      </Section>
-    )
-  }
+  const renderAddress = activeAsset === 'Any'
+  // const renderAmount = activeAsset === 'Any' || activeAsset === 'Telegram Gifts'
+  const renderCategoryOption = activeAsset !== 'Any'
 
   return (
     <>
-      {/* <Section className={cs.mt24}>
-        <Cell after={<AppSelect options={NFT_COLLECTIONS} />}>
-          NFT Collection
-        </Cell>
-      </Section> */}
-      {AddressComponent}
-      <Section className={cs.mt24}>
-        <Cell
+      <Block margin="top" marginValue={24}>
+        <List>
+          <ListItem
+            text="Category"
+            after={
+              <AppSelect
+                onChange={(value) => handleChangeConditionField('asset', value)}
+                value={activeAsset}
+                options={categoriesData.map((asset: any) => ({
+                  value: asset.value,
+                  name: asset.name,
+                }))}
+              />
+            }
+          />
+          {renderCategoryOption && (
+            <ListItem
+              text="Category Option"
+              after={
+                <AppSelect
+                  onChange={(value) =>
+                    handleChangeConditionField('category', value)
+                  }
+                  value={activeCategory}
+                  options={categoriesData
+                    .find((asset: any) => asset.value === activeAsset)
+                    ?.categories.map((category: any) => ({
+                      value: category.value,
+                      name: category.name,
+                    }))}
+                />
+              }
+            />
+          )}
+        </List>
+        {renderAddress && (
+          <Block margin="top" marginValue={24}>
+            <List footer="TON (The Open Network)">
+              <ListItem>
+                <ListInput
+                  placeholder="NFT Collection Address"
+                  value={condition?.address || ''}
+                  onChange={(value) =>
+                    handleChangeConditionField('address', value)
+                  }
+                />
+              </ListItem>
+              {prefetchedConditionData && (
+                <ListItem
+                  before={
+                    <Image
+                      src={prefetchedConditionData?.logoPath}
+                      size={40}
+                      borderRadius={8}
+                    />
+                  }
+                  text={prefetchedConditionData?.name}
+                  description={prefetchedConditionData?.symbol}
+                />
+              )}
+            </List>
+          </Block>
+        )}
+      </Block>
+      <Block margin="top" marginValue={24}>
+        <ListItem
+          text="# of NFTs"
           after={
-            <Input
+            <ListInput
               type="text"
               pattern="[0-9]*"
               inputMode="numeric"
-              className={cs.afterInput}
-              after={<Text className={cs.colorHint}>TON</Text>}
-              value={(condition as ConditionJetton)?.expected}
-              onChange={(e) =>
-                handleChangeConditionField('expected', e.target.value)
+              textColor="tertiary"
+              value={condition?.expected}
+              onChange={(value) =>
+                handleChangeConditionField('expected', value)
               }
             />
           }
-        >
-          # of NFTs
-        </Cell>
-      </Section>
+        />
+      </Block>
     </>
   )
 }

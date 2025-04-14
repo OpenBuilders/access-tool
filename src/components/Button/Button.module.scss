@@ -1,0 +1,99 @@
+.root {
+  padding: 0 16px;
+  text-align: center;
+  border-radius: 14px;
+  font-size: 17px;
+  height: 50px;
+  font-weight: 590;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color ease;
+  transition-duration: 0.3s;
+
+  &.disabled {
+    background-color: var(--color-backgroundPrimary);
+  }
+}
+
+.type {
+  &-basic {
+    background-color: var(--color-backgroundSecondary);
+    color: var(--color-textIconsPrimary);
+  }
+
+  &-secondary {
+    background-color: var(--color-backgroundTertiary);
+    color: var(--color-textIconsPrimary);
+  }
+
+  &-danger {
+    background-color: var(--color-accentsBgNegative);
+    color: var(--color-accentsRed);
+  }
+
+  &-primary {
+    background-color: var(--color-accentsBrandCommunity);
+    color: var(--color-textIconsWhite);
+  }
+
+  &-accent {
+    background-color: rgba(#007aff, 0.1);
+    color: var(--color-accentsBrandCommunity);
+  }
+
+  &-link {
+    background-color: transparent;
+    padding: 0;
+    justify-content: flex-start;
+    font-weight: 400;
+    color: var(--color-accentsBrandCommunity);
+
+    &:active {
+      background-color: transparent;
+    }
+  }
+
+  &-primary-gradient {
+    background-color: var(--color-accentsBrandCommunity);
+    color: var(--color-textIconsWhite);
+    overflow: hidden;
+    position: relative;
+
+    &::after {
+      content: '';
+      display: block;
+      background-color: var(--color-backgroundWhite);
+      filter: blur(30px);
+      transform: translate3d(0, 0, 0);
+      width: 10%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      animation: motion-gradient 3s linear infinite;
+    }
+  }
+}
+
+.prefix {
+  padding-right: 4px;
+}
+
+@keyframes motion-gradient {
+  0% {
+    left: 0;
+    opacity: 0.2;
+  }
+  50% {
+    left: 50%;
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}

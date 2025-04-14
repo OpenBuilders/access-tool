@@ -1,4 +1,4 @@
-import { Section } from '@telegram-apps/telegram-ui'
+import { List, ListItem } from '@components'
 
 import { useChat } from '@store'
 
@@ -9,11 +9,11 @@ export const ChatConditions = () => {
   const { rules } = useChat()
   const { notAvailable, available } = sortConditions(rules)
   return (
-    <Section>
+    <List>
       <WalletCondition />
       {available.map((condition) => (
-        <ChatConditionItem key={condition.id} condition={condition} />
+        <ChatConditionItem condition={condition} key={condition.id} />
       ))}
-    </Section>
+    </List>
   )
 }

@@ -1,6 +1,8 @@
+import { Condition } from '../condition'
+
 export type Chat = {
   chat: ChatInstance
-  rules: ChatRule[]
+  rules: Condition[]
   wallet?: string
 }
 
@@ -21,20 +23,6 @@ export type ChatInstance = {
 export type ChatRuleAttribute = {
   traitType: string
   value: string
-}
-
-export type ChatRule = {
-  id: number
-  category: string
-  title: string
-  expected: number
-  photoUrl: string
-  blockchainAddress: string
-  isEnabled: boolean
-  actual: number
-  isEligible: boolean
-  promoteUrl: string
-  requiredAttributes?: ChatRuleAttribute[]
 }
 
 export type AdminChat = {

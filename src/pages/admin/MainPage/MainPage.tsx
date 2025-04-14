@@ -1,18 +1,17 @@
 import lockLottie from '@assets/lock.json'
-import commonStyles from '@common/styles/commonStyles.module.scss'
 import {
+  Block,
   PageLayout,
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
+import { Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { Title, Caption, Link } from '@telegram-apps/telegram-ui'
-import cn from 'classnames'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
-import { useChat, useChatActions, useUser, useUserActions } from '@store'
+import { useChat, useChatActions, useApp, useAppActions } from '@store'
 
 import { ChannelsList } from './components'
 import { EmptyList } from './components'
@@ -21,7 +20,8 @@ export const MainPage = () => {
   const { appNavigate } = useAppNavigation()
   const { fetchAdminUserChatsAction } = useChatActions()
   const { adminChats } = useChat()
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading } = useApp()
+  const { toggleIsLoadingAction } = useAppActions()
 
   const fetchAdminUserChats = async () => {
     try {
@@ -32,9 +32,9 @@ export const MainPage = () => {
   }
 
   useEffect(() => {
-    setIsLoading(true)
+    toggleIsLoadingAction(true)
     fetchAdminUserChats()
-    setIsLoading(false)
+    toggleIsLoadingAction(false)
   }, [])
 
   if (isLoading) return null
@@ -53,24 +53,25 @@ export const MainPage = () => {
         }
       />
       <StickerPlayer lottie={lockLottie} />
-      <Title weight="1" plain level="1" className={commonStyles.textCenter}>
-        Access to Groups
-        <br />
-        and Channels
-      </Title>
+      <Block margin="top" marginValue={16}>
+        <Text type="title" align="center" weight="bold">
+          Access to Groups
+          <br />
+          and Channels
+        </Text>
+      </Block>
       {isEmpty ? <EmptyList /> : <ChannelsList channels={adminChats} />}
-      <Caption
-        className={cn(
-          isEmpty ? commonStyles.fixedBottom : commonStyles.mtAuto,
-          commonStyles.colorHint,
-          commonStyles.textCenter
-        )}
-      >
-        This is open source contributed by independent
-        <br />
-        developers, as part of
-        <Link href="https://t.me/telegram_tools"> Telegram Tools</Link>
-      </Caption>
+      <Block fixed="bottom">
+        <Text align="center" type="caption" color="tertiary">
+          This is open source contributed by independent
+          <br />
+          developers, as part of
+          <Text type="caption" color="accent" as="span">
+            {' '}
+            Telegram Tools
+          </Text>
+        </Text>
+      </Block>
     </PageLayout>
   )
 }

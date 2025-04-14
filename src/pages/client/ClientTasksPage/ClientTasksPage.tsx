@@ -1,12 +1,11 @@
 import {
-  Container,
+  Block,
   PageLayout,
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import cs from '@styles/commonStyles.module.scss'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -71,9 +70,9 @@ export const ClientTasksPage = () => {
         isLoading={isLoading}
       />
       <ChatHeader />
-      <Container className={cs.mt24}>
+      <Block margin="top" marginValue={24}>
         <ChatConditions />
-      </Container>
+      </Block>
     </PageLayout>
   )
 }

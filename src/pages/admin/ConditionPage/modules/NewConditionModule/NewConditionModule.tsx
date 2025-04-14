@@ -1,14 +1,16 @@
 import {
   AppSelect,
-  Container,
   TelegramBackButton,
   TelegramMainButton,
   PageLayout,
   useToast,
+  Text,
+  Block,
+  ListItem,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { Cell, Section, Title } from '@telegram-apps/telegram-ui'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -18,8 +20,8 @@ import {
   useConditionActions,
 } from '@store'
 
-import styles from '../../ConditionPage.module.scss'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
+import { createUpdatedData } from './helpers'
 
 export const NewConditionModule = () => {
   const { appNavigate } = useAppNavigation()
@@ -52,14 +54,26 @@ export const NewConditionModule = () => {
     })
   }
 
-  if (!Component) return null
+  useEffect(() => {
+    if (conditionTypeParam) {
+      handleChangeConditionFieldAction('type', conditionTypeParam)
+    }
+  }, [conditionTypeParam])
+
+  if (!Component || !condition) return null
 
   const handleCreateCondition = async () => {
     try {
+      const updatedData = createUpdatedData(condition as Condition)
+
+      if (!updatedData) {
+        throw new Error('Failed to create condition. Try again later')
+      }
+
       await createConditionAction({
         type: conditionTypeParam as ConditionType,
         chatSlug: chatSlugParam,
-        data: condition as Condition,
+        data: updatedData,
       })
       navigateToChatPage()
       showToast({
@@ -68,6 +82,14 @@ export const NewConditionModule = () => {
       })
     } catch (error) {
       console.error(error)
+      if (error instanceof Error) {
+        showToast({
+          message: error.message,
+          type: 'error',
+        })
+        return
+      }
+
       showToast({
         message: 'Failed to create condition',
         type: 'error',
@@ -77,7 +99,7 @@ export const NewConditionModule = () => {
 
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
-    handleChangeConditionFieldAction('category', value)
+    handleChangeConditionFieldAction('type', value)
     appNavigate({
       path: ROUTES_NAME.CHAT_NEW_CONDITION,
       params: {
@@ -86,33 +108,32 @@ export const NewConditionModule = () => {
       },
     })
   }
+
   return (
-    <PageLayout>
-      <TelegramBackButton onClick={navigateToChatPage} />
+    <>
       <TelegramMainButton
         text="Create Condition"
         disabled={!isValid}
         onClick={handleCreateCondition}
       />
-      <Title level="1" weight="1" plain className={styles.title}>
-        Add condition
-      </Title>
-      <Container>
-        <Section>
-          <Cell
-            after={
-              <AppSelect
-                onChange={(value) => handleChangeType(value)}
-                options={CONDITION_TYPES}
-                value={condition?.category}
-              />
-            }
-          >
-            Choose type
-          </Cell>
-        </Section>
-        {Component && <Component isNewCondition />}
-      </Container>
-    </PageLayout>
+      <Block margin="top" marginValue={32}>
+        <Text type="title1" weight="bold" align="center">
+          Add condition
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={44}>
+        <ListItem
+          text="Choose type"
+          after={
+            <AppSelect
+              onChange={(value) => handleChangeType(value)}
+              options={CONDITION_TYPES}
+              value={condition?.type}
+            />
+          }
+        />
+      </Block>
+      {Component && <Component isNewCondition />}
+    </>
   )
 }

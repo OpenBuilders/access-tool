@@ -1,70 +1,41 @@
-import {
-  AppSelect,
-  Container,
-  PageLayout,
-  TelegramBackButton,
-  TelegramMainButton,
-} from '@components'
+import { PageLayout } from '@components'
+import { TelegramBackButton } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import commonStyles from '@styles/common.module.scss'
-import {
-  Cell,
-  Section,
-  SegmentedControl,
-  Select,
-  Title,
-} from '@telegram-apps/telegram-ui'
-import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
-import {
-  ConditionType,
-  INITIAL_CONDITION_JETTON,
-  INITIAL_CONDITION_NFT_COLLECTION,
-  useCondition,
-  useConditionActions,
-} from '@store'
-
-import styles from './ConditionPage.module.scss'
-import { Jettons, NFT } from './components'
-import { CONDITION_TYPES } from './constants'
 import { ConditionModule, NewConditionModule } from './modules'
 
 export const ConditionPage = () => {
-  const { pathname } = useLocation()
   const params = useParams<{
     conditionId: string
     chatSlug: string
-    conditionType: string
   }>()
 
+  const { appNavigate } = useAppNavigation()
+
   const chatSlugParam = params.chatSlug || ''
-  const conditionTypeParam = params.conditionType || ''
   const conditionIdParam = params.conditionId || ''
 
-  const { fetchConditionAction } = useConditionActions()
-  const { condition } = useCondition()
-
-  const fetchCondition = async () => {
-    try {
-      await fetchConditionAction({
-        type: conditionTypeParam as ConditionType,
-        chatSlug: chatSlugParam,
-        conditionId: conditionIdParam,
-      })
-    } catch (error) {
-      console.error(error)
-    }
+  const navigateToChatPage = () => {
+    appNavigate({
+      path: ROUTES_NAME.CHAT,
+      params: { chatSlug: chatSlugParam },
+    })
   }
 
-  useEffect(() => {
-    fetchCondition()
-  }, [conditionIdParam, conditionTypeParam])
+  if (!conditionIdParam)
+    return (
+      <PageLayout>
+        <TelegramBackButton onClick={navigateToChatPage} />
+        <NewConditionModule />
+      </PageLayout>
+    )
 
-  if (!condition) return null
-
-  if (!conditionIdParam) return <NewConditionModule />
-
-  return <ConditionModule />
+  return (
+    <PageLayout>
+      <TelegramBackButton onClick={navigateToChatPage} />
+      <ConditionModule />
+    </PageLayout>
+  )
 }

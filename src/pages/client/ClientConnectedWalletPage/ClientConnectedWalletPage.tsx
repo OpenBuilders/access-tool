@@ -1,17 +1,16 @@
 import moneyLottie from '@assets/money.json'
 import {
+  Block,
   PageLayout,
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
+  Text,
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import cs from '@styles/commonStyles.module.scss'
-import { Title } from '@telegram-apps/telegram-ui'
 import { toUserFriendlyAddress } from '@tonconnect/ui-react'
 import { collapseAddress } from '@utils'
-import cn from 'classnames'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -83,11 +82,13 @@ export const ClientConnectedWalletPage = () => {
         text="Connect New Wallet"
       />
       <StickerPlayer lottie={moneyLottie} />
-      <Title weight="2" plain level="1" className={cn(cs.textCenter, cs.mt16)}>
-        Wallet Connected
-        <br />
-        {collapsedAddress}
-      </Title>
+      <Block margin="top" marginValue={16}>
+        <Text type="title1" align="center" weight="bold">
+          Wallet Connected
+          <br />
+          {collapsedAddress}
+        </Text>
+      </Block>
     </PageLayout>
   )
 }
