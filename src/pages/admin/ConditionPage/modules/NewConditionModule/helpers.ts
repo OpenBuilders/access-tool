@@ -5,6 +5,8 @@ export const createUpdatedData = (condition: Condition) => {
 
   if (condition.type === 'jetton') {
     return {
+      name: condition.name,
+      asset: condition.asset,
       address: condition.address,
       expected: condition.expected,
       category: condition.category,

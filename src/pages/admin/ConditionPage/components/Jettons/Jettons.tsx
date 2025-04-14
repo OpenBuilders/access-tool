@@ -106,14 +106,21 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
       setCategoriesData(categoriesDataResult)
 
       if (condition?.asset) {
+        handleChangeConditionField('asset', condition?.asset)
         setActiveAsset(condition?.asset)
       } else {
+        handleChangeConditionField('asset', categoriesDataResult[0].value)
         setActiveAsset(categoriesDataResult[0].value)
       }
 
       if (condition?.category) {
+        handleChangeConditionField('category', condition?.category)
         setActiveCategory(condition?.category)
       } else {
+        handleChangeConditionField(
+          'category',
+          categoriesDataResult[0].categories[0].value
+        )
         setActiveCategory(categoriesDataResult[0].categories[0].value)
       }
     } catch (error) {

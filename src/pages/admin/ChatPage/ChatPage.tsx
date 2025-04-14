@@ -7,9 +7,7 @@ import {
 } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import commonStyles from '@styles/commonStyles.module.scss'
-import cn from 'classnames'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useApp, useAppActions, useChat, useChatActions } from '@store'

@@ -1,6 +1,7 @@
 import { List, ListItem, Text } from '@components'
+import { collapseEnd } from '@utils'
 import Papa from 'papaparse'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import styles from './ListUpload.module.scss'
 import { FileData } from './types'
@@ -32,6 +33,12 @@ export const ListUpload = ({
     description: uploadedFile?.description,
     users: uploadedFile?.users,
   })
+
+  useEffect(() => {
+    if (uploadedFile) {
+      setFileData(uploadedFile)
+    }
+  }, [uploadedFile])
 
   const readFileContent = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -143,7 +150,7 @@ export const ListUpload = ({
         }
         after={
           <Text type="text" color="accent">
-            {fileData?.name ? fileData.name : 'Upload'}
+            {fileData?.name ? collapseEnd(fileData.name, 14) : 'Upload'}
           </Text>
         }
       >

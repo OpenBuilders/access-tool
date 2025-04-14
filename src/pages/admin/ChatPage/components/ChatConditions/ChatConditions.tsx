@@ -1,8 +1,9 @@
 import { Block, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { createConditionName } from '@utils'
 
-import { useChat, ChatRule, Condition } from '@store'
+import { useChat, Condition } from '@store'
 
 export const ChatConditions = () => {
   const { appNavigate } = useAppNavigation()
@@ -38,7 +39,7 @@ export const ChatConditions = () => {
             <ListItem
               key={rule.id}
               chevron
-              text={rule.title}
+              text={createConditionName(rule)}
               onClick={() => navigateToConditionPage(rule)}
             />
           ))}

@@ -1,4 +1,5 @@
 import { Icon, ListItem, Text } from '@components'
+import { createConditionName } from '@utils'
 
 import { Condition } from '@store'
 
@@ -29,7 +30,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
     return (
       <ListItem
         before={<Icon name="check" size={20} />}
-        text={<Text type="text">{title}</Text>}
+        text={<Text type="text">{createConditionName(condition)}</Text>}
         description={renderAttributes()}
       />
     )
@@ -40,7 +41,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
       chevron={!!promoteUrl}
       onClick={handleOpenLink}
       before={<Icon name="cross" size={20} />}
-      text={<Text type="text">{title}</Text>}
+      text={<Text type="text">{createConditionName(condition)}</Text>}
       description={renderAttributes()}
     />
   )
