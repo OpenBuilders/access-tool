@@ -10,6 +10,7 @@ import {
   ClientConnectedWalletPage,
   ClientWalletsListPage,
   ClientJoinPage,
+  NotFound,
 } from '@pages'
 import { Route, Routes } from 'react-router-dom'
 
@@ -26,6 +27,7 @@ export const ROUTES_NAME = {
   CLIENT_CONNECTED_WALLET: '/client/:clientChatSlug/connected-wallet',
   CLIENT_WALLETS_LIST: '/client/:clientChatSlug/wallets-list',
   CLIENT_JOIN: '/client/:clientChatSlug/join',
+  NOT_FOUND: '/not-found',
 }
 
 export default (
@@ -60,5 +62,6 @@ export default (
       element={<ClientWalletsListPage />}
     />
     <Route path={ROUTES_NAME.CLIENT_JOIN} element={<ClientJoinPage />} />
+    <Route path={ROUTES_NAME.NOT_FOUND} element={<NotFound />} />
   </Routes>
 )

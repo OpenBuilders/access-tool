@@ -29,6 +29,7 @@ export const ClientTasksPage = () => {
       await fetchUserChatAction(clientChatSlug)
     } catch (error) {
       console.error(error)
+      appNavigate({ path: ROUTES_NAME.NOT_FOUND })
     } finally {
       setIsLoading(false)
     }
