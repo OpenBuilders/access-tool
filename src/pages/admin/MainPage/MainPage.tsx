@@ -5,9 +5,10 @@ import {
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
+  useToast,
 } from '@components'
 import { Text } from '@components'
-import { useAppNavigation } from '@hooks'
+import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { useEffect } from 'react'
 
@@ -23,11 +24,14 @@ export const MainPage = () => {
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
 
+  const { notFound } = useError()
+
   const fetchAdminUserChats = async () => {
     try {
       await fetchAdminUserChatsAction()
     } catch (error) {
       console.error(error)
+      notFound()
     }
   }
 
