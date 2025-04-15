@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom'
 
 import { useAppNavigation } from './useAppNavigation'
 
-type RedirectType = 'adminMainPage' | 'adminChatPage'
+type RedirectType = 'adminMainPage' | 'adminChatPage' | 'notFound'
 
 export const useError = () => {
   const params = useParams<{ chatSlug: string }>()
@@ -23,6 +23,9 @@ export const useError = () => {
         params: { chatSlug: params.chatSlug },
       })
     }
+    if (isRedirect === 'notFound') {
+      appNavigate({ path: ROUTES_NAME.NOT_FOUND })
+    }
   }, [isRedirect])
 
   return {
@@ -39,6 +42,9 @@ export const useError = () => {
         type: 'error',
       })
       setIsRedirect('adminChatPage')
+    },
+    notFound: () => {
+      setIsRedirect('notFound')
     },
   }
 }

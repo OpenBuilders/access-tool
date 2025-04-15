@@ -9,11 +9,11 @@ import App from './App'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <ThemeProvider>
-        <ToastProvider>
+      <ToastProvider>
+        <ThemeProvider>
           <App />
-        </ToastProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </ToastProvider>
     </BrowserRouter>
   </StrictMode>
 )

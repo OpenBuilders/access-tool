@@ -1,8 +1,9 @@
 import { Block, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { createConditionName } from '@utils'
 
-import { useChat, ChatRule, Condition } from '@store'
+import { useChat, Condition } from '@store'
 
 export const ChatConditions = () => {
   const { appNavigate } = useAppNavigation()
@@ -31,20 +32,16 @@ export const ChatConditions = () => {
   }
 
   return (
-    <>
-      <Block margin="top" marginValue={24}>
-        <List header="Who can Join">
-          {rules?.map((rule) => (
-            <ListItem
-              key={rule.id}
-              chevron
-              text={rule.title}
-              onClick={() => navigateToConditionPage(rule)}
-            />
-          ))}
-        </List>
-      </Block>
-      <Block margin="top" marginValue={rules?.length ? 12 : 0}>
+    <Block margin="top" marginValue={24}>
+      <List header="Who can Join">
+        {rules?.map((rule) => (
+          <ListItem
+            key={rule.id}
+            chevron
+            text={createConditionName(rule)}
+            onClick={() => navigateToConditionPage(rule)}
+          />
+        ))}
         <ListItem
           text={
             <Text type="text" color="accent">
@@ -54,7 +51,7 @@ export const ChatConditions = () => {
           onClick={createCondition}
           before={<Icon name="plus" size={24} />}
         />
-      </Block>
-    </>
+      </List>
+    </Block>
   )
 }

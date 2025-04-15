@@ -78,6 +78,7 @@ function App() {
 
   return (
     <TonConnectUIProvider
+      // TODO: manifest
       manifestUrl={config.tonConnectManifestUrl}
       actionsConfiguration={{
         twaReturnUrl: `https://t.me/${config.botName}?startapp=ch_${clientChatSlug}`,

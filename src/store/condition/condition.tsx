@@ -39,7 +39,7 @@ interface ConditionActions {
     // Common Actions
     handleChangeConditionFieldAction: (
       field: string,
-      value: string | number | boolean
+      value: string | number | boolean | number[]
     ) => void
     setIsValidAction: (value: boolean) => void
     prefetchConditionDataAction: (type: ConditionType, address: string) => void

@@ -1,23 +1,8 @@
-import {
-  Block,
-  FileData,
-  List,
-  ListItem,
-  ListUpload,
-  Text,
-  useToast,
-} from '@components'
-import cn from 'classnames'
+import { Block, FileData, List, ListUpload, Text, useToast } from '@components'
 
-import {
-  ConditionWhitelistExternal,
-  useCondition,
-  useConditionActions,
-} from '@store'
+import { useCondition, useConditionActions } from '@store'
 
 import { ConditionComponentProps } from '../types'
-
-// import { validateWhitelistExternalCondition } from './helpers'
 
 const ALLOWED_FILE_TYPES = '.csv,.txt,.json'
 
@@ -36,7 +21,8 @@ export const Whitelist = (props: ConditionComponentProps) => {
 
     handleChangeConditionFieldAction('name', file.name)
     handleChangeConditionFieldAction('description', file.description)
-    handleChangeConditionFieldAction('users', JSON.stringify(file.users))
+    const users = file.users.map((user) => Number(user))
+    handleChangeConditionFieldAction('users', users)
     setIsValidAction(true)
   }
 
@@ -62,8 +48,8 @@ export const Whitelist = (props: ConditionComponentProps) => {
             Supported formats:
             <ul style={{ paddingLeft: '16px' }}>
               <li>CSV — one ID per line, no header</li>
-              <li>JSON — array of strings or numbers (e.g. ["123", "456"])</li>
-              <li>TXT — plain text with one ID per line or valid JSON array</li>
+              <li>JSON — array of strings or numbers (e.g. [123, 456])</li>
+              <li>TXT — plain text with array of numbers (e.g. [123, 456])</li>
             </ul>
           </Text>
         }

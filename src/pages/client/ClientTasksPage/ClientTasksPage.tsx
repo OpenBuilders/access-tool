@@ -4,18 +4,21 @@ import {
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
-import { useAppNavigation } from '@hooks'
+import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useChat, useChatActions } from '@store'
+import { useApp, useAppActions, useChat, useChatActions } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
 
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
-  const [isLoading, setIsLoading] = useState(true)
+  const { notFound } = useError()
+
+  const { isLoading } = useApp()
+  const { toggleIsLoadingAction } = useAppActions()
 
   const { appNavigate } = useAppNavigation()
 
@@ -25,12 +28,13 @@ export const ClientTasksPage = () => {
   const fetchUserChat = async () => {
     if (!clientChatSlug) return
     try {
-      setIsLoading(true)
+      toggleIsLoadingAction(true)
       await fetchUserChatAction(clientChatSlug)
     } catch (error) {
       console.error(error)
+      notFound()
     } finally {
-      setIsLoading(false)
+      toggleIsLoadingAction(false)
     }
   }
 
