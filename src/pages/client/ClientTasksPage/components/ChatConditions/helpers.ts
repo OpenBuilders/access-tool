@@ -1,12 +1,12 @@
-import { ChatRule } from '@store'
+import { Condition } from '@store'
 
 interface Result {
-  notAvailable: ChatRule[]
-  available: ChatRule[]
+  notAvailable: Condition[]
+  available: Condition[]
 }
 
 export const sortConditions = (
-  conditions: ChatRule[] | null,
+  conditions: Condition[] | null,
   walletAddress?: string
 ) => {
   if (!conditions) return { notAvailable: [], available: [] }

@@ -1,6 +1,6 @@
-import { ConditionJetton, ConditionNFTCollection } from '@store'
+import { Condition } from '@store'
 
-export const validateNFTCollectionAddress = (address: string): boolean => {
+export const validateNFTCollectionAddress = (address?: string): boolean => {
   if (!address) return false
   const addressRegex = /^0:[a-fA-F0-9]{64}$/
   return addressRegex.test(address)
@@ -11,9 +11,7 @@ export const validateAmount = (amount?: number): boolean => {
   return !isNaN(amount) && amount > 0
 }
 
-export const validateNFTCollectionCondition = (
-  condition: ConditionNFTCollection
-) => {
+export const validateNFTCollectionCondition = (condition: Condition) => {
   if (!condition) return false
 
   return (

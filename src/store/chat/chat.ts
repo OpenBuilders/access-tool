@@ -8,7 +8,7 @@ import {
   fetchUserChatAPI,
   updateChatAPI,
 } from './api'
-import { AdminChat, Chat, ChatInstance, ChatRule } from './types'
+import { AdminChat, ChatInstance } from './types'
 
 interface ChatStore {
   adminChats: AdminChat[] | null

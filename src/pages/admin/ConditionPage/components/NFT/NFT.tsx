@@ -2,7 +2,12 @@ import { AppSelect, Block, Image, List, ListInput, ListItem } from '@components'
 import debounce from 'debounce'
 import { useCallback, useEffect, useState } from 'react'
 
-import { useCondition, useConditionActions, ConditionType } from '@store'
+import {
+  useCondition,
+  useConditionActions,
+  ConditionType,
+  Condition,
+} from '@store'
 
 import { ConditionComponentProps } from '../types'
 import { validateNFTCollectionCondition } from './helpers'
@@ -54,7 +59,9 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
       [field]: value,
     }
 
-    const validationResult = validateNFTCollectionCondition(updatedCondition)
+    const validationResult = validateNFTCollectionCondition(
+      updatedCondition as Condition
+    )
 
     if (field === 'address') {
       debouncedPrefetchNFTCollection(value.toString())
