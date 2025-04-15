@@ -8,6 +8,8 @@ import {
   check,
   cross,
   chevron,
+  eyeCrossed,
+  eye,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -31,5 +33,9 @@ export const getIcon = (name: IconTypeName) => {
       return cross
     case 'chevron':
       return chevron
+    case 'eyeCrossed':
+      return eyeCrossed
+    case 'eye':
+      return eye
   }
 }

@@ -1,3 +1,4 @@
+import { ToastProvider } from '@components'
 import { ThemeContext } from '@context'
 import { useAppNavigation } from '@hooks'
 import '@styles/index.scss'
@@ -84,6 +85,7 @@ function App() {
         twaReturnUrl: `https://t.me/${config.botName}?startapp=ch_${clientChatSlug}`,
       }}
     >
+      <ToastProvider />
       {Routes}
     </TonConnectUIProvider>
   )

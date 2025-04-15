@@ -14,5 +14,7 @@ export type IconTypeName =
   | 'check'
   | 'cross'
   | 'chevron'
+  | 'eyeCrossed'
+  | 'eye'
 
 export type IconSize = 112 | 100 | 28 | 24 | 20 | 16 | 12 | 7

@@ -1,4 +1,3 @@
-import { ToastProvider } from '@components'
 import { ThemeProvider } from '@context'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -10,9 +9,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <ToastProvider>
-          <App />
-        </ToastProvider>
+        <App />
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>

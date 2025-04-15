@@ -18,4 +18,5 @@ export const INITIAL_CONDITION: Condition = {
   promoteUrl: '',
   isEligible: false,
   actual: 0,
+  url: '',
 }

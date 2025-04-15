@@ -29,6 +29,7 @@ export type Condition = {
   description?: string
   isEligible?: boolean
   actual?: number
+  url?: string
 }
 
 export type PrefetchedConditionData = {
