@@ -4,7 +4,11 @@ export class LocalStorageService {
       return localStorage.removeItem(key)
     }
 
-    localStorage.setItem(key, JSON.stringify(value))
+    if (typeof value === 'string') {
+      localStorage.setItem(key, value)
+    } else {
+      localStorage.setItem(key, JSON.stringify(value))
+    }
   }
 
   static setItemWithExpiry(key: string, value: any, ttl: number): void {
@@ -44,7 +48,11 @@ export class LocalStorageService {
     const data: string | null = localStorage.getItem(key)
 
     if (data !== null) {
-      return JSON.parse(data)
+      try {
+        return JSON.parse(data) as T
+      } catch {
+        return data as T
+      }
     }
 
     if (otherwise) {
