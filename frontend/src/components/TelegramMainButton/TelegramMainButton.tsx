@@ -16,75 +16,88 @@ export const TelegramMainButton = ({
   onClick,
   hidden,
   disabled,
-  isLoading,
 }: MainButtonProps) => {
-  const { button_color, button_text_color } = webApp.themeParams
+  const resetButton = () => {
+    if (mainButton) {
+      const { button_color, button_text_color } = webApp.themeParams
 
-  useEffect(() => {
-    if (!webApp || !mainButton) {
-      mainButton?.hide()
-      return
-    }
+      if (disabled) {
+        mainButton.disable()
+      } else {
+        mainButton.enable()
+      }
 
-    if (!onClick || !text || hidden) {
-      mainButton.hide()
-      return
-    }
-
-    const { button_color, button_text_color } = webApp.themeParams
-
-    mainButton.setParams({
-      color: button_color,
-      text_color: button_text_color,
-    })
-    mainButton.show()
-
-    const handleMainButtonClick = () => onClick()
-
-    mainButton.onClick(handleMainButtonClick)
-
-    return () => {
-      mainButton.offClick(handleMainButtonClick)
-      mainButton.hide()
-    }
-  }, [text])
-
-  useEffect(() => {
-    if (!webApp || !mainButton || !onClick) return
-
-    const handleMainButtonClick = () => onClick()
-
-    mainButton.onClick(handleMainButtonClick)
-
-    if (disabled) {
-      mainButton.disable()
-      mainButton.setParams({ color: '#E8E8E9', text_color: '#B9B9BA' })
-    } else {
-      mainButton.enable()
+      mainButton.hideProgress()
       mainButton.setParams({
         color: button_color,
         text_color: button_text_color,
       })
     }
+  }
+
+  useEffect(() => {
+    resetButton()
+  }, [])
+
+  useEffect(() => {
+    if (mainButton) {
+      if (hidden) {
+        mainButton.hide()
+        resetButton()
+      } else {
+        mainButton.show()
+        resetButton()
+      }
+    }
+  }, [hidden])
+
+  useEffect(() => {
+    if (!mainButton) {
+      return
+    }
+
+    const { button_color, button_text_color } = webApp.themeParams
+
+    if (typeof disabled === 'boolean') {
+      if (disabled) {
+        mainButton.disable()
+        mainButton.setParams({ color: '#E8E8E9', text_color: '#B9B9BA' })
+      } else {
+        mainButton.enable()
+        mainButton.setParams({
+          color: button_color,
+          text_color: button_text_color,
+        })
+      }
+    }
   }, [disabled])
 
   useEffect(() => {
-    if (!webApp || !mainButton) return
+    if (!mainButton) {
+      return
+    }
 
-    mainButton.setParams({
-      text: text || 'Continue',
-    })
+    if (text) {
+      mainButton.setText(text)
+      if (!mainButton.isVisible) {
+        mainButton.show()
+      }
+    } else if (mainButton.isVisible) {
+      mainButton.hide()
+    }
   }, [text])
 
   useEffect(() => {
-    if (!webApp || !mainButton) return
+    if (mainButton && onClick) {
+      mainButton.onClick(onClick)
 
-    if (isLoading) {
-      mainButton.showProgress()
-    } else {
-      mainButton.hideProgress()
+      return () => {
+        if (mainButton) {
+          mainButton.offClick(onClick)
+        }
+      }
     }
-  }, [isLoading])
+  }, [onClick])
 
   if (
     webApp.platform === 'unknown' &&
