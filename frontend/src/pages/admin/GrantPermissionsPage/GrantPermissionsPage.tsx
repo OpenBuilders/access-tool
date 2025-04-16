@@ -22,6 +22,11 @@ export const GrantPermissionsPage = () => {
   const { fetchChatAction } = useChatActions()
   const { adminChatNotFound } = useError()
 
+  const isMobile =
+    webApp.platform === 'android' ||
+    webApp.platform === 'ios' ||
+    webApp.platform === 'android_x'
+
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
 
@@ -49,6 +54,12 @@ export const GrantPermissionsPage = () => {
     webApp.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
+
+    if (!isMobile) {
+      webApp.close()
+      return
+    }
+
     appNavigate({ path: ROUTES_NAME.CHECKING_BOT_ADDED, params: { chatSlug } })
   }
 

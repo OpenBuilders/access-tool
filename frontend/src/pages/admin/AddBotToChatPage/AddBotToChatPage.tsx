@@ -25,6 +25,11 @@ export const AddBotToChatPage = () => {
   const [currentChats, setCurrentChats] = useState<AdminChat[]>([])
   const [isCheckingChats, setIsCheckingChats] = useState(false)
 
+  const isMobile =
+    webApp.platform === 'android' ||
+    webApp.platform === 'ios' ||
+    webApp.platform === 'android_x'
+
   const navigateToMainPage = () => {
     appNavigate({ path: ROUTES_NAME.MAIN })
   }
@@ -33,6 +38,11 @@ export const AddBotToChatPage = () => {
     webApp.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
+
+    if (!isMobile) {
+      webApp.close()
+      return
+    }
 
     setIsCheckingChats(true)
   }

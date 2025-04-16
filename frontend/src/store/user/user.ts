@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 
 import config from '@config'
-import { AuthService, LocalStorageService } from '@services'
+import { AuthService } from '@services'
 
 import { createSelectors } from '../types'
 import {
@@ -89,7 +89,7 @@ const useUserStore = create<UserStore & UserActions>((set) => ({
       return data?.taskId
     },
     completeChatTaskAction: async (taskId: string) => {
-      const { data, ok, error } = await completeChatTasksAPI(taskId)
+      const { ok, error } = await completeChatTasksAPI(taskId)
 
       if (!ok) {
         throw new Error(error)

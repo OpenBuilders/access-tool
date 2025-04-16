@@ -68,13 +68,13 @@ function App() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      authenticateUser().then()
+      authenticateUser()
     }
   }, [window.location.pathname])
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchUser().then()
+      fetchUser()
     }
   }, [isAuthenticated])
 

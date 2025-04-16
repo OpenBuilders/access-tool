@@ -1,9 +1,9 @@
 @use 'variables' as *;
 
 html[data-theme='light'] {
-  --color-backgroundSecondary: #{$palette-white100};
+  --color-backgroundSecondary: #{$palette-dark4};
   --color-backgroundTertiary: #{$palette-white100};
-  --color-backgroundPrimary: #{$palette-dark4};
+  --color-backgroundPrimary: #{$palette-white100};
   --color-textIconsPrimary: #{$palette-dark100};
   --color-textIconsSecondary: #{$palette-transparentDark75};
   --color-textIconsTertiary: #{$palette-transparentDark50};
