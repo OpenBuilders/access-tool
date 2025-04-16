@@ -15,19 +15,19 @@ import {
 import { Route, Routes } from 'react-router-dom'
 
 export const ROUTES_NAME = {
-  MAIN: '/',
-  ADD_TELEGRAM_CHAT: '/admin/add-telegram-chat',
-  CHAT: '/admin/chat/:chatSlug',
-  CHAT_CONDITION: '/admin/chat/:chatSlug/condition/:conditionId/:conditionType',
-  CHAT_NEW_CONDITION: '/admin/chat/:chatSlug/new-condition/:conditionType',
-  GRANT_PERMISSIONS: '/admin/grant-permissions/:chatSlug',
-  CHECKING_BOT_ADDED: '/admin/checking-bot-added/:chatSlug',
-  BOT_ADDED_SUCCESS: '/admin/bot-added-success/:chatSlug',
-  CLIENT_TASKS: '/client/:clientChatSlug',
-  CLIENT_CONNECTED_WALLET: '/client/:clientChatSlug/connected-wallet',
-  CLIENT_WALLETS_LIST: '/client/:clientChatSlug/wallets-list',
-  CLIENT_JOIN: '/client/:clientChatSlug/join',
-  NOT_FOUND: '/not-found',
+  MAIN: '/vite/',
+  ADD_TELEGRAM_CHAT: '/vite/admin/add-telegram-chat',
+  CHAT: '/vite/admin/chat/:chatSlug',
+  CHAT_CONDITION: '/vite/admin/chat/:chatSlug/condition/:conditionId/:conditionType',
+  CHAT_NEW_CONDITION: '/vite/admin/chat/:chatSlug/new-condition/:conditionType',
+  GRANT_PERMISSIONS: '/vite/admin/grant-permissions/:chatSlug',
+  CHECKING_BOT_ADDED: '/vite/admin/checking-bot-added/:chatSlug',
+  BOT_ADDED_SUCCESS: '/vite/admin/bot-added-success/:chatSlug',
+  CLIENT_TASKS: '/vite/client/:clientChatSlug',
+  CLIENT_CONNECTED_WALLET: '/vite/client/:clientChatSlug/connected-wallet',
+  CLIENT_WALLETS_LIST: '/vite/client/:clientChatSlug/wallets-list',
+  CLIENT_JOIN: '/vite/client/:clientChatSlug/join',
+  NOT_FOUND: '/vite/not-found',
 }
 
 export default (
