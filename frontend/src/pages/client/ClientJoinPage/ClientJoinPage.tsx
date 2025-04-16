@@ -1,12 +1,13 @@
-import confettiLottie from '@assets/confetti.json'
 import {
   Block,
+  ConfettiAnimation,
+  Image,
   PageLayout,
-  StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
   Text,
 } from '@components'
+import { useError } from '@hooks'
 import { goTo } from '@utils'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -18,6 +19,8 @@ const webApp = window.Telegram.WebApp
 export const ClientJoinPage = () => {
   const params = useParams<{ clientChatSlug: string }>()
   const clientChatSlug = params.clientChatSlug || ''
+  const [canJoinChat, setCanJoinChat] = useState(false)
+  const { notFound } = useError()
 
   // const [isSheetOpened, setIsSheetOpened] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -34,6 +37,7 @@ export const ClientJoinPage = () => {
       // }, 2000)
     } catch (error) {
       console.error(error)
+      notFound()
     } finally {
       setIsLoading(false)
     }
@@ -43,7 +47,17 @@ export const ClientJoinPage = () => {
     fetchUserChat()
   }, [clientChatSlug])
 
-  if (isLoading || !chat) return null
+  useEffect(() => {
+    if (chat) {
+      if (chat.isEligible) {
+        setCanJoinChat(true)
+      } else {
+        notFound()
+      }
+    }
+  }, [chat])
+
+  if (isLoading || !chat || !canJoinChat) return null
 
   const navigateToChat = () => {
     goTo(chat.joinUrl)
@@ -63,7 +77,9 @@ export const ClientJoinPage = () => {
     <PageLayout center>
       <TelegramBackButton />
       <TelegramMainButton text="Join Group" onClick={handleJoinGroup} />
-      <StickerPlayer lottie={confettiLottie} />
+      <Image size={112} src={chat?.logoPath} borderRadius={50} />
+      {/* <StickerPlayer lottie={confettiLottie} /> */}
+      <ConfettiAnimation active={true} duration={5000} />
       <Block margin="top" marginValue={8}>
         <Text type="title1" align="center" weight="bold">
           Welcome to

@@ -12,11 +12,13 @@
   "dependencies": {
     "@tonconnect/ui-react": "^2.1.0",
     "@types/papaparse": "^5.3.15",
+    "@uidotdev/usehooks": "^2.4.1",
     "classnames": "^2.5.1",
     "debounce": "^2.2.0",
     "ky": "^1.8.0",
     "papaparse": "^5.5.2",
     "react": "^19.0.0",
+    "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",
     "react-lottie": "^1.2.10",
     "react-router-dom": "^7.4.0",
