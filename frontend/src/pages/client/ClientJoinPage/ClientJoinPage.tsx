@@ -48,8 +48,7 @@ export const ClientJoinPage = () => {
   if (isLoading || !chat) return null
 
   const navigateToChat = () => {
-    const url = `https://t.me/${chat.slug}`
-    goTo(url)
+    goTo(chat.joinUrl)
   }
 
   const handleJoinGroup = () => {
