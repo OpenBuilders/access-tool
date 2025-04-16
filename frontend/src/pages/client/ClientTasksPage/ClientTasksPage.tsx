@@ -6,7 +6,7 @@ import {
 } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useApp, useAppActions, useChat, useChatActions } from '@store'
@@ -42,6 +42,15 @@ export const ClientTasksPage = () => {
     if (!clientChatSlug) return
     fetchUserChat()
   }, [clientChatSlug])
+
+  useEffect(() => {
+    if (chat?.isEligible) {
+      appNavigate({
+        path: ROUTES_NAME.CLIENT_JOIN,
+        params: { clientChatSlug },
+      })
+    }
+  }, [chat])
 
   if (isLoading || !chat || !rules) return null
 
