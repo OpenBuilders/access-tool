@@ -12,11 +12,11 @@ logger = logging.getLogger(__name__)
 
 timeout = httpx.Timeout(REQUEST_TIMEOUT, read=READ_TIMEOUT, connect=CONNECT_TIMEOUT)
 sync_client = httpx.Client(timeout=timeout, follow_redirects=True)
-async_client = httpx.AsyncClient(timeout=timeout, follow_redirects=True)
 
 
 async def fetch_whitelist_members(url: str) -> WhitelistRuleCPO:
-    response = await async_client.get(url)
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+        response = await client.get(url)
     response.raise_for_status()
     try:
         validated_response = WhitelistRuleCPO.model_validate(
