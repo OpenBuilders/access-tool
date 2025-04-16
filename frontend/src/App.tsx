@@ -83,7 +83,7 @@ function App() {
       // TODO: manifest
       manifestUrl={config.tonConnectManifestUrl}
       actionsConfiguration={{
-        twaReturnUrl: `https://t.me/${config.botName}?startapp=ch_${clientChatSlug}`,
+        twaReturnUrl: `https://t.me/${config.botName}/gate?startapp=ch_${clientChatSlug}`,
       }}
     >
       {Routes}

@@ -16,34 +16,6 @@ jobs:
     environment: staging
 
     steps:
-
-      - name: Check Secret Available
-        run: |
-          if [ -z "${{ secrets.VPS_USERNAME }}" ]; then
-            echo "Secret VPS_USERNAME is not available or empty"
-            exit 1
-          else
-            echo "Secret VPS_USERNAME is available (but value will not be shown)"
-          fi
-
-      - name: Check Secret Available
-        run: |
-          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
-            echo "Secret VPS_SSH_KEY is not available or empty"
-            exit 1
-          else
-            echo "Secret VPS_SSH_KEY is available (but value will not be shown)"
-          fi
-
-      - name: Check Secret Available
-        run: |
-          if [ -z "${{ secrets.VPS_IP }}" ]; then
-            echo "Secret VPS_IP is not available or empty"
-            exit 1
-          else
-            echo "Secret VPS_IP is available (but value will not be shown)"
-          fi
-
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
