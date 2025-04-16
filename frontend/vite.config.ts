@@ -7,7 +7,7 @@ import svgr from 'vite-plugin-svgr'
 // https://vitejs.dev/config/
 export default defineConfig({
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  base: "/vite/",
+  base: "/",
   server: {
     host: '0.0.0.0',
     port: 5173,
