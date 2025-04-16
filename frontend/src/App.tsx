@@ -64,8 +64,6 @@ function App() {
         },
       })
       return
-    } else {
-      appNavigate({ path: ROUTES_NAME.MAIN })
     }
     authenticateUser()
   }, [])
