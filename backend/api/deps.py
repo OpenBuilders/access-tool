@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+import re
 from typing import Annotated
 from urllib.parse import unquote_plus
 
@@ -24,6 +25,9 @@ from core.services.db import DBService
 from core.services.user import UserService
 
 security = HTTPBearer(auto_error=False)
+
+RAW_ADDRESS_REGEX = re.compile(r"0:[0-9a-fA-F]{64}")
+USER_FRIENDLY_ADDRESS_REGEX = re.compile(r"(EQ|UQ)[a-zA-Z0-9\-\_]{46}")
 
 
 def get_db_session():
@@ -104,10 +108,10 @@ def get_address_raw(address: str) -> str:
             detail="Address is required", status_code=HTTP_404_NOT_FOUND
         )
 
-    if address.startswith(("UQ", "EQ")):
+    if USER_FRIENDLY_ADDRESS_REGEX.match(address):
         return userfriendly_to_raw(address)
 
-    elif address.startswith("0:"):
+    elif RAW_ADDRESS_REGEX.match(address):
         try:
             # To validate the blockchain address
             raw_to_userfriendly(address)

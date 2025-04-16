@@ -37,6 +37,6 @@ class AuthenticationService:
 
         user_id: str | None = payload.get("sub")
         if user_id is None:
-            logger.error("Can't find 'sub' in token payload")
+            logger.warning("Can't find 'sub' in token payload")
             raise UnauthorizedError("Could not validate credentials")
         return int(user_id)
