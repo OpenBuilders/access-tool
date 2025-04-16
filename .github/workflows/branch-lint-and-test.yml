@@ -1,0 +1,9 @@
+name: Lint and test the code on the branch
+
+on:
+  push:
+
+
+jobs:
+  lint-python:
+    uses: ./.github/workflows/lint-python.yml

@@ -1,0 +1,13 @@
+name: Linting checks for Python
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Testing linting issues with Ruff
+        uses: astral-sh/ruff-action@v3
