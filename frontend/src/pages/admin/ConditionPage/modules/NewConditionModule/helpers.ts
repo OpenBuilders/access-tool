@@ -3,6 +3,8 @@ import { Condition } from '@store'
 export const createUpdatedData = (condition: Condition) => {
   if (!condition) return null
 
+  console.log('🚀 ~ createUpdatedData ~ condition:', condition)
+
   if (condition.type === 'jetton') {
     return {
       name: condition.name,

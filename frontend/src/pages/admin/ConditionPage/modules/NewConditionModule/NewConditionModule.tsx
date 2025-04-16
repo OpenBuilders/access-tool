@@ -12,6 +12,7 @@ import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { INITIAL_CONDITION } from 'src/store/condition/constants'
 
 import {
   Condition,
@@ -37,6 +38,7 @@ export const NewConditionModule = () => {
     createConditionAction,
     resetPrefetchedConditionDataAction,
     handleChangeConditionFieldAction,
+    setInitialConditionAction,
   } = useConditionActions()
   const { isValid, condition } = useCondition()
 
@@ -65,7 +67,9 @@ export const NewConditionModule = () => {
   const handleCreateCondition = async () => {
     if (!isValid) return
     try {
+      console.log('🚀 ~ handleCreateCondition ~ condition:', condition)
       const updatedData = createUpdatedData(condition as Condition)
+
       console.log('🚀 ~ handleCreateCondition ~ updatedData:', updatedData)
 
       if (!updatedData) {
@@ -102,6 +106,7 @@ export const NewConditionModule = () => {
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
     handleChangeConditionFieldAction('type', value)
+    setInitialConditionAction(INITIAL_CONDITION)
     console.log('🚀 ~ handleChangeType ~ value:', value)
     appNavigate({
       path: ROUTES_NAME.CHAT_NEW_CONDITION,
