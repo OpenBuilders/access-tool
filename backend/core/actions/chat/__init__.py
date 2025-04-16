@@ -320,7 +320,7 @@ class TelegramChatAction(BaseAction):
         except (
             TelegramChatNotExists,  # happens when chat is deleted or bot is removed from the chat
         ):
-            logger.error(f"Chat {chat.id!r} not found. Removing it...")
+            logger.warning(f"Chat {chat.id!r} not found. Removing it...")
             self.telegram_chat_service.delete(chat_id=chat.id)
             raise
 
@@ -346,7 +346,7 @@ class TelegramChatAction(BaseAction):
         try:
             chat = self.telegram_chat_service.get_by_slug(slug)
         except NoResultFound:
-            logger.error(f"Chat with slug {slug!r} not found")
+            logger.warning(f"Chat with slug {slug!r} not found")
             raise TelegramChatNotExists(f"Chat with slug {slug!r} not found")
         eligibility_summary = self.authorization_action.is_user_eligible_chat_member(
             chat_id=chat.id,
