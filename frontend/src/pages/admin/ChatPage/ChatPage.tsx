@@ -43,7 +43,6 @@ export const ChatPage = () => {
       adminChatNotFound()
     }
   }
-  console.log('dasdas')
 
   useEffect(() => {
     toggleIsLoadingAction(true)
@@ -80,17 +79,19 @@ export const ChatPage = () => {
       <ChatHeader />
       <ChatConditions />
       <Block margin="top" marginValue={24}>
-        <ListItem
-          text={
-            <Text type="text" color={isChatVisible ? 'danger' : 'accent'}>
-              {isChatVisible ? 'Hide Bot From Chat' : 'Show Bot in Chat'}
-            </Text>
-          }
-          onClick={handleChatVisibility}
-          before={
-            <Icon name={isChatVisible ? 'eyeCrossed' : 'eye'} size={24} />
-          }
-        />
+        <Block margin="bottom" marginValue={24}>
+          <ListItem
+            text={
+              <Text type="text" color={isChatVisible ? 'danger' : 'accent'}>
+                {isChatVisible ? 'Hide Bot From Chat' : 'Show Bot in Chat'}
+              </Text>
+            }
+            onClick={handleChatVisibility}
+            before={
+              <Icon name={isChatVisible ? 'eyeCrossed' : 'eye'} size={24} />
+            }
+          />
+        </Block>
       </Block>
       <Block margin="top" marginValue="auto">
         <Text type="caption" align="center" color="tertiary">
