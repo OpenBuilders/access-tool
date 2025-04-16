@@ -1,71 +1,33 @@
-import {
-  AppSelect,
-  Block,
-  Image,
-  List,
-  ListInput,
-  ListItem,
-  Text,
-} from '@components'
-import debounce from 'debounce'
-import { useCallback, useEffect, useState } from 'react'
+import { AppSelect, Block, ListInput, ListItem, Text } from '@components'
+import { useEffect, useState } from 'react'
 
-import {
-  useCondition,
-  useConditionActions,
-  ConditionType,
-  Condition,
-  ConditionCategory,
-} from '@store'
+import { useConditionActions, Condition, ConditionCategory } from '@store'
 
 import { ConditionComponentProps } from '../types'
 import { validateToncoinCondition } from './helpers'
 
-export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
-  const { condition } = useCondition()
+export const Toncoin = ({
+  isNewCondition,
+  handleChangeCondition,
+  toggleIsValid,
+  conditionState,
+  setInitialState,
+  condition,
+}: ConditionComponentProps) => {
+  const { fetchConditionCategoriesAction, resetPrefetchedConditionDataAction } =
+    useConditionActions()
 
-  const [categories, setCategories] = useState<any>(null)
-
-  const { prefetchedConditionData } = useCondition()
-  const {
-    prefetchConditionDataAction,
-    resetPrefetchedConditionDataAction,
-    setIsValidAction,
-    fetchConditionCategoriesAction,
-    handleChangeConditionFieldAction,
-  } = useConditionActions()
-
-  const handleChangeConditionField = (
-    field: string,
-    value: string | number
-  ) => {
-    const updatedState = {
-      ...condition,
-      [field]: value,
-    }
-
-    handleChangeConditionFieldAction(field, value)
-    const validationResult = validateToncoinCondition(updatedState as Condition)
-
-    setIsValidAction(validationResult)
-  }
+  const [categories, setCategories] = useState<ConditionCategory[]>([])
 
   const fetchConditionCategories = async () => {
     try {
-      const result = await fetchConditionCategoriesAction(
-        condition?.type as ConditionType
-      )
+      const result = await fetchConditionCategoriesAction('toncoin')
 
       if (!result) {
         throw new Error('Failed to fetch condition categories')
       }
 
-      const formattedCategories = result[0]?.categories.map((category) => ({
-        value: category,
-        name: category,
-      }))
-
-      setCategories(formattedCategories)
+      setCategories(result)
     } catch (error) {
       console.error(error)
     }
@@ -73,9 +35,32 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
 
   useEffect(() => {
     fetchConditionCategories()
+    if (isNewCondition) {
+      toggleIsValid(false)
+      resetPrefetchedConditionDataAction()
+    }
   }, [])
 
-  if (!categories) return null
+  useEffect(() => {
+    if (categories?.length && (isNewCondition || condition)) {
+      setInitialState({
+        ...conditionState,
+        type: 'toncoin',
+        asset: condition?.asset || categories[0].asset,
+        category: condition?.category || categories[0].categories[0],
+        expected: condition?.expected || '',
+      })
+    }
+  }, [categories?.length, condition])
+
+  useEffect(() => {
+    const validationResult = validateToncoinCondition(
+      conditionState as Condition
+    )
+    toggleIsValid(validationResult)
+  }, [conditionState])
+
+  if (!categories?.length || !conditionState?.type) return null
 
   return (
     <>
@@ -84,11 +69,12 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
           text="Category"
           after={
             <AppSelect
-              onChange={(value) =>
-                handleChangeConditionField('category', value)
-              }
-              options={categories}
-              value={condition?.category}
+              onChange={(value) => handleChangeCondition('category', value)}
+              options={categories.map((category) => ({
+                value: category.asset,
+                name: category.asset,
+              }))}
+              value={condition?.asset}
             />
           }
         />
@@ -108,9 +94,7 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
                 </Text>
               }
               value={condition?.expected}
-              onChange={(value) =>
-                handleChangeConditionField('expected', value)
-              }
+              onChange={(value) => handleChangeCondition('expected', value)}
             />
           }
         />

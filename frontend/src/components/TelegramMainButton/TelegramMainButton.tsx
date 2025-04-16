@@ -16,6 +16,7 @@ export const TelegramMainButton = ({
   onClick,
   hidden,
   disabled,
+  isLoading,
 }: MainButtonProps) => {
   const resetButton = () => {
     if (mainButton) {
@@ -58,6 +59,15 @@ export const TelegramMainButton = ({
 
     const { button_color, button_text_color } = webApp.themeParams
 
+    if (typeof isLoading === 'boolean') {
+      if (isLoading) {
+        mainButton.showProgress()
+        mainButton.disable()
+      } else {
+        mainButton.hideProgress()
+      }
+    }
+
     if (typeof disabled === 'boolean') {
       if (disabled) {
         mainButton.disable()
@@ -70,7 +80,7 @@ export const TelegramMainButton = ({
         })
       }
     }
-  }, [disabled])
+  }, [disabled, isLoading])
 
   useEffect(() => {
     if (!mainButton) {

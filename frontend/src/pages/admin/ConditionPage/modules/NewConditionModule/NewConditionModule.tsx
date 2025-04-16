@@ -8,7 +8,8 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useCallback, useState } from 'react'
+import { removeEmptyFields } from '@utils'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Condition, ConditionType, useConditionActions } from '@store'
@@ -36,6 +37,12 @@ export const NewConditionModule = () => {
 
   const { showToast } = useToast()
 
+  useEffect(() => {
+    if (conditionTypeParam) {
+      handleChangeType(conditionTypeParam)
+    }
+  }, [conditionTypeParam])
+
   const Component =
     CONDITION_COMPONENTS[
       conditionState.type as keyof typeof CONDITION_COMPONENTS
@@ -48,10 +55,11 @@ export const NewConditionModule = () => {
     })
   }, [appNavigate, chatSlugParam])
 
-  if (!Component) return null
-
   const handleChangeCondition = useCallback(
-    (key: keyof Condition, value: string | number | number[]) => {
+    (
+      key: keyof Condition,
+      value?: string | number | number[] | undefined | boolean
+    ) => {
       setConditionState((prev) => ({ ...prev, [key]: value }))
     },
     []
@@ -64,10 +72,11 @@ export const NewConditionModule = () => {
   const handleCreateCondition = useCallback(async () => {
     if (!isValid) return
     try {
+      const data = removeEmptyFields(conditionState)
       await createConditionAction({
         type: conditionTypeParam as ConditionType,
         chatSlug: chatSlugParam,
-        data: conditionState,
+        data,
       })
       navigateToChatPage()
       showToast({

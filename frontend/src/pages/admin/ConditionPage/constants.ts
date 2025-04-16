@@ -5,22 +5,22 @@ export const CONDITION_TYPES = [
     value: 'jetton',
     name: 'Jetton',
   },
-  // {
-  //   value: 'toncoin',
-  //   name: 'Toncoin',
-  // },
-  // {
-  //   value: 'nft_collection',
-  //   name: 'NFT',
-  // },
-  // {
-  //   value: 'whitelist',
-  //   name: 'List of Users',
-  // },
-  // {
-  //   value: 'premium',
-  //   name: 'Telegram Premium',
-  // },
+  {
+    value: 'toncoin',
+    name: 'Toncoin',
+  },
+  {
+    value: 'nft_collection',
+    name: 'NFT',
+  },
+  {
+    value: 'whitelist',
+    name: 'List of Users',
+  },
+  {
+    value: 'premium',
+    name: 'Telegram Premium',
+  },
 ]
 
 export const CONDITION_COMPONENTS = {

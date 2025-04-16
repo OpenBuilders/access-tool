@@ -52,20 +52,20 @@ export const updateConditionApi = async (
 ): Promise<ApiServiceResponse<Condition>> => {
   const { type, chatSlug, conditionId, data } = args
   const path = ConditionTypePath[type]
-  let formData = {
-    ...data,
-  }
-  if (data?.type === 'jetton' || data?.type === 'nft_collection') {
-    formData = {
-      ...formData,
-      address: data?.address || data?.blockchainAddress || '',
-    } as any
-    delete formData.blockchainAddress
-  }
+  // let formData = {
+  //   ...data,
+  // }
+  // if (data?.type === 'jetton' || data?.type === 'nft_collection') {
+  //   formData = {
+  //     ...formData,
+  //     address: data?.address || data?.blockchainAddress || '',
+  //   } as any
+  //   delete formData.blockchainAddress
+  // }
 
   const response = await ApiService.put<Condition>({
     endpoint: `/admin/chats/${chatSlug}/rules/${path}/${conditionId}`,
-    data: formData,
+    data,
   })
 
   return response

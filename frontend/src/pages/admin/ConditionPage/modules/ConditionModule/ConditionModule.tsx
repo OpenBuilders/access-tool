@@ -10,6 +10,7 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { removeEmptyFields } from '@utils'
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -69,12 +70,6 @@ export const ConditionModule = () => {
     fetchCondition()
   }, [conditionIdParam, conditionTypeParam])
 
-  // useEffect(() => {
-  //   if (condition) {
-  //     setConditionState(condition)
-  //   }
-  // }, [condition])
-
   const navigateToChatPage = () => {
     appNavigate({
       path: ROUTES_NAME.CHAT,
@@ -92,14 +87,25 @@ export const ConditionModule = () => {
         chatSlug: chatSlugParam,
         conditionId: conditionIdParam,
       })
+      showToast({
+        message: 'Condition deleted successfully',
+        type: 'success',
+      })
       navigateToChatPage()
     } catch (error) {
       console.error(error)
+      showToast({
+        message: 'Failed to delete condition',
+        type: 'error',
+      })
     }
   }
 
   const handleChangeCondition = useCallback(
-    (key: keyof Condition, value: string | number | number[]) => {
+    (
+      key: keyof Condition,
+      value: string | number | number[] | undefined | boolean
+    ) => {
       setIsSaved(false)
       setConditionState((prev) => ({ ...prev, [key]: value }))
     },
@@ -112,12 +118,13 @@ export const ConditionModule = () => {
 
   const handleUpdateCondition = async () => {
     if (!conditionIdParam || !chatSlugParam) return
+    const data = removeEmptyFields(conditionState)
     try {
       await updateConditionAction({
         type: conditionTypeParam as ConditionType,
         chatSlug: chatSlugParam,
         conditionId: conditionIdParam,
-        data: conditionState as Condition,
+        data,
       })
       showToast({
         message: 'Condition updated successfully',
@@ -132,8 +139,7 @@ export const ConditionModule = () => {
       })
     }
   }
-
-  if (!condition?.type) return null
+  if (!condition) return null
 
   const Component =
     CONDITION_COMPONENTS[

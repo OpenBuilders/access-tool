@@ -1,29 +1,44 @@
 import { Block, FileData, List, ListUpload, Text, useToast } from '@components'
-
-import { useCondition, useConditionActions } from '@store'
+import { useEffect } from 'react'
 
 import { ConditionComponentProps } from '../types'
 
 const ALLOWED_FILE_TYPES = '.csv,.txt,.json'
 
-export const Whitelist = (props: ConditionComponentProps) => {
-  const { isNewCondition } = props
-  const { condition } = useCondition()
-  const { handleChangeConditionFieldAction, setIsValidAction } =
-    useConditionActions()
-
+export const Whitelist = ({
+  isNewCondition,
+  handleChangeCondition,
+  toggleIsValid,
+  conditionState,
+  setInitialState,
+  condition,
+}: ConditionComponentProps) => {
   const { showToast } = useToast()
+
+  useEffect(() => {
+    if (isNewCondition || condition) {
+      setInitialState({
+        ...conditionState,
+        type: 'whitelist',
+        description: condition?.description || '',
+        name: condition?.name || '',
+        users: condition?.users || [],
+      })
+    }
+  }, [condition])
+
+  if (!conditionState?.type) return null
 
   const handleChange = (file: FileData) => {
     if (!file.users?.length) {
       return
     }
 
-    handleChangeConditionFieldAction('name', file.name)
-    handleChangeConditionFieldAction('description', file.description)
+    handleChangeCondition('name', file.name)
+    handleChangeCondition('description', file.description)
     const users = file.users.map((user) => Number(user))
-    handleChangeConditionFieldAction('users', users)
-    setIsValidAction(true)
+    handleChangeCondition('users', users)
+    toggleIsValid(true)
   }
 
   const handleError = (error: Error) => {
@@ -59,7 +74,7 @@ export const Whitelist = (props: ConditionComponentProps) => {
           onChange={handleChange}
           onError={handleError}
           onSuccess={handleSuccess}
-          uploadedFile={condition}
+          uploadedFile={conditionState}
           showPreview
         />
       </List>

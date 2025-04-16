@@ -14,6 +14,10 @@ export const validateAmount = (amount?: number | string): boolean => {
 export const validateNFTCollectionCondition = (condition: Condition) => {
   if (!condition) return false
 
+  if (condition.asset !== 'Any') {
+    return validateAmount(condition?.expected)
+  }
+
   return (
     validateNFTCollectionAddress(condition.address) &&
     validateAmount(condition?.expected)
