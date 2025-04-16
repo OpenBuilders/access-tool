@@ -1,0 +1,23 @@
+name: Linting checks for Python
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Testing linting issues with Ruff
+        uses: astral-sh/ruff-action@v3
+        with:
+          src: >-
+            ./backend/api
+            ./backend/community_manager
+            ./backend/core
+            ./backend/indexer
+            ./backend/scheduler            
