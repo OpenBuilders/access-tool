@@ -6,6 +6,12 @@ on:
       - main
 
 jobs:
+  lint-python:
+    uses: ./.github/workflows/lint-python.yml
+
+  lint-typescript:
+    uses: ./.github/workflows/lint-typescript.yml
+
   build-and-push-frontend:
     uses: ./.github/workflows/build-and-push-frontend.yml
     with:

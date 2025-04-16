@@ -7,3 +7,6 @@ on:
 jobs:
   lint-python:
     uses: ./.github/workflows/lint-python.yml
+
+  lint-typescript:
+    uses: ./.github/workflows/lint-typescript.yml
