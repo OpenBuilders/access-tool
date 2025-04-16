@@ -1,0 +1,7 @@
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile.worker
+    env_file:
+      - .env

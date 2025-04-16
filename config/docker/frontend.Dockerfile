@@ -5,17 +5,19 @@ FROM node:23.11-alpine AS base
 WORKDIR /app
 
 # Copy package.json and yarn.lock
-COPY package.json yarn.lock ./
+COPY frontend/package.json frontend/yarn.lock ./
 
 # Install dependencies
 RUN yarn install
 
 # Copy the rest of the application code
-COPY . .
+COPY frontend/ .
 
 FROM base as development
 
-RUN yarn run dev
+EXPOSE 3000
+
+CMD ["yarn", "run", "dev"]
 
 
 FROM base AS production
@@ -27,4 +29,3 @@ EXPOSE 4173
 
 # Use Vite's production-ready preview server
 CMD ["yarn", "preview"]
-

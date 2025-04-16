@@ -1,0 +1,2 @@
+class TelegramChatRuleExists(Exception):
+    pass
