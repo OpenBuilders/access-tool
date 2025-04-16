@@ -9,6 +9,9 @@ jobs:
     environment: staging
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Testing linting issues with Ruff
         uses: astral-sh/ruff-action@v3
         with:
