@@ -32,6 +32,7 @@ interface QueryParams {
 const handleError = async (
   err: unknown
 ): Promise<ApiServiceResponse<never>> => {
+  console.error("Error occurred during request to API", err)
   if (err instanceof HTTPError) {
     try {
       const errorData = await err.response.json()

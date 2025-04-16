@@ -9,7 +9,7 @@ interface Props {
 const webApp = window.Telegram?.WebApp
 
 export const ThemeProvider = ({ children }: Props) => {
-  const lightTgTheme = webApp.colorScheme !== 'light'
+  const lightTgTheme = webApp.colorScheme === 'light'
 
   const [darkTheme, setDarkTheme] = useState(!lightTgTheme)
 
