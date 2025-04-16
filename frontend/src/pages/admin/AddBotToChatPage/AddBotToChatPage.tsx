@@ -14,6 +14,8 @@ import config from '@config'
 import { AdminChat, useChatActions } from '@store'
 import { useChat } from '@store'
 
+import { findNewChat } from './helpers'
+
 const webApp = window.Telegram.WebApp
 
 export const AddBotToChatPage = () => {
@@ -25,10 +27,10 @@ export const AddBotToChatPage = () => {
   const [currentChats, setCurrentChats] = useState<AdminChat[]>([])
   const [isCheckingChats, setIsCheckingChats] = useState(false)
 
-  const isMobile =
-    webApp.platform === 'android' ||
-    webApp.platform === 'ios' ||
-    webApp.platform === 'android_x'
+  // const isMobile =
+  //   webApp.platform === 'android' ||
+  //   webApp.platform === 'ios' ||
+  //   webApp.platform === 'android_x'
 
   const navigateToMainPage = () => {
     appNavigate({ path: ROUTES_NAME.MAIN })
@@ -38,11 +40,6 @@ export const AddBotToChatPage = () => {
     webApp.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
-
-    if (!isMobile) {
-      webApp.close()
-      return
-    }
 
     setIsCheckingChats(true)
   }
@@ -83,13 +80,14 @@ export const AddBotToChatPage = () => {
       const noNewChats = adminChats?.length === currentChats?.length
       if (!noNewChats) return
 
-      const newChat = adminChats?.find((chat) => !currentChats?.includes(chat))
+      const newChat = findNewChat(adminChats, currentChats, 'slug')
 
-      if (newChat) {
+      if (newChat.length) {
         appNavigate({
           path: ROUTES_NAME.CHECKING_BOT_ADDED,
-          params: { chatSlug: newChat.slug },
+          params: { chatSlug: newChat[0].slug },
         })
+        setIsCheckingChats(false)
         return
       }
     }
