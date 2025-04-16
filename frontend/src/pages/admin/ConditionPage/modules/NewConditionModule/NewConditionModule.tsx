@@ -10,7 +10,7 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { INITIAL_CONDITION } from 'src/store/condition/constants'
 
@@ -64,7 +64,7 @@ export const NewConditionModule = () => {
 
   if (!Component || !condition) return null
 
-  const handleCreateCondition = async () => {
+  const handleCreateCondition = useCallback(async () => {
     if (!isValid) return
     try {
       console.log('🚀 ~ handleCreateCondition ~ condition:', condition)
@@ -101,7 +101,7 @@ export const NewConditionModule = () => {
         type: 'error',
       })
     }
-  }
+  }, [condition, isValid])
 
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
