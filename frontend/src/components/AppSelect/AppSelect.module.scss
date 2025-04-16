@@ -3,6 +3,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  width: 100%;
+  justify-content: flex-end;
 }
 
 .appSelect {
@@ -13,7 +15,7 @@
   color: var(--color-accentsBrandCommunity);
   font-size: 17px;
   cursor: pointer;
-  width: 100%;
+  direction: rtl;
 
   &:hover {
     opacity: 0.8;
@@ -22,7 +24,6 @@
   option {
     color: var(--color-accentsBrandCommunity);
     background: transparent;
-    text-align: right;
   }
 }
 

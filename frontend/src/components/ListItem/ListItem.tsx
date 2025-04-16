@@ -45,9 +45,9 @@ export const ListItem = ({
       <div className={styles.left}>
         {before || null}
         <div className={styles.content}>
-          <div>{text || null}</div>
-          <div>{description || null}</div>
-          {children || null}
+          {text && <div>{text}</div>}
+          {description && <div>{description}</div>}
+          {children && children}
         </div>
       </div>
       <div className={styles.right}>

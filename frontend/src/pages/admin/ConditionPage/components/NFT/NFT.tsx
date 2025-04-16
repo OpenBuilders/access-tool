@@ -89,11 +89,11 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
       if (!result) {
         throw new Error('Failed to fetch condition categories')
       }
-      let categoriesDataResult = result.map((asset) => {
+      const categoriesDataResult = result?.map((asset) => {
         return {
           value: asset.asset,
           name: asset.asset,
-          categories: asset.categories.map((category) => ({
+          categories: asset.categories?.map((category) => ({
             value: category,
             name: category,
           })),
@@ -101,13 +101,13 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
       })
       setCategoriesData(categoriesDataResult)
 
-      if (condition?.asset) {
+      if (condition?.asset && !isNewCondition) {
         setActiveAsset(condition?.asset)
       } else {
         setActiveAsset(categoriesDataResult[0].value)
       }
 
-      if (condition?.category && condition?.asset) {
+      if (condition?.category && condition?.asset && !isNewCondition) {
         setActiveCategory(condition?.category)
       } else {
         setActiveCategory(categoriesDataResult[0].categories[0].value)
@@ -140,7 +140,7 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
               <AppSelect
                 onChange={(value) => handleChangeConditionField('asset', value)}
                 value={activeAsset}
-                options={categoriesData.map((asset: any) => ({
+                options={categoriesData?.map((asset: any) => ({
                   value: asset.value,
                   name: asset.name,
                 }))}
@@ -157,8 +157,8 @@ export const NFT = ({ isNewCondition }: ConditionComponentProps) => {
                   }
                   value={activeCategory}
                   options={categoriesData
-                    .find((asset: any) => asset.value === activeAsset)
-                    ?.categories.map((category: any) => ({
+                    ?.find((asset: any) => asset.value === activeAsset)
+                    ?.categories?.map((category: any) => ({
                       value: category.value,
                       name: category.name,
                     }))}

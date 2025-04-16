@@ -5,7 +5,6 @@ import {
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
-  useToast,
 } from '@components'
 import { Text } from '@components'
 import { useAppNavigation, useError } from '@hooks'
@@ -65,7 +64,11 @@ export const MainPage = () => {
         </Text>
       </Block>
       {isEmpty ? <EmptyList /> : <ChannelsList channels={adminChats} />}
-      <Block fixed="bottom">
+      <Block
+        margin="top"
+        marginValue="auto"
+        fixed={isEmpty ? 'bottom' : undefined}
+      >
         <Text align="center" type="caption" color="tertiary">
           This is open source contributed by independent
           <br />
