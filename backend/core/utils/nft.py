@@ -27,6 +27,4 @@ def find_relevant_nft_items(
             )
             return []
 
-    print("No asset, but: ", rule.address, [i.collection_address for i in nft_items])
-
     return list(filter(lambda item: item.collection_address == rule.address, nft_items))

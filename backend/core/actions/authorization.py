@@ -4,6 +4,7 @@ from collections import defaultdict
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from telethon import TelegramClient, Button
+from telethon.errors import UserAdminInvalidError, RPCError
 
 from core.actions.base import BaseAction
 from core.dtos.chat.rules import (
@@ -396,21 +397,47 @@ class AuthorizationAction(BaseAction):
             )
             return
 
-        await self.telethon_service.start()
-        await self.telethon_service.kick_chat_member(
-            chat_id=chat_member.chat_id, telegram_user_id=chat_member.user.telegram_id
-        )
-        if chat_member.user.allows_write_to_pm:
-            await self.telethon_service.send_message(
-                chat_id=chat_member.user.telegram_id,
-                message=f"You were kicked out of the **{chat_member.chat.title}**.",
+        if chat_member.chat.insufficient_privileges:
+            logger.warning(
+                f"Attempt to kick chat member {chat_member.chat_id=} and {chat_member.user_id=} "
+                f"failed as bot was lacking privileges to manage the chat. Skipping."
             )
-        self.telegram_chat_user_service.delete(
-            chat_id=chat_member.chat_id, user_id=chat_member.user.id
-        )
-        logger.info(
-            f"User {chat_member.user.telegram_id!r} was kicked from chat {chat_member.chat_id!r}"
-        )
+            return
+
+        await self.telethon_service.start()
+        try:
+            await self.telethon_service.kick_chat_member(
+                chat_id=chat_member.chat_id,
+                telegram_user_id=chat_member.user.telegram_id,
+            )
+            if chat_member.user.allows_write_to_pm:
+                await self.telethon_service.send_message(
+                    chat_id=chat_member.user.telegram_id,
+                    message=f"You were kicked out of the **{chat_member.chat.title}**.",
+                )
+            self.telegram_chat_user_service.delete(
+                chat_id=chat_member.chat_id, user_id=chat_member.user.id
+            )
+            logger.info(
+                f"User {chat_member.user.telegram_id!r} was kicked from chat {chat_member.chat_id!r}"
+            )
+        except UserAdminInvalidError as e:
+            logger.warning(
+                f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r} as bot user lacks admin privileges",
+                exc_info=e,
+            )
+            telegram_chat_service = TelegramChatService(self.db_session)
+            telegram_chat_service.set_insufficient_privileges(
+                chat_id=chat_member.chat_id, value=True
+            )
+            logger.info(
+                f"Set insufficient privileges flag for chat {chat_member.chat_id!r}."
+            )
+        except RPCError as e:
+            logger.error(
+                f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r}",
+                exc_info=e,
+            )
 
     async def kick_ineligible_chat_members(
         self,
@@ -509,6 +536,13 @@ class AuthorizationAction(BaseAction):
         except NoResultFound:
             # If bot sees the join request - it should be an admin, means chat should exist. Raise a flag
             logger.error(f"Chat {chat_id!r} does not exist in the database.")
+            return
+
+        if chat.insufficient_privileges:
+            logger.warning(
+                f"User join request {telegram_user_id=} and {chat_id=} "
+                f"can't be approved or rejected as bot lacks privileges to manage the chat. Skipping."
+            )
             return
 
         logger.info(f"New join request: {telegram_user_id=!r} to join {chat_id=!r}")

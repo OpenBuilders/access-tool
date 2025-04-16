@@ -79,11 +79,11 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 )
                 return
 
-            # elif event.user.is_self:
-            #     logger.info(
-            #         f"Bot was added to chat: {event.chat_id=!r}",
-            #     )
-            #     return
+            elif event.user.is_self:
+                logger.info(
+                    f"Bot was added to chat: {event.chat_id=!r}",
+                )
+                return
 
             logger.info(
                 f"New chat member: {event.chat_id=!r} {event.user=!r}",
