@@ -6,18 +6,25 @@ import {
   TelegramMainButton,
   Text,
 } from '@components'
-import { useAppNavigation } from '@hooks'
+import { useAppNavigation, useInterval } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 import config from '@config'
+import { AdminChat, useChatActions } from '@store'
+import { useChat } from '@store'
 
 const webApp = window.Telegram.WebApp
 
 export const AddBotToChatPage = () => {
   const { appNavigate } = useAppNavigation()
-  const { chatSlug } = useParams<{ chatSlug: string }>()
-  const chatSlugParam = chatSlug || ''
+
+  const { fetchAdminUserChatsAction } = useChatActions()
+  const { adminChats } = useChat()
+
+  const [currentChats, setCurrentChats] = useState<AdminChat[]>([])
+  const [isCheckingChats, setIsCheckingChats] = useState(false)
+
   const navigateToMainPage = () => {
     appNavigate({ path: ROUTES_NAME.MAIN })
   }
@@ -26,11 +33,61 @@ export const AddBotToChatPage = () => {
     webApp.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
-    appNavigate({
-      path: ROUTES_NAME.CHECKING_BOT_ADDED,
-      params: { chatSlug: chatSlugParam },
-    })
+
+    setIsCheckingChats(true)
   }
+
+  const poollingChats = async () => {
+    try {
+      await fetchAdminUserChatsAction()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const fetchAdminUserChats = async () => {
+    try {
+      await fetchAdminUserChatsAction()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useInterval(
+    () => {
+      poollingChats()
+    },
+    1000,
+    {
+      enabled: isCheckingChats,
+      immediate: false,
+    }
+  )
+
+  useEffect(() => {
+    if (adminChats?.length && !isCheckingChats) {
+      setCurrentChats(adminChats)
+    }
+
+    if (isCheckingChats) {
+      const noNewChats = adminChats?.length === currentChats?.length
+      if (!noNewChats) return
+
+      const newChat = adminChats?.find((chat) => !currentChats?.includes(chat))
+
+      if (newChat) {
+        appNavigate({
+          path: ROUTES_NAME.CHECKING_BOT_ADDED,
+          params: { chatSlug: newChat.slug },
+        })
+        return
+      }
+    }
+  }, [adminChats?.length, isCheckingChats])
+
+  useEffect(() => {
+    fetchAdminUserChats()
+  }, [])
 
   return (
     <PageLayout center>
