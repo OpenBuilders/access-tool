@@ -12,8 +12,8 @@ import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { INITIAL_CONDITION } from 'src/store/condition/constants'
 
+import { INITIAL_CONDITION } from '@store'
 import {
   Condition,
   ConditionType,
