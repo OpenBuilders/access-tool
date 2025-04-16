@@ -109,6 +109,8 @@ export const NewConditionModule = () => {
     })
   }
 
+  console.log(isValid)
+
   return (
     <>
       <TelegramMainButton

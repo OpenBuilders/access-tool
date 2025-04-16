@@ -18,6 +18,8 @@ export const TelegramMainButton = ({
   disabled,
   isLoading,
 }: MainButtonProps) => {
+  const { button_color, button_text_color } = webApp.themeParams
+
   useEffect(() => {
     if (!webApp || !mainButton) {
       mainButton?.hide()
@@ -52,8 +54,13 @@ export const TelegramMainButton = ({
 
     if (disabled) {
       mainButton.disable()
+      mainButton.setParams({ color: '#E8E8E9', text_color: '#B9B9BA' })
     } else {
       mainButton.enable()
+      mainButton.setParams({
+        color: button_color,
+        text_color: button_text_color,
+      })
     }
   }, [disabled])
 
