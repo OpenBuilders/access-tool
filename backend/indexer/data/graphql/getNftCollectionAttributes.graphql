@@ -1,0 +1,11 @@
+query Attributes($address: String!) {
+  alphaNftCollectionFilter(address: $address) {
+    attributes {
+      traitType
+      values {
+        count
+        value
+      }
+    }
+  }
+}

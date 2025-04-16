@@ -1,0 +1,20 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push-frontend:
+    uses: ./.github/workflows/build-and-push-frontend.yml
+    with:
+      branch: main
+
+  deploy:
+    needs: build-and-push-frontend
+    uses: ./.github/workflows/deployment.yml
+    secrets:
+      VPS_IP: ${{ secrets.VPS_IP }}
+      VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}

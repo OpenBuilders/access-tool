@@ -1,0 +1,2 @@
+class ExternalResourceNotFound(Exception):
+    pass

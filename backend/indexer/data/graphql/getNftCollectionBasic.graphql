@@ -1,0 +1,11 @@
+query GetCollection($address: String!) {
+  nftCollectionByAddress(address: $address) {
+    description
+    name
+    coverImage {
+      image {
+        baseUrl
+      }
+    }
+  }
+}

@@ -1,0 +1,201 @@
+x-python-service:
+  &x-python-service
+  depends_on:
+    redis:
+      condition: service_healthy
+    mysql:
+      condition: service_healthy
+  networks:
+    - internal
+
+
+services:
+  transaction-lookup:
+    build:
+      context: ./backend/transaction-lookup
+      dockerfile: ./config/Dockerfile.worker
+    env_file:
+      - ./backend/transaction-lookup/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - internal
+
+  indexer:
+    <<: *x-python-service
+    build:
+      context: .
+      dockerfile: config/docker/backend.Dockerfile
+      target: indexer
+    image: gateway-indexer
+    env_file:
+      - ./backend/indexer/config/.env
+      - ./backend/core/config/.env
+    restart: on-failure
+    command: [
+      "celery",
+      "-A",
+      "indexer.celery_app:app",
+      "worker",
+      "-Q",
+      "wallet-fetch-queue",
+      "--loglevel=info"
+    ]
+    environment:
+      - WORKER_CONCURRENCY=8
+    volumes:
+      - ./backend/core:/app/core
+      - ./backend/indexer:/app/indexer
+
+  load-noticed-wallets:
+    <<: *x-python-service
+    image: gateway-indexer
+    env_file:
+      - ./backend/indexer/config/.env
+      - ./backend/core/config/.env
+    restart: on-failure
+    command: [
+      "celery",
+      "-A",
+      "indexer.celery_app:app",
+      "worker",
+      "-Q",
+      "noticed-wallets-upload-queue",
+      "--loglevel=info"
+    ]
+    environment:
+      - WORKER_CONCURRENCY=1
+      - LOAD_WALLETS=1
+    volumes:
+      - ./backend/core:/app/core
+      - ./backend/indexer:/app/indexer
+
+  community-manager-tasks:
+    <<: *x-python-service
+    build:
+      context: .
+      dockerfile: ./config/docker/backend.Dockerfile
+      target: community-manager
+    image: gateway-community-manager
+    env_file:
+      - ./backend/community_manager/config/.env
+      - ./backend/core/config/.env
+    command: [
+      "celery",
+      "-A",
+      "community_manager.celery_app:app",
+      "worker",
+      "-Q",
+      "system-queue",
+      "--loglevel=info"
+    ]
+    volumes:
+      - ./backend/community_manager:/app/community_manager
+      - ./backend/core:/app/core
+      - community-manager-tasks-session:/app/data
+
+  community-manager:
+    <<: *x-python-service
+    image: gateway-community-manager
+    env_file:
+      - ./backend/community_manager/config/.env
+      - ./backend/core/config/.env
+    command: ["python3", "community_manager/entrypoint.py"]
+    volumes:
+      - ./backend/community_manager:/app/community_manager
+      - ./backend/core:/app/core
+      - community-manager-session:/app/data
+
+  scheduler:
+    <<: *x-python-service
+    build:
+      context: .
+      dockerfile: ./config/docker/backend.Dockerfile
+      target: scheduler
+    image: gateway-scheduler
+    env_file:
+      - ./backend/community_manager/config/.env
+      - ./backend/core/config/.env
+    command: [
+      "celery",
+      "-A",
+      "scheduler.celery_app:app",
+      "beat",
+      "--loglevel=info"
+    ]
+    volumes:
+      - ./backend/scheduler:/app/scheduler
+      - ./backend/community_manager:/app/community_manager
+      - ./backend/core:/app/core
+
+  api:
+    <<: *x-python-service
+    build:
+      context: .
+      dockerfile: ./config/docker/backend.Dockerfile
+      target: api
+    image: gateway-api
+    env_file:
+      - ./backend/api/config/.env
+      - ./backend/core/config/.env
+#      - ./backend/config/.env
+    container_name: "gateway-api"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/core/static:/app/core/static
+    command: ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+
+  redis:
+    image: "redis:7.2.4-alpine"
+    ports:
+      - "6380:6379"
+    volumes:
+      - volume-queue:/data
+    container_name: "gateway-redis"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - internal
+
+  mysql:
+    image: "mysql:8.3.0"
+    ports:
+      - "3307:3306"
+    env_file:
+      - ./backend/core/config/.env
+    volumes:
+      - volume-data:/var/lib/mysql
+    container_name: "gateway-mysql"
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -hlocalhost -uroot -p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - internal
+
+  frontend:
+    image: ghcr.io/openbuilders/gateway-tool/gateway-tool-frontend:latest
+    pull_policy: always
+    container_name: "gateway-frontend"
+    ports:
+      - "3000:4173"
+    networks:
+      - internal
+
+volumes:
+  volume-data:
+    name: octagate-bot_volume-data
+    external: true
+  volume-queue:
+  community-manager-session:
+  community-manager-tasks-session:
+
+
+networks:
+  internal:
