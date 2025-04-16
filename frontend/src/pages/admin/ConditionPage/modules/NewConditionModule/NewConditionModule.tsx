@@ -65,6 +65,7 @@ export const NewConditionModule = () => {
   if (!Component || !condition) return null
 
   const handleCreateCondition = useCallback(async () => {
+    console.log('🚀 ~ handleCreateCondition ~ isValid:', isValid)
     if (!isValid) return
     try {
       console.log('🚀 ~ handleCreateCondition ~ condition:', condition)

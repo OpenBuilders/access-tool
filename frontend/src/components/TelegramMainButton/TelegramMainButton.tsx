@@ -50,7 +50,11 @@ export const TelegramMainButton = ({
   }, [text])
 
   useEffect(() => {
-    if (!webApp || !mainButton) return
+    if (!webApp || !mainButton || !onClick) return
+
+    const handleMainButtonClick = () => onClick()
+
+    mainButton.onClick(handleMainButtonClick)
 
     if (disabled) {
       mainButton.disable()
