@@ -65,6 +65,7 @@ export const NewConditionModule = () => {
   const handleCreateCondition = async () => {
     try {
       const updatedData = createUpdatedData(condition as Condition)
+      console.log('🚀 ~ handleCreateCondition ~ updatedData:', updatedData)
 
       if (!updatedData) {
         throw new Error('Failed to create condition. Try again later')
@@ -100,6 +101,7 @@ export const NewConditionModule = () => {
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
     handleChangeConditionFieldAction('type', value)
+    console.log('🚀 ~ handleChangeType ~ value:', value)
     appNavigate({
       path: ROUTES_NAME.CHAT_NEW_CONDITION,
       params: {
@@ -108,8 +110,6 @@ export const NewConditionModule = () => {
       },
     })
   }
-
-  console.log(isValid)
 
   return (
     <>

@@ -128,6 +128,8 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
     }
   }
 
+  console.log('🚀 ~ Jettons ~ condition:', condition)
+
   useEffect(() => {
     if (!isNewCondition) {
       debouncedPrefetchJetton(condition?.blockchainAddress)
