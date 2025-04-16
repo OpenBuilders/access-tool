@@ -1,7 +1,7 @@
 export const goTo = (link: string) => {
   const webApp = window.Telegram.WebApp
 
-  if (link.indexOf('t.me') !== -1) {
+  if (link.includes('t.me')) {
     webApp.openTelegramLink(link)
   } else {
     webApp.openLink(link)

@@ -1,9 +1,7 @@
 import confettiLottie from '@assets/confetti.json'
 import {
   Block,
-  Image,
   PageLayout,
-  Sheet,
   StickerPlayer,
   TelegramBackButton,
   TelegramMainButton,
@@ -21,7 +19,7 @@ export const ClientJoinPage = () => {
   const params = useParams<{ clientChatSlug: string }>()
   const clientChatSlug = params.clientChatSlug || ''
 
-  const [isSheetOpened, setIsSheetOpened] = useState(false)
+  // const [isSheetOpened, setIsSheetOpened] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const { chat } = useChat()
@@ -31,9 +29,9 @@ export const ClientJoinPage = () => {
     if (!clientChatSlug) return
     try {
       await fetchUserChatAction(clientChatSlug)
-      setTimeout(() => {
-        setIsSheetOpened(true)
-      }, 2000)
+      // setTimeout(() => {
+      //   setIsSheetOpened(true)
+      // }, 2000)
     } catch (error) {
       console.error(error)
     } finally {
@@ -52,13 +50,13 @@ export const ClientJoinPage = () => {
   }
 
   const handleJoinGroup = () => {
-    if (isSheetOpened) {
-      navigateToChat()
-      webApp.close()
-      return
-    }
+    // if (isSheetOpened) {
+    navigateToChat()
+    webApp.close()
+    // return
+    // }
 
-    setIsSheetOpened(true)
+    // setIsSheetOpened(true)
   }
 
   return (
@@ -78,7 +76,7 @@ export const ClientJoinPage = () => {
           {chat.description}
         </Text>
       </Block>
-      <Sheet opened={isSheetOpened} onClose={() => setIsSheetOpened(false)}>
+      {/* <Sheet opened={isSheetOpened} onClose={() => setIsSheetOpened(false)}>
         <Image src={chat?.logoPath} borderRadius={50} size={112} />
         <Block margin="top" marginValue={8}>
           <Text type="title1" align="center" weight="bold">
@@ -90,7 +88,7 @@ export const ClientJoinPage = () => {
             {chat.description}
           </Text>
         </Block>
-      </Sheet>
+      </Sheet> */}
     </PageLayout>
   )
 }
