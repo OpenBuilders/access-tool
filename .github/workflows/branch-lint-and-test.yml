@@ -2,6 +2,8 @@ name: Lint and test the code on the branch
 
 on:
   push:
+    branches-ignore:
+      - main
 
 
 jobs:
