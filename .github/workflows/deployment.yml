@@ -25,6 +25,6 @@ jobs:
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd ~/gateway-tool
-            git checkout origin/main
+            git checkout main
             git pull
             make build && make migrate && make restart
