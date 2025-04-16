@@ -63,6 +63,7 @@ export const NewConditionModule = () => {
   if (!Component || !condition) return null
 
   const handleCreateCondition = async () => {
+    if (!isValid) return
     try {
       const updatedData = createUpdatedData(condition as Condition)
       console.log('🚀 ~ handleCreateCondition ~ updatedData:', updatedData)
