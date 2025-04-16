@@ -166,7 +166,7 @@ async def handle_chat_participant_update(
                             "Insufficient permissions for the bot in chat %d", chat_id
                         )
                         telegram_chat_service.set_insufficient_privileges(
-                            chat_id=chat_id
+                            chat_id=chat_id, value=True
                         )
                 else:
                     if chat.insufficient_privileges:
