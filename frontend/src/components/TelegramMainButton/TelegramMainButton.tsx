@@ -61,7 +61,7 @@ export const TelegramMainButton = ({
     if (disabled) {
       mainButton.disable()
       mainButton.setParams({ color: '#E8E8E9', text_color: '#B9B9BA' })
-      mainButton.onClick(handleMainButtonClick)
+      mainButton.offClick(handleMainButtonClick)
     } else {
       mainButton.enable()
       mainButton.setParams({
