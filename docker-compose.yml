@@ -13,7 +13,7 @@ services:
   transaction-lookup:
     build:
       context: ./backend/transaction-lookup
-      dockerfile: build/Dockerfile.worker
+      dockerfile: ./config/Dockerfile.worker
     env_file:
       - ./backend/transaction-lookup/.env
     depends_on:
@@ -180,7 +180,7 @@ services:
       - internal
 
   frontend:
-    image: ghcr.io/danoctua/gateway-frontend:latest
+    image: ghcr.io/openbuilders/gateway-tool/gateway-tool-frontend:latest
     pull_policy: always
     container_name: "gateway-frontend"
     ports:

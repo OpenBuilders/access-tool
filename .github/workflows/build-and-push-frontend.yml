@@ -1,0 +1,73 @@
+name: Build and Push Frontend
+
+on:
+  workflow_call:  # Makes it reusable
+    inputs:        # Optional: Use inputs to customize behavior
+      branch:
+        required: false
+        type: string
+        description: The branch to deploy from.
+
+jobs:
+  build-and-push-frontend:
+    permissions:
+      contents: read  # Required for checkout
+      packages: write  # Required for pushing to GHCR
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      CI: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes in frontend
+        id: changes-check
+        shell: bash
+        run: |
+          CHANGED_FILES_COUNT=$(git diff-tree --no-commit-id --name-only -r HEAD | grep -c '^frontend/' || true)
+          CHANGED_FILES_COUNT=${CHANGED_FILES_COUNT:-0}
+          if [ "$CHANGED_FILES_COUNT" -eq 0 ]; then
+            echo "No changes in frontend found. Skipping build and push."
+            echo "skip=true" >> $GITHUB_ENV
+          else
+            echo "Changes in frontend detected."
+            echo "skip=false" >> $GITHUB_ENV
+          fi
+
+      - name: Skip job if no changes in frontend
+        if: ${{ env.skip == 'true' }}
+        run: echo "No changes in frontend. Exiting job."
+
+      - name: Extract Git Commit SHA
+        if: ${{ env.skip != 'true' }}
+        run: echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        if: ${{ env.skip != 'true' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        if: ${{ env.skip != 'true' }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Lowercase repository name
+        if: ${{ env.skip != 'true' }}
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY@L}" >> ${GITHUB_ENV}
+
+      - name: Build and push Docker image
+        if: ${{ env.skip != 'true' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: config/docker/frontend.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.REPO }}/gateway-tool-frontend:latest
+            ghcr.io/${{ env.REPO }}/gateway-tool-frontend:${{ env.GIT_SHA }}

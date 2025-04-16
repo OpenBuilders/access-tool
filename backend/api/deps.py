@@ -58,8 +58,8 @@ def validate_user_init_data(init_data_po: InitDataPO) -> UserInitDataPO:
     ).digest()
     data_check = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256)
 
-    # if data_check.hexdigest() != _hash:
-    #     raise HTTPException(status_code=400, detail="Invalid user data: wrong hash")
+    if data_check.hexdigest() != _hash:
+        raise HTTPException(status_code=400, detail="Invalid user data: wrong hash")
 
     user_data = json.loads(init_data.get("user", "{}"))
 
