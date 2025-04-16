@@ -11,3 +11,10 @@ jobs:
     steps:
       - name: Testing linting issues with Ruff
         uses: astral-sh/ruff-action@v3
+        with:
+          src: >-
+            ./backend/api
+            ./backend/community_manager
+            ./backend/core
+            ./backend/indexer
+            ./backend/scheduler            
