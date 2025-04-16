@@ -63,14 +63,18 @@ function App() {
           clientChatSlug: ch,
         },
       })
-      return
     }
-    authenticateUser()
   }, [])
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      authenticateUser().then()
+    }
+  }, [window.location.pathname])
+
+  useEffect(() => {
     if (isAuthenticated) {
-      fetchUser()
+      fetchUser().then()
     }
   }, [isAuthenticated])
 

@@ -3,6 +3,7 @@ name: Deploy Application
 on:
   push:
     branches:
+      - feat/*
       - main
 
 jobs:
