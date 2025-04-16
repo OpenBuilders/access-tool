@@ -9,4 +9,4 @@ class TokenFDO(BaseModel):
 
 
 class InitDataPO(BaseModel):
-    init_data: Annotated[str, Field(..., alias="initDataRaw")]
+    init_data: Annotated[str, Field(..., alias="initDataRaw", min_length=1)]
