@@ -93,7 +93,7 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
       if (!result) {
         throw new Error('Failed to fetch condition categories')
       }
-      let categoriesDataResult = result.map((asset) => {
+      const categoriesDataResult = result.map((asset) => {
         return {
           value: asset.asset,
           name: asset.asset,

@@ -4,7 +4,7 @@ import '@styles/index.scss'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { checkStartAppParams } from '@utils'
 import { useContext, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import config from '@config'
 import { useUser, useUserActions } from '@store'
@@ -17,6 +17,8 @@ function App() {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
   const { appNavigate } = useAppNavigation()
   const { darkTheme } = useContext(ThemeContext)
+
+  const location = useLocation()
 
   const { authenticateUserAction, fetchUserAction } = useUserActions()
   const { isAuthenticated } = useUser()
@@ -70,7 +72,7 @@ function App() {
     if (!isAuthenticated) {
       authenticateUser()
     }
-  }, [window.location.pathname])
+  }, [location.pathname])
 
   useEffect(() => {
     if (isAuthenticated) {
