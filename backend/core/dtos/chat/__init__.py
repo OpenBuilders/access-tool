@@ -46,4 +46,5 @@ class TelegramChatDTO(BaseTelegramChatDTO):
             is_member=is_member,
             is_eligible=is_eligible,
             join_url=join_url,
+            insufficient_privileges=obj.insufficient_privileges,
         )
