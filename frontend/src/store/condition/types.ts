@@ -11,11 +11,11 @@ export type ConditionType =
   | 'premium'
   | 'toncoin'
 
-export type Condition = {
+export interface Condition {
   id: number
   type: ConditionType
   title: string
-  expected: number
+  expected: number | string
   photoUrl: string
   blockchainAddress?: string
   isEnabled: boolean
@@ -32,7 +32,7 @@ export type Condition = {
   url?: string
 }
 
-export type PrefetchedConditionData = {
+export interface PrefetchedConditionData {
   address: string
   name: string
   description: string | null
@@ -42,7 +42,7 @@ export type PrefetchedConditionData = {
   totalSupply: number
 }
 
-export type ConditionCategory = {
+export interface ConditionCategory {
   asset: string
   categories: string[]
 }

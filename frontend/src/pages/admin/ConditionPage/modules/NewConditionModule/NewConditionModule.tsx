@@ -1,8 +1,6 @@
 import {
   AppSelect,
-  TelegramBackButton,
   TelegramMainButton,
-  PageLayout,
   useToast,
   Text,
   Block,
@@ -10,19 +8,13 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { INITIAL_CONDITION } from '@store'
-import {
-  Condition,
-  ConditionType,
-  useCondition,
-  useConditionActions,
-} from '@store'
+import { Condition, ConditionType, useConditionActions } from '@store'
 
+import { ConditionComponentProps } from '../../components/types'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
-import { createUpdatedData } from './helpers'
 
 export const NewConditionModule = () => {
   const { appNavigate } = useAppNavigation()
@@ -34,53 +26,48 @@ export const NewConditionModule = () => {
   const chatSlugParam = params.chatSlug || ''
   const conditionTypeParam = params.conditionType || ''
 
-  const {
-    createConditionAction,
-    resetPrefetchedConditionDataAction,
-    handleChangeConditionFieldAction,
-    setInitialConditionAction,
-  } = useConditionActions()
-  const { isValid, condition } = useCondition()
+  const [isValid, setIsValid] = useState(false)
+  const [conditionState, setConditionState] = useState<Partial<Condition>>({
+    type: 'jetton',
+  })
+
+  const { createConditionAction, resetPrefetchedConditionDataAction } =
+    useConditionActions()
 
   const { showToast } = useToast()
 
   const Component =
     CONDITION_COMPONENTS[
-      conditionTypeParam as keyof typeof CONDITION_COMPONENTS
+      conditionState.type as keyof typeof CONDITION_COMPONENTS
     ]
 
-  const navigateToChatPage = () => {
+  const navigateToChatPage = useCallback(() => {
     appNavigate({
       path: ROUTES_NAME.CHAT,
       params: { chatSlug: chatSlugParam },
     })
-  }
+  }, [appNavigate, chatSlugParam])
 
-  useEffect(() => {
-    if (conditionTypeParam) {
-      handleChangeConditionFieldAction('type', conditionTypeParam)
-    }
-  }, [conditionTypeParam])
+  if (!Component) return null
 
-  if (!Component || !condition) return null
+  const handleChangeCondition = useCallback(
+    (key: keyof Condition, value: string | number | number[]) => {
+      setConditionState((prev) => ({ ...prev, [key]: value }))
+    },
+    []
+  )
+
+  const toggleIsValid = useCallback((value: boolean) => {
+    setIsValid(value)
+  }, [])
 
   const handleCreateCondition = useCallback(async () => {
-    console.log('🚀 ~ handleCreateCondition ~ isValid:', isValid)
     if (!isValid) return
     try {
-      console.log('🚀 ~ handleCreateCondition ~ condition:', condition)
-      const updatedData = createUpdatedData(condition as Condition)
-
-      console.log('🚀 ~ handleCreateCondition ~ updatedData:', updatedData)
-
-      if (!updatedData) {
-        throw new Error('Failed to create condition. Try again later')
-      }
-
       await createConditionAction({
         type: conditionTypeParam as ConditionType,
         chatSlug: chatSlugParam,
-        data: updatedData,
+        data: conditionState,
       })
       navigateToChatPage()
       showToast({
@@ -102,13 +89,11 @@ export const NewConditionModule = () => {
         type: 'error',
       })
     }
-  }, [condition, isValid])
+  }, [conditionState, isValid])
 
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
-    handleChangeConditionFieldAction('type', value)
-    setInitialConditionAction(INITIAL_CONDITION)
-    console.log('🚀 ~ handleChangeType ~ value:', value)
+    handleChangeCondition('type', value)
     appNavigate({
       path: ROUTES_NAME.CHAT_NEW_CONDITION,
       params: {
@@ -116,6 +101,18 @@ export const NewConditionModule = () => {
         chatSlug: chatSlugParam,
       },
     })
+  }
+
+  const setInitialState = useCallback((value: Partial<Condition>) => {
+    setConditionState(value)
+  }, [])
+
+  const payload: ConditionComponentProps = {
+    isNewCondition: true,
+    handleChangeCondition,
+    toggleIsValid,
+    conditionState,
+    setInitialState,
   }
 
   return (
@@ -137,12 +134,12 @@ export const NewConditionModule = () => {
             <AppSelect
               onChange={(value) => handleChangeType(value)}
               options={CONDITION_TYPES}
-              value={condition?.type}
+              value={conditionState.type}
             />
           }
         />
       </Block>
-      {Component && <Component isNewCondition />}
+      {Component && <Component {...payload} />}
     </>
   )
 }

@@ -2,10 +2,10 @@ import { Icon } from '../Icon'
 import styles from './AppSelect.module.scss'
 
 interface AppSelectProps {
-  options: Array<{
+  options?: {
     value: string
     name: string
-  }>
+  }[]
   onChange?: (value: string) => void
   value?: string
   placeholder?: string
@@ -32,7 +32,7 @@ export const AppSelect = ({
             {placeholder}
           </option>
         )}
-        {options.map((option) => (
+        {options?.map((option) => (
           <option key={option.value} value={option.value}>
             {option.name}
           </option>

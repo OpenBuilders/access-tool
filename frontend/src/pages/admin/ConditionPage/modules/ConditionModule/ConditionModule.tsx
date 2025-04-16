@@ -1,8 +1,6 @@
 import {
   AppSelect,
   TelegramMainButton,
-  TelegramBackButton,
-  PageLayout,
   Icon,
   DialogModal,
   useToast,
@@ -12,7 +10,7 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -22,6 +20,7 @@ import {
   useConditionActions,
 } from '@store'
 
+import { ConditionComponentProps } from '../../components/types'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
 
 export const ConditionModule = () => {
@@ -35,15 +34,23 @@ export const ConditionModule = () => {
   const conditionIdParam = params.conditionId
   const conditionTypeParam = params.conditionType
 
+  const [conditionState, setConditionState] = useState<Partial<Condition>>({})
+  const [isSaved, setIsSaved] = useState(true)
+  const [isValid, setIsValid] = useState(true)
+
   const { showToast } = useToast()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { condition, isValid, isSaved } = useCondition()
+  const { condition } = useCondition()
   const { deleteConditionAction, updateConditionAction, fetchConditionAction } =
     useConditionActions()
 
   const handleOpenDialog = () => setIsDialogOpen(true)
+
+  const setInitialState = useCallback((value: Partial<Condition>) => {
+    setConditionState(value)
+  }, [])
 
   const fetchCondition = async () => {
     if (!conditionIdParam || !chatSlugParam || !conditionTypeParam) return
@@ -62,6 +69,12 @@ export const ConditionModule = () => {
     fetchCondition()
   }, [conditionIdParam, conditionTypeParam])
 
+  // useEffect(() => {
+  //   if (condition) {
+  //     setConditionState(condition)
+  //   }
+  // }, [condition])
+
   const navigateToChatPage = () => {
     appNavigate({
       path: ROUTES_NAME.CHAT,
@@ -70,15 +83,6 @@ export const ConditionModule = () => {
       },
     })
   }
-
-  if (!condition) return null
-
-  const Component =
-    CONDITION_COMPONENTS[
-      conditionTypeParam as keyof typeof CONDITION_COMPONENTS
-    ]
-
-  if (!Component) return null
 
   const handleDeleteCondition = async () => {
     if (!conditionIdParam || !chatSlugParam) return
@@ -94,6 +98,18 @@ export const ConditionModule = () => {
     }
   }
 
+  const handleChangeCondition = useCallback(
+    (key: keyof Condition, value: string | number | number[]) => {
+      setIsSaved(false)
+      setConditionState((prev) => ({ ...prev, [key]: value }))
+    },
+    []
+  )
+
+  const toggleIsValid = useCallback((value: boolean) => {
+    setIsValid(value)
+  }, [])
+
   const handleUpdateCondition = async () => {
     if (!conditionIdParam || !chatSlugParam) return
     try {
@@ -101,7 +117,7 @@ export const ConditionModule = () => {
         type: conditionTypeParam as ConditionType,
         chatSlug: chatSlugParam,
         conditionId: conditionIdParam,
-        data: condition as Condition,
+        data: conditionState as Condition,
       })
       showToast({
         message: 'Condition updated successfully',
@@ -117,6 +133,23 @@ export const ConditionModule = () => {
     }
   }
 
+  if (!condition?.type) return null
+
+  const Component =
+    CONDITION_COMPONENTS[
+      conditionTypeParam as keyof typeof CONDITION_COMPONENTS
+    ]
+
+  if (!Component) return null
+
+  const payload: ConditionComponentProps = {
+    isNewCondition: false,
+    handleChangeCondition,
+    toggleIsValid,
+    conditionState,
+    setInitialState,
+    condition,
+  }
   return (
     <>
       <TelegramMainButton
@@ -135,15 +168,15 @@ export const ConditionModule = () => {
           disabled
           after={
             <AppSelect
-              onChange={() => {}}
+              // onChange={() => {}}
               options={CONDITION_TYPES}
-              value={condition?.type}
+              value={conditionState?.type}
               disabled
             />
           }
         />
       </Block>
-      {Component && <Component />}
+      {Component && <Component {...payload} />}
       <Block margin="top" marginValue={24}>
         <ListItem
           text={
