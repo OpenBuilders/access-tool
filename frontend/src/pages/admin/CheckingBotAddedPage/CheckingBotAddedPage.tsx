@@ -9,22 +9,23 @@ import {
 } from '@components'
 import { useAppNavigation, useError, useInterval } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useChat, useChatActions } from '@store'
+import { useChatActions } from '@store'
 
 export const CheckingBotAddedPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
   const { appNavigate } = useAppNavigation()
   const { fetchChatAction } = useChatActions()
   const { adminChatNotFound } = useError()
-  const { chat } = useChat()
 
   const fetchChat = async () => {
     if (!chatSlug) return
     try {
-      await fetchChatAction(chatSlug)
-      if (chat?.insufficientPrivileges) {
+      const { chat } = await fetchChatAction(chatSlug)
+
+      if (!chat?.insufficientPrivileges) {
         appNavigate({
           path: ROUTES_NAME.BOT_ADDED_SUCCESS,
           params: { chatSlug },
@@ -48,9 +49,9 @@ export const CheckingBotAddedPage = () => {
     }
   )
 
-  const navigateToMainPage = () => {
+  const navigateToMainPage = useCallback(() => {
     appNavigate({ path: ROUTES_NAME.MAIN })
-  }
+  }, [appNavigate])
 
   return (
     <PageLayout center>

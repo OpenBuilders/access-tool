@@ -22,11 +22,6 @@ export const GrantPermissionsPage = () => {
   const { fetchChatAction } = useChatActions()
   const { adminChatNotFound } = useError()
 
-  // const isMobile =
-  //   webApp.platform === 'android' ||
-  //   webApp.platform === 'ios' ||
-  //   webApp.platform === 'android_x'
-
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
 

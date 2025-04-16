@@ -19,14 +19,17 @@ interface ChatStore {
 
 interface ChatActions {
   actions: {
-    fetchChatAction: (slug: string) => void
+    fetchChatAction: (slug: string) => Promise<{
+      chat: ChatInstance | null
+      rules: Condition[] | null
+    }>
     updateChatAction: (slug: string, data: Partial<ChatInstance>) => void
-    fetchAdminUserChatsAction: () => void
+    fetchAdminUserChatsAction: () => Promise<AdminChat[]>
     fetchUserChatAction: (slug: string) => void
   }
 }
 
-const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
+const useChatStore = create<ChatStore & ChatActions>((set) => ({
   chat: null,
   rules: null,
   adminChats: null,
@@ -35,11 +38,13 @@ const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
     fetchChatAction: async (slug) => {
       const { data, ok, error } = await fetchChatAPI(slug)
 
-      if (!ok) {
+      if (!ok || !data) {
         throw new Error(error || 'Chat not found')
       }
 
       set({ chat: data?.chat, rules: data?.rules })
+
+      return { chat: data?.chat, rules: data?.rules }
     },
     updateChatAction: async (slug, values) => {
       const { data, ok, error } = await updateChatAPI(slug, values)
@@ -59,11 +64,13 @@ const useChatStore = create<ChatStore & ChatActions>((set, get) => ({
     fetchAdminUserChatsAction: async () => {
       const { data, ok, error } = await fetchAdminUserChatsAPI()
 
-      if (!ok) {
+      if (!ok || !data) {
         throw new Error(error)
       }
 
       set({ adminChats: data })
+
+      return data
     },
     fetchUserChatAction: async (slug) => {
       const { data, ok, error } = await fetchUserChatAPI(slug)

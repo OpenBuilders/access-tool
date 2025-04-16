@@ -12,7 +12,7 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
   const { appNavigate } = useAppNavigation()
 
   const handleClick = (channel: AdminChat) => {
-    if (!channel.insufficientPrivileges) {
+    if (channel.insufficientPrivileges) {
       appNavigate({
         path: ROUTES_NAME.GRANT_PERMISSIONS,
         params: { chatSlug: channel.slug },

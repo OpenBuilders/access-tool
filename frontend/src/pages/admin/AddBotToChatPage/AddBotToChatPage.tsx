@@ -8,11 +8,10 @@ import {
 } from '@components'
 import { useAppNavigation, useInterval } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import config from '@config'
 import { AdminChat, useChatActions } from '@store'
-import { useChat } from '@store'
 
 import { findNewChat } from './helpers'
 
@@ -22,31 +21,36 @@ export const AddBotToChatPage = () => {
   const { appNavigate } = useAppNavigation()
 
   const { fetchAdminUserChatsAction } = useChatActions()
-  const { adminChats } = useChat()
 
   const [currentChats, setCurrentChats] = useState<AdminChat[]>([])
   const [isCheckingChats, setIsCheckingChats] = useState(false)
 
-  // const isMobile =
-  //   webApp.platform === 'android' ||
-  //   webApp.platform === 'ios' ||
-  //   webApp.platform === 'android_x'
-
-  const navigateToMainPage = () => {
+  const navigateToMainPage = useCallback(() => {
     appNavigate({ path: ROUTES_NAME.MAIN })
-  }
+  }, [appNavigate])
 
-  const addGatewayBot = () => {
+  const addGatewayBot = useCallback(() => {
     webApp.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
-
     setIsCheckingChats(true)
-  }
+  }, [])
 
   const poollingChats = async () => {
     try {
-      await fetchAdminUserChatsAction()
+      const data = await fetchAdminUserChatsAction()
+      const noNewChats = data?.length === currentChats?.length
+      if (noNewChats) return
+
+      const newChat = findNewChat(data, currentChats, 'slug')
+
+      if (newChat.length) {
+        setIsCheckingChats(false)
+        appNavigate({
+          path: ROUTES_NAME.CHECKING_BOT_ADDED,
+          params: { chatSlug: newChat[0].slug },
+        })
+      }
     } catch (error) {
       console.error(error)
     }
@@ -54,7 +58,8 @@ export const AddBotToChatPage = () => {
 
   const fetchAdminUserChats = async () => {
     try {
-      await fetchAdminUserChatsAction()
+      const data = await fetchAdminUserChatsAction()
+      setCurrentChats(data)
     } catch (error) {
       console.error(error)
     }
@@ -64,34 +69,12 @@ export const AddBotToChatPage = () => {
     () => {
       poollingChats()
     },
-    1000,
+    1500,
     {
       enabled: isCheckingChats,
       immediate: false,
     }
   )
-
-  useEffect(() => {
-    if (adminChats?.length && !isCheckingChats) {
-      setCurrentChats(adminChats)
-    }
-
-    if (isCheckingChats) {
-      const noNewChats = adminChats?.length === currentChats?.length
-      if (!noNewChats) return
-
-      const newChat = findNewChat(adminChats, currentChats, 'slug')
-
-      if (newChat.length) {
-        appNavigate({
-          path: ROUTES_NAME.CHECKING_BOT_ADDED,
-          params: { chatSlug: newChat[0].slug },
-        })
-        setIsCheckingChats(false)
-        return
-      }
-    }
-  }, [adminChats?.length, isCheckingChats])
 
   useEffect(() => {
     fetchAdminUserChats()
