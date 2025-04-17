@@ -66,6 +66,7 @@ export const NewConditionModule = () => {
 
   const handleCreateCondition = async () => {
     try {
+      console.log(conditionState)
       const data = removeEmptyFields(conditionState)
       await createConditionAction({
         type: conditionState.type as ConditionType,
@@ -106,9 +107,12 @@ export const NewConditionModule = () => {
     })
   }
 
-  const setInitialState = useCallback((value: Partial<Condition>) => {
-    setConditionState(value)
-  }, [])
+  const setInitialState = useCallback(
+    (value: Partial<Condition>) => {
+      setConditionState(value)
+    },
+    [conditionState?.type]
+  )
 
   const payload: ConditionComponentProps = {
     isNewCondition: true,
