@@ -9,7 +9,7 @@ import {
 import { Text } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { useChat, useChatActions, useApp, useAppActions } from '@store'
 
@@ -40,6 +40,12 @@ export const MainPage = () => {
     toggleIsLoadingAction(false)
   }, [])
 
+  const handleAddChat = useCallback(() => {
+    appNavigate({
+      path: ROUTES_NAME.ADD_TELEGRAM_CHAT,
+    })
+  }, [appNavigate])
+
   if (isLoading) return null
 
   const isEmpty = !adminChats || !adminChats?.length
@@ -47,14 +53,7 @@ export const MainPage = () => {
   return (
     <PageLayout center={isEmpty}>
       <TelegramBackButton />
-      <TelegramMainButton
-        text="Add Group or Channel"
-        onClick={() =>
-          appNavigate({
-            path: ROUTES_NAME.ADD_TELEGRAM_CHAT,
-          })
-        }
-      />
+      <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
       <StickerPlayer lottie={lockLottie} />
       <Block margin="top" marginValue={8}>
         <Text type="title" align="center" weight="bold">
