@@ -1,7 +1,8 @@
 import cn from 'classnames'
-import React from 'react'
 
 import styles from './ListToggler.module.scss'
+
+const webApp = window.Telegram.WebApp
 
 interface ListTogglerProps {
   isEnabled: boolean
@@ -18,6 +19,7 @@ export const ListToggler = ({
 }: ListTogglerProps) => {
   const handleToggle = () => {
     if (!disabled) {
+      webApp?.HapticFeedback?.impactOccurred('soft')
       onChange(!isEnabled)
     }
   }
