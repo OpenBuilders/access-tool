@@ -20,7 +20,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.add_column(
-        "telegram_chat", sa.Column("is_enabled", sa.Boolean(), nullable=False)
+        "telegram_chat",
+        sa.Column("is_enabled", sa.Boolean(), nullable=False, server_default="1"),
     )
 
 
