@@ -11,7 +11,7 @@ class BaseTelegramChatDTO(BaseModel):
     slug: str
     is_forum: bool
     logo_path: str | None
-    insufficient_privileges: bool = False
+    insufficient_privileges: bool
 
     @classmethod
     def from_orm(cls, obj: Any) -> Self:
@@ -23,13 +23,14 @@ class BaseTelegramChatDTO(BaseModel):
             slug=obj.slug,
             is_forum=obj.is_forum,
             logo_path=obj.logo_path,
+            insufficient_privileges=obj.insufficient_privileges,
         )
 
 
 class TelegramChatDTO(BaseTelegramChatDTO):
-    join_url: str | None = None
-    is_member: bool = False
-    is_eligible: bool = False
+    join_url: str | None
+    is_member: bool
+    is_eligible: bool
 
     @classmethod
     def from_object(
