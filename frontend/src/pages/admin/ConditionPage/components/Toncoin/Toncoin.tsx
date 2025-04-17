@@ -40,8 +40,8 @@ export const Toncoin = ({
 
   useEffect(() => {
     if (categories?.length && (isNewCondition || condition)) {
-      let updatedConditionState = {
-        ...conditionState,
+      let updatedConditionState: Partial<Condition> = {
+        // ...conditionState,
         type: 'toncoin',
         asset: condition?.asset || categories[0].asset,
         category: condition?.category || categories[0].categories[0],

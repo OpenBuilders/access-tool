@@ -88,8 +88,8 @@ export const Jettons = ({
 
   useEffect(() => {
     if (categories?.length && (isNewCondition || condition)) {
-      let updatedConditionState = {
-        ...conditionState,
+      let updatedConditionState: Partial<Condition> = {
+        // ...conditionState,
         type: 'jetton',
         asset: condition?.asset || categories[0].asset,
         category: condition?.category || categories[0].categories[0],

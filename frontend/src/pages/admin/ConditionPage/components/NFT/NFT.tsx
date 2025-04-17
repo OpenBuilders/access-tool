@@ -83,8 +83,8 @@ export const NFT = ({
 
   useEffect(() => {
     if (categories?.length && (isNewCondition || condition)) {
-      let updatedConditionState = {
-        ...conditionState,
+      let updatedConditionState: Partial<Condition> = {
+        // ...conditionState,
         type: 'nft_collection',
         asset: condition?.asset || undefined,
         category: condition?.category || undefined,

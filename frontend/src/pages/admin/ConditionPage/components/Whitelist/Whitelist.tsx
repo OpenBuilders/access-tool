@@ -18,8 +18,8 @@ export const Whitelist = ({
 
   useEffect(() => {
     if (isNewCondition || condition) {
-      let updatedConditionState = {
-        ...conditionState,
+      let updatedConditionState: Partial<Condition> = {
+        // ...conditionState,
         type: 'whitelist',
         description: condition?.description || '',
         name: condition?.name || '',

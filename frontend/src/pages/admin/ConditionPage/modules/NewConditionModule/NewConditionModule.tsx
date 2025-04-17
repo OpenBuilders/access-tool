@@ -56,15 +56,12 @@ export const NewConditionModule = () => {
     })
   }, [appNavigate, chatSlugParam])
 
-  const handleChangeCondition = useCallback(
-    (
-      key: keyof Condition,
-      value?: string | number | number[] | undefined | boolean
-    ) => {
-      setConditionState((prev) => ({ ...prev, [key]: value }))
-    },
-    []
-  )
+  const handleChangeCondition = (
+    key: keyof Condition,
+    value?: string | number | number[] | undefined | boolean
+  ) => {
+    setConditionState((prev) => ({ ...prev, [key]: value }))
+  }
 
   const handleCreateCondition = useCallback(async () => {
     try {
@@ -82,7 +79,6 @@ export const NewConditionModule = () => {
       webApp?.HapticFeedback?.impactOccurred('soft')
     } catch (error) {
       console.error(error)
-      console.log(error)
       if (error instanceof Error) {
         showToast({
           message: error.message,

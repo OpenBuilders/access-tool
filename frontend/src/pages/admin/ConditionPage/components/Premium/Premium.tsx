@@ -14,8 +14,8 @@ export const Premium = ({
 }: ConditionComponentProps) => {
   useEffect(() => {
     if (isNewCondition || condition) {
-      const updatedConditionState = {
-        ...conditionState,
+      const updatedConditionState: Partial<Condition> = {
+        // ...conditionState,
         type: 'premium',
         isEnabled: !!condition?.isEnabled,
       }
