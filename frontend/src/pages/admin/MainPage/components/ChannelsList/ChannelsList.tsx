@@ -1,6 +1,7 @@
 import { Block, Image, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { separateNumber } from '@utils'
 
 import { AdminChat } from '@store'
 
@@ -29,7 +30,7 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
   return (
     <Block margin="top" marginValue={24}>
       <Block margin="bottom" marginValue={24}>
-        <List header="Groups & Channels" separatorLeftGap={24}>
+        <List header="Groups & Channels" separatorLeftGap={40}>
           {channels.map((channel) => {
             return (
               <ListItem
@@ -39,9 +40,21 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
                     {channel.title}
                   </Text>
                 }
+                description={
+                  channel.membersCount && (
+                    <Text type="caption2" color="tertiary">
+                      {separateNumber(channel.membersCount)} members
+                    </Text>
+                  )
+                }
                 chevron
                 before={
-                  <Image src={channel.logoPath} size={24} borderRadius={50} />
+                  <Image
+                    src={channel.logoPath}
+                    fallback={channel.title}
+                    size={40}
+                    borderRadius={50}
+                  />
                 }
                 onClick={() => handleClick(channel)}
               />

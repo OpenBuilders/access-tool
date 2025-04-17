@@ -33,7 +33,7 @@ export const ChatConditions = () => {
 
   return (
     <Block margin="top" marginValue={24}>
-      <List header="Who can Join">
+      <List header="Who can Join" separatorLeftGap={16}>
         {rules?.map((rule) => (
           <ListItem
             key={rule.id}
@@ -49,7 +49,7 @@ export const ChatConditions = () => {
             </Text>
           }
           onClick={createCondition}
-          before={<Icon name="plus" size={24} />}
+          before={<Icon name="plus" size={28} />}
         />
       </List>
     </Block>

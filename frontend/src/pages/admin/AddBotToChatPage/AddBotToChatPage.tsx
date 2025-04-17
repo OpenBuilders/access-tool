@@ -165,7 +165,7 @@ export const AddBotToChatPage = () => {
         <Block margin="top" marginValue={12}>
           <Text align="center" type="text">
             Gateway bot require admin access to control who can join the group
-            or channel.Telegram bots can’t read messages inside the group chat.
+            or channel. Telegram bots can’t read messages inside the group chat.
           </Text>
         </Block>
       </>

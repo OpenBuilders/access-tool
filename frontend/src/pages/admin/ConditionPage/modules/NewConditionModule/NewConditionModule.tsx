@@ -130,12 +130,12 @@ export const NewConditionModule = () => {
   return (
     <>
       <TelegramMainButton
-        text="Create Condition"
+        text="Add Condition"
         disabled={!isValid}
         onClick={handleCreateCondition}
       />
       <Block margin="top" marginValue={32}>
-        <Text type="title1" weight="bold" align="center">
+        <Text type="title" weight="bold" align="center">
           Add condition
         </Text>
       </Block>

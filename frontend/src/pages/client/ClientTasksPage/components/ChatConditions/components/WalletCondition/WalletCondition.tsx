@@ -1,7 +1,6 @@
 import { Icon, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import cs from '@styles/commonStyles.module.scss'
 import { toUserFriendlyAddress, useTonConnectUI } from '@tonconnect/ui-react'
 import { collapseAddress } from '@utils'
 import { useEffect } from 'react'
@@ -18,31 +17,12 @@ export const WalletCondition = () => {
 
   const { chatWallet } = useChat()
   const { fetchUserChatAction } = useChatActions()
-  const {
-    connectWalletAction,
-    completeChatTaskAction,
-    connectExistingWalletAction,
-  } = useUserActions()
+  const { connectWalletAction, completeChatTaskAction } = useUserActions()
 
   const searchParams = new URLSearchParams(window.location.search)
   const connectWalletQuery = searchParams.get('connectWallet')
 
-  const [tonConnectUI, setOptions] = useTonConnectUI()
-
-  //   const checkTaskCompleted = async () => {
-  //     if (!chatWallet) return
-  //     try {
-  //       const taskId = await connectExistingWalletAction(
-  //         chatSlugParam,
-  //         chatWallet
-  //       )
-  //       if (taskId) {
-  //         await handleCompleteTask(taskId)
-  //       }
-  //     } catch (error) {
-  //       console.error(error)
-  //     }
-  //   }
+  const [tonConnectUI] = useTonConnectUI()
 
   const fetchUserChat = async () => {
     try {
@@ -124,7 +104,7 @@ export const WalletCondition = () => {
       <ListItem
         chevron
         onClick={handleOpenWalletConnect}
-        before={<Icon name="cross" size={20} />}
+        before={<Icon name="cross" size={24} />}
         text={
           <Text type="text" color="primary">
             Connect Wallet
@@ -148,8 +128,12 @@ export const WalletCondition = () => {
     <ListItem
       chevron
       onClick={navigateToConnectedWalletPage}
-      before={<Icon name="check" size={20} />}
-      after={collapsedAddress}
+      before={<Icon name="check" size={24} />}
+      after={
+        <Text type="text" color="tertiary">
+          {collapsedAddress}
+        </Text>
+      }
       text={
         <Text type="text" color="primary">
           Connect Wallet
