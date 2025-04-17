@@ -8,6 +8,7 @@ from telethon.sessions import MemorySession
 from telethon.tl.functions.messages import (
     ExportChatInviteRequest,
     HideChatJoinRequestRequest,
+    EditExportedChatInviteRequest,
 )
 from telethon.tl.types import (
     User as TelethonUser,
@@ -82,6 +83,16 @@ class TelethonService:
             )
         )
         return invite_link
+
+    async def revoke_chat_invite(self, chat_id: int, link: str) -> None:
+        chat_peer = await self.get_chat(chat_id)
+        await self.client(
+            EditExportedChatInviteRequest(
+                peer=chat_peer,
+                link=link,
+                revoked=True,
+            )
+        )
 
     async def download_profile_photo(self, entity: Channel) -> Path | None:
         if not entity.photo or isinstance(entity.photo, ChatPhotoEmpty):

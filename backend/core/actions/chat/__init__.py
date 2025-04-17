@@ -2,10 +2,12 @@ import logging
 from pathlib import Path
 
 import sqlalchemy
+from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_502_BAD_GATEWAY, HTTP_409_CONFLICT
 from telethon import TelegramClient
-from telethon.errors import BadRequestError
+from telethon.errors import BadRequestError, ChatAdminRequiredError, RPCError
 from telethon.utils import get_peer_id
 
 from core.actions.chat.base import ManagedChatBaseAction
@@ -29,6 +31,7 @@ from core.exceptions.chat import (
     TelegramChatNotSufficientPrivileges,
     TelegramChatAlreadyExists,
     TelegramChatNotExists,
+    TelegramChatPublicError,
 )
 from core.dtos.user import TelegramUserDTO
 from core.models.chat import TelegramChat
@@ -250,6 +253,11 @@ class TelegramChatAction(BaseAction):
         :return: A BaseTelegramChatDTO object representing the created Telegram chat data.
         """
         chat = await self._get_chat_data(chat_identifier)
+        if chat.username:
+            logger.warning(
+                f"Bot added to the public chat/channel {chat.username!r}. Skipping..."
+            )
+            raise TelegramChatPublicError(f"Chat {chat.username!r} is public.")
         telegram_chat_dto = await self._create(
             chat, sufficient_bot_privileges=sufficient_bot_privileges
         )
@@ -346,6 +354,21 @@ class TelegramChatAction(BaseAction):
         except NoResultFound:
             logger.warning(f"Chat with slug {slug!r} not found")
             raise TelegramChatNotExists(f"Chat with slug {slug!r} not found")
+
+        if not chat.is_enabled:
+            # Don't pull any records from the DB and just hide the chat page
+            return TelegramChatWithEligibilitySummaryDTO(
+                chat=TelegramChatPovDTO.from_object(
+                    chat,
+                    is_member=False,
+                    is_eligible=False,
+                    join_url=None,
+                    members_count=0,
+                ),
+                rules=[],
+                wallet=None,
+            )
+
         eligibility_summary = self.authorization_action.is_user_eligible_chat_member(
             chat_id=chat.id,
             user_id=user.id,
@@ -440,11 +463,8 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
         members_count = self.telegram_chat_user_service.get_members_count(self.chat.id)
 
         return TelegramChatWithRulesDTO(
-            chat=TelegramChatPovDTO.from_object(
+            chat=TelegramChatDTO.from_object(
                 obj=self.chat,
-                join_url=self.chat.invite_link,
-                is_member=False,
-                is_eligible=False,
                 members_count=members_count,
             ),
             rules=sorted(
@@ -476,6 +496,108 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                 ],
                 key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
             ),
+        )
+
+    async def enable(self) -> TelegramChat:
+        """
+        Enables the Telegram chat by updating its invite link and marking it as enabled, or skips the operation
+        if the chat is already enabled.
+
+        Summary:
+        This asynchronous method attempts to enable a Telegram chat by initiating the Telethon
+        service, retrieving a new invite link, and updating the associated data for the chat.
+        In case of insufficient privileges, an appropriate exception is raised. The method
+        either updates the chat state or skips if it is already enabled, ensuring proper
+        logging of these operations.
+
+        :return: The updated Telegram chat object with the refreshed invite link and enabled state.
+
+        :raises TelegramChatNotSufficientPrivileges: If the current configuration does not have
+            sufficient privileges to perform the operation.
+        """
+        if self.chat.is_enabled:
+            logger.debug(
+                f"Chat {self.chat.id!r} is already enabled. Skipping enable operation..."
+            )
+            return self.chat
+
+        await self.telethon_service.start()
+        try:
+            peer = await self.telethon_service.get_chat(entity=self.chat.id)
+            invite_link = await self.telethon_service.get_invite_link(chat=peer)
+            await self.telethon_service.stop()
+            chat = self.telegram_chat_service.refresh_invite_link(
+                chat_id=self.chat.id, invite_link=invite_link.link
+            )
+            logger.info(
+                f"Updated invite link of chat {chat.id!r} to {invite_link.link!r} and enabled it."
+            )
+        except ChatAdminRequiredError:
+            await self.telethon_service.stop()
+            logger.warning(f"Insufficient privileges to enable chat {self.chat.id!r}")
+            raise HTTPException(
+                status_code=HTTP_409_CONFLICT,
+                detail=f"Insufficient privileges to enable chat {self.chat.id!r}",
+            )
+        except RPCError:
+            logger.exception(f"Failed to enable chat {self.chat.id!r}")
+            raise HTTPException(
+                status_code=HTTP_502_BAD_GATEWAY,
+                detail=f"Failed to enable chat {self.chat.id!r}",
+            )
+
+        return chat
+
+    async def disable(self) -> TelegramChat:
+        """
+        Disables a Telegram chat by removing its invite link and updating its state.
+
+        This method performs the following operations asynchronously:
+        1. Starts the Telethon service.
+        2. Removes the invite link associated with the specified chat.
+        3. Stops the Telethon service after operations.
+        4. Disables the chat using the Telegram chat service.
+
+        If an error occurs due to insufficient admin privileges, a custom exception
+        is raised. For any RPC-related failure, an HTTP exception is raised with
+        appropriate details.
+
+        :raises HTTPException: If an RPC-related error occurs while disabling the chat.
+        :return: The updated chat object with its state disabled.
+        """
+        await self.telethon_service.start()
+        try:
+            await self.telethon_service.revoke_chat_invite(
+                chat_id=self.chat.id, link=self.chat.invite_link
+            )
+            await self.telethon_service.stop()
+            chat = self.telegram_chat_service.disable(self.chat)
+            logger.info(f"Removed invite link of chat {chat.id!r} and disabled it.")
+        except ChatAdminRequiredError:
+            await self.telethon_service.stop()
+            logger.warning(f"Insufficient privileges to disable chat {self.chat.id!r}")
+            raise HTTPException(
+                status_code=HTTP_409_CONFLICT,
+                detail=f"Insufficient privileges to disable chat {self.chat.id!r}",
+            )
+        except RPCError:
+            logger.exception(f"Failed to disable chat {self.chat.id!r}")
+            raise HTTPException(
+                status_code=HTTP_502_BAD_GATEWAY,
+                detail=f"Failed to disable chat {self.chat.id!r}",
+            )
+
+        return chat
+
+    async def update_visibility(self, is_enabled: bool) -> TelegramChatDTO:
+        if is_enabled:
+            chat = await self.enable()
+        else:
+            chat = await self.disable()
+        members_count = self.telegram_chat_user_service.get_members_count(chat.id)
+        return TelegramChatDTO.from_object(
+            obj=chat,
+            members_count=members_count,
         )
 
     async def delete(self) -> None:

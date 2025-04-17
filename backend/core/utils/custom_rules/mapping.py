@@ -62,16 +62,10 @@ CATEGORY_TO_METHOD_MAPPING: dict[
     TonDnsCategory.LETTERS_10: handle_ton_dns_length_category(target_length=10),
     TonDnsCategory.LETTERS_11: handle_ton_dns_length_category(target_length=128),
     # Gifts
-    TelegramGiftsCategory.PLUSH_PEPES: handle_telegram_gifts_type_category(
-        TelegramGiftsCategory.PLUSH_PEPES
-    ),
-    TelegramGiftsCategory.DUROVS_CAPS: handle_telegram_gifts_type_category(
-        TelegramGiftsCategory.DUROVS_CAPS
-    ),
-    TelegramGiftsCategory.SWISS_WATCHES: handle_telegram_gifts_type_category(
-        TelegramGiftsCategory.SWISS_WATCHES
-    ),
-    TelegramGiftsCategory.EVIL_EYES: handle_telegram_gifts_type_category(
-        TelegramGiftsCategory.EVIL_EYES
-    ),
+    **{
+        telegram_gift_category: handle_telegram_gifts_type_category(
+            telegram_gift_category
+        )
+        for telegram_gift_category in TelegramGiftsCategory
+    },
 }

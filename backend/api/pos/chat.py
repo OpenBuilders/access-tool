@@ -4,7 +4,6 @@ from collections.abc import Callable
 from typing import Annotated, Self
 
 from pydantic import (
-    BaseModel,
     AfterValidator,
     field_validator,
     field_serializer,
@@ -47,10 +46,6 @@ CHAT_INPUT_REGEX = re.compile(
 
 class TelegramChatFDO(BaseFDO, TelegramChatDTO):
     ...
-
-
-class TelegramChatCPO(BaseModel):
-    full: bool = False
 
 
 class TelegramChatPovFDO(BaseFDO, TelegramChatPovDTO):
@@ -96,6 +91,10 @@ class AddChatCPO(BaseFDO):
 
 class EditChatCPO(BaseFDO):
     description: str | None
+
+
+class ChatVisibilityCPO(BaseFDO):
+    is_enabled: bool
 
 
 class BaseTelegramChatQuantityRuleCPO(BaseFDO):
@@ -223,7 +222,7 @@ class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):
 
 
 class TelegramChatWithRulesFDO(BaseFDO):
-    chat: TelegramChatPovFDO
+    chat: TelegramChatFDO
     rules: list[ChatEligibilityRuleFDO | NftEligibilityRuleFDO]
 
     @classmethod
@@ -232,7 +231,7 @@ class TelegramChatWithRulesFDO(BaseFDO):
             EligibilityCheckType.NFT_COLLECTION: NftEligibilityRuleFDO,
         }
         return cls(
-            chat=TelegramChatPovFDO.model_validate(dto.chat.model_dump()),
+            chat=TelegramChatFDO.model_validate(dto.chat.model_dump()),
             rules=[
                 mapping.get(rule.type, ChatEligibilityRuleFDO).model_validate(
                     rule.model_dump()

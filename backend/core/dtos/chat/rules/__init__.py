@@ -4,8 +4,13 @@ from typing import Self
 
 from pydantic import BaseModel, computed_field
 
-from core.constants import PROMOTE_JETTON_TEMPLATE, PROMOTE_NFT_COLLECTION_TEMPLATE
-from core.dtos.chat import TelegramChatPovDTO
+from core.constants import (
+    PROMOTE_JETTON_TEMPLATE,
+    PROMOTE_NFT_COLLECTION_TEMPLATE,
+    BUY_PREMIUM_URL,
+    BUY_TONCOIN_URL,
+)
+from core.dtos.chat import TelegramChatDTO
 from core.models.rule import (
     TelegramChatJetton,
     TelegramChatNFTCollection,
@@ -49,18 +54,21 @@ class ChatEligibilityRuleDTO(BaseModel):
 
     @computed_field
     def promote_url(self) -> str | None:
-        if not self.blockchain_address:
-            return None
-
-        if self.type == EligibilityCheckType.JETTON:
-            return PROMOTE_JETTON_TEMPLATE.format(
-                jetton_master_address=self.blockchain_address
-            )
-        elif self.type == EligibilityCheckType.NFT_COLLECTION:
-            return PROMOTE_NFT_COLLECTION_TEMPLATE.format(
-                collection_address=self.blockchain_address
-            )
-        return None
+        match self.type:
+            case EligibilityCheckType.JETTON:
+                return PROMOTE_JETTON_TEMPLATE.format(
+                    jetton_master_address=self.blockchain_address
+                )
+            case EligibilityCheckType.NFT_COLLECTION:
+                return PROMOTE_NFT_COLLECTION_TEMPLATE.format(
+                    collection_address=self.blockchain_address
+                )
+            case EligibilityCheckType.TONCOIN:
+                return BUY_TONCOIN_URL
+            case EligibilityCheckType.PREMIUM:
+                return BUY_PREMIUM_URL
+            case _:
+                return None
 
     @classmethod
     def from_toncoin_rule(cls, rule: TelegramChatToncoin) -> Self:
@@ -127,5 +135,5 @@ class ChatEligibilityRuleDTO(BaseModel):
 
 
 class TelegramChatWithRulesDTO(BaseModel):
-    chat: TelegramChatPovDTO
+    chat: TelegramChatDTO
     rules: list[ChatEligibilityRuleDTO]

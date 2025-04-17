@@ -102,6 +102,7 @@ class TelegramChatService(BaseService):
 
     def refresh_invite_link(self, chat_id: int, invite_link: str) -> TelegramChat:
         chat = self.get(chat_id)
+        chat.is_enabled = True
         chat.invite_link = invite_link
         self.db_session.commit()
         logger.debug(f"Telegram Chat {chat.title!r} invite link updated.")
@@ -147,3 +148,16 @@ class TelegramChatService(BaseService):
         chat.logo_path = None
         self.db_session.commit()
         logger.debug(f"Telegram Chat {chat.title!r} logo cleared.")
+
+    def enable(self, chat: TelegramChat) -> TelegramChat:
+        chat.is_enabled = True
+        self.db_session.commit()
+        logger.debug(f"Telegram Chat {chat.title!r} enabled.")
+        return chat
+
+    def disable(self, chat: TelegramChat) -> TelegramChat:
+        chat.invite_link = None
+        chat.is_enabled = False
+        self.db_session.commit()
+        logger.debug(f"Telegram Chat {chat.title!r} disabled.")
+        return chat

@@ -43,6 +43,13 @@ class ChatJoinRequestEventBuilder(EventBuilder):
                 and self.original_update.invite.admin_id == self.client._self_id
             )
 
+        @property
+        def invite_link(self) -> str | None:
+            if self.original_update.invite:
+                return self.original_update.invite.link
+
+            return None
+
 
 class ChatAdminChangeEventBuilder(EventBuilder):
     @classmethod
