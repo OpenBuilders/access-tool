@@ -222,7 +222,7 @@ class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):
 
 
 class TelegramChatWithRulesFDO(BaseFDO):
-    chat: TelegramChatPovFDO
+    chat: TelegramChatFDO
     rules: list[ChatEligibilityRuleFDO | NftEligibilityRuleFDO]
 
     @classmethod
@@ -231,7 +231,7 @@ class TelegramChatWithRulesFDO(BaseFDO):
             EligibilityCheckType.NFT_COLLECTION: NftEligibilityRuleFDO,
         }
         return cls(
-            chat=TelegramChatPovFDO.model_validate(dto.chat.model_dump()),
+            chat=TelegramChatFDO.model_validate(dto.chat.model_dump()),
             rules=[
                 mapping.get(rule.type, ChatEligibilityRuleFDO).model_validate(
                     rule.model_dump()

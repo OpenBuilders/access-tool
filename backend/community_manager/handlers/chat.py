@@ -7,6 +7,7 @@ from core.actions.authorization import AuthorizationAction
 from core.actions.chat import TelegramChatAction
 from core.dtos.chat import TelegramChatDTO
 from core.dtos.user import TelegramUserDTO
+from core.exceptions.chat import TelegramChatPublicError
 from core.services.chat import TelegramChatService
 from core.services.chat.user import TelegramChatUserService
 from core.services.db import DBService
@@ -179,10 +180,14 @@ async def handle_chat_participant_update(
                 telegram_chat_action = TelegramChatAction(
                     session, telethon_client=event.client
                 )
-                await telegram_chat_action.create(
-                    chat_id,
-                    sufficient_bot_privileges=event.sufficient_bot_privileges,
-                )
+                try:
+                    await telegram_chat_action.create(
+                        chat_id,
+                        sufficient_bot_privileges=event.sufficient_bot_privileges,
+                    )
+                except TelegramChatPublicError:
+                    # Nothing to do if the chat/channel is public
+                    return
             else:
                 logger.debug(
                     f"Chat {chat_id!r} doesn't exist, but bot was added without admin rights. Skipping."

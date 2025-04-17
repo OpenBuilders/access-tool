@@ -10,7 +10,7 @@ from core.constants import (
     BUY_PREMIUM_URL,
     BUY_TONCOIN_URL,
 )
-from core.dtos.chat import TelegramChatPovDTO
+from core.dtos.chat import TelegramChatDTO
 from core.models.rule import (
     TelegramChatJetton,
     TelegramChatNFTCollection,
@@ -135,5 +135,5 @@ class ChatEligibilityRuleDTO(BaseModel):
 
 
 class TelegramChatWithRulesDTO(BaseModel):
-    chat: TelegramChatPovDTO
+    chat: TelegramChatDTO
     rules: list[ChatEligibilityRuleDTO]

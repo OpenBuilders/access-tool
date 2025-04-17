@@ -31,6 +31,7 @@ from core.exceptions.chat import (
     TelegramChatNotSufficientPrivileges,
     TelegramChatAlreadyExists,
     TelegramChatNotExists,
+    TelegramChatPublicError,
 )
 from core.dtos.user import TelegramUserDTO
 from core.models.chat import TelegramChat
@@ -252,6 +253,11 @@ class TelegramChatAction(BaseAction):
         :return: A BaseTelegramChatDTO object representing the created Telegram chat data.
         """
         chat = await self._get_chat_data(chat_identifier)
+        if chat.username:
+            logger.warning(
+                f"Bot added to the public chat/channel {chat.username!r}. Skipping..."
+            )
+            raise TelegramChatPublicError(f"Chat {chat.username!r} is public.")
         telegram_chat_dto = await self._create(
             chat, sufficient_bot_privileges=sufficient_bot_privileges
         )
@@ -457,11 +463,8 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
         members_count = self.telegram_chat_user_service.get_members_count(self.chat.id)
 
         return TelegramChatWithRulesDTO(
-            chat=TelegramChatPovDTO.from_object(
+            chat=TelegramChatDTO.from_object(
                 obj=self.chat,
-                join_url=self.chat.invite_link,
-                is_member=False,
-                is_eligible=False,
                 members_count=members_count,
             ),
             rules=sorted(
