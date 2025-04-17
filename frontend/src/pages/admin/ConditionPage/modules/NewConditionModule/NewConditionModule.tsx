@@ -67,7 +67,7 @@ export const NewConditionModule = () => {
     try {
       const data = removeEmptyFields(conditionState)
       await createConditionAction({
-        type: conditionTypeParam as ConditionType,
+        type: conditionState.type as ConditionType,
         chatSlug: chatSlugParam,
         data,
       })
