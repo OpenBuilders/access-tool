@@ -1,4 +1,5 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, memo } from 'react'
+import { useLocation } from 'react-router-dom'
 
 interface MainButtonProps {
   text: string
@@ -10,77 +11,78 @@ interface MainButtonProps {
   isVisible?: boolean
 }
 
-export const TelegramMainButton = ({
-  text,
-  onClick,
-  disabled = false,
-  loading = false,
-  color,
-  textColor,
-  isVisible = true,
-}: MainButtonProps) => {
-  const webApp = window.Telegram?.WebApp
+export const TelegramMainButton = memo(
+  ({
+    text,
+    onClick,
+    disabled = false,
+    loading = false,
+    color,
+    textColor,
+    isVisible = true,
+  }: MainButtonProps) => {
+    const webApp = window.Telegram?.WebApp
+    const location = useLocation()
 
-  const setupButton = useCallback(() => {
-    if (!webApp?.MainButton) return
+    // Основной эффект для настройки кнопки
+    useEffect(() => {
+      if (!webApp?.MainButton) return
 
-    webApp.MainButton.setParams({ text, color, text_color: textColor })
+      webApp.MainButton.setParams({ text, color, text_color: textColor })
 
-    if (disabled || loading) {
-      webApp.MainButton.disable()
-    } else {
-      webApp.MainButton.enable()
+      webApp.MainButton.onClick(onClick)
+
+      if (isVisible) {
+        webApp.MainButton.show()
+      } else {
+        webApp.MainButton.hide()
+      }
+      return () => {
+        webApp.MainButton.offClick(onClick)
+        webApp.MainButton.hide()
+      }
+    }, [location.pathname])
+
+    useEffect(() => {
+      if (!webApp?.MainButton) return
+
+      if (disabled || loading) {
+        webApp.MainButton.disable()
+      } else {
+        webApp.MainButton.enable()
+      }
+
+      if (loading) {
+        webApp.MainButton.showProgress()
+      } else {
+        webApp.MainButton.hideProgress()
+      }
+    }, [disabled, loading])
+
+    if (
+      webApp.platform === 'unknown' &&
+      process.env.NODE_ENV !== 'production' &&
+      isVisible
+    ) {
+      return (
+        <button
+          onClick={onClick}
+          style={{
+            width: '100%',
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10000000000000000,
+            height: '56px',
+          }}
+          disabled={disabled}
+        >
+          {text}
+        </button>
+      )
     }
 
-    if (loading) {
-      webApp.MainButton.showProgress()
-    } else {
-      webApp.MainButton.hideProgress()
-    }
-
-    if (isVisible) {
-      webApp.MainButton.show()
-    } else {
-      webApp.MainButton.hide()
-    }
-  }, [webApp, text, color, textColor, disabled, loading, isVisible])
-
-  useEffect(() => {
-    if (!webApp?.MainButton) return
-
-    setupButton()
-
-    webApp.MainButton.onClick(onClick)
-
-    return () => {
-      webApp.MainButton.offClick(onClick)
-      webApp.MainButton.hide()
-    }
-  }, [webApp, onClick, setupButton])
-
-  if (
-    webApp.platform === 'unknown' &&
-    process.env.NODE_ENV !== 'production' &&
-    isVisible
-  ) {
-    return (
-      <button
-        onClick={onClick}
-        style={{
-          width: '100%',
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10000000000000000,
-          height: '56px',
-        }}
-        disabled={disabled}
-      >
-        {text}
-      </button>
-    )
+    return null
   }
-
-  return null
-}
+)
