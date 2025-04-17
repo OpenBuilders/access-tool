@@ -69,7 +69,12 @@ export const ClientJoinPage = () => {
     <PageLayout center>
       <TelegramBackButton />
       <TelegramMainButton text="Join Group" onClick={handleJoinGroup} />
-      <Image size={112} src={chat?.logoPath} borderRadius={50} />
+      <Image
+        size={112}
+        src={chat?.logoPath}
+        borderRadius={50}
+        fallback={chat?.title}
+      />
       <ConfettiAnimation active={true} duration={5000} />
       <Block margin="top" marginValue={8}>
         <Text type="title1" align="center" weight="bold">

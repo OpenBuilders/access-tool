@@ -14,7 +14,7 @@ interface ListUploadProps {
   className?: string
   text?: string
   showPreview?: boolean
-  uploadedFile?: any
+  uploadedFile?: FileData
 }
 
 export const ListUpload = ({
@@ -22,16 +22,17 @@ export const ListUpload = ({
   onChange,
   onError,
   onSuccess,
-  className,
+  // className,
   text = 'Upload',
   showPreview = true,
   uploadedFile,
 }: ListUploadProps) => {
+  const [isLoading, setIsLoading] = useState(false)
   const [fileData, setFileData] = useState<FileData | null>({
-    name: uploadedFile?.name,
-    url: uploadedFile?.url,
-    description: uploadedFile?.description,
-    users: uploadedFile?.users,
+    name: uploadedFile?.name || '',
+    url: uploadedFile?.url || '',
+    description: uploadedFile?.description || '',
+    users: uploadedFile?.users || [],
   })
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export const ListUpload = ({
           const extractedIds = rawData.map((row) => row[0])
           resolve(extractedIds.join(','))
         },
-        error: (error) => {
+        error: () => {
           reject(new Error('Failed to parse CSV'))
         },
       })
@@ -82,6 +83,7 @@ export const ListUpload = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     try {
+      setIsLoading(true)
       const file = event.target.files?.[0]
       if (!file) {
         throw new Error('No file selected')
@@ -92,7 +94,7 @@ export const ListUpload = ({
         throw new Error('Invalid file type')
       }
 
-      let content: any
+      let content: string
 
       if (fileExtension === 'csv') {
         content = await parseCSV(file)
@@ -133,6 +135,8 @@ export const ListUpload = ({
       if (error instanceof Error) {
         onError(error)
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -149,9 +153,13 @@ export const ListUpload = ({
           </Text>
         }
         after={
-          <Text type="text" color="accent">
-            {fileData?.name ? collapseEnd(fileData.name, 14) : 'Upload'}
-          </Text>
+          isLoading ? (
+            <div className={styles.loader} />
+          ) : (
+            <Text type="text" color="accent">
+              {fileData?.name ? collapseEnd(fileData.name, 14) : 'Upload'}
+            </Text>
+          )
         }
       >
         <input
@@ -160,6 +168,7 @@ export const ListUpload = ({
           className={styles.fileInput}
           accept={allowedFileTypes}
           onChange={handleFileChange}
+          disabled={isLoading}
         />
       </ListItem>
       {showPreview && !!fileData?.users?.length && (

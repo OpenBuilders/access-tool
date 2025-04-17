@@ -63,7 +63,12 @@ export const ChatHeader = () => {
 
   return (
     <>
-      <Image size={112} src={chat?.logoPath} borderRadius={50} />
+      <Image
+        size={112}
+        src={chat?.logoPath}
+        borderRadius={50}
+        fallback={chat?.title}
+      />
       <Block margin="top" marginValue={12}>
         <Text type="title" align="center" weight="bold">
           {chat?.title}
