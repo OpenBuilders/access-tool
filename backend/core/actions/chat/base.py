@@ -3,6 +3,7 @@ import logging
 from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_403_FORBIDDEN
 
 from core.actions.base import BaseAction
 from core.models.user import User
@@ -54,7 +55,7 @@ class ManagedChatBaseAction(BaseAction):
             ):
                 raise HTTPException(
                     detail="Forbidden",
-                    status_code=403,
+                    status_code=HTTP_403_FORBIDDEN,
                 )
 
         return chat

@@ -2,7 +2,7 @@ from typing import Self
 
 from pydantic import BaseModel
 
-from core.dtos.chat import TelegramChatDTO
+from core.dtos.chat import TelegramChatPovDTO
 from core.dtos.chat.rules import ChatEligibilityRuleDTO
 from core.dtos.chat.rules.internal import EligibilitySummaryInternalDTO
 from core.dtos.chat.rules.nft import NftRuleEligibilitySummaryDTO
@@ -30,6 +30,6 @@ class RuleEligibilitySummaryDTO(ChatEligibilityRuleDTO):
 
 
 class TelegramChatWithEligibilitySummaryDTO(BaseModel):
-    chat: TelegramChatDTO
+    chat: TelegramChatPovDTO
     rules: list[RuleEligibilitySummaryDTO | NftRuleEligibilitySummaryDTO]
     wallet: str | None = None

@@ -5,7 +5,7 @@ from telethon import events
 
 from core.actions.authorization import AuthorizationAction
 from core.actions.chat import TelegramChatAction
-from core.dtos.chat import BaseTelegramChatDTO
+from core.dtos.chat import TelegramChatDTO
 from core.dtos.user import TelegramUserDTO
 from core.services.chat import TelegramChatService
 from core.services.chat.user import TelegramChatUserService
@@ -149,9 +149,9 @@ async def handle_chat_participant_update(
     )
     with DBService().db_session() as session:
         telegram_chat_service = TelegramChatService(session)
-        chat: BaseTelegramChatDTO
+        chat: TelegramChatDTO
         try:
-            chat = BaseTelegramChatDTO.from_orm(telegram_chat_service.get(chat_id))
+            chat = TelegramChatDTO.from_object(telegram_chat_service.get(chat_id))
             # Handle bot updates only if chat existed previously
             if event.is_self:
                 logger.info(

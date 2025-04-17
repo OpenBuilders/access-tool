@@ -5,7 +5,7 @@ from typing import Self
 from pydantic import BaseModel, computed_field
 
 from core.constants import PROMOTE_JETTON_TEMPLATE, PROMOTE_NFT_COLLECTION_TEMPLATE
-from core.dtos.chat import TelegramChatDTO
+from core.dtos.chat import TelegramChatPovDTO
 from core.models.rule import (
     TelegramChatJetton,
     TelegramChatNFTCollection,
@@ -127,5 +127,5 @@ class ChatEligibilityRuleDTO(BaseModel):
 
 
 class TelegramChatWithRulesDTO(BaseModel):
-    chat: TelegramChatDTO
+    chat: TelegramChatPovDTO
     rules: list[ChatEligibilityRuleDTO]

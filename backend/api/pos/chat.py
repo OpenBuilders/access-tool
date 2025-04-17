@@ -16,8 +16,8 @@ from pytonapi.utils import to_nano, to_amount, raw_to_userfriendly
 
 from api.pos.base import BaseFDO
 from core.dtos.chat import (
-    BaseTelegramChatDTO,
     TelegramChatDTO,
+    TelegramChatPovDTO,
 )
 from core.dtos.chat.rules import (
     EligibilityCheckType,
@@ -45,7 +45,7 @@ CHAT_INPUT_REGEX = re.compile(
 )
 
 
-class BaseTelegramChatFDO(BaseFDO, BaseTelegramChatDTO):
+class TelegramChatFDO(BaseFDO, TelegramChatDTO):
     ...
 
 
@@ -53,7 +53,7 @@ class TelegramChatCPO(BaseModel):
     full: bool = False
 
 
-class TelegramChatFDO(BaseFDO, TelegramChatDTO):
+class TelegramChatPovFDO(BaseFDO, TelegramChatPovDTO):
     ...
 
 
@@ -223,7 +223,7 @@ class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):
 
 
 class TelegramChatWithRulesFDO(BaseFDO):
-    chat: TelegramChatFDO
+    chat: TelegramChatPovFDO
     rules: list[ChatEligibilityRuleFDO | NftEligibilityRuleFDO]
 
     @classmethod
@@ -232,7 +232,7 @@ class TelegramChatWithRulesFDO(BaseFDO):
             EligibilityCheckType.NFT_COLLECTION: NftEligibilityRuleFDO,
         }
         return cls(
-            chat=TelegramChatFDO.model_validate(dto.chat.model_dump()),
+            chat=TelegramChatPovFDO.model_validate(dto.chat.model_dump()),
             rules=[
                 mapping.get(rule.type, ChatEligibilityRuleFDO).model_validate(
                     rule.model_dump()
@@ -261,7 +261,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
     but whether user is eligible for chat
     """
 
-    chat: TelegramChatFDO
+    chat: TelegramChatPovFDO
     rules: list[RuleEligibilitySummaryFDO | NftRuleEligibilitySummaryFDO]
     wallet: str | None
 
@@ -271,7 +271,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryFDO,
         }
         return cls(
-            chat=TelegramChatFDO.model_validate(dto.chat.model_dump()),
+            chat=TelegramChatPovFDO.model_validate(dto.chat.model_dump()),
             rules=[
                 mapping.get(rule.type, RuleEligibilitySummaryFDO).model_validate(
                     rule.model_dump()

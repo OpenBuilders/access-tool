@@ -7,7 +7,7 @@ from starlette.status import HTTP_409_CONFLICT, HTTP_400_BAD_REQUEST
 from api.deps import get_db_session
 from api.pos.chat import (
     AddChatCPO,
-    BaseTelegramChatFDO,
+    TelegramChatFDO,
 )
 from api.routes.admin.chat.manage import admin_chat_manage_router
 from core.exceptions.chat import (
@@ -30,21 +30,21 @@ logger = logging.getLogger(__name__)
 async def get_chats(
     request: Request,
     db_session: Session = Depends(get_db_session),
-) -> list[BaseTelegramChatFDO]:
+) -> list[TelegramChatFDO]:
     action = TelegramChatAction(db_session)
     chats = action.get_all(requestor=request.state.user)
-    return [BaseTelegramChatFDO.model_validate(chat.model_dump()) for chat in chats]
+    return [TelegramChatFDO.model_validate(chat.model_dump()) for chat in chats]
 
 
 @admin_chat_router.post("", deprecated=True, tags=["Chat management"])
 async def create_chat(
     chat: AddChatCPO,
     db_session: Session = Depends(get_db_session),
-) -> BaseTelegramChatFDO:
+) -> TelegramChatFDO:
     telegram_chat_action = TelegramChatAction(db_session)
     try:
         result = await telegram_chat_action.create(chat_identifier=chat.chat_identifier)
-        return BaseTelegramChatFDO.model_validate(result.model_dump())
+        return TelegramChatFDO.model_validate(result.model_dump())
     except TelegramChatAlreadyExists:
         raise HTTPException(
             detail="Chat already exists",
