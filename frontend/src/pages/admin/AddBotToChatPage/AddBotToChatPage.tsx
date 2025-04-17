@@ -62,7 +62,9 @@ export const AddBotToChatPage = () => {
       setCheckingTries(checkingTries + 1)
       if (noNewChats) return
 
-      const newChat = findNewChat(data, currentChats, 'slug')
+      const newChat = currentChats.length
+        ? findNewChat(data, currentChats, 'slug')
+        : data
 
       if (newChat.length) {
         setNewChat(newChat[0])
