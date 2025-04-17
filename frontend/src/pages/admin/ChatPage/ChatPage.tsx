@@ -71,7 +71,7 @@ export const ChatPage = () => {
         onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
       />
       <TelegramMainButton
-        hidden={!showMainButton}
+        isVisible={!!showMainButton}
         text="Open Group Chat"
         onClick={handleOpenGroupChat}
       />

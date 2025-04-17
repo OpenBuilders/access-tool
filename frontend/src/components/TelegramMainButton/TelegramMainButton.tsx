@@ -1,120 +1,69 @@
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect, useCallback } from 'react'
 
 interface MainButtonProps {
-  text?: string
-  onClick?: () => void
-  hidden?: boolean
+  text: string
+  onClick: () => void
   disabled?: boolean
-  isLoading?: boolean
+  loading?: boolean
+  color?: string
+  textColor?: string
+  isVisible?: boolean
 }
-
-const webApp = window.Telegram?.WebApp
-const mainButton = webApp?.MainButton
 
 export const TelegramMainButton = ({
   text,
   onClick,
-  hidden,
-  disabled,
-  isLoading,
+  disabled = false,
+  loading = false,
+  color,
+  textColor,
+  isVisible = true,
 }: MainButtonProps) => {
-  const location = useLocation()
-  const resetButton = () => {
-    if (mainButton) {
-      const { button_color, button_text_color } = webApp.themeParams
+  const webApp = window.Telegram?.WebApp
 
-      if (disabled) {
-        mainButton.disable()
-      } else {
-        mainButton.enable()
-      }
+  const setupButton = useCallback(() => {
+    if (!webApp?.MainButton) return
 
-      mainButton.hideProgress()
-      mainButton.setParams({
-        color: button_color,
-        text_color: button_text_color,
-      })
+    webApp.MainButton.text = text
+    if (color) webApp.MainButton.color = color
+    if (textColor) webApp.MainButton.textColor = textColor
+
+    if (disabled || loading) {
+      webApp.MainButton.disable()
+    } else {
+      webApp.MainButton.enable()
     }
-  }
+
+    if (loading) {
+      webApp.MainButton.showProgress()
+    } else {
+      webApp.MainButton.hideProgress()
+    }
+
+    if (isVisible) {
+      webApp.MainButton.show()
+    } else {
+      webApp.MainButton.hide()
+    }
+  }, [webApp, text, color, textColor, disabled, loading, isVisible])
 
   useEffect(() => {
-    resetButton()
-  }, [location.pathname])
+    if (!webApp?.MainButton) return
 
-  useEffect(() => {
-    if (mainButton) {
-      if (hidden) {
-        mainButton.hide()
-        resetButton()
-      } else {
-        mainButton.show()
-        resetButton()
-      }
+    setupButton()
+
+    webApp.MainButton.onClick(onClick)
+
+    return () => {
+      webApp.MainButton.offClick(onClick)
+      webApp.MainButton.hide()
     }
-  }, [hidden, location.pathname])
-
-  useEffect(() => {
-    if (!mainButton) {
-      return
-    }
-
-    const { button_color, button_text_color } = webApp.themeParams
-
-    if (typeof isLoading === 'boolean') {
-      if (isLoading) {
-        mainButton.showProgress()
-        mainButton.disable()
-      } else {
-        mainButton.hideProgress()
-      }
-    }
-
-    if (typeof disabled === 'boolean') {
-      if (disabled) {
-        mainButton.disable()
-        mainButton.setParams({ color: '#E8E8E9', text_color: '#B9B9BA' })
-      } else {
-        mainButton.enable()
-        mainButton.setParams({
-          color: button_color,
-          text_color: button_text_color,
-        })
-      }
-    }
-  }, [disabled, isLoading, location.pathname])
-
-  useEffect(() => {
-    if (!mainButton) {
-      return
-    }
-
-    if (text) {
-      mainButton.setText(text)
-      if (!mainButton.isVisible) {
-        mainButton.show()
-      }
-    } else if (mainButton.isVisible) {
-      mainButton.hide()
-    }
-  }, [text, location.pathname])
-
-  useEffect(() => {
-    if (mainButton && onClick) {
-      mainButton.onClick(onClick)
-
-      return () => {
-        if (mainButton) {
-          mainButton.offClick(onClick)
-        }
-      }
-    }
-  }, [onClick, location.pathname])
+  }, [webApp, onClick, setupButton])
 
   if (
     webApp.platform === 'unknown' &&
     process.env.NODE_ENV !== 'production' &&
-    !hidden
+    isVisible
   ) {
     return (
       <button
