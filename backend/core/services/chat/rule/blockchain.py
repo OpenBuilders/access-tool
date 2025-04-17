@@ -1,5 +1,6 @@
 import logging
 from abc import ABC
+from typing import Any
 
 from sqlalchemy import desc
 
@@ -23,7 +24,9 @@ from core.services.base import BaseService
 logger = logging.getLogger(__name__)
 
 
-TelegramChatRuleType = TelegramChatJetton | TelegramChatNFTCollection
+TelegramChatRuleType = (
+    TelegramChatJetton | TelegramChatNFTCollection | TelegramChatToncoin
+)
 CreateTelegramChatRuleDTOType = (
     CreateTelegramChatJettonRuleDTO
     | CreateTelegramChatNFTCollectionRuleDTO
@@ -52,6 +55,27 @@ class TelegramChatBlockchainRuleBaseService(BaseService, ABC):
             .filter(self.model.id == id_, self.model.chat_id == chat_id)
             .one()
         )
+
+    def find(self, **params: Any) -> list[type[TelegramChatRuleType]]:
+        """
+        Find records in the database table based on filter parameters provided as a dictionary.
+
+        This method allows querying the database using parameters corresponding to column names in
+        the model's table. Invalid parameters (not matching any column in the table) will raise an
+        exception. The method filters records based on these valid parameters and returns a list
+        of results.
+
+        :param params: kwargs containing column names as keys and filter values as values.
+                       Only valid column names of the model table are allowed.
+        :return: A list of records filtered by the provided parameters.
+        :raises AttributeError: If any of the specified keys in `params` does not match any column
+                                 name of the model's table.
+        """
+        for param in params.keys():
+            if param not in self.model.__table__.columns.keys():
+                raise AttributeError(f"Invalid parameter {param!r}.")
+
+        return self.db_session.query(self.model).filter_by(**params).all()
 
     def update(
         self,
