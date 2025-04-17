@@ -57,7 +57,9 @@ export const ClientTasksPage = () => {
 
   const handleClick = async () => {
     if (chatWallet) {
+      toggleIsLoadingAction(true)
       await fetchUserChat()
+      toggleIsLoadingAction(false)
       return
     }
 

@@ -83,7 +83,7 @@ export const Whitelist = ({
           onChange={handleChange}
           onError={handleError}
           onSuccess={handleSuccess}
-          uploadedFile={conditionState}
+          uploadedFile={conditionState as FileData}
           showPreview
         />
       </List>

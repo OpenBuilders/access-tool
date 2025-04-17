@@ -73,7 +73,7 @@ export const Toncoin = ({
                 value: category.asset,
                 name: category.asset,
               }))}
-              value={condition?.asset}
+              value={conditionState?.asset}
             />
           }
         />
@@ -92,7 +92,7 @@ export const Toncoin = ({
                   TON
                 </Text>
               }
-              value={condition?.expected}
+              value={conditionState?.expected}
               onChange={(value) => handleChangeCondition('expected', value)}
             />
           }
