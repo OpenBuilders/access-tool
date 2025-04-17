@@ -28,19 +28,18 @@ export const ClientTasksPage = () => {
   const fetchUserChat = async () => {
     if (!clientChatSlug) return
     try {
-      toggleIsLoadingAction(true)
       await fetchUserChatAction(clientChatSlug)
     } catch (error) {
       console.error(error)
       notFound()
-    } finally {
-      toggleIsLoadingAction(false)
     }
   }
 
   useEffect(() => {
     if (!clientChatSlug) return
+    toggleIsLoadingAction(true)
     fetchUserChat()
+    toggleIsLoadingAction(false)
   }, [clientChatSlug])
 
   useEffect(() => {

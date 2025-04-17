@@ -133,7 +133,7 @@ export const AddBotToChatPage = () => {
 
   let Component = null
 
-  if (isCheckingNewChat || isCheckingChatPermissions) {
+  if (isCheckingNewChat || isCheckingChatPermissions || newChat) {
     const title =
       (isCheckingNewChat &&
         'Checking If the Bot Was Added to Your Group or Channel') ||
