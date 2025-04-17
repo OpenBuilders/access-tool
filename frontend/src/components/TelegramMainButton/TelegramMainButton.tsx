@@ -24,9 +24,7 @@ export const TelegramMainButton = ({
   const setupButton = useCallback(() => {
     if (!webApp?.MainButton) return
 
-    webApp.MainButton.text = text
-    if (color) webApp.MainButton.color = color
-    if (textColor) webApp.MainButton.textColor = textColor
+    webApp.MainButton.setParams({ text, color, text_color: textColor })
 
     if (disabled || loading) {
       webApp.MainButton.disable()

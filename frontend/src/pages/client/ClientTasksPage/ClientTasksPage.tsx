@@ -79,7 +79,7 @@ export const ClientTasksPage = () => {
         text={buttonText}
         disabled={isLoading}
         onClick={handleClick}
-        isLoading={isLoading}
+        loading={isLoading}
       />
       <ChatHeader />
       <Block margin="top" marginValue={24}>
