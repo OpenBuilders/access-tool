@@ -1,5 +1,5 @@
 // src/services/ApiService.ts
-import { API_VALIDATION_ERROR } from '@utils'
+import { API_VALIDATION_ERROR, getValidationError } from '@utils'
 import ky, { HTTPError, Options } from 'ky'
 
 import config from '@config'
@@ -25,21 +25,20 @@ interface ApiOptions extends Options {
   cache?: 'force-cache' | 'no-cache' | 'no-store' | 'only-if-cached' | 'reload'
 }
 
-interface QueryParams {
-  [key: string]: string | number | boolean
-}
+type QueryParams = Record<string, string | number | boolean>
 
 const handleError = async (
   err: unknown
 ): Promise<ApiServiceResponse<never>> => {
-  console.error("Error occurred during request to API", err)
+  console.error('Error occurred during request to API', err)
   if (err instanceof HTTPError) {
     try {
       const errorData = await err.response.json()
-      if (Array.isArray(errorData.detail) && errorData.detail[0]?.input) {
+      if (Array.isArray(errorData.detail) && !!errorData.detail.length) {
+        const validationError = getValidationError(errorData.detail)
         return {
           ok: err.response.ok,
-          error: API_VALIDATION_ERROR,
+          error: validationError,
         }
       }
       return {

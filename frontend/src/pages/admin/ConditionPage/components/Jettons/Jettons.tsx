@@ -14,17 +14,14 @@ import {
   useCondition,
   useConditionActions,
   ConditionType,
-  Condition,
   ConditionCategory,
 } from '@store'
 
 import { ConditionComponentProps } from '../types'
-import { validateJettonsCondition } from './helpers'
 
 export const Jettons = ({
   isNewCondition,
   handleChangeCondition,
-  toggleIsValid,
   conditionState,
   setInitialState,
   condition,
@@ -86,7 +83,6 @@ export const Jettons = ({
   useEffect(() => {
     fetchConditionCategories()
     if (isNewCondition) {
-      toggleIsValid(false)
       resetPrefetchedConditionDataAction()
     }
   }, [])
@@ -100,17 +96,16 @@ export const Jettons = ({
         category: condition?.category || categories[0].categories[0],
         [addressField]: condition?.[addressField] || '',
         expected: condition?.expected || '',
-        isEnabled: !!condition?.isEnabled || true,
       })
+
+      if (!isNewCondition) {
+        setInitialState({
+          ...conditionState,
+          isEnabled: !!condition?.isEnabled || true,
+        })
+      }
     }
   }, [categories?.length, condition])
-
-  useEffect(() => {
-    const validationResult = validateJettonsCondition(
-      conditionState as Condition
-    )
-    toggleIsValid(validationResult)
-  }, [conditionState])
 
   if (!categories?.length || !conditionState?.type) return null
 

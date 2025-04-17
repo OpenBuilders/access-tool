@@ -6,7 +6,6 @@ import { ConditionComponentProps } from '../types'
 export const Premium = ({
   isNewCondition,
   handleChangeCondition,
-  toggleIsValid,
   conditionState,
   setInitialState,
   condition,
@@ -20,11 +19,6 @@ export const Premium = ({
       })
     }
   }, [condition])
-
-  useEffect(() => {
-    const validationResult = !!conditionState?.isEnabled
-    toggleIsValid(validationResult)
-  }, [conditionState])
 
   if (!conditionState?.type) return null
 

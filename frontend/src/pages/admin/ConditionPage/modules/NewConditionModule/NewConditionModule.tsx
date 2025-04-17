@@ -29,7 +29,6 @@ export const NewConditionModule = () => {
   const chatSlugParam = params.chatSlug || ''
   const conditionTypeParam = params.conditionType || ''
 
-  const [isValid, setIsValid] = useState(false)
   const [conditionState, setConditionState] = useState<Partial<Condition>>({
     type: 'jetton',
   })
@@ -67,12 +66,7 @@ export const NewConditionModule = () => {
     []
   )
 
-  const toggleIsValid = useCallback((value: boolean) => {
-    setIsValid(value)
-  }, [])
-
   const handleCreateCondition = useCallback(async () => {
-    if (!isValid) return
     try {
       const data = removeEmptyFields(conditionState)
       await createConditionAction({
@@ -88,6 +82,7 @@ export const NewConditionModule = () => {
       webApp?.HapticFeedback?.impactOccurred('soft')
     } catch (error) {
       console.error(error)
+      console.log(error)
       if (error instanceof Error) {
         showToast({
           message: error.message,
@@ -101,7 +96,7 @@ export const NewConditionModule = () => {
         type: 'error',
       })
     }
-  }, [conditionState, isValid])
+  }, [conditionState])
 
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
@@ -122,7 +117,6 @@ export const NewConditionModule = () => {
   const payload: ConditionComponentProps = {
     isNewCondition: true,
     handleChangeCondition,
-    toggleIsValid,
     conditionState,
     setInitialState,
   }
@@ -131,7 +125,6 @@ export const NewConditionModule = () => {
     <>
       <TelegramMainButton
         text="Add Condition"
-        disabled={!isValid}
         onClick={handleCreateCondition}
       />
       <Block margin="top" marginValue={32}>

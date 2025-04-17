@@ -1,15 +1,13 @@
 import { AppSelect, Block, ListInput, ListItem, Text } from '@components'
 import { useEffect, useState } from 'react'
 
-import { useConditionActions, Condition, ConditionCategory } from '@store'
+import { useConditionActions, ConditionCategory } from '@store'
 
 import { ConditionComponentProps } from '../types'
-import { validateToncoinCondition } from './helpers'
 
 export const Toncoin = ({
   isNewCondition,
   handleChangeCondition,
-  toggleIsValid,
   conditionState,
   setInitialState,
   condition,
@@ -36,7 +34,6 @@ export const Toncoin = ({
   useEffect(() => {
     fetchConditionCategories()
     if (isNewCondition) {
-      toggleIsValid(false)
       resetPrefetchedConditionDataAction()
     }
   }, [])
@@ -49,17 +46,16 @@ export const Toncoin = ({
         asset: condition?.asset || categories[0].asset,
         category: condition?.category || categories[0].categories[0],
         expected: condition?.expected || '',
-        isEnabled: !!condition?.isEnabled || true,
       })
+
+      if (!isNewCondition) {
+        setInitialState({
+          ...conditionState,
+          isEnabled: !!condition?.isEnabled || true,
+        })
+      }
     }
   }, [categories?.length, condition])
-
-  useEffect(() => {
-    const validationResult = validateToncoinCondition(
-      conditionState as Condition
-    )
-    toggleIsValid(validationResult)
-  }, [conditionState])
 
   if (!categories?.length || !conditionState?.type) return null
 

@@ -8,7 +8,6 @@ const ALLOWED_FILE_TYPES = '.csv,.txt,.json'
 export const Whitelist = ({
   isNewCondition,
   handleChangeCondition,
-  toggleIsValid,
   conditionState,
   setInitialState,
   condition,
@@ -23,8 +22,14 @@ export const Whitelist = ({
         description: condition?.description || '',
         name: condition?.name || '',
         users: condition?.users || [],
-        isEnabled: !!condition?.isEnabled || true,
       })
+
+      if (!isNewCondition) {
+        setInitialState({
+          ...conditionState,
+          isEnabled: !!condition?.isEnabled || true,
+        })
+      }
     }
   }, [condition])
 
@@ -39,7 +44,6 @@ export const Whitelist = ({
     handleChangeCondition('description', file.description)
     const users = file.users.map((user) => Number(user))
     handleChangeCondition('users', users)
-    toggleIsValid(true)
   }
 
   const handleError = (error: Error) => {

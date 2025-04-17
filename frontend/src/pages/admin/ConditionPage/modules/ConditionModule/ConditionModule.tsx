@@ -37,7 +37,6 @@ export const ConditionModule = () => {
 
   const [conditionState, setConditionState] = useState<Partial<Condition>>({})
   const [isSaved, setIsSaved] = useState(true)
-  const [isValid, setIsValid] = useState(true)
 
   const { showToast } = useToast()
 
@@ -112,10 +111,6 @@ export const ConditionModule = () => {
     []
   )
 
-  const toggleIsValid = useCallback((value: boolean) => {
-    setIsValid(value)
-  }, [])
-
   const handleUpdateCondition = async () => {
     if (!conditionIdParam || !chatSlugParam) return
     const data = removeEmptyFields(conditionState)
@@ -151,7 +146,6 @@ export const ConditionModule = () => {
   const payload: ConditionComponentProps = {
     isNewCondition: false,
     handleChangeCondition,
-    toggleIsValid,
     conditionState,
     setInitialState,
     condition,
@@ -160,7 +154,7 @@ export const ConditionModule = () => {
     <>
       <TelegramMainButton
         text="Save"
-        disabled={!isValid || isSaved}
+        disabled={isSaved}
         onClick={handleUpdateCondition}
       />
       <Block margin="top" marginValue={32}>

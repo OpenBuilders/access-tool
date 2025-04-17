@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 interface MainButtonProps {
   text?: string
@@ -18,6 +19,7 @@ export const TelegramMainButton = ({
   disabled,
   isLoading,
 }: MainButtonProps) => {
+  const location = useLocation()
   const resetButton = () => {
     if (mainButton) {
       const { button_color, button_text_color } = webApp.themeParams
@@ -38,7 +40,7 @@ export const TelegramMainButton = ({
 
   useEffect(() => {
     resetButton()
-  }, [])
+  }, [location.pathname])
 
   useEffect(() => {
     if (mainButton) {
@@ -50,7 +52,7 @@ export const TelegramMainButton = ({
         resetButton()
       }
     }
-  }, [hidden])
+  }, [hidden, location.pathname])
 
   useEffect(() => {
     if (!mainButton) {
@@ -80,7 +82,7 @@ export const TelegramMainButton = ({
         })
       }
     }
-  }, [disabled, isLoading])
+  }, [disabled, isLoading, location.pathname])
 
   useEffect(() => {
     if (!mainButton) {
@@ -95,7 +97,7 @@ export const TelegramMainButton = ({
     } else if (mainButton.isVisible) {
       mainButton.hide()
     }
-  }, [text])
+  }, [text, location.pathname])
 
   useEffect(() => {
     if (mainButton && onClick) {
@@ -107,7 +109,7 @@ export const TelegramMainButton = ({
         }
       }
     }
-  }, [onClick])
+  }, [onClick, location.pathname])
 
   if (
     webApp.platform === 'unknown' &&

@@ -10,14 +10,13 @@ import {
 } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { goTo } from '@utils'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useApp, useAppActions, useChat, useChatActions } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
-
-const webApp = window.Telegram.WebApp
 
 export const ChatPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
@@ -29,7 +28,7 @@ export const ChatPage = () => {
 
   const { adminChatNotFound } = useError()
 
-  const { rules } = useChat()
+  const { rules, chat } = useChat()
   const { fetchChatAction } = useChatActions()
 
   const isChatVisible = true
@@ -55,8 +54,8 @@ export const ChatPage = () => {
   const showMainButton = rules && rules?.length > 0
 
   const handleOpenGroupChat = () => {
-    if (!chatSlug) return
-    webApp.openTelegramLink(`https://t.me/${chatSlug}`)
+    if (!chat?.joinUrl) return
+    goTo(chat?.joinUrl)
   }
 
   const handleChatVisibility = () => {

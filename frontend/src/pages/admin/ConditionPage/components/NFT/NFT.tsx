@@ -2,20 +2,13 @@ import { AppSelect, Block, Image, List, ListInput, ListItem } from '@components'
 import debounce from 'debounce'
 import { useCallback, useEffect, useState } from 'react'
 
-import {
-  useCondition,
-  useConditionActions,
-  Condition,
-  ConditionCategory,
-} from '@store'
+import { useCondition, useConditionActions, ConditionCategory } from '@store'
 
 import { ConditionComponentProps } from '../types'
-import { validateNFTCollectionCondition } from './helpers'
 
 export const NFT = ({
   isNewCondition,
   handleChangeCondition,
-  toggleIsValid,
   conditionState,
   setInitialState,
   condition,
@@ -28,7 +21,6 @@ export const NFT = ({
   const { prefetchedConditionData } = useCondition()
 
   const [categories, setCategories] = useState<ConditionCategory[]>([])
-  // const addressField = isNewCondition ? 'address' : 'blockchainAddress'
 
   const prefetchNFTCollection = async (address: string) => {
     try {
@@ -79,7 +71,6 @@ export const NFT = ({
   useEffect(() => {
     fetchConditionCategories()
     if (isNewCondition) {
-      toggleIsValid(false)
       resetPrefetchedConditionDataAction()
     }
   }, [])
@@ -93,17 +84,16 @@ export const NFT = ({
         category: condition?.category || undefined,
         address: condition?.blockchainAddress || condition?.address || '',
         expected: condition?.expected || '',
-        isEnabled: !!condition?.isEnabled || true,
       })
+
+      if (!isNewCondition) {
+        setInitialState({
+          ...conditionState,
+          isEnabled: !!condition?.isEnabled || true,
+        })
+      }
     }
   }, [categories?.length, condition])
-
-  useEffect(() => {
-    const validationResult = validateNFTCollectionCondition(
-      conditionState as Condition
-    )
-    toggleIsValid(validationResult)
-  }, [conditionState])
 
   if (!categories?.length || !conditionState?.type) return null
 
