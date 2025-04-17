@@ -23,6 +23,7 @@ export const Whitelist = ({
         description: condition?.description || '',
         name: condition?.name || '',
         users: condition?.users || [],
+        isEnabled: !!condition?.isEnabled || true,
       })
     }
   }, [condition])

@@ -49,6 +49,7 @@ export const Toncoin = ({
         asset: condition?.asset || categories[0].asset,
         category: condition?.category || categories[0].categories[0],
         expected: condition?.expected || '',
+        isEnabled: !!condition?.isEnabled || true,
       })
     }
   }, [categories?.length, condition])

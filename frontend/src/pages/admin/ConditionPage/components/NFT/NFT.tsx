@@ -93,6 +93,7 @@ export const NFT = ({
         category: condition?.category || undefined,
         address: condition?.blockchainAddress || condition?.address || '',
         expected: condition?.expected || '',
+        isEnabled: !!condition?.isEnabled || true,
       })
     }
   }, [categories?.length, condition])

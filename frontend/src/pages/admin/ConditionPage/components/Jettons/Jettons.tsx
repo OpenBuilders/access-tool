@@ -100,6 +100,7 @@ export const Jettons = ({
         category: condition?.category || categories[0].categories[0],
         [addressField]: condition?.[addressField] || '',
         expected: condition?.expected || '',
+        isEnabled: !!condition?.isEnabled || true,
       })
     }
   }, [categories?.length, condition])
