@@ -58,22 +58,15 @@ class TelegramChatAction(BaseAction):
 
     def get_all(self, requestor: User) -> list[BaseTelegramChatDTO]:
         """
-        Fetches all Telegram chats accessible to the requesting user.
+        Retrieves all Telegram chats managed by the given user.
 
-        If the requestor has administrative privileges, the method retrieves all
-        Telegram chats. If the requestor does not have administrative privileges,
-        only the chats managed by the requestor are retrieved. The data is then
-        converted to a list of BaseTelegramChatDTO objects.
+        This method fetches all chats that the specified user has the authority to
+        manage and converts them into DTOs (Data Transfer Objects).
 
-        :param requestor: The user making the request.
-
-        :return: A list of BaseTelegramChatDTO objects representing the chats
-            accessible to the requestor.
+        :param requestor: The user requesting the list of managed Telegram chats.
+        :return: A list of DTOs, each representing a managed Telegram chat.
         """
-        if requestor.is_admin:
-            chats = self.telegram_chat_service.get_all()
-        else:
-            chats = self.telegram_chat_service.get_all_managed(user_id=requestor.id)
+        chats = self.telegram_chat_service.get_all_managed(user_id=requestor.id)
 
         return [BaseTelegramChatDTO.from_orm(chat) for chat in chats]
 
@@ -409,6 +402,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             slug=chat.slug,
             is_forum=chat.is_forum,
             logo_path=chat.logo_path,
+            insufficient_privileges=chat.insufficient_privileges,
         )
 
     async def update(self, description: str | None) -> BaseTelegramChatDTO:
@@ -439,6 +433,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             slug=chat.slug,
             is_forum=chat.is_forum,
             logo_path=chat.logo_path,
+            insufficient_privileges=chat.insufficient_privileges,
         )
 
     async def get_with_eligibility_rules(self) -> TelegramChatWithRulesDTO:
