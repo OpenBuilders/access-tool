@@ -4,7 +4,7 @@ from collections import defaultdict
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from telethon import TelegramClient, Button
-from telethon.errors import UserAdminInvalidError, RPCError
+from telethon.errors import UserAdminInvalidError, RPCError, HideRequesterMissingError
 
 from core.actions.base import BaseAction
 from core.dtos.chat.rules import (
@@ -471,7 +471,7 @@ class AuthorizationAction(BaseAction):
 
         # If chat is not fully controlled and user was added -
         #  just ignore it and create entity in the database
-        if not chat.is_full_control:
+        if not chat.is_full_control or not chat.is_enabled:
             self.telegram_chat_user_service.create_or_update(
                 chat_id=chat_id,
                 user_id=local_user.id,
@@ -529,13 +529,31 @@ class AuthorizationAction(BaseAction):
         telegram_user_id: int,
         chat_id: int,
         invited_by_bot: bool = False,
+        invite_link: str | None = None,
     ) -> None:
+        """
+        Handles join requests for a chat and takes appropriate action based on the bot’s
+        permissions, the chat's status, and the user's eligibility.
+
+        This method is intended to process join requests for Telegram chats where the
+        bot is present. Depending on the chat's configuration and the user's eligibility,
+        it will either approve or decline the join request. It also handles other related
+        tasks such as revoking invite links if a chat is disabled or updating user-chat
+        relations in the database.
+
+        :param telegram_user_id: The unique identifier of the Telegram user making the
+            join request.
+        :param chat_id: The unique identifier of the Telegram chat where the join
+            request was made.
+        :param invited_by_bot: Indicates whether the user was invited by the bot.
+        :param invite_link: The invite link used by the user, if available.
+        """
         telegram_chat_service = TelegramChatService(self.db_session)
         try:
             chat = telegram_chat_service.get(chat_id)
         except NoResultFound:
             # If bot sees the join request - it should be an admin, means chat should exist. Raise a flag
-            logger.error(f"Chat {chat_id!r} does not exist in the database.")
+            logger.warning(f"Chat {chat_id!r} does not exist in the database.")
             return
 
         if chat.insufficient_privileges:
@@ -543,6 +561,28 @@ class AuthorizationAction(BaseAction):
                 f"User join request {telegram_user_id=} and {chat_id=} "
                 f"can't be approved or rejected as bot lacks privileges to manage the chat. Skipping."
             )
+            return
+
+        if not chat.is_enabled and invited_by_bot and invite_link is not None:
+            await self.telethon_service.start()
+            try:
+                logger.warning(
+                    f"Declining join request from user {telegram_user_id!r} for chat {chat_id!r} as it is disabled. "
+                )
+                await self.telethon_service.decline_chat_join_request(
+                    chat_id=chat_id, telegram_user_id=telegram_user_id
+                )
+                logger.warning(
+                    f"Chat {chat_id!r} is disabled. Revoking the invite link."
+                )
+                await self.telethon_service.revoke_chat_invite(
+                    chat_id=chat_id, link=invite_link
+                )
+            except HideRequesterMissingError as e:
+                logger.warning(f"Join request is already handled. Skipping. {e!r}")
+            except RPCError:
+                logger.exception("Error while removing invite link.")
+
             return
 
         logger.info(f"New join request: {telegram_user_id=!r} to join {chat_id=!r}")
@@ -587,7 +627,7 @@ class AuthorizationAction(BaseAction):
             await self.telethon_service.decline_chat_join_request(
                 chat_id=chat_id, telegram_user_id=local_user.telegram_id
             )
-            logger.warning(
+            logger.info(
                 f"User {local_user.telegram_id!r} is not eligible to join chat {chat_id!r}. Declining the request.",
                 extra={
                     "eligibility_summary": eligibility_summary,

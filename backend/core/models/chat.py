@@ -41,6 +41,12 @@ class TelegramChat(Base):
             " e.g. joined outside of the current invite link, previously joined."
         ),
     )
+    is_enabled = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        doc="Whether the chat should be managed by the bot and available for users..",
+    )
     created_at = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     whitelist_external_sources = relationship(

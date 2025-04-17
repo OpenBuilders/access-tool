@@ -4,7 +4,6 @@ from collections.abc import Callable
 from typing import Annotated, Self
 
 from pydantic import (
-    BaseModel,
     AfterValidator,
     field_validator,
     field_serializer,
@@ -47,10 +46,6 @@ CHAT_INPUT_REGEX = re.compile(
 
 class TelegramChatFDO(BaseFDO, TelegramChatDTO):
     ...
-
-
-class TelegramChatCPO(BaseModel):
-    full: bool = False
 
 
 class TelegramChatPovFDO(BaseFDO, TelegramChatPovDTO):
@@ -96,6 +91,10 @@ class AddChatCPO(BaseFDO):
 
 class EditChatCPO(BaseFDO):
     description: str | None
+
+
+class ChatVisibilityCPO(BaseFDO):
+    is_enabled: bool
 
 
 class BaseTelegramChatQuantityRuleCPO(BaseFDO):

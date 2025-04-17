@@ -145,6 +145,7 @@ async def handle_join_request(event: ChatJoinRequestEventBuilder.Event):
             telegram_user_id=event.user_id,
             chat_id=event.chat_id,
             invited_by_bot=event.invited_by_current_user,
+            invite_link=event.invite_link,
         )
 
 
