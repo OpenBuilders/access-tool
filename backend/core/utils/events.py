@@ -13,8 +13,7 @@ from telethon.tl.types import (
     ChannelParticipantBanned,
 )
 
-from core.constants import REQUIRED_BOT_PRIVILEGES
-
+from core.constants import REQUIRED_BOT_PRIVILEGES, REQUIRED_ADMIN_PRIVILEGES
 
 logger = logging.getLogger(__name__)
 
@@ -113,8 +112,39 @@ class ChatAdminChangeEventBuilder(EventBuilder):
             ) and isinstance(self.new_participant, ChannelParticipantAdmin)
 
         @property
+        def has_enough_rights(self) -> bool:
+            if self.user.bot:
+                logger.warning(
+                    f"This method should not be used on the bot users: {self.original_update}"
+                )
+                return False
+
+            if not isinstance(self.new_participant, ChannelParticipantAdmin):
+                logger.debug(
+                    "User %d is not an admin in the chat %d",
+                    self.user.id,
+                    self.original_update.channel_id,
+                )
+                return False
+            elif not all(
+                [
+                    getattr(self.new_participant.admin_rights, right)
+                    for right in REQUIRED_ADMIN_PRIVILEGES
+                ]
+            ):
+                logger.warning(
+                    "User %d has insufficient permissions in the chat %d: %s",
+                    self.user.id,
+                    self.original_update.channel_id,
+                    self.new_participant.admin_rights,
+                )
+                return False
+
+            return True
+
+        @property
         def sufficient_bot_privileges(self) -> bool:
-            if not self.is_self:
+            if not self.new_participant.is_self:
                 raise ValueError("The event is not related to the bot user.")
 
             if not isinstance(self.new_participant, ChannelParticipantAdmin):
