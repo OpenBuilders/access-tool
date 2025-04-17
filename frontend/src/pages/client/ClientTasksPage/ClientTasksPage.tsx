@@ -9,7 +9,7 @@ import { ROUTES_NAME } from '@routes'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useApp, useAppActions, useChat, useChatActions } from '@store'
+import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
 
@@ -24,11 +24,19 @@ export const ClientTasksPage = () => {
 
   const { fetchUserChatAction } = useChatActions()
   const { chat, rules, chatWallet } = useChat()
+  const { user } = useUser()
 
   const fetchUserChat = async () => {
     if (!clientChatSlug) return
     try {
-      await fetchUserChatAction(clientChatSlug)
+      const data = await fetchUserChatAction(clientChatSlug)
+
+      if (data?.isEligible) {
+        appNavigate({
+          path: ROUTES_NAME.CLIENT_JOIN,
+          params: { clientChatSlug },
+        })
+      }
     } catch (error) {
       console.error(error)
       notFound()
@@ -43,7 +51,7 @@ export const ClientTasksPage = () => {
   }, [clientChatSlug])
 
   useEffect(() => {
-    if (chat?.isEligible) {
+    if (chat?.isEligible && chat?.isMember) {
       appNavigate({
         path: ROUTES_NAME.CLIENT_JOIN,
         params: { clientChatSlug },
@@ -56,6 +64,14 @@ export const ClientTasksPage = () => {
   const handleClick = async () => {
     if (chatWallet) {
       await fetchUserChat()
+      return
+    }
+
+    if (user?.wallets.length) {
+      appNavigate({
+        path: ROUTES_NAME.CLIENT_WALLETS_LIST,
+        params: { clientChatSlug },
+      })
       return
     }
 

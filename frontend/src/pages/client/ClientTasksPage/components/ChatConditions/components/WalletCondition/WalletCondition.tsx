@@ -95,6 +95,11 @@ export const WalletCondition = () => {
 
   useEffect(() => {
     if (connectWalletQuery) {
+      appNavigate({
+        path: ROUTES_NAME.CLIENT_TASKS,
+        params: { clientChatSlug: chatSlugParam },
+        queryParams: {},
+      })
       handleOpenWalletConnect()
     }
   }, [connectWalletQuery])
