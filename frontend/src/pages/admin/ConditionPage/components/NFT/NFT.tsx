@@ -2,7 +2,12 @@ import { AppSelect, Block, Image, List, ListInput, ListItem } from '@components'
 import debounce from 'debounce'
 import { useCallback, useEffect, useState } from 'react'
 
-import { useCondition, useConditionActions, ConditionCategory } from '@store'
+import {
+  useCondition,
+  useConditionActions,
+  ConditionCategory,
+  Condition,
+} from '@store'
 
 import { ConditionComponentProps } from '../types'
 
@@ -23,6 +28,7 @@ export const NFT = ({
   const [categories, setCategories] = useState<ConditionCategory[]>([])
 
   const prefetchNFTCollection = async (address: string) => {
+    if (!conditionState?.type) return
     try {
       await prefetchConditionDataAction('nft_collection', address)
     } catch (error) {
@@ -77,21 +83,23 @@ export const NFT = ({
 
   useEffect(() => {
     if (categories?.length && (isNewCondition || condition)) {
-      setInitialState({
+      let updatedConditionState = {
         ...conditionState,
         type: 'nft_collection',
         asset: condition?.asset || undefined,
         category: condition?.category || undefined,
         address: condition?.blockchainAddress || condition?.address || '',
         expected: condition?.expected || '',
-      })
+      }
 
       if (!isNewCondition) {
-        setInitialState({
-          ...conditionState,
+        updatedConditionState = {
+          ...updatedConditionState,
           isEnabled: !!condition?.isEnabled || true,
-        })
+        }
       }
+
+      setInitialState(updatedConditionState as Partial<Condition>)
     }
   }, [categories?.length, condition])
 

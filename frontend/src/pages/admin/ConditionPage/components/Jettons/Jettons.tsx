@@ -10,7 +10,12 @@ import {
 import debounce from 'debounce'
 import { useCallback, useEffect, useState } from 'react'
 
-import { useCondition, useConditionActions, ConditionCategory } from '@store'
+import {
+  useCondition,
+  useConditionActions,
+  ConditionCategory,
+  Condition,
+} from '@store'
 
 import { ConditionComponentProps } from '../types'
 
@@ -32,6 +37,8 @@ export const Jettons = ({
   const addressField = isNewCondition ? 'address' : 'blockchainAddress'
 
   const prefetchJetton = async (address: string) => {
+    if (!conditionState?.type) return
+
     try {
       await prefetchConditionDataAction('jetton', address)
     } catch (error) {
@@ -81,21 +88,23 @@ export const Jettons = ({
 
   useEffect(() => {
     if (categories?.length && (isNewCondition || condition)) {
-      setInitialState({
+      let updatedConditionState = {
         ...conditionState,
         type: 'jetton',
         asset: condition?.asset || categories[0].asset,
         category: condition?.category || categories[0].categories[0],
         [addressField]: condition?.[addressField] || '',
         expected: condition?.expected || '',
-      })
+      }
 
       if (!isNewCondition) {
-        setInitialState({
-          ...conditionState,
+        updatedConditionState = {
+          ...updatedConditionState,
           isEnabled: !!condition?.isEnabled || true,
-        })
+        }
       }
+
+      setInitialState(updatedConditionState as Partial<Condition>)
     }
   }, [categories?.length, condition])
 

@@ -1,6 +1,8 @@
 import { Block, List, ListItem, ListToggler } from '@components'
 import { useEffect } from 'react'
 
+import { Condition } from '@store'
+
 import { ConditionComponentProps } from '../types'
 
 export const Premium = ({
@@ -12,11 +14,13 @@ export const Premium = ({
 }: ConditionComponentProps) => {
   useEffect(() => {
     if (isNewCondition || condition) {
-      setInitialState({
+      const updatedConditionState = {
         ...conditionState,
         type: 'premium',
         isEnabled: !!condition?.isEnabled,
-      })
+      }
+
+      setInitialState(updatedConditionState as Partial<Condition>)
     }
   }, [condition])
 

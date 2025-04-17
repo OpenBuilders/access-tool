@@ -1,6 +1,8 @@
 import { Block, FileData, List, ListUpload, Text, useToast } from '@components'
 import { useEffect } from 'react'
 
+import { Condition } from '@store'
+
 import { ConditionComponentProps } from '../types'
 
 const ALLOWED_FILE_TYPES = '.csv,.txt,.json'
@@ -16,20 +18,22 @@ export const Whitelist = ({
 
   useEffect(() => {
     if (isNewCondition || condition) {
-      setInitialState({
+      let updatedConditionState = {
         ...conditionState,
         type: 'whitelist',
         description: condition?.description || '',
         name: condition?.name || '',
         users: condition?.users || [],
-      })
+      }
 
       if (!isNewCondition) {
-        setInitialState({
-          ...conditionState,
+        updatedConditionState = {
+          ...updatedConditionState,
           isEnabled: !!condition?.isEnabled || true,
-        })
+        }
       }
+
+      setInitialState(updatedConditionState as Partial<Condition>)
     }
   }, [condition])
 

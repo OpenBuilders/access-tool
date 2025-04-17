@@ -1,7 +1,7 @@
 import { AppSelect, Block, ListInput, ListItem, Text } from '@components'
 import { useEffect, useState } from 'react'
 
-import { useConditionActions, ConditionCategory } from '@store'
+import { useConditionActions, ConditionCategory, Condition } from '@store'
 
 import { ConditionComponentProps } from '../types'
 
@@ -40,20 +40,22 @@ export const Toncoin = ({
 
   useEffect(() => {
     if (categories?.length && (isNewCondition || condition)) {
-      setInitialState({
+      let updatedConditionState = {
         ...conditionState,
         type: 'toncoin',
         asset: condition?.asset || categories[0].asset,
         category: condition?.category || categories[0].categories[0],
         expected: condition?.expected || '',
-      })
+      }
 
       if (!isNewCondition) {
-        setInitialState({
-          ...conditionState,
+        updatedConditionState = {
+          ...updatedConditionState,
           isEnabled: !!condition?.isEnabled || true,
-        })
+        }
       }
+
+      setInitialState(updatedConditionState as Partial<Condition>)
     }
   }, [categories?.length, condition])
 
