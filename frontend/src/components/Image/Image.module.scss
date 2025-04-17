@@ -16,3 +16,20 @@
 .border-radius-8 {
   border-radius: 8px;
 }
+
+.fallback {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.fallbackText {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: 510;
+}

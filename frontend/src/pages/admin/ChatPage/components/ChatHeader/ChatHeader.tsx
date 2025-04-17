@@ -76,7 +76,7 @@ export const ChatHeader = () => {
           row
           justify="between"
           align="center"
-          gap={12}
+          gap={10}
         >
           <div style={{ flex: 1 }}>
             <Button
@@ -89,7 +89,7 @@ export const ChatHeader = () => {
           </div>
           <div style={{ flex: 1 }}>
             <Button type="accent" onClick={handleCopyLink}>
-              Copy
+              Copy Link
             </Button>
           </div>
         </Block>

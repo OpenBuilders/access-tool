@@ -10,7 +10,7 @@
       left: 0;
       right: 0;
       top: 0;
-      height: 1px;
+      height: 0.5px;
       width: 100%;
       background-color: var(--color-appliedSeparator);
     }
@@ -26,6 +26,14 @@
     &:last-child {
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
+    }
+  }
+}
+
+.listWithSeparator-16 {
+  > div {
+    &:after {
+      left: 16px;
     }
   }
 }

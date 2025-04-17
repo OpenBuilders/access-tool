@@ -1,4 +1,6 @@
+import { ThemeContext } from '@context'
 import cn from 'classnames'
+import { useContext } from 'react'
 
 import { Icon } from '../Icon'
 import styles from './ListItem.module.scss'
@@ -26,11 +28,14 @@ export const ListItem = ({
   onClick,
   paddingY = 10,
 }: ListItemProps) => {
+  const { darkTheme } = useContext(ThemeContext)
   const handleClick = () => {
     if (onClick && !disabled) {
       onClick()
     }
   }
+
+  const isDarkTheme = darkTheme
 
   return (
     <div
@@ -50,7 +55,7 @@ export const ListItem = ({
           {children && children}
         </div>
       </div>
-      <div className={styles.right}>
+      <div className={cn(styles.right, isDarkTheme && styles.dark)}>
         {after || null}
         {chevron && <Icon name="chevron" />}
       </div>

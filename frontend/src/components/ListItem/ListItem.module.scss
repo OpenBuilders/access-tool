@@ -47,3 +47,11 @@
 .clickable {
   cursor: pointer;
 }
+
+.dark {
+  svg {
+    path {
+      stroke: #545458;
+    }
+  }
+}

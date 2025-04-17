@@ -1,12 +1,12 @@
 import { Condition } from '../condition'
 
-export type Chat = {
+export interface Chat {
   chat: ChatInstance
   rules: Condition[]
   wallet?: string
 }
 
-export type ChatInstance = {
+export interface ChatInstance {
   description: string | null
   id: number
   insufficientPrivileges: boolean
@@ -18,14 +18,15 @@ export type ChatInstance = {
   slug: string
   title: string
   username: string | null
+  membersCount: number
 }
 
-export type ChatRuleAttribute = {
+export interface ChatRuleAttribute {
   traitType: string
   value: string
 }
 
-export type AdminChat = {
+export interface AdminChat {
   id: number
   username: string | null
   title: string
@@ -34,4 +35,5 @@ export type AdminChat = {
   isForum: boolean
   logoPath: string
   insufficientPrivileges: boolean
+  membersCount: number
 }

@@ -10,7 +10,7 @@ interface ChatConditionItemProps {
 const webApp = window.Telegram.WebApp
 
 export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
-  const { title, isEligible, promoteUrl, category, asset } = condition
+  const { isEligible, promoteUrl, category, asset } = condition
 
   const handleOpenLink = () => {
     if (!promoteUrl) return
@@ -29,7 +29,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
   if (isEligible) {
     return (
       <ListItem
-        before={<Icon name="check" size={20} />}
+        before={<Icon name="check" size={24} />}
         text={<Text type="text">{createConditionName(condition)}</Text>}
         description={renderAttributes()}
       />
@@ -40,7 +40,7 @@ export const ChatConditionItem = ({ condition }: ChatConditionItemProps) => {
     <ListItem
       chevron={!!promoteUrl}
       onClick={handleOpenLink}
-      before={<Icon name="cross" size={20} />}
+      before={<Icon name="cross" size={24} />}
       text={<Text type="text">{createConditionName(condition)}</Text>}
       description={renderAttributes()}
     />

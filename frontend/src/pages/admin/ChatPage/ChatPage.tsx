@@ -88,7 +88,7 @@ export const ChatPage = () => {
             }
             onClick={handleChatVisibility}
             before={
-              <Icon name={isChatVisible ? 'eyeCrossed' : 'eye'} size={24} />
+              <Icon name={isChatVisible ? 'eyeCrossed' : 'eye'} size={28} />
             }
           />
         </Block>

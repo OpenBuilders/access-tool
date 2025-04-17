@@ -56,7 +56,7 @@ export const MainPage = () => {
         }
       />
       <StickerPlayer lottie={lockLottie} />
-      <Block margin="top" marginValue={16}>
+      <Block margin="top" marginValue={8}>
         <Text type="title" align="center" weight="bold">
           Access to Groups
           <br />

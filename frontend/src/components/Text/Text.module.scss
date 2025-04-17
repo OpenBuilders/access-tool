@@ -1,7 +1,6 @@
 .title {
   font-size: 28px;
   font-style: normal;
-  letter-spacing: 0.38px;
 }
 
 .title1 {
@@ -13,13 +12,17 @@
   text-align: center;
   font-size: 17px;
   font-style: normal;
-  letter-spacing: -0.43px;
+  line-height: 22px;
 }
 
 .caption {
   font-size: 13px;
   font-style: normal;
-  letter-spacing: -0.08px;
+}
+
+.caption2 {
+  font-size: 14px;
+  font-style: normal;
 }
 
 .normal {
