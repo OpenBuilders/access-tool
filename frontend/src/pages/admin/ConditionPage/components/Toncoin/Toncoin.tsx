@@ -39,7 +39,7 @@ export const Toncoin = ({
   }, [])
 
   useEffect(() => {
-    if (categories?.length && (isNewCondition || condition)) {
+    if (categories?.length && condition) {
       let updatedConditionState: Partial<Condition> = {
         // ...conditionState,
         type: 'toncoin',

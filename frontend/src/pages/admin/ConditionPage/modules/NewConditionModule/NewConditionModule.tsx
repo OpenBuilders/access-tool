@@ -63,7 +63,7 @@ export const NewConditionModule = () => {
     setConditionState((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleCreateCondition = useCallback(async () => {
+  const handleCreateCondition = async () => {
     try {
       const data = removeEmptyFields(conditionState)
       await createConditionAction({
@@ -92,7 +92,7 @@ export const NewConditionModule = () => {
         type: 'error',
       })
     }
-  }, [conditionState])
+  }
 
   const handleChangeType = (value: string) => {
     resetPrefetchedConditionDataAction()
