@@ -71,6 +71,7 @@ class ChatAdminChangeEventBuilder(EventBuilder):
             self.prev_participant = update.prev_participant
             self.new_participant = update.new_participant
 
+        @property
         def is_self(self) -> bool:
             return (
                 # Promoted from user to admin
@@ -113,7 +114,7 @@ class ChatAdminChangeEventBuilder(EventBuilder):
 
         @property
         def sufficient_bot_privileges(self) -> bool:
-            if not self.is_self():
+            if not self.is_self:
                 raise ValueError("The event is not related to the bot user.")
 
             if not isinstance(self.new_participant, ChannelParticipantAdmin):
