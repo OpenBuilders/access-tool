@@ -4,7 +4,8 @@ from typing import Self
 
 from pydantic import BaseModel
 
-from core.models import TelegramChatWhitelistExternalSource, TelegramChatWhitelist
+from core.dtos.chat.rules import EligibilityCheckType
+from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWhitelist
 
 
 class WhitelistRuleItemsDifferenceDTO(BaseModel):
@@ -30,6 +31,7 @@ class WhitelistRuleCPO(BaseModel):
 
 class BaseWhitelistRuleDTO(BaseModel):
     id: int
+    type: EligibilityCheckType
     chat_id: int
     name: str
     description: str | None
@@ -44,6 +46,7 @@ class WhitelistRuleDTO(BaseWhitelistRuleDTO):
     def from_orm(cls, obj: TelegramChatWhitelist) -> Self:
         return cls(
             id=obj.id,
+            type=EligibilityCheckType.WHITELIST,
             chat_id=obj.chat_id,
             name=obj.name,
             description=obj.description,
@@ -61,6 +64,7 @@ class WhitelistRuleExternalDTO(BaseWhitelistRuleDTO):
     def from_orm(cls, obj: TelegramChatWhitelistExternalSource) -> Self:
         return cls(
             id=obj.id,
+            type=EligibilityCheckType.EXTERNAL_SOURCE,
             chat_id=obj.chat_id,
             url=obj.url,
             name=obj.name,
