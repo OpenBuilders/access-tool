@@ -34,7 +34,6 @@ export const Jettons = ({
   const { prefetchedConditionData } = useCondition()
 
   const [categories, setCategories] = useState<ConditionCategory[]>([])
-  const addressField = isNewCondition ? 'address' : 'blockchainAddress'
 
   const prefetchJetton = async (address: string) => {
     if (!conditionState?.type) return
@@ -88,12 +87,13 @@ export const Jettons = ({
 
   useEffect(() => {
     if (categories?.length && (isNewCondition || condition)) {
+      console.log(condition)
       let updatedConditionState: Partial<Condition> = {
         // ...conditionState,
         type: 'jetton',
         asset: condition?.asset || categories[0].asset,
         category: condition?.category || categories[0].categories[0],
-        [addressField]: condition?.[addressField] || '',
+        address: condition?.blockchainAddress || condition?.address || '',
         expected: condition?.expected || '',
       }
 
@@ -148,9 +148,9 @@ export const Jettons = ({
             <ListItem>
               <ListInput
                 placeholder="Jetton Address"
-                value={conditionState[addressField]}
+                value={conditionState.address}
                 onChange={(value) => {
-                  handleChangeCondition(addressField, value)
+                  handleChangeCondition('address', value)
                   debouncedPrefetchJetton(value)
                 }}
               />
