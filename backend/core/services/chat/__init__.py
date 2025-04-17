@@ -127,6 +127,21 @@ class TelegramChatService(BaseService):
             > 0
         )
 
+    def set_logo(self, chat_id: int, logo_path: str) -> None:
+        """
+        Updates the logo path for a specified Telegram chat in the database by its
+        chat ID. Commits the changes to the database and logs the operation.
+
+        :param chat_id: The unique identifier of the Telegram chat.
+        :param logo_path: The file path of the logo to be set.
+        :return: None
+        """
+        self.db_session.query(TelegramChat).filter(TelegramChat.id == chat_id).update(
+            {"logo_path": logo_path}
+        )
+        self.db_session.commit()
+        logger.debug(f"Telegram Chat {chat_id!r} logo set.")
+
     def clear_logo(self, chat_id: int) -> None:
         chat = self.get(chat_id)
         chat.logo_path = None
