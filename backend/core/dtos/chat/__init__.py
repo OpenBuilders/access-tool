@@ -12,9 +12,21 @@ class BaseTelegramChatDTO(BaseModel):
     is_forum: bool
     logo_path: str | None
     insufficient_privileges: bool
+    members_count: int | None
 
+
+class TelegramChatDTO(BaseTelegramChatDTO):
     @classmethod
-    def from_orm(cls, obj: Any) -> Self:
+    def from_object(
+        cls,
+        obj: Any,
+        insufficient_privileges: bool | None = None,
+        members_count: int | None = None,
+    ) -> Self:
+        # Allows overwriting that value when there is no predefined one
+        if insufficient_privileges is None:
+            insufficient_privileges = obj.insufficient_privileges
+
         return cls(
             id=obj.id,
             username=obj.username,
@@ -23,18 +35,24 @@ class BaseTelegramChatDTO(BaseModel):
             slug=obj.slug,
             is_forum=obj.is_forum,
             logo_path=obj.logo_path,
-            insufficient_privileges=obj.insufficient_privileges,
+            insufficient_privileges=insufficient_privileges,
+            members_count=members_count,
         )
 
 
-class TelegramChatDTO(BaseTelegramChatDTO):
+class TelegramChatPovDTO(BaseTelegramChatDTO):
     join_url: str | None
     is_member: bool
     is_eligible: bool
 
     @classmethod
     def from_object(
-        cls, obj: Any, is_member: bool, is_eligible: bool, join_url: str | None
+        cls,
+        obj: Any,
+        is_member: bool,
+        is_eligible: bool,
+        join_url: str | None,
+        members_count: int | None = None,
     ) -> Self:
         return cls(
             id=obj.id,
@@ -48,4 +66,5 @@ class TelegramChatDTO(BaseTelegramChatDTO):
             is_eligible=is_eligible,
             join_url=join_url,
             insufficient_privileges=obj.insufficient_privileges,
+            members_count=members_count,
         )

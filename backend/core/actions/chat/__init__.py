@@ -11,8 +11,8 @@ from telethon.utils import get_peer_id
 from core.actions.chat.base import ManagedChatBaseAction
 from core.constants import REQUIRED_BOT_PRIVILEGES
 from core.dtos.chat import (
-    BaseTelegramChatDTO,
     TelegramChatDTO,
+    TelegramChatPovDTO,
 )
 from core.dtos.chat.rules import (
     TelegramChatWithRulesDTO,
@@ -56,7 +56,7 @@ class TelegramChatAction(BaseAction):
         self.telethon_service = TelethonService(client=telethon_client)
         self.cdn_service = CDNService()
 
-    def get_all(self, requestor: User) -> list[BaseTelegramChatDTO]:
+    def get_all(self, requestor: User) -> list[TelegramChatDTO]:
         """
         Retrieves all Telegram chats managed by the given user.
 
@@ -68,7 +68,14 @@ class TelegramChatAction(BaseAction):
         """
         chats = self.telegram_chat_service.get_all_managed(user_id=requestor.id)
 
-        return [BaseTelegramChatDTO.from_orm(chat) for chat in chats]
+        members_count = self.telegram_chat_user_service.get_members_count_by_chat_id(
+            [chat.id for chat in chats]
+        )
+
+        return [
+            TelegramChatDTO.from_object(chat, members_count=members_count[chat.id])
+            for chat in chats
+        ]
 
     async def _get_chat_data(
         self,
@@ -196,7 +203,7 @@ class TelegramChatAction(BaseAction):
 
     async def _create(
         self, chat: ChatPeerType, sufficient_bot_privileges: bool = False
-    ) -> BaseTelegramChatDTO:
+    ) -> TelegramChatDTO:
         """
         Creates a new BaseTelegramChatDTO instance by fetching and storing the profile photo of the chat,
         generating the appropriate chat identifier, and persisting the chat information.
@@ -218,15 +225,8 @@ class TelegramChatAction(BaseAction):
                 entity=chat,
                 logo_path=logo_path.name if logo_path else None,
             )
-            return BaseTelegramChatDTO(
-                id=telegram_chat.id,
-                username=telegram_chat.username,
-                title=telegram_chat.title,
-                description=telegram_chat.description,
-                slug=telegram_chat.slug,
-                is_forum=telegram_chat.is_forum,
-                logo_path=telegram_chat.logo_path,
-                insufficient_privileges=not sufficient_bot_privileges,
+            return TelegramChatDTO.from_object(
+                obj=telegram_chat, insufficient_privileges=not sufficient_bot_privileges
             )
         except sqlalchemy.exc.IntegrityError:
             logger.exception(f"Chat {chat.stringify()!r} already exists")
@@ -234,7 +234,7 @@ class TelegramChatAction(BaseAction):
 
     async def create(
         self, chat_identifier: int, sufficient_bot_privileges: bool = False
-    ) -> BaseTelegramChatDTO:
+    ) -> TelegramChatDTO:
         """
         Creates a new Telegram chat entry based on the provided chat identifier and bot privileges.
 
@@ -256,7 +256,12 @@ class TelegramChatAction(BaseAction):
         logger.info(f"Chat {chat.id!r} created successfully")
         await self.index(chat)
         logger.info(f"Chat {chat.id!r} indexed successfully")
-        return telegram_chat_dto
+        members_count = self.telegram_chat_user_service.get_members_count(
+            telegram_chat_dto.id
+        )
+        return TelegramChatDTO.model_validate(
+            {**telegram_chat_dto.model_dump(), "members_count": members_count}
+        )
 
     async def refresh_all(self) -> None:
         """
@@ -355,12 +360,15 @@ class TelegramChatAction(BaseAction):
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryDTO,
         }
 
+        members_count = self.telegram_chat_user_service.get_members_count(chat.id)
+
         return TelegramChatWithEligibilitySummaryDTO(
-            chat=TelegramChatDTO.from_object(
+            chat=TelegramChatPovDTO.from_object(
                 chat,
                 join_url=chat.invite_link if is_eligible else None,
                 is_member=is_chat_member,
                 is_eligible=is_eligible,
+                members_count=members_count,
             ),
             rules=[
                 mapping.get(rule.type, RuleEligibilitySummaryDTO).from_internal_dto(
@@ -381,7 +389,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
     ) -> None:
         super().__init__(db_session, requestor, chat_slug)
 
-    async def refresh(self) -> BaseTelegramChatDTO:
+    async def refresh(self) -> TelegramChatDTO:
         """
         Refreshes a Telegram chat by its slug, and updates the related information.
 
@@ -394,18 +402,10 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
         :raises TelegramChatNotExists: If no chat is found for the given slug.
         """
         chat = await self._refresh(self.chat)
-        return BaseTelegramChatDTO(
-            id=chat.id,
-            username=chat.username,
-            title=chat.title,
-            description=chat.description,
-            slug=chat.slug,
-            is_forum=chat.is_forum,
-            logo_path=chat.logo_path,
-            insufficient_privileges=chat.insufficient_privileges,
-        )
+        members_count = self.telegram_chat_user_service.get_members_count(chat.id)
+        return TelegramChatDTO.from_object(chat, members_count=members_count)
 
-    async def update(self, description: str | None) -> BaseTelegramChatDTO:
+    async def update(self, description: str | None) -> TelegramChatDTO:
         """
         Updates the description of a Telegram chat with the specified slug.
 
@@ -425,16 +425,8 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             description=description,
         )
 
-        return BaseTelegramChatDTO(
-            id=chat.id,
-            username=chat.username,
-            title=chat.title,
-            description=chat.description,
-            slug=chat.slug,
-            is_forum=chat.is_forum,
-            logo_path=chat.logo_path,
-            insufficient_privileges=chat.insufficient_privileges,
-        )
+        members_count = self.telegram_chat_user_service.get_members_count(chat.id)
+        return TelegramChatDTO.from_object(chat, members_count=members_count)
 
     async def get_with_eligibility_rules(self) -> TelegramChatWithRulesDTO:
         """
@@ -445,13 +437,15 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             chat_id=self.chat.id,
             enabled_only=False,
         )
+        members_count = self.telegram_chat_user_service.get_members_count(self.chat.id)
 
         return TelegramChatWithRulesDTO(
-            chat=TelegramChatDTO.from_object(
+            chat=TelegramChatPovDTO.from_object(
                 obj=self.chat,
                 join_url=self.chat.invite_link,
                 is_member=False,
                 is_eligible=False,
+                members_count=members_count,
             ),
             rules=sorted(
                 [
