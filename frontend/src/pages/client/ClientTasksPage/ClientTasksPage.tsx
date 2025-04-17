@@ -12,6 +12,7 @@ import { useParams } from 'react-router-dom'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
+import { createButtonText } from './helpers'
 
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
@@ -29,14 +30,7 @@ export const ClientTasksPage = () => {
   const fetchUserChat = async () => {
     if (!clientChatSlug) return
     try {
-      const data = await fetchUserChatAction(clientChatSlug)
-
-      if (data?.isEligible) {
-        appNavigate({
-          path: ROUTES_NAME.CLIENT_JOIN,
-          params: { clientChatSlug },
-        })
-      }
+      await fetchUserChatAction(clientChatSlug)
     } catch (error) {
       console.error(error)
       notFound()
@@ -51,7 +45,7 @@ export const ClientTasksPage = () => {
   }, [clientChatSlug])
 
   useEffect(() => {
-    if (chat?.isEligible && chat?.isMember) {
+    if (chat?.isEligible) {
       appNavigate({
         path: ROUTES_NAME.CLIENT_JOIN,
         params: { clientChatSlug },
@@ -82,11 +76,7 @@ export const ClientTasksPage = () => {
     })
   }
 
-  let buttonText = chatWallet ? 'Check Again' : 'Connect Wallet'
-
-  if (chatWallet && isLoading) {
-    buttonText = 'Checking...'
-  }
+  const buttonText = createButtonText(chatWallet, rules, isLoading)
 
   return (
     <PageLayout>

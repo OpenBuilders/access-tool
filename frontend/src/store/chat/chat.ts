@@ -25,7 +25,7 @@ interface ChatActions {
     }>
     updateChatAction: (slug: string, data: Partial<ChatInstance>) => void
     fetchAdminUserChatsAction: () => Promise<AdminChat[]>
-    fetchUserChatAction: (slug: string) => Promise<ChatInstance>
+    fetchUserChatAction: (slug: string) => void
   }
 }
 
@@ -80,8 +80,6 @@ const useChatStore = create<ChatStore & ChatActions>((set) => ({
       }
 
       set({ chat: data?.chat, rules: data?.rules, chatWallet: data?.wallet })
-
-      return data?.chat
     },
   },
 }))

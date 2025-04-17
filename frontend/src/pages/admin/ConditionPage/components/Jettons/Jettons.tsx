@@ -10,12 +10,7 @@ import {
 import debounce from 'debounce'
 import { useCallback, useEffect, useState } from 'react'
 
-import {
-  useCondition,
-  useConditionActions,
-  ConditionType,
-  ConditionCategory,
-} from '@store'
+import { useCondition, useConditionActions, ConditionCategory } from '@store'
 
 import { ConditionComponentProps } from '../types'
 
@@ -38,10 +33,7 @@ export const Jettons = ({
 
   const prefetchJetton = async (address: string) => {
     try {
-      await prefetchConditionDataAction(
-        conditionState?.type as ConditionType,
-        address
-      )
+      await prefetchConditionDataAction('jetton', address)
     } catch (error) {
       console.error(error)
       resetPrefetchedConditionDataAction()
