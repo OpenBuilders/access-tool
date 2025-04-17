@@ -69,6 +69,13 @@ function App() {
   }, [])
 
   useEffect(() => {
+    webApp.disableVerticalSwipes()
+    if (!location.pathname.includes('client')) {
+      webApp.expand()
+    }
+  }, [])
+
+  useEffect(() => {
     if (!isAuthenticated) {
       authenticateUser()
     }

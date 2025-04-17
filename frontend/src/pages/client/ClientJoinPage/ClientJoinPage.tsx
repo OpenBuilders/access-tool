@@ -22,7 +22,6 @@ export const ClientJoinPage = () => {
   const [canJoinChat, setCanJoinChat] = useState(false)
   const { notFound } = useError()
 
-  // const [isSheetOpened, setIsSheetOpened] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const { chat } = useChat()
@@ -32,9 +31,7 @@ export const ClientJoinPage = () => {
     if (!clientChatSlug) return
     try {
       await fetchUserChatAction(clientChatSlug)
-      // setTimeout(() => {
-      //   setIsSheetOpened(true)
-      // }, 2000)
+      webApp.HapticFeedback.notificationOccurred('success')
     } catch (error) {
       console.error(error)
       notFound()
@@ -64,13 +61,8 @@ export const ClientJoinPage = () => {
   }
 
   const handleJoinGroup = () => {
-    // if (isSheetOpened) {
     navigateToChat()
     webApp.close()
-    // return
-    // }
-
-    // setIsSheetOpened(true)
   }
 
   return (
@@ -78,7 +70,6 @@ export const ClientJoinPage = () => {
       <TelegramBackButton />
       <TelegramMainButton text="Join Group" onClick={handleJoinGroup} />
       <Image size={112} src={chat?.logoPath} borderRadius={50} />
-      {/* <StickerPlayer lottie={confettiLottie} /> */}
       <ConfettiAnimation active={true} duration={5000} />
       <Block margin="top" marginValue={8}>
         <Text type="title1" align="center" weight="bold">
@@ -92,19 +83,6 @@ export const ClientJoinPage = () => {
           {chat.description}
         </Text>
       </Block>
-      {/* <Sheet opened={isSheetOpened} onClose={() => setIsSheetOpened(false)}>
-        <Image src={chat?.logoPath} borderRadius={50} size={112} />
-        <Block margin="top" marginValue={8}>
-          <Text type="title1" align="center" weight="bold">
-            {chat.title}
-          </Text>
-        </Block>
-        <Block margin="top" marginValue={8}>
-          <Text type="text" align="center" color="tertiary">
-            {chat.description}
-          </Text>
-        </Block>
-      </Sheet> */}
     </PageLayout>
   )
 }

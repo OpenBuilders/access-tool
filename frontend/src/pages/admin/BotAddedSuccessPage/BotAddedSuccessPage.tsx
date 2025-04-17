@@ -15,6 +15,8 @@ import { useParams } from 'react-router-dom'
 
 import { useChatActions, useApp, useAppActions } from '@store'
 
+const webApp = window.Telegram.WebApp
+
 export const BotAddedSuccessPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
   const { appNavigate } = useAppNavigation()
@@ -28,6 +30,7 @@ export const BotAddedSuccessPage = () => {
     if (!chatSlug) return
     try {
       await fetchChatAction(chatSlug)
+      webApp.HapticFeedback.notificationOccurred('success')
     } catch (error) {
       console.error(error)
       adminChatNotFound()
@@ -62,7 +65,7 @@ export const BotAddedSuccessPage = () => {
         <Text type="title" align="center" weight="bold">
           Added.
           <br />
-          Now, Configure It!
+          Now, Configure It!
         </Text>
       </Block>
       <Block margin="top" marginValue={12}>

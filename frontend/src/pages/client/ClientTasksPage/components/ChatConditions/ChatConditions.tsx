@@ -1,4 +1,4 @@
-import { List, ListItem } from '@components'
+import { List } from '@components'
 
 import { useChat } from '@store'
 
@@ -7,7 +7,7 @@ import { sortConditions } from './helpers'
 
 export const ChatConditions = () => {
   const { rules } = useChat()
-  const { notAvailable, available } = sortConditions(rules)
+  const { available } = sortConditions(rules)
   return (
     <List>
       <WalletCondition />
