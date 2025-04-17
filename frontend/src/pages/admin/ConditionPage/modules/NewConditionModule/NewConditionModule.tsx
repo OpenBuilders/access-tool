@@ -17,8 +17,6 @@ import { Condition, ConditionType, useConditionActions } from '@store'
 import { ConditionComponentProps } from '../../components/types'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
 
-const webApp = window.Telegram.WebApp
-
 export const NewConditionModule = () => {
   const { appNavigate } = useAppNavigation()
   const params = useParams<{
@@ -60,7 +58,10 @@ export const NewConditionModule = () => {
     key: keyof Condition,
     value?: string | number | number[] | undefined | boolean
   ) => {
-    setConditionState((prev) => ({ ...prev, [key]: value }))
+    setConditionState({
+      ...conditionState,
+      [key]: value,
+    })
   }
 
   const handleCreateCondition = async () => {
@@ -76,7 +77,6 @@ export const NewConditionModule = () => {
         message: 'Condition created successfully',
         type: 'success',
       })
-      webApp?.HapticFeedback?.impactOccurred('soft')
     } catch (error) {
       console.error(error)
       if (error instanceof Error) {
