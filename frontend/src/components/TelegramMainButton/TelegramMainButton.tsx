@@ -24,7 +24,6 @@ export const TelegramMainButton = memo(
     const webApp = window.Telegram?.WebApp
     const location = useLocation()
 
-    // Основной эффект для настройки кнопки
     useEffect(() => {
       if (!webApp?.MainButton) return
 
@@ -46,6 +45,8 @@ export const TelegramMainButton = memo(
     useEffect(() => {
       if (!webApp?.MainButton) return
 
+      webApp.MainButton.setParams({ text, color, text_color: textColor })
+
       if (disabled || loading) {
         webApp.MainButton.disable()
       } else {
@@ -57,7 +58,7 @@ export const TelegramMainButton = memo(
       } else {
         webApp.MainButton.hideProgress()
       }
-    }, [disabled, loading])
+    }, [disabled, loading, text])
 
     if (
       webApp.platform === 'unknown' &&
