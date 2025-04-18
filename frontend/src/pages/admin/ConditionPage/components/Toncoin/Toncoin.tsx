@@ -123,6 +123,7 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
 
   const handleCreateCondition = async () => {
     try {
+      console.log(conditionState)
       const data = removeEmptyFields(conditionState)
       await createConditionAction({
         type: 'toncoin',
@@ -152,6 +153,7 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
   }
 
   const handleChangeCondition = (key: keyof Condition, value: string) => {
+    console.log(key, value)
     setConditionState({ ...conditionState, [key]: value })
   }
 

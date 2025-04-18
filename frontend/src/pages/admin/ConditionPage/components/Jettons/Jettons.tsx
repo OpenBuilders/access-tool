@@ -142,9 +142,10 @@ export const Jettons = ({ isNewCondition }: ConditionComponentProps) => {
 
   const handleCreateCondition = async () => {
     try {
+      console.log(conditionState)
       const data = removeEmptyFields(conditionState)
       await createConditionAction({
-        type: 'toncoin',
+        type: 'jetton',
         chatSlug: chatSlugParam,
         data,
       })
