@@ -65,16 +65,27 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
   }, [])
 
   useEffect(() => {
-    if (categories?.length) {
+    if (categories?.length && isNewCondition) {
       setConditionState({
         type: 'toncoin',
-        asset: condition?.asset || categories[0].asset,
-        category: condition?.category || categories[0].categories[0],
-        expected: condition?.expected || '',
-        isEnabled: isNewCondition ? undefined : condition?.isEnabled,
+        asset: categories[0].asset,
+        category: categories[0].categories[0],
+        expected: '',
       })
     }
-  }, [condition, categories?.length])
+  }, [categories?.length, isNewCondition])
+
+  useEffect(() => {
+    if (!isNewCondition && condition) {
+      setConditionState({
+        type: 'toncoin',
+        asset: condition?.asset,
+        category: condition?.category,
+        expected: condition?.expected,
+        isEnabled: condition?.isEnabled,
+      })
+    }
+  }, [condition, isNewCondition])
 
   const navigateToChatPage = () => {
     appNavigate({
@@ -87,6 +98,7 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
 
   const handleUpdateCondition = async () => {
     if (!conditionIdParam || !chatSlugParam) return
+    console.log(conditionState)
     const data = removeEmptyFields(conditionState)
     try {
       await updateConditionAction({
