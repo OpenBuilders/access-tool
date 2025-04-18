@@ -119,11 +119,6 @@ export const NFT = ({
             after={
               <AppSelect
                 onChange={(value) => {
-                  handleChangeCondition('asset', value)
-                  const category = categories.find(
-                    (asset) => asset.asset === value
-                  )
-                  handleChangeCondition('category', category?.categories[0])
                   if (value === 'Any') {
                     handleChangeCondition('category', undefined)
                     handleChangeCondition('asset', undefined)
@@ -131,6 +126,11 @@ export const NFT = ({
                     handleChangeCondition('blockchainAddress', '')
                     resetPrefetchedConditionDataAction()
                   } else {
+                    handleChangeCondition('asset', value)
+                    const category = categories.find(
+                      (asset) => asset.asset === value
+                    )
+                    handleChangeCondition('category', category?.categories[0])
                     handleChangeCondition('address', undefined)
                     handleChangeCondition('blockchainAddress', undefined)
                   }

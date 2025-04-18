@@ -58,10 +58,10 @@ export const NewConditionModule = () => {
     key: keyof Condition,
     value?: string | number | number[] | undefined | boolean
   ) => {
-    setConditionState({
-      ...conditionState,
+    setConditionState((prev) => ({
+      ...prev,
       [key]: value,
-    })
+    }))
   }
 
   const handleCreateCondition = async () => {

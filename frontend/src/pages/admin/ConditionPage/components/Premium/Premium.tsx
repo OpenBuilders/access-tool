@@ -13,15 +13,11 @@ export const Premium = ({
   condition,
 }: ConditionComponentProps) => {
   useEffect(() => {
-    if (isNewCondition || condition) {
-      const updatedConditionState: Partial<Condition> = {
-        // ...conditionState,
-        type: 'premium',
-        isEnabled: !!condition?.isEnabled,
-      }
-
-      setInitialState(updatedConditionState as Partial<Condition>)
+    const updatedConditionState: Partial<Condition> = {
+      type: 'premium',
+      isEnabled: isNewCondition ? true : !!condition?.isEnabled,
     }
+    setInitialState(updatedConditionState as Partial<Condition>)
   }, [condition])
 
   if (!conditionState?.type) return null
