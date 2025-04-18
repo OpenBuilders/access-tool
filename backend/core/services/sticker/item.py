@@ -31,12 +31,14 @@ class StickerItemService(BaseService):
         item_id: str,
         instance: int,
         collection_id: int,
+        character_id: int,
         user_id: int,
     ) -> StickerItem:
         new_item = StickerItem(
             id=item_id,
             instance=instance,
             collection_id=collection_id,
+            character_id=character_id,
             user_id=user_id,
         )
         self.db_session.add(new_item)

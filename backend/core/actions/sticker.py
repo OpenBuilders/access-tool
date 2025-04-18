@@ -1,12 +1,20 @@
+import itertools
 import logging
 from collections import defaultdict
 
 from sqlalchemy.exc import NoResultFound
 
 from core.actions.base import BaseAction
-from core.dtos.sticker import StickerCollectionDTO, StickerItemDTO
+from core.dtos.sticker import (
+    StickerCollectionDTO,
+    StickerItemDTO,
+    MinimalStickerCollectionWithCharactersDTO,
+    StickerCharacterDTO,
+    MinimalStickerCharacterDTO,
+)
 from core.exceptions.sticker import StickerCollectionNotFound, StickerNotFound
 from core.models.user import User
+from core.services.sticker.character import StickerCharacterService
 from core.services.sticker.collection import StickerCollectionService
 from core.services.sticker.item import StickerItemService
 from core.services.user import UserService
@@ -20,7 +28,7 @@ class StickerCollectionAction(BaseAction):
         super().__init__(db_session)
         self.sticker_collection_service = StickerCollectionService(db_session)
 
-    def get_all(self):
+    def get_all(self) -> list[StickerCollectionDTO]:
         collections = self.sticker_collection_service.get_all()
         return [StickerCollectionDTO.from_orm(collection) for collection in collections]
 
@@ -29,7 +37,6 @@ class StickerCollectionAction(BaseAction):
             title=dto.title,
             description=dto.description,
             logo_url=dto.logo_url,
-            supply=dto.supply,
         )
         return StickerCollectionDTO.from_orm(collection)
 
@@ -47,6 +54,32 @@ class StickerCollectionAction(BaseAction):
             return self.get(dto.id)
         except StickerCollectionNotFound:
             return self.create(dto)
+
+
+class StickerCharacterAction(BaseAction):
+    def __init__(self, db_session) -> None:
+        super().__init__(db_session)
+        self.sticker_character_service = StickerCharacterService(db_session)
+
+    def get_all(self, collection_id: int | None) -> list[StickerCharacterDTO]:
+        characters = self.sticker_character_service.get_all(collection_id=collection_id)
+        return [StickerCharacterDTO.from_orm(character) for character in characters]
+
+    async def get_all_grouped(self) -> list[MinimalStickerCollectionWithCharactersDTO]:
+        characters = self.sticker_character_service.get_all()
+        return [
+            MinimalStickerCollectionWithCharactersDTO(
+                id=collection.id,
+                title=collection.title,
+                characters=[
+                    MinimalStickerCharacterDTO.from_orm(character)
+                    for character in characters
+                ],
+            )
+            for collection, characters in itertools.groupby(
+                characters, key=lambda x: x.collection
+            )
+        ]
 
 
 class StickerItemAction(BaseAction):
@@ -126,6 +159,7 @@ class StickerItemAction(BaseAction):
                 self.sticker_item_service.create(
                     item_id=new_item.id,
                     collection_id=collection.id,
+                    character_id=new_item.character_id,
                     user_id=new_item.user_id,
                     instance=new_item.instance,
                 )
