@@ -65,7 +65,7 @@ export const Toncoin = ({ isNewCondition }: ConditionComponentProps) => {
   }, [])
 
   useEffect(() => {
-    if (categories?.length && isNewCondition) {
+    if (categories?.length && isNewCondition && !conditionState) {
       setConditionState({
         type: 'toncoin',
         asset: categories[0].asset,
