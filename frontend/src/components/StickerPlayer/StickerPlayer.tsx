@@ -1,4 +1,5 @@
-import Lottie from 'react-lottie'
+import Lottie from 'lottie-react'
+import { useRef } from 'react'
 
 interface StickerPlayerProps {
   lottie: string
@@ -11,14 +12,15 @@ export const StickerPlayer = ({
   height = 112,
   width = 112,
 }: StickerPlayerProps) => {
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: lottie,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  }
+  const ref = useRef(null)
 
-  return <Lottie options={defaultOptions} height={height} width={width} />
+  return (
+    <Lottie
+      lottieRef={ref}
+      loop
+      autoplay
+      animationData={lottie}
+      style={{ height, width }}
+    />
+  )
 }
