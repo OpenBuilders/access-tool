@@ -18,13 +18,11 @@ class StickerCollectionService(BaseService):
         title: str,
         description: str,
         logo_url: str,
-        supply: int,
     ) -> StickerCollection:
         new_collection = StickerCollection(
             title=title,
             description=description,
             logo_url=logo_url,
-            supply=supply,
         )
         self.db_session.add(new_collection)
         self.db_session.commit()
@@ -36,12 +34,10 @@ class StickerCollectionService(BaseService):
         title: str,
         description: str,
         logo_url: str,
-        supply: int,
     ) -> StickerCollection:
         collection.title = title
         collection.description = description
         collection.logo_url = logo_url
-        collection.supply = supply
         self.db_session.commit()
         return collection
 

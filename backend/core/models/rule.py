@@ -144,3 +144,27 @@ class TelegramChatWhitelist(TelegramChatWhitelistBase):
     __table_args__ = (
         UniqueConstraint("chat_id", "name", name="uix_chat_whitelist_chat_name_unique"),
     )
+
+
+class TelegramChatStickerCollection(TelegramChatRuleBase):
+    __tablename__ = "telegram_chat_sticker_collection"
+    collection_id = mapped_column(
+        ForeignKey("sticker_collection.id", ondelete="CASCADE"),
+        nullable=True,
+        doc="Collection ID that will be used to check eligibility for the collection.",
+    )
+    collection = relationship(
+        "StickerCollection",
+        lazy="joined",
+        viewonly=True,
+    )
+    character_id = mapped_column(
+        ForeignKey("sticker_character.id", ondelete="CASCADE"),
+        nullable=True,
+        doc="Character ID that will be used to check eligibility for the collection.",
+    )
+    character = relationship(
+        "StickerCharacter",
+        lazy="joined",
+        viewonly=True,
+    )

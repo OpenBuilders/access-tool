@@ -19,7 +19,9 @@ from core.dtos.chat import (
 from core.dtos.chat.rules import (
     TelegramChatWithRulesDTO,
     EligibilityCheckType,
+    ChatEligibilityRuleDTO,
 )
+from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
     TelegramChatWithEligibilitySummaryDTO,
@@ -470,11 +472,11 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             rules=sorted(
                 [
                     *(
-                        RuleEligibilitySummaryDTO.from_toncoin_rule(rule)
+                        ChatEligibilityRuleDTO.from_toncoin_rule(rule)
                         for rule in eligibility_rules.toncoin
                     ),
                     *(
-                        RuleEligibilitySummaryDTO.from_jetton_rule(rule)
+                        ChatEligibilityRuleDTO.from_jetton_rule(rule)
                         for rule in eligibility_rules.jettons
                     ),
                     *(
@@ -482,16 +484,20 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                         for rule in eligibility_rules.nft_collections
                     ),
                     *(
-                        RuleEligibilitySummaryDTO.from_whitelist_rule(rule)
+                        ChatEligibilityRuleDTO.from_whitelist_rule(rule)
                         for rule in eligibility_rules.whitelist_sources
                     ),
                     *(
-                        RuleEligibilitySummaryDTO.from_whitelist_external_rule(rule)
+                        ChatEligibilityRuleDTO.from_whitelist_external_rule(rule)
                         for rule in eligibility_rules.whitelist_external_sources
                     ),
                     *(
-                        RuleEligibilitySummaryDTO.from_premium_rule(rule)
+                        ChatEligibilityRuleDTO.from_premium_rule(rule)
                         for rule in eligibility_rules.premium
+                    ),
+                    *(
+                        StickerChatEligibilityRuleDTO.from_orm(rule)
+                        for rule in eligibility_rules.stickers
                     ),
                 ],
                 key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),

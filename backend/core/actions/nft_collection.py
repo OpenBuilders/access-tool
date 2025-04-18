@@ -44,7 +44,7 @@ class NftCollectionAction(BaseAction):
 
     @staticmethod
     def _get_resource_cache_key(address_raw: str) -> str:
-        return f"jetton:{address_raw}"
+        return f"nft-collection:{address_raw}"
 
     async def get_cached_blockchain_info(self, address_raw: str) -> NftCollectionDTO:
         """
@@ -58,10 +58,8 @@ class NftCollectionAction(BaseAction):
 
         :param address_raw: The raw address string for which to fetch blockchain
             information.
-        :type address_raw: str
         :return: An instance of NftCollectionDTO containing information related to
             the NFT collection associated with the given address.
-        :rtype: NftCollectionDTO
         """
         cached_value = self.redis_service.get(self._get_resource_cache_key(address_raw))
         if cached_value:

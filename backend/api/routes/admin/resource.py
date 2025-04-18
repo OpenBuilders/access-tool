@@ -15,6 +15,8 @@ from api.pos.blockchain import (
 from api.pos.common import StatusFDO, CategoriesFDO
 from core.actions.jetton import JettonAction
 from core.actions.nft_collection import NftCollectionAction
+from core.actions.sticker import StickerCharacterAction
+from core.dtos.sticker import MinimalStickerCollectionWithCharactersDTO
 from core.enums.jetton import CurrencyCategory
 from core.enums.nft import ASSET_TO_CATEGORY_TYPE_MAPPING
 from core.exceptions.external import ExternalResourceNotFound
@@ -71,6 +73,14 @@ async def get_nft_collection_categories() -> list[CategoriesFDO]:
 @admin_resource_router.get("/categories/toncoin")
 async def get_currency_categories() -> list[CategoriesFDO]:
     return [CategoriesFDO(asset="Currency", categories=list(CurrencyCategory))]
+
+
+@admin_resource_router.get("/stickers")
+async def get_stickers_collections(
+    db_session: Session = Depends(get_db_session),
+) -> list[MinimalStickerCollectionWithCharactersDTO]:
+    action = StickerCharacterAction(db_session)
+    return await action.get_all_grouped()
 
 
 @admin_resource_router.get("/jettons", deprecated=True)

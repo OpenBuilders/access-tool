@@ -17,9 +17,9 @@ from core.models.rule import (
     TelegramChatWhitelistExternalSource,
     TelegramChatWhitelist,
     TelegramChatPremium,
+    TelegramChatStickerCollection,
 )
 from core.models.rule import TelegramChatToncoin
-from core.enums.nft import NftCollectionAsset
 
 
 class EligibilityCheckType(enum.Enum):
@@ -29,6 +29,7 @@ class EligibilityCheckType(enum.Enum):
     EXTERNAL_SOURCE = "external_source"
     WHITELIST = "whitelist"
     PREMIUM = "premium"
+    STICKER_COLLECTION = "sticker_collection"
 
 
 @dataclasses.dataclass
@@ -36,6 +37,7 @@ class TelegramChatEligibilityRulesDTO:
     toncoin: list[TelegramChatToncoin]
     jettons: list[TelegramChatJetton]
     nft_collections: list[TelegramChatNFTCollection]
+    stickers: list[TelegramChatStickerCollection]
     premium: list[TelegramChatPremium]
     whitelist_external_sources: list[TelegramChatWhitelistExternalSource]
     whitelist_sources: list[TelegramChatWhitelist]
@@ -49,7 +51,6 @@ class ChatEligibilityRuleDTO(BaseModel):
     photo_url: str | None = None
     blockchain_address: str | None = None
     is_enabled: bool
-    asset: NftCollectionAsset | None = None
     category: str | None = None
 
     @computed_field

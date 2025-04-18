@@ -11,7 +11,9 @@ from core.models.rule import (  # noqa
     TelegramChatToncoin,
     TelegramChatWhitelist,
     TelegramChatWhitelistExternalSource,
+    TelegramChatStickerCollection,
 )
+from core.models.sticker import StickerCollection, StickerCharacter, StickerItem  # noqa
 from core.models.user import User  # noqa
 from core.models.wallet import UserWallet, JettonWallet, TelegramChatUserWallet  # noqa
 

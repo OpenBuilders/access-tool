@@ -23,6 +23,7 @@ from core.dtos.chat.rules import (
     ChatEligibilityRuleDTO,
     TelegramChatWithRulesDTO,
 )
+from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
     TelegramChatWithEligibilitySummaryDTO,
@@ -197,6 +198,18 @@ class TelegramChatNFTCollectionRuleCPO(BaseTelegramChatBlockchainResourceRuleCPO
         return self
 
 
+class TelegramChatStickerRuleCPO(BaseTelegramChatQuantityRuleCPO):
+    collection_id: int | None
+    character_id: int | None
+
+    @model_validator(mode="after")
+    def validate_category_or_collection(self) -> Self:
+        if not self.category and not self.collection_id:
+            raise ValueError("At least category of collection must be specified")
+
+        return self
+
+
 class TelegramChatPremiumRuleCPO(BaseFDO):
     is_enabled: bool
 
@@ -218,6 +231,10 @@ class NftEligibilityRuleFDO(BaseFDO, NftEligibilityRuleDTO):
 
 
 class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):
+    ...
+
+
+class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO):
     ...
 
 
