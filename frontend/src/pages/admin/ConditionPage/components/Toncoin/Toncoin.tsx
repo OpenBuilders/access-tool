@@ -57,7 +57,7 @@ export const Toncoin = ({
 
       setInitialState(updatedConditionState as Partial<Condition>)
     }
-  }, [categories?.length])
+  }, [categories?.length, condition])
 
   if (!categories?.length || !conditionState?.type) return null
 
