@@ -27,7 +27,9 @@ class StickerCharacter(Base):
     supply = mapped_column(Integer, nullable=False)
 
     collection = relationship(
-        "StickerCollection", backref="characters", lazy="joined", viewonly=True
+        "StickerCollection",
+        backref="characters",
+        lazy="joined",
     )
 
     __table_args__ = (
@@ -54,14 +56,17 @@ class StickerItem(Base):
     user_id = mapped_column(ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
 
     collection = relationship(
-        "StickerCollection", backref="stickers", lazy="joined", viewonly=True
+        "StickerCollection",
+        backref="stickers",
+        lazy="joined",
     )
     character = relationship(
-        "StickerCharacter", backref="stickers", lazy="joined", viewonly=True
+        "StickerCharacter",
+        backref="stickers",
+        lazy="joined",
     )
     user = relationship(
         "User",
         backref="stickers",
         lazy="joined",
-        viewonly=True,
     )

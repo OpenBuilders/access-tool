@@ -1,5 +1,3 @@
-from sqlalchemy.orm import joinedload
-
 from core.models.sticker import StickerItem
 from core.services.base import BaseService
 
@@ -9,20 +7,18 @@ class StickerItemService(BaseService):
         return self.db_session.query(StickerItem.id == item_id).one()
 
     def get_all(
-        self, user_id: int | None = None, collection_id: int | None = None
+        self,
+        user_id: int | None = None,
+        collection_id: int | None = None,
+        character_id: int | None = None,
     ) -> list[StickerItem]:
         query = self.db_session.query(StickerItem)
         if user_id is not None:
             query = query.filter(StickerItem.user_id == user_id)
         if collection_id is not None:
             query = query.filter(StickerItem.collection_id == collection_id)
-
-        query = query.options(
-            joinedload(
-                StickerItem.collection,
-                StickerItem.user,
-            )
-        )
+        if character_id is not None:
+            query = query.filter(StickerItem.character_id == character_id)
 
         return query.all()
 
