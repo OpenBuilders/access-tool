@@ -52,6 +52,7 @@ services:
       target: development
     container_name: "gateway-frontend"
     volumes:
-      - ./frontend:/app
+      - ./frontend/src:/app/src
+      - ./frontend/.env:/app/.env
     networks:
       - internal
