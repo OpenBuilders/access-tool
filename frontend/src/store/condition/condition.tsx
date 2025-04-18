@@ -9,7 +9,6 @@ import {
   prefetchConditionDataApi,
   updateConditionApi,
 } from './api'
-import { INITIAL_CONDITION } from './constants'
 import {
   Condition,
   ConditionCategory,
@@ -53,7 +52,7 @@ interface ConditionActions {
 const useConditionStore = create<ConditionStore & ConditionActions>((set) => ({
   isValid: false,
   isSaved: true,
-  condition: INITIAL_CONDITION,
+  condition: null,
   prefetchedConditionData: null,
   actions: {
     setInitialConditionAction: (condition: Condition) => {

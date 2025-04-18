@@ -1,5 +1,6 @@
 import { Block, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
+import { CONDITION_TYPES } from '@pages'
 import { ROUTES_NAME } from '@routes'
 import { createConditionName } from '@utils'
 
@@ -15,7 +16,7 @@ export const ChatConditions = () => {
       path: ROUTES_NAME.CHAT_NEW_CONDITION,
       params: {
         chatSlug: chat?.slug,
-        conditionType: 'jetton',
+        conditionType: CONDITION_TYPES[0].value,
       },
     })
   }

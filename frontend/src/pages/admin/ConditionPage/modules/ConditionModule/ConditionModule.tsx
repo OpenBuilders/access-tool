@@ -1,6 +1,5 @@
 import {
   AppSelect,
-  TelegramMainButton,
   Icon,
   DialogModal,
   useToast,
@@ -10,18 +9,11 @@ import {
 } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { removeEmptyFields } from '@utils'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import {
-  Condition,
-  ConditionType,
-  useCondition,
-  useConditionActions,
-} from '@store'
+import { ConditionType, useCondition, useConditionActions } from '@store'
 
-import { ConditionComponentProps } from '../../components/types'
 import { CONDITION_COMPONENTS, CONDITION_TYPES } from '../../constants'
 
 export const ConditionModule = () => {
@@ -35,22 +27,14 @@ export const ConditionModule = () => {
   const conditionIdParam = params.conditionId
   const conditionTypeParam = params.conditionType
 
-  const [conditionState, setConditionState] = useState<Partial<Condition>>({})
-  const [isSaved, setIsSaved] = useState(true)
-
   const { showToast } = useToast()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const { condition } = useCondition()
-  const { deleteConditionAction, updateConditionAction, fetchConditionAction } =
-    useConditionActions()
+  const { deleteConditionAction, fetchConditionAction } = useConditionActions()
 
   const handleOpenDialog = () => setIsDialogOpen(true)
-
-  const setInitialState = useCallback((value: Partial<Condition>) => {
-    setConditionState(value)
-  }, [])
 
   const fetchCondition = async () => {
     if (!conditionIdParam || !chatSlugParam || !conditionTypeParam) return
@@ -100,40 +84,6 @@ export const ConditionModule = () => {
     }
   }
 
-  const handleChangeCondition = useCallback(
-    (
-      key: keyof Condition,
-      value: string | number | number[] | undefined | boolean
-    ) => {
-      setIsSaved(false)
-      setConditionState((prev) => ({ ...prev, [key]: value }))
-    },
-    []
-  )
-
-  const handleUpdateCondition = async () => {
-    if (!conditionIdParam || !chatSlugParam) return
-    const data = removeEmptyFields(conditionState)
-    try {
-      await updateConditionAction({
-        type: conditionTypeParam as ConditionType,
-        chatSlug: chatSlugParam,
-        conditionId: conditionIdParam,
-        data,
-      })
-      showToast({
-        message: 'Condition updated successfully',
-        type: 'success',
-      })
-      navigateToChatPage()
-    } catch (error) {
-      console.error(error)
-      showToast({
-        message: 'Failed to update condition',
-        type: 'error',
-      })
-    }
-  }
   if (!condition) return null
 
   const Component =
@@ -143,20 +93,8 @@ export const ConditionModule = () => {
 
   if (!Component) return null
 
-  const payload: ConditionComponentProps = {
-    isNewCondition: false,
-    handleChangeCondition,
-    conditionState,
-    setInitialState,
-    condition,
-  }
   return (
     <>
-      <TelegramMainButton
-        text="Save"
-        disabled={isSaved}
-        onClick={handleUpdateCondition}
-      />
       <Block margin="top" marginValue={32}>
         <Text type="title1" weight="bold" align="center">
           Edit condition
@@ -168,15 +106,14 @@ export const ConditionModule = () => {
           disabled
           after={
             <AppSelect
-              // onChange={() => {}}
               options={CONDITION_TYPES}
-              value={conditionState?.type}
+              value={condition?.type}
               disabled
             />
           }
         />
       </Block>
-      {Component && <Component {...payload} />}
+      {Component && <Component />}
       <Block margin="top" marginValue={24}>
         <ListItem
           text={
