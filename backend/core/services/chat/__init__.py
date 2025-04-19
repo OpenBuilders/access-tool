@@ -1,4 +1,6 @@
 import logging
+import random
+from string import ascii_lowercase
 
 from slugify import slugify
 from sqlalchemy.exc import NoResultFound
@@ -11,7 +13,42 @@ from core.services.base import BaseService
 logger = logging.getLogger(__name__)
 
 
+DEFAULT_SLUG_SUFFIX_LENGTH = 6
+MAX_SLUG_SUFFIX_ATTEMPTS = 5
+
+
 class TelegramChatService(BaseService):
+    def _get_unique_slug(self, title: str) -> str:
+        """
+        Generates a unique slug for a given title by appending a random suffix if necessary.
+
+        This function ensures the generated slug does not conflict with
+        existing slugs retrieved from the database. If the initial slug
+        based on the given title already exists, it continues appending
+        randomly generated suffixes to ensure uniqueness. The function
+        raises an error if it exhausts the maximum allowed attempts to
+        generate a unique slug.
+
+        :param title: The title to generate a unique slug for.
+        :return: A unique slug for the given title.
+        :raises ValueError: If a unique slug cannot be generated after the maximum
+                            number of attempts.
+        """
+        initial_slug = slug = slugify(title)
+        chats = self.get_all_by_slug(slug=slug)
+        chat_slugs = {chat.slug for chat in chats}
+        attempts = 0
+        while slug in chat_slugs:
+            if attempts >= MAX_SLUG_SUFFIX_ATTEMPTS:
+                raise ValueError(
+                    f"Could not generate a unique slug for {title!r} after {MAX_SLUG_SUFFIX_ATTEMPTS} attempts."
+                )
+
+            slug = f"{initial_slug}-{''.join(random.choices(ascii_lowercase, k=DEFAULT_SLUG_SUFFIX_LENGTH))}"
+            attempts += 1
+        logger.debug(f"Generated slug {slug!r} for {title!r}.")
+        return slug
+
     def create(self, chat_id: int, entity: Channel, logo_path: str) -> TelegramChat:
         chat = TelegramChat(
             id=chat_id,
@@ -21,7 +58,7 @@ class TelegramChatService(BaseService):
             logo_path=logo_path,
             insufficient_privileges=False,
             # TODO: handle cases with the same slug
-            slug=slugify(entity.title),
+            slug=self._get_unique_slug(entity.title),
         )
         self.db_session.add(chat)
         self.db_session.commit()
@@ -32,8 +69,9 @@ class TelegramChatService(BaseService):
         self, entity: Channel, chat: TelegramChat, logo_path: str
     ) -> TelegramChat:
         chat.username = entity.username
-        chat.title = entity.title
-        chat.slug = slugify(entity.title)
+        if entity.title != chat.title:
+            chat.title = entity.title
+            chat.slug = self._get_unique_slug(entity.title)
         chat.is_forum = entity.forum
         chat.logo_path = logo_path
         # If the chat had insufficient permissions, we reset it
@@ -79,6 +117,14 @@ class TelegramChatService(BaseService):
     def get(self, chat_id: int) -> TelegramChat:
         return (
             self.db_session.query(TelegramChat).filter(TelegramChat.id == chat_id).one()
+        )
+
+    def get_all_by_slug(self, slug: str) -> list[TelegramChat]:
+        return (
+            self.db_session.query(TelegramChat)
+            .filter(TelegramChat.slug.ilike(f"%{slug}%"))
+            .order_by(TelegramChat.id)
+            .all()
         )
 
     def get_all(self, chat_ids: list[int] | None = None) -> list[TelegramChat]:
