@@ -18,6 +18,7 @@ from core.models.rule import (
     TelegramChatWhitelist,
     TelegramChatPremium,
     TelegramChatStickerCollection,
+    TelegramChatEmoji,
 )
 from core.models.rule import TelegramChatToncoin
 
@@ -30,6 +31,7 @@ class EligibilityCheckType(enum.Enum):
     WHITELIST = "whitelist"
     PREMIUM = "premium"
     STICKER_COLLECTION = "sticker_collection"
+    EMOJI = "emoji"
 
 
 @dataclasses.dataclass
@@ -41,6 +43,7 @@ class TelegramChatEligibilityRulesDTO:
     premium: list[TelegramChatPremium]
     whitelist_external_sources: list[TelegramChatWhitelistExternalSource]
     whitelist_sources: list[TelegramChatWhitelist]
+    emoji: list[TelegramChatEmoji]
 
 
 class ChatEligibilityRuleDTO(BaseModel):
@@ -128,6 +131,18 @@ class ChatEligibilityRuleDTO(BaseModel):
             id=rule.id,
             type=EligibilityCheckType.PREMIUM,
             title="Telegram Premium",
+            expected=1,
+            photo_url=None,
+            blockchain_address=None,
+            is_enabled=rule.is_enabled,
+        )
+
+    @classmethod
+    def from_emoji_rule(cls, rule: TelegramChatEmoji) -> Self:
+        return cls(
+            id=rule.id,
+            type=EligibilityCheckType.STICKER_COLLECTION,
+            title="Emoji Status",
             expected=1,
             photo_url=None,
             blockchain_address=None,

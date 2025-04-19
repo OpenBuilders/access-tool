@@ -499,6 +499,10 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                         StickerChatEligibilityRuleDTO.from_orm(rule)
                         for rule in eligibility_rules.stickers
                     ),
+                    *(
+                        ChatEligibilityRuleDTO.from_emoji_rule(rule)
+                        for rule in eligibility_rules.emoji
+                    ),
                 ],
                 key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
             ),
