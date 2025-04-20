@@ -127,10 +127,21 @@ class TelegramChatService(BaseService):
             .all()
         )
 
-    def get_all(self, chat_ids: list[int] | None = None) -> list[TelegramChat]:
+    def get_all(
+        self,
+        chat_ids: list[int] | None = None,
+        enabled_only: bool = False,
+        sufficient_privileges_only: bool = False,
+    ) -> list[TelegramChat]:
         query = self.db_session.query(TelegramChat)
         if chat_ids:
             query = query.filter(TelegramChat.id.in_(chat_ids))
+
+        if enabled_only:
+            query = query.filter(TelegramChat.is_enabled.is_(True))
+
+        if sufficient_privileges_only:
+            query = query.filter(TelegramChat.insufficient_privileges.is_(False))
 
         query = query.order_by(TelegramChat.id)
         return query.all()
