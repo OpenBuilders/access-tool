@@ -7,6 +7,7 @@ import {
   fetchChatAPI,
   fetchUserChatAPI,
   updateChatAPI,
+  updateChatVisibilityAPI,
 } from './api'
 import { AdminChat, ChatInstance } from './types'
 
@@ -26,6 +27,10 @@ interface ChatActions {
     updateChatAction: (slug: string, data: Partial<ChatInstance>) => void
     fetchAdminUserChatsAction: () => Promise<AdminChat[]>
     fetchUserChatAction: (slug: string) => void
+    updateChatVisibilityAction: (
+      slug: string,
+      data: Partial<ChatInstance>
+    ) => void
   }
 }
 
@@ -80,6 +85,19 @@ const useChatStore = create<ChatStore & ChatActions>((set) => ({
       }
 
       set({ chat: data?.chat, rules: data?.rules, chatWallet: data?.wallet })
+    },
+    updateChatVisibilityAction: async (slug, values) => {
+      const { data, ok, error } = await updateChatVisibilityAPI(slug, values)
+
+      if (!ok) {
+        throw new Error(error)
+      }
+
+      if (!data) {
+        throw new Error('Chat data not found')
+      }
+
+      set({ chat: data })
     },
   },
 }))
