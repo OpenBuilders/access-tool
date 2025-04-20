@@ -170,7 +170,7 @@ class TelegramChatAction(BaseAction):
 
     async def index(self, chat: ChatPeerType) -> None:
         """
-        Handles the process of creating and refreshing a Telegram chat invite link,
+        Handles the process of creating and refreshing a Telegram chat invite link
         and loading the participants for the given chat. If the chat already has an
         invite link, it skips the creation process.
 
@@ -285,19 +285,22 @@ class TelegramChatAction(BaseAction):
             Raised if a chat does not exist because it was deleted or the bot was
             removed from the chat.
         :raises TelegramChatNotSufficientPrivileges:
-            Raised if the bot lacks sufficient privileges to function in the chat.
+            Raised if the bot lacks enough privileges to function in the chat.
 
         :return: This function does not return a value as its primary purpose is to
             refresh all accessible chats.
         """
-        for chat in self.telegram_chat_service.get_all():
+        for chat in self.telegram_chat_service.get_all(
+            enabled_only=True,
+            sufficient_privileges_only=True,
+        ):
             try:
                 await self._refresh(chat)
-            except (
-                TelegramChatNotExists,  # happens when chat is deleted or bot is removed from the chat
-                TelegramChatNotSufficientPrivileges,  # happens when bot has no rights to function in the chat
-            ):
-                continue
+            except Exception as e:
+                logger.exception(
+                    f"Unexpected error occurred while refreshing chat {chat.id!r}",
+                    exc_info=e,
+                )
 
     async def _refresh(self, chat: TelegramChat) -> TelegramChat:
         """
@@ -498,6 +501,10 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                     *(
                         StickerChatEligibilityRuleDTO.from_orm(rule)
                         for rule in eligibility_rules.stickers
+                    ),
+                    *(
+                        ChatEligibilityRuleDTO.from_emoji_rule(rule)
+                        for rule in eligibility_rules.emoji
                     ),
                 ],
                 key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
