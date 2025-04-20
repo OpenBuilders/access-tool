@@ -10,7 +10,7 @@ import { PageLayout } from '@components'
 
 const webApp = window.Telegram.WebApp
 
-export const NotFound = () => {
+export const ClientChatHidden = () => {
   const handleCloseApp = () => {
     webApp.close()
   }
@@ -22,13 +22,13 @@ export const NotFound = () => {
       <StickerPlayer lottie={sneezeLottie} />
       <Block margin="top" marginValue={16}>
         <Text type="title" align="center" weight="bold">
-          Something Went Wrong
+          Chat or Channel Access Is Temporarily Disabled
         </Text>
       </Block>
       <Block margin="top" marginValue={12}>
         <Text type="text" align="center">
-          The page you`re looking for doesn`t exist or the link is broken. But
-          don`t worry — you`re still in the right universe.
+          The admin has temporarily hidden this chat or channel. Please try
+          again later or contact them directly.
         </Text>
       </Block>
     </PageLayout>

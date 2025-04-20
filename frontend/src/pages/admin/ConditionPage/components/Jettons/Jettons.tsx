@@ -55,7 +55,7 @@ export const Jettons = ({
 
       prefetchJetton(address)
     }, 150),
-    []
+    [conditionState?.address, conditionState?.blockchainAddress]
   )
 
   const fetchConditionCategories = async () => {
@@ -73,10 +73,14 @@ export const Jettons = ({
   }
 
   useEffect(() => {
-    if (!isNewCondition && conditionState?.blockchainAddress) {
+    if (
+      !isNewCondition &&
+      conditionState?.blockchainAddress &&
+      !prefetchedConditionData
+    ) {
       prefetchJetton(conditionState?.blockchainAddress)
     }
-  }, [conditionState])
+  }, [conditionState, isNewCondition])
 
   useEffect(() => {
     fetchConditionCategories()
@@ -86,7 +90,7 @@ export const Jettons = ({
   }, [])
 
   useEffect(() => {
-    if (categories?.length && (isNewCondition || condition)) {
+    if (categories?.length) {
       let updatedConditionState: Partial<Condition> = {
         type: 'jetton',
         asset: condition?.asset || categories[0].asset,
@@ -104,7 +108,7 @@ export const Jettons = ({
 
       setInitialState(updatedConditionState as Partial<Condition>)
     }
-  }, [categories?.length, condition])
+  }, [categories?.length, condition, isNewCondition])
 
   if (!categories?.length || !conditionState?.type) return null
 

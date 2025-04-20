@@ -24,7 +24,9 @@ export const ConditionPage = () => {
     })
   }
 
-  if (!conditionIdParam)
+  const isNewCondition = !conditionIdParam
+
+  if (isNewCondition)
     return (
       <PageLayout>
         <TelegramBackButton onClick={navigateToChatPage} />

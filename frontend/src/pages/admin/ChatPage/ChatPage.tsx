@@ -11,7 +11,7 @@ import {
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { goTo } from '@utils'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useApp, useAppActions, useChat, useChatActions } from '@store'
@@ -24,14 +24,15 @@ export const ChatPage = () => {
 
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
-  const { showToast } = useToast()
+  const [updateChatVisibilityLoading, setUpdateChatVisibilityLoading] =
+    useState(false)
 
   const { adminChatNotFound } = useError()
 
   const { rules, chat } = useChat()
-  const { fetchChatAction } = useChatActions()
+  const { fetchChatAction, updateChatVisibilityAction } = useChatActions()
 
-  const isChatVisible = true
+  const { showToast } = useToast()
 
   const fetchChat = async () => {
     if (!chatSlug) return
@@ -40,6 +41,24 @@ export const ChatPage = () => {
     } catch (error) {
       console.error(error)
       adminChatNotFound()
+    }
+  }
+
+  const updateChatVisibility = async () => {
+    if (!chatSlug) return
+    try {
+      setUpdateChatVisibilityLoading(true)
+      await updateChatVisibilityAction(chatSlug, {
+        isEnabled: !chat?.isEnabled,
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setUpdateChatVisibilityLoading(false)
+      showToast({
+        message: 'Chat visibility updated',
+        type: 'success',
+      })
     }
   }
 
@@ -58,13 +77,6 @@ export const ChatPage = () => {
     goTo(chat?.joinUrl)
   }
 
-  const handleChatVisibility = () => {
-    showToast({
-      message: 'Chat visibility is not available yet',
-      type: 'error',
-    })
-  }
-
   return (
     <PageLayout>
       <TelegramBackButton
@@ -80,14 +92,15 @@ export const ChatPage = () => {
       <Block margin="top" marginValue={24}>
         <Block margin="bottom" marginValue={24}>
           <ListItem
+            disabled={updateChatVisibilityLoading}
             text={
-              <Text type="text" color={isChatVisible ? 'danger' : 'accent'}>
-                {isChatVisible ? 'Hide Bot From Chat' : 'Show Bot in Chat'}
+              <Text type="text" color={chat?.isEnabled ? 'danger' : 'accent'}>
+                {chat?.isEnabled ? 'Hide Bot From Chat' : 'Show Bot in Chat'}
               </Text>
             }
-            onClick={handleChatVisibility}
+            onClick={updateChatVisibility}
             before={
-              <Icon name={isChatVisible ? 'eyeCrossed' : 'eye'} size={28} />
+              <Icon name={chat?.isEnabled ? 'eyeCrossed' : 'eye'} size={28} />
             }
           />
         </Block>

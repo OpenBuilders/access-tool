@@ -18,7 +18,7 @@ export const Premium = ({
       isEnabled: isNewCondition ? true : !!condition?.isEnabled,
     }
     setInitialState(updatedConditionState as Partial<Condition>)
-  }, [condition])
+  }, [condition, isNewCondition])
 
   if (!conditionState?.type) return null
 
