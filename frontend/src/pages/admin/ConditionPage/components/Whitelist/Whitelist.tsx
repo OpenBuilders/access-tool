@@ -17,9 +17,8 @@ export const Whitelist = ({
   const { showToast } = useToast()
 
   useEffect(() => {
-    if (isNewCondition || condition) {
+    if (isNewCondition) {
       let updatedConditionState: Partial<Condition> = {
-        // ...conditionState,
         type: 'whitelist',
         description: condition?.description || '',
         name: condition?.name || '',
@@ -35,7 +34,7 @@ export const Whitelist = ({
 
       setInitialState(updatedConditionState as Partial<Condition>)
     }
-  }, [condition])
+  }, [condition, isNewCondition])
 
   if (!conditionState?.type) return null
 

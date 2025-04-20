@@ -106,12 +106,9 @@ export const NewConditionModule = () => {
     })
   }
 
-  const setInitialState = useCallback(
-    (value: Partial<Condition>) => {
-      setConditionState(value)
-    },
-    [conditionState?.type]
-  )
+  const setInitialState = (value: Partial<Condition>) => {
+    setConditionState(value)
+  }
 
   const payload: ConditionComponentProps = {
     isNewCondition: true,

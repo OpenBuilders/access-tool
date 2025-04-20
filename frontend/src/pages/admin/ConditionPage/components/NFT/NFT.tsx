@@ -66,7 +66,10 @@ export const NFT = ({
   useEffect(() => {
     if (
       !isNewCondition &&
-      (conditionState?.blockchainAddress || conditionState?.address)
+      (conditionState?.blockchainAddress || conditionState?.address) &&
+      !prefetchedConditionData &&
+      !conditionState.asset &&
+      !conditionState.category
     ) {
       prefetchNFTCollection(
         conditionState?.blockchainAddress || conditionState?.address || ''
@@ -82,9 +85,8 @@ export const NFT = ({
   }, [])
 
   useEffect(() => {
-    if (categories?.length && (isNewCondition || condition)) {
+    if (categories?.length) {
       let updatedConditionState: Partial<Condition> = {
-        // ...conditionState,
         type: 'nft_collection',
         asset: condition?.asset || undefined,
         category: condition?.category || undefined,
@@ -101,7 +103,7 @@ export const NFT = ({
 
       setInitialState(updatedConditionState as Partial<Condition>)
     }
-  }, [categories?.length, condition])
+  }, [categories?.length, condition, isNewCondition])
 
   if (!categories?.length || !conditionState?.type) return null
 
