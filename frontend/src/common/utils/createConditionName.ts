@@ -10,6 +10,10 @@ export const createConditionName = (condition: Condition) => {
     return `Hold ${separateNumber(expected)} ${title}`
   }
 
+  if (type === 'emoji') {
+    return 'Emoji Status'
+  }
+
   if (type === 'nft_collection') {
     return `Hold ${title}`
   }

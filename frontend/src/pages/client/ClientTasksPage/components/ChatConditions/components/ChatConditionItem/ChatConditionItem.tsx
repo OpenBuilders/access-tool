@@ -16,7 +16,7 @@ export const ChatConditionItem = ({
   condition,
   chat,
 }: ChatConditionItemProps) => {
-  const { isEligible, promoteUrl, category, asset } = condition
+  const { isEligible, promoteUrl, type } = condition
 
   const handleOpenLink = () => {
     if (!promoteUrl) return
@@ -24,15 +24,7 @@ export const ChatConditionItem = ({
     webApp.openLink(condition.promoteUrl)
   }
 
-  const renderAttributes = () => {
-    return (
-      <Text type="caption" color="tertiary">
-        {asset} {category}
-      </Text>
-    )
-  }
-
-  if (condition.type === 'emoji') {
+  if (type === 'emoji') {
     return <EmojiStatusCondition chat={chat} rule={condition} />
   }
 
@@ -41,7 +33,6 @@ export const ChatConditionItem = ({
       <ListItem
         before={<Icon name="check" size={24} />}
         text={<Text type="text">{createConditionName(condition)}</Text>}
-        description={renderAttributes()}
       />
     )
   }
@@ -52,7 +43,6 @@ export const ChatConditionItem = ({
       onClick={handleOpenLink}
       before={<Icon name="cross" size={24} />}
       text={<Text type="text">{createConditionName(condition)}</Text>}
-      description={renderAttributes()}
     />
   )
 }

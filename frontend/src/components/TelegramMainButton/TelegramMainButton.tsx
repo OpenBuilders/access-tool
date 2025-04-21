@@ -27,11 +27,15 @@ export const TelegramMainButton = memo(
     useEffect(() => {
       if (!webApp?.MainButton) return
 
-      webApp.MainButton.setParams({ text, color, text_color: textColor })
+      webApp.MainButton.setParams({
+        text: text || 'Continue',
+        color,
+        text_color: textColor,
+      })
 
       webApp.MainButton.onClick(onClick)
 
-      if (isVisible) {
+      if (isVisible && text) {
         webApp.MainButton.show()
       } else {
         webApp.MainButton.hide()
@@ -45,7 +49,11 @@ export const TelegramMainButton = memo(
     useEffect(() => {
       if (!webApp?.MainButton) return
 
-      webApp.MainButton.setParams({ text, color, text_color: textColor })
+      webApp.MainButton.setParams({
+        text: text || 'Continue',
+        color,
+        text_color: textColor,
+      })
 
       if (disabled || loading) {
         webApp.MainButton.disable()

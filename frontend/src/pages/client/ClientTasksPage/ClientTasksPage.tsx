@@ -1,18 +1,14 @@
-import {
-  Block,
-  PageLayout,
-  TelegramBackButton,
-  TelegramMainButton,
-} from '@components'
+import { PageLayout, TelegramBackButton, TelegramMainButton } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { LocalStorageService } from '@services'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
-import { checkCanJoinChat, createButtonText } from './helpers'
+import { createButtonText } from './helpers'
 
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
@@ -52,20 +48,29 @@ export const ClientTasksPage = () => {
       })
       return
     }
-
-    const canJoinChat = checkCanJoinChat(rules, chat)
-
-    if (canJoinChat) {
-      appNavigate({
-        path: ROUTES_NAME.CLIENT_JOIN,
-        params: { clientChatSlug },
-      })
-    }
   }, [chat])
 
   if (isLoading || !chat || !rules) return null
 
-  const handleClick = async () => {
+  const buttonAction = async () => {
+    const emojiCondition = rules.find((rule) => rule.type === 'emoji')
+    if (emojiCondition) {
+      const checkEmojiStatusCompleted = LocalStorageService.getItem(
+        `emojiStatusCompleted_${chat?.slug}_${emojiCondition.id}`
+      )
+      if (!checkEmojiStatusCompleted) {
+        return
+      }
+    }
+
+    if (chat.isEligible) {
+      appNavigate({
+        path: ROUTES_NAME.CLIENT_JOIN,
+        params: { clientChatSlug },
+      })
+      return
+    }
+
     if (chatWallet) {
       toggleIsLoadingAction(true)
       await fetchUserChat()
@@ -88,21 +93,25 @@ export const ClientTasksPage = () => {
     })
   }
 
-  const buttonText = createButtonText(chatWallet, rules, isLoading, chat?.slug)
+  const buttonText = createButtonText({
+    chatWallet,
+    rules,
+    isLoading,
+    chat,
+  })
 
   return (
     <PageLayout>
       <TelegramBackButton />
       <TelegramMainButton
         text={buttonText}
+        isVisible={!!buttonText}
         disabled={isLoading}
-        onClick={handleClick}
+        onClick={buttonAction}
         loading={isLoading}
       />
       <ChatHeader />
-      <Block margin="top" marginValue={24}>
-        <ChatConditions />
-      </Block>
+      <ChatConditions conditions={rules} />
     </PageLayout>
   )
 }
