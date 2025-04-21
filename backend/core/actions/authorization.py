@@ -434,7 +434,7 @@ class AuthorizationAction(BaseAction):
                     id=rule.id,
                     type=EligibilityCheckType.EMOJI,
                     expected=1,
-                    title="Emoji Status",
+                    title=rule.emoji_id,
                     actual=1,
                     is_enabled=rule.is_enabled,
                 )
