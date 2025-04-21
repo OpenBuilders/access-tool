@@ -12,16 +12,22 @@ jobs:
   lint-typescript:
     uses: ./.github/workflows/lint-typescript.yml
 
+  test-python:
+    uses: ./.github/workflows/test-python.yml
+
   build-and-push-frontend:
     needs:
-      - lint-python
       - lint-typescript
     uses: ./.github/workflows/build-and-push-frontend.yml
     with:
       branch: main
 
   deploy:
-    needs: build-and-push-frontend
+    needs:
+      - build-and-push-frontend
+      - lint-python
+      - lint-typescript
+      - test-python
     uses: ./.github/workflows/deployment.yml
     secrets:
       VPS_IP: ${{ secrets.VPS_IP }}

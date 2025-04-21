@@ -1,0 +1,66 @@
+x-python-service:
+  &x-python-service
+  user: "1000:1000"
+  depends_on:
+    redis:
+      condition: service_healthy
+    mysql:
+      condition: service_healthy
+  networks:
+    - internal
+
+
+services:
+  test:
+    <<: *x-python-service
+    build:
+      context: .
+      dockerfile: ./config/docker/backend.Dockerfile
+      target: tests-executor
+    image: gateway-tests
+    env_file:
+      - ./backend/core/config/.env.test
+    container_name: "gateway-tests"
+    volumes:
+      - ./backend:/app
+
+  redis:
+    image: "redis:7.2.4-alpine"
+    ports:
+      - "6380:6379"
+    volumes:
+      - volume-queue:/data
+    container_name: "gateway-redis"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - internal
+
+  mysql:
+    image: "mysql:8.3.0"
+    ports:
+      - "3307:3306"
+    env_file:
+      - ./backend/core/config/.env.test
+    volumes:
+      - volume-data:/var/lib/mysql
+    container_name: "gateway-mysql"
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -hlocalhost -uroot -p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - internal
+
+
+volumes:
+  volume-data:
+  volume-queue:
+
+
+networks:
+  internal:

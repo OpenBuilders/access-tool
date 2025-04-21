@@ -1,0 +1,17 @@
+name: BE lint & test
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint-python.yml
+
+  test:
+    needs:
+      - lint
+    uses: ./.github/workflows/test-python.yml
