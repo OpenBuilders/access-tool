@@ -34,6 +34,9 @@
   align-items: center;
 
   svg {
+    height: 28px;
+    width: 28px;
+    min-width: 28px;
     margin-right: 13px;
     transition:
       opacity 0.25s ease 0.15s,

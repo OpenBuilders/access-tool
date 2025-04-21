@@ -44,6 +44,7 @@ export const ChatConditions = () => {
           />
         ))}
         <ListItem
+          paddingY={6}
           text={
             <Text type="text" color="accent">
               Add Condition

@@ -159,7 +159,7 @@ export const ConditionModule = () => {
       />
       <Block margin="top" marginValue={32}>
         <Text type="title1" weight="bold" align="center">
-          Edit condition
+          Edit Condition
         </Text>
       </Block>
       <Block margin="top" marginValue={44}>

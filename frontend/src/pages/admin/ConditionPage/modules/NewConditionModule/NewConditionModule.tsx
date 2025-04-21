@@ -125,7 +125,7 @@ export const NewConditionModule = () => {
       />
       <Block margin="top" marginValue={32}>
         <Text type="title" weight="bold" align="center">
-          Add condition
+          Add Condition
         </Text>
       </Block>
       <Block margin="top" marginValue={44}>

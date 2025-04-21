@@ -9,6 +9,11 @@
   font-family:
     -apple-system, 'SF Pro Text', 'SF UI Text', system-ui, 'Helvetica Neue',
     Helvetica, Arial, sans-serif;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 html,

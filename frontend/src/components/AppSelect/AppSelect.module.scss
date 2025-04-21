@@ -17,10 +17,6 @@
   cursor: pointer;
   direction: rtl;
 
-  &:hover {
-    opacity: 0.8;
-  }
-
   option {
     color: var(--color-accentsBrandCommunity);
     background: transparent;

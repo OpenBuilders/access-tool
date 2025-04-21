@@ -29,7 +29,7 @@ export const ChatPage = () => {
 
   const { adminChatNotFound } = useError()
 
-  const { rules, chat } = useChat()
+  const { chat } = useChat()
   const { fetchChatAction, updateChatVisibilityAction } = useChatActions()
 
   const { showToast } = useToast()
@@ -70,8 +70,6 @@ export const ChatPage = () => {
 
   if (isLoading) return null
 
-  const showMainButton = rules && rules?.length > 0
-
   const handleOpenGroupChat = () => {
     if (!chat?.joinUrl) return
     goTo(chat?.joinUrl)
@@ -83,7 +81,6 @@ export const ChatPage = () => {
         onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
       />
       <TelegramMainButton
-        isVisible={!!showMainButton}
         text="Open Group Chat"
         onClick={handleOpenGroupChat}
       />
@@ -92,6 +89,7 @@ export const ChatPage = () => {
       <Block margin="top" marginValue={24}>
         <Block margin="bottom" marginValue={24}>
           <ListItem
+            paddingY={6}
             disabled={updateChatVisibilityLoading}
             text={
               <Text type="text" color={chat?.isEnabled ? 'danger' : 'accent'}>
