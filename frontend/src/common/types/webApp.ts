@@ -90,7 +90,7 @@ export type EventNames =
   | 'qrTextReceived'
   | 'clipboardTextReceived'
 
-export type EventParams = {
+export interface EventParams {
   invoiceClosed: { url: string; status: InvoiceStatuses }
   settingsButtonClicked: void
   backButtonClicked: void
@@ -102,7 +102,7 @@ export type EventParams = {
   clipboardTextReceived: { data: string }
 }
 
-export type PopupParams = {
+export interface PopupParams {
   title?: string
   message: string
   buttons?: PopupButton[]
@@ -120,7 +120,7 @@ export type PopupButton = {
     }
 )
 
-export type ScanQrPopupParams = {
+export interface ScanQrPopupParams {
   text?: string
 }
 
@@ -192,6 +192,7 @@ export interface WebApp {
   ready: VoidFunction
   disableVerticalSwipes: () => void
   lockOrientation: () => void
+  setEmojiStatus: (emoji: string, callback?: (status: boolean) => void) => void
 }
 
 export interface Telegram {
