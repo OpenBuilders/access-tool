@@ -10,7 +10,7 @@ export type ConditionType =
   | 'whitelist_external'
   | 'premium'
   | 'toncoin'
-
+  | 'emoji'
 export interface Condition {
   id: number
   type: ConditionType
@@ -30,6 +30,7 @@ export interface Condition {
   isEligible?: boolean
   actual?: number
   url?: string
+  emojiId?: string
 }
 
 export interface PrefetchedConditionData {
