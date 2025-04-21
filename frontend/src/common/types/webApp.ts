@@ -101,6 +101,7 @@ export interface EventParams {
   popupClosed: { button_id: string | null }
   qrTextReceived: { data: string }
   clipboardTextReceived: { data: string }
+  emojiStatusSet: { emoji: string }
 }
 
 export interface PopupParams {
