@@ -26,7 +26,7 @@ export const Emoji = ({
 
   return (
     <Block margin="top" marginValue={24}>
-      <List footer="This feature is not implemented yet">
+      <List>
         <ListItem
           text="Emoji ID"
           after={

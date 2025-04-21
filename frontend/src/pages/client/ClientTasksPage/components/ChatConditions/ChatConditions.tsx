@@ -1,25 +1,33 @@
-import { List } from '@components'
+import { Block, List } from '@components'
 
-import { useChat } from '@store'
+import { Condition, useChat } from '@store'
 
 import { checkWalletRequirements } from '../../helpers'
 import { ChatConditionItem, WalletCondition } from './components'
-import { sortConditions } from './helpers'
 
-export const ChatConditions = () => {
-  const { rules, chat } = useChat()
-  const { available } = sortConditions(rules)
-  const renderWalletCondition = checkWalletRequirements(rules)
+interface ChatConditionsProps {
+  conditions: Condition[]
+}
+
+export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
+  const { chat } = useChat()
+
+  const renderWalletCondition = checkWalletRequirements(conditions)
+
+  if (!conditions.length) return null
+
   return (
-    <List separatorLeftGap={24}>
-      {renderWalletCondition && <WalletCondition />}
-      {available.map((condition) => (
-        <ChatConditionItem
-          condition={condition}
-          key={condition.id}
-          chat={chat}
-        />
-      ))}
-    </List>
+    <Block margin="top" marginValue={24}>
+      <List separatorLeftGap={24}>
+        {renderWalletCondition && <WalletCondition />}
+        {conditions.map((condition) => (
+          <ChatConditionItem
+            condition={condition}
+            key={condition.id}
+            chat={chat}
+          />
+        ))}
+      </List>
+    </Block>
   )
 }

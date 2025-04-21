@@ -17,23 +17,21 @@ export const Whitelist = ({
   const { showToast } = useToast()
 
   useEffect(() => {
-    if (isNewCondition) {
-      let updatedConditionState: Partial<Condition> = {
-        type: 'whitelist',
-        description: condition?.description || '',
-        name: condition?.name || '',
-        users: condition?.users || [],
-      }
-
-      if (!isNewCondition) {
-        updatedConditionState = {
-          ...updatedConditionState,
-          isEnabled: !!condition?.isEnabled || true,
-        }
-      }
-
-      setInitialState(updatedConditionState as Partial<Condition>)
+    let updatedConditionState: Partial<Condition> = {
+      type: 'whitelist',
+      description: condition?.description || '',
+      name: condition?.name || '',
+      users: condition?.users || [],
     }
+
+    if (!isNewCondition) {
+      updatedConditionState = {
+        ...updatedConditionState,
+        isEnabled: !!condition?.isEnabled || true,
+      }
+    }
+
+    setInitialState(updatedConditionState as Partial<Condition>)
   }, [condition, isNewCondition])
 
   if (!conditionState?.type) return null
