@@ -18,11 +18,11 @@ export const createButtonText = (
   chatId: number
 ) => {
   const needWalletConnection = checkWalletRequirements(rules)
-  const hasEmojiCondition = rules?.some((rule) => rule.type === 'emoji')
+  const emojiCondition = rules?.find((rule) => rule.type === 'emoji')
 
-  if (hasEmojiCondition) {
+  if (emojiCondition) {
     const checkEmojiStatusCompleted = LocalStorageService.getItem(
-      `emojiStatusCompleted-${chatId}`
+      `emojiStatusCompleted-${chatId}-${emojiCondition.id}`
     )
     if (!checkEmojiStatusCompleted) {
       return 'Check'
@@ -53,11 +53,11 @@ export const checkCanJoinChat = (
   chat: ChatInstance | null
 ) => {
   if (!rules || !chat) return false
-  const hasEmojiCondition = rules.some((rule) => rule.type === 'emoji')
+  const emojiCondition = rules.find((rule) => rule.type === 'emoji')
 
-  if (hasEmojiCondition) {
+  if (emojiCondition) {
     const checkEmojiStatusCompleted = LocalStorageService.getItem(
-      `emojiStatusCompleted-${chat.id}`
+      `emojiStatusCompleted-${chat.id}-${emojiCondition.id}`
     )
     if (!checkEmojiStatusCompleted) {
       return false

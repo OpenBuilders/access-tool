@@ -15,7 +15,10 @@ export const EmojiStatusCondition = () => {
   const { showToast } = useToast()
   useEffect(() => {
     const handler = () => {
-      LocalStorageService.setItem(`emojiStatusCompleted-${chat?.id}`, 'true')
+      LocalStorageService.setItem(
+        `emojiStatusCompleted-${chat?.id}-${emojiRule?.id}`,
+        'true'
+      )
       setEmojiStatusAdded(true)
       showToast({
         message: 'Emoji status set',
