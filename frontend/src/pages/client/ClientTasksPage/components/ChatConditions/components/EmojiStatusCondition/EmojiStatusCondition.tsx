@@ -2,25 +2,29 @@ import { Icon, ListItem, Text, useToast } from '@components'
 import { useEffect, useState } from 'react'
 
 import { LocalStorageService } from '@services'
-import { useChat } from '@store'
+import { ChatInstance, Condition } from '@store'
 
 const webApp = window.Telegram.WebApp
 
-export const EmojiStatusCondition = () => {
-  const { chat, rules } = useChat()
+interface EmojiStatusConditionProps {
+  chat: ChatInstance | null
+  rule: Condition
+}
 
-  const emojiRule = rules?.find((rule) => rule.type === 'emoji')
-
+export const EmojiStatusCondition = ({
+  chat,
+  rule,
+}: EmojiStatusConditionProps) => {
   const [emojiStatusAdded, setEmojiStatusAdded] = useState(
     !!LocalStorageService.getItem(
-      `emojiStatusCompleted_${chat?.slug}_${emojiRule?.id}`
+      `emojiStatusCompleted_${chat?.slug}_${rule?.id}`
     )
   )
   const { showToast } = useToast()
   useEffect(() => {
     const handler = () => {
       LocalStorageService.setItem(
-        `emojiStatusCompleted_${chat?.slug}_${emojiRule?.id}`,
+        `emojiStatusCompleted_${chat?.slug}_${rule?.id}`,
         'true'
       )
       setEmojiStatusAdded(true)
@@ -38,7 +42,7 @@ export const EmojiStatusCondition = () => {
   }, [])
 
   const handleEmojiStatus = async () => {
-    if (!emojiRule?.emojiId) {
+    if (!rule?.emojiId) {
       showToast({
         message: 'Emoji ID not found',
         type: 'error',
@@ -46,14 +50,14 @@ export const EmojiStatusCondition = () => {
       return
     }
 
-    await webApp?.setEmojiStatus(emojiRule?.emojiId)
+    await webApp?.setEmojiStatus(rule?.emojiId)
   }
 
   if (emojiStatusAdded) {
     return (
       <ListItem
         before={<Icon name="check" size={24} />}
-        text={<Text type="text">Emoji Status Added</Text>}
+        text={<Text type="text">Emoji Status</Text>}
       />
     )
   }
@@ -63,7 +67,7 @@ export const EmojiStatusCondition = () => {
       chevron
       onClick={handleEmojiStatus}
       before={<Icon name="cross" size={24} />}
-      text={<Text type="text">Set Emoji Status</Text>}
+      text={<Text type="text">Emoji Status</Text>}
     />
   )
 }
