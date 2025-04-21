@@ -18,6 +18,7 @@ const ConditionTypePath: Record<ConditionType, string> = {
   whitelist_external: 'whitelist-external',
   premium: 'premium',
   toncoin: 'toncoin',
+  emoji: 'emoji',
 }
 
 // Jettons

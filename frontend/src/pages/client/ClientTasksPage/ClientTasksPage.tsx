@@ -45,7 +45,7 @@ export const ClientTasksPage = () => {
   }, [clientChatSlug])
 
   useEffect(() => {
-    if (!chat?.isEnabled) {
+    if (chat && !chat?.isEnabled) {
       appNavigate({
         path: ROUTES_NAME.CLIENT_CHAT_HIDDEN,
         params: { clientChatSlug },
