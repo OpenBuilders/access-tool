@@ -1,4 +1,5 @@
-import { Condition } from '@store'
+import { LocalStorageService } from '@services'
+import { ChatInstance, Condition } from '@store'
 
 export const checkWalletRequirements = (rules: Condition[] | null) => {
   if (!rules) return false
@@ -13,9 +14,21 @@ export const checkWalletRequirements = (rules: Condition[] | null) => {
 export const createButtonText = (
   chatWallet: string | null,
   rules: Condition[],
-  isLoading: boolean
+  isLoading: boolean,
+  chatId: number
 ) => {
   const needWalletConnection = checkWalletRequirements(rules)
+  const hasEmojiCondition = rules?.some((rule) => rule.type === 'emoji')
+
+  if (hasEmojiCondition) {
+    const checkEmojiStatusCompleted = LocalStorageService.getItem(
+      `emojiStatusCompleted-${chatId}`
+    )
+    if (!checkEmojiStatusCompleted) {
+      return 'Check'
+    }
+  }
+
   if (isLoading) {
     return 'Checking...'
   }
@@ -33,4 +46,23 @@ export const createButtonText = (
   }
 
   return ''
+}
+
+export const checkCanJoinChat = (
+  rules: Condition[] | null,
+  chat: ChatInstance | null
+) => {
+  if (!rules || !chat) return false
+  const hasEmojiCondition = rules.some((rule) => rule.type === 'emoji')
+
+  if (hasEmojiCondition) {
+    const checkEmojiStatusCompleted = LocalStorageService.getItem(
+      `emojiStatusCompleted-${chat.id}`
+    )
+    if (!checkEmojiStatusCompleted) {
+      return false
+    }
+  }
+
+  return chat.isEligible
 }

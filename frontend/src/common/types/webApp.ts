@@ -89,6 +89,7 @@ export type EventNames =
   | 'popupClosed'
   | 'qrTextReceived'
   | 'clipboardTextReceived'
+  | 'emojiStatusSet'
 
 export interface EventParams {
   invoiceClosed: { url: string; status: InvoiceStatuses }

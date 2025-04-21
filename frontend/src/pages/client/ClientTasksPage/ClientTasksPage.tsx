@@ -12,7 +12,7 @@ import { useParams } from 'react-router-dom'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
-import { createButtonText } from './helpers'
+import { checkCanJoinChat, createButtonText } from './helpers'
 
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
@@ -53,7 +53,9 @@ export const ClientTasksPage = () => {
       return
     }
 
-    if (chat?.isEligible) {
+    const canJoinChat = checkCanJoinChat(rules, chat)
+
+    if (canJoinChat) {
       appNavigate({
         path: ROUTES_NAME.CLIENT_JOIN,
         params: { clientChatSlug },
@@ -86,7 +88,7 @@ export const ClientTasksPage = () => {
     })
   }
 
-  const buttonText = createButtonText(chatWallet, rules, isLoading)
+  const buttonText = createButtonText(chatWallet, rules, isLoading, chat?.id)
 
   return (
     <PageLayout>
