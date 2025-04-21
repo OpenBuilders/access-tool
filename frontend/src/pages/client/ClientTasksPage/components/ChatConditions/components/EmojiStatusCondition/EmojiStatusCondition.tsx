@@ -3,8 +3,8 @@ import { ListItem, Text } from '@components'
 const webApp = window.Telegram.WebApp
 
 export const EmojiStatusCondition = () => {
-  const handleEmojiStatus = () => {
-    webApp?.setEmojiStatus('👍', (status: boolean) => {
+  const handleEmojiStatus = async () => {
+    await webApp?.setEmojiStatus('5368324170671202286', (status: boolean) => {
       console.log('status', status)
     })
   }
