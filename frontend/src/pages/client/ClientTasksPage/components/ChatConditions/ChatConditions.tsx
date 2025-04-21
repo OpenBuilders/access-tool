@@ -3,7 +3,11 @@ import { List } from '@components'
 import { useChat } from '@store'
 
 import { checkWalletRequirements } from '../../helpers'
-import { ChatConditionItem, WalletCondition } from './components'
+import {
+  ChatConditionItem,
+  EmojiStatusCondition,
+  WalletCondition,
+} from './components'
 import { sortConditions } from './helpers'
 
 export const ChatConditions = () => {
@@ -16,6 +20,7 @@ export const ChatConditions = () => {
       {available.map((condition) => (
         <ChatConditionItem condition={condition} key={condition.id} />
       ))}
+      <EmojiStatusCondition />
     </List>
   )
 }
