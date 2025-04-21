@@ -21,7 +21,10 @@ from core.dtos.chat.rules import (
     EligibilityCheckType,
     ChatEligibilityRuleDTO,
 )
-from core.dtos.chat.rules.emoji import EmojiChatEligibilitySummaryDTO
+from core.dtos.chat.rules.emoji import (
+    EmojiChatEligibilitySummaryDTO,
+    EmojiChatEligibilityRuleDTO,
+)
 from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
@@ -515,7 +518,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                         for rule in eligibility_rules.stickers
                     ),
                     *(
-                        ChatEligibilityRuleDTO.from_emoji_rule(rule)
+                        EmojiChatEligibilityRuleDTO.from_orm(rule)
                         for rule in eligibility_rules.emoji
                     ),
                 ],
