@@ -47,3 +47,20 @@ COPY backend/api ./api
 FROM community-manager AS scheduler
 
 COPY backend/scheduler ./scheduler
+
+
+# Stage 6: Tests
+FROM gateway-base as tests-executor
+COPY backend/core/requirements-test.txt requirements-test.txt
+RUN pip install -r requirements-test.txt
+COPY backend/community_manager/requirements.txt requirements-community-manager.txt
+RUN pip install -r requirements-community-manager.txt
+COPY backend/api/requirements.txt requirements-api.txt
+RUN pip install -r requirements-api.txt
+COPY backend/indexer/requirements.txt requirements-indexer.txt
+RUN pip install -r requirements-indexer.txt
+
+
+COPY backend/community_manager ./community_manager
+COPY backend/api ./api
+COPY backend/tests ./tests

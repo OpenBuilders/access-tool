@@ -1,0 +1,28 @@
+x-python-service:
+  &x-python-service
+  user: "1000:1000"
+  depends_on:
+    redis:
+      condition: service_healthy
+    mysql:
+      condition: service_healthy
+  networks:
+    - internal
+
+
+services:
+  test:
+    <<: *x-python-service
+    build:
+      context: .
+      dockerfile: ./config/docker/backend.Dockerfile
+      target: tests-executor
+    image: gateway-tests
+    env_file:
+#      - ./backend/api/config/.env
+      - ./backend/core/config/.env.test
+#      - ./backend/community_manager/config/.env
+#      - ./backend/indexer/config/.env
+    container_name: "gateway-tests"
+    volumes:
+      - ./backend:/app

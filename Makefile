@@ -30,6 +30,9 @@ create-empty-migration:
 migrate:
 	./docker.sh run --rm api alembic upgrade head
 
+test:
+	MODE=test ./docker.sh run --rm -it test pytest tests/
+
 _install_python_version:
 	echo "\n>Install Python version in pyenv if it doesn't exist yet..."
 	echo Saving "$(VENV_NAME)" in .python-version
@@ -49,11 +52,12 @@ _install_virtualenv:
 	pyenv uninstall -f $(VENV_NAME)
 	echo "- Installing venv..."
 	pyenv virtualenv $(PYTHON_VERSION) $(VENV_NAME)
-	pip install --upgrade wheel
+	pip install --upgrade wheel pip
 
 _install_packages:
 	echo "Installing local packages"
 	pip3 install -r backend/core/requirements.txt
+	pip3 install -r backend/core/requirements-test.txt
 	pip3 install -r backend/indexer/requirements.txt
 	pip3 install -r backend/api/requirements.txt
 

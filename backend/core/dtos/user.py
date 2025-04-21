@@ -16,8 +16,9 @@ class UserInitDataPO(BaseModel):
     is_premium: bool = False
     allow_write_to_pm: bool = True
 
-    class Config:
-        extra = "ignore"
+    model_config = {
+        "extra": "ignore",
+    }
 
 
 class TelegramUserDTO(BaseModel):

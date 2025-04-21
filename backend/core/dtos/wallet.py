@@ -7,8 +7,7 @@ class TonProofDomainPO(BaseModel):
     length_bytes: Annotated[int, Field(alias="lengthBytes")]
     value: str
 
-    class Config:
-        extra = "ignore"
+    model_config = {"extra": "ignore"}
 
 
 class TonProofPO(BaseModel):

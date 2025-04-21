@@ -58,7 +58,9 @@ class TelegramChatAction(BaseAction):
         super().__init__(db_session)
         self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
-        self.authorization_action = AuthorizationAction(db_session)
+        self.authorization_action = AuthorizationAction(
+            db_session, telethon_client=telethon_client
+        )
         self.telethon_service = TelethonService(client=telethon_client)
         self.cdn_service = CDNService()
 
@@ -111,6 +113,8 @@ class TelegramChatAction(BaseAction):
         except (ValueError, BadRequestError) as e:
             logger.exception(f"Chat {chat_identifier!r} not found", exc_info=e)
             raise TelegramChatNotExists(f"Chat {chat_identifier!r} not found")
+
+        # breakpoint()
 
         if not chat.admin_rights or not all(
             [getattr(chat.admin_rights, right) for right in REQUIRED_BOT_PRIVILEGES]

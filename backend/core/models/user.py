@@ -42,3 +42,6 @@ class User(Base):
     @property
     def full_name(self) -> str:
         return " ".join(filter(lambda x: x, [self.first_name, self.last_name]))
+
+    def __repr__(self) -> str:
+        return f"<User {self.id=!r} {self.username=!r}>"
