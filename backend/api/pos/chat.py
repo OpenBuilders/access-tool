@@ -23,6 +23,10 @@ from core.dtos.chat.rules import (
     ChatEligibilityRuleDTO,
     TelegramChatWithRulesDTO,
 )
+from core.dtos.chat.rules.emoji import (
+    EmojiChatEligibilityRuleDTO,
+    EmojiChatEligibilitySummaryDTO,
+)
 from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
@@ -243,14 +247,29 @@ class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO):
     ...
 
 
+class EmojiChatEligibilityRuleFDO(BaseFDO, EmojiChatEligibilityRuleDTO):
+    ...
+
+
+class EmojiChatEligibilitySummaryFDO(BaseFDO, EmojiChatEligibilitySummaryDTO):
+    ...
+
+
 class TelegramChatWithRulesFDO(BaseFDO):
     chat: TelegramChatFDO
-    rules: list[ChatEligibilityRuleFDO | NftEligibilityRuleFDO]
+    rules: list[
+        ChatEligibilityRuleFDO
+        | NftEligibilityRuleFDO
+        | EmojiChatEligibilityRuleFDO
+        | StickerChatEligibilityRuleFDO
+    ]
 
     @classmethod
     def from_dto(cls, dto: TelegramChatWithRulesDTO) -> Self:
         mapping = {
             EligibilityCheckType.NFT_COLLECTION: NftEligibilityRuleFDO,
+            EligibilityCheckType.EMOJI: EmojiChatEligibilityRuleFDO,
+            EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilityRuleFDO,
         }
         return cls(
             chat=TelegramChatFDO.model_validate(dto.chat.model_dump()),
@@ -283,13 +302,18 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
     """
 
     chat: TelegramChatPovFDO
-    rules: list[RuleEligibilitySummaryFDO | NftRuleEligibilitySummaryFDO]
+    rules: list[
+        RuleEligibilitySummaryFDO
+        | NftRuleEligibilitySummaryFDO
+        | EmojiChatEligibilitySummaryFDO
+    ]
     wallet: str | None
 
     @classmethod
     def from_dto(cls, dto: TelegramChatWithEligibilitySummaryDTO) -> Self:
         mapping = {
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryFDO,
+            EligibilityCheckType.EMOJI: EmojiChatEligibilitySummaryFDO,
         }
         return cls(
             chat=TelegramChatPovFDO.model_validate(dto.chat.model_dump()),

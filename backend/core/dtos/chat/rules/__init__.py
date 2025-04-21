@@ -137,18 +137,6 @@ class ChatEligibilityRuleDTO(BaseModel):
             is_enabled=rule.is_enabled,
         )
 
-    @classmethod
-    def from_emoji_rule(cls, rule: TelegramChatEmoji) -> Self:
-        return cls(
-            id=rule.id,
-            type=EligibilityCheckType.STICKER_COLLECTION,
-            title="Emoji Status",
-            expected=1,
-            photo_url=None,
-            blockchain_address=None,
-            is_enabled=rule.is_enabled,
-        )
-
 
 class TelegramChatWithRulesDTO(BaseModel):
     chat: TelegramChatDTO

@@ -21,6 +21,7 @@ from core.dtos.chat.rules import (
     EligibilityCheckType,
     ChatEligibilityRuleDTO,
 )
+from core.dtos.chat.rules.emoji import EmojiChatEligibilitySummaryDTO
 from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
@@ -348,11 +349,21 @@ class TelegramChatAction(BaseAction):
         self, slug: str, user: User
     ) -> TelegramChatWithEligibilitySummaryDTO:
         """
-        This is non-administrative method to get chat with rules
-        :param slug:
-        :param user:
-        :return:
-        :raises TelegramChatNotExists: if chat with slug not found
+        Retrieve a chat's details with the user's eligibility summary.
+        This is a **non-administrative** user action.
+
+        This method fetches the specified Telegram chat details and determines the
+        user's eligibility to access the chat. It also processes eligibility rules and
+        provides a summary based on the supplied user and chat information. The chat
+        data, eligibility rules, and membership details are encapsulated and returned
+        in the response DTO.
+
+        :param slug: The unique slug identifier for the Telegram chat.
+        :param user: The user for whom the eligibility summary is to be generated.
+        :return: A data transfer object containing the Telegram chat details and the
+            eligibility summary for the user.
+        :raises TelegramChatNotExists: If the Telegram chat with the specified slug
+            does not exist.
         """
         try:
             chat = self.telegram_chat_service.get_by_slug(slug)
@@ -386,6 +397,7 @@ class TelegramChatAction(BaseAction):
 
         mapping = {
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryDTO,
+            EligibilityCheckType.EMOJI: EmojiChatEligibilitySummaryDTO,
         }
 
         members_count = self.telegram_chat_user_service.get_members_count(chat.id)
