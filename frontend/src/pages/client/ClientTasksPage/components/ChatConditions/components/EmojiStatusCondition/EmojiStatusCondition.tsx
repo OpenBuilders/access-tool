@@ -11,12 +11,16 @@ export const EmojiStatusCondition = () => {
 
   const emojiRule = rules?.find((rule) => rule.type === 'emoji')
 
-  const [emojiStatusAdded, setEmojiStatusAdded] = useState(false)
+  const [emojiStatusAdded, setEmojiStatusAdded] = useState(
+    !!LocalStorageService.getItem(
+      `emojiStatusCompleted_${chat?.slug}_${emojiRule?.id}`
+    )
+  )
   const { showToast } = useToast()
   useEffect(() => {
     const handler = () => {
       LocalStorageService.setItem(
-        `emojiStatusCompleted-${chat?.id}-${emojiRule?.id}`,
+        `emojiStatusCompleted_${chat?.slug}_${emojiRule?.id}`,
         'true'
       )
       setEmojiStatusAdded(true)
@@ -34,7 +38,15 @@ export const EmojiStatusCondition = () => {
   }, [])
 
   const handleEmojiStatus = async () => {
-    await webApp?.setEmojiStatus('5368324170671202286')
+    if (!emojiRule?.emojiId) {
+      showToast({
+        message: 'Emoji ID not found',
+        type: 'error',
+      })
+      return
+    }
+
+    await webApp?.setEmojiStatus(emojiRule?.emojiId)
   }
 
   if (emojiStatusAdded) {
@@ -42,11 +54,7 @@ export const EmojiStatusCondition = () => {
       <ListItem
         chevron
         before={<Icon name="check" size={24} />}
-        text={
-          <Text type="text" color="tertiary">
-            Emoji Status Added
-          </Text>
-        }
+        text={<Text type="text">Emoji Status Added</Text>}
       />
     )
   }
@@ -56,11 +64,7 @@ export const EmojiStatusCondition = () => {
       chevron
       onClick={handleEmojiStatus}
       before={<Icon name="cross" size={24} />}
-      text={
-        <Text type="text" color="tertiary">
-          Set Emoji Status
-        </Text>
-      }
+      text={<Text type="text">Set Emoji Status</Text>}
     />
   )
 }

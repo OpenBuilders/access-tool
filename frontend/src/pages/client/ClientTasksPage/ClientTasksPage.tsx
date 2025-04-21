@@ -88,7 +88,7 @@ export const ClientTasksPage = () => {
     })
   }
 
-  const buttonText = createButtonText(chatWallet, rules, isLoading, chat?.id)
+  const buttonText = createButtonText(chatWallet, rules, isLoading, chat?.slug)
 
   return (
     <PageLayout>
