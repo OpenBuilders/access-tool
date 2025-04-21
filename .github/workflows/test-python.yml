@@ -1,0 +1,38 @@
+name: Run Tests in Docker
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Run Pytest in Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Cache Docker layers for faster builds
+      # This helps avoid redundant builds if Docker images haven't changed
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      # Step 3: Make docker.sh executable
+      - name: Ensure docker.sh is executable
+        run: chmod +x ./docker.sh
+
+      # Step 4: Build Docker Images for Testing
+      # Using docker-compose.test.yml config
+      - name: Build Docker for Testing
+        run: MODE=test ./docker.sh build
+
+      # Step 5: Run Pytest in Docker
+      - name: Run Tests with Pytest
+        run: |
+          MODE=test ./docker.sh run --rm test

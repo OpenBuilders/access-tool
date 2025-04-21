@@ -139,7 +139,6 @@ services:
     env_file:
       - ./backend/api/config/.env
       - ./backend/core/config/.env
-#      - ./backend/config/.env
     container_name: "gateway-api"
     ports:
       - "8000:8000"
