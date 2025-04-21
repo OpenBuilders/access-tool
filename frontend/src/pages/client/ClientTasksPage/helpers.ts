@@ -16,14 +16,14 @@ export const checkWalletRequirements = (rules: Condition[] | null) => {
 interface CreateButtonTextProps {
   chatWallet: string | null
   rules: Condition[]
-  isLoading: boolean
+  isChecking: boolean
   chat: ChatInstance
 }
 
 export const createButtonText = ({
   chatWallet,
   rules,
-  isLoading,
+  isChecking,
   chat,
 }: CreateButtonTextProps) => {
   const needWalletConnection = checkWalletRequirements(rules)
@@ -46,7 +46,7 @@ export const createButtonText = ({
     return 'Check'
   }
 
-  if (isLoading) {
+  if (isChecking) {
     return 'Checking...'
   }
 

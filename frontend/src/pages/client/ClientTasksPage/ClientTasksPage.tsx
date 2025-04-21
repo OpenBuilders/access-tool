@@ -1,7 +1,7 @@
 import { PageLayout, TelegramBackButton, TelegramMainButton } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocalStorageService } from '@services'
@@ -17,6 +17,8 @@ export const ClientTasksPage = () => {
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
 
+  const [isChecking, setIsChecking] = useState(false)
+
   const { appNavigate } = useAppNavigation()
 
   const { fetchUserChatAction } = useChatActions()
@@ -25,6 +27,7 @@ export const ClientTasksPage = () => {
 
   const fetchUserChat = async () => {
     if (!clientChatSlug) return
+
     try {
       await fetchUserChatAction(clientChatSlug)
     } catch (error) {
@@ -72,9 +75,9 @@ export const ClientTasksPage = () => {
     }
 
     if (chatWallet) {
-      toggleIsLoadingAction(true)
+      setIsChecking(true)
       await fetchUserChat()
-      toggleIsLoadingAction(false)
+      setIsChecking(false)
       return
     }
 
@@ -96,7 +99,7 @@ export const ClientTasksPage = () => {
   const buttonText = createButtonText({
     chatWallet,
     rules,
-    isLoading,
+    isChecking,
     chat,
   })
 
@@ -106,9 +109,9 @@ export const ClientTasksPage = () => {
       <TelegramMainButton
         text={buttonText}
         isVisible={!!buttonText}
-        disabled={isLoading}
+        disabled={isLoading || isChecking}
         onClick={buttonAction}
-        loading={isLoading}
+        loading={isLoading || isChecking}
       />
       <ChatHeader />
       <ChatConditions conditions={rules} />
