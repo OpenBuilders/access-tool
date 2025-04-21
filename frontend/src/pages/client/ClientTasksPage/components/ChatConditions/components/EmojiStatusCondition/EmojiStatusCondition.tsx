@@ -52,7 +52,6 @@ export const EmojiStatusCondition = () => {
   if (emojiStatusAdded) {
     return (
       <ListItem
-        chevron
         before={<Icon name="check" size={24} />}
         text={<Text type="text">Emoji Status Added</Text>}
       />
