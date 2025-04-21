@@ -10,6 +10,8 @@ import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 import { ChatConditions, ChatHeader } from './components'
 import { createButtonText } from './helpers'
 
+const webApp = window.Telegram.WebApp
+
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
   const { notFound } = useError()
@@ -77,7 +79,10 @@ export const ClientTasksPage = () => {
     if (chatWallet) {
       setIsChecking(true)
       await fetchUserChat()
-      setIsChecking(false)
+      setTimeout(() => {
+        setIsChecking(false)
+        webApp?.HapticFeedback?.impactOccurred('soft')
+      }, 400)
       return
     }
 
