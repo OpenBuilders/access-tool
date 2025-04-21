@@ -30,4 +30,4 @@ jobs:
       - name: Run eslint
         working-directory: ${{ env.PROJECT_DIR }}
         run: yarn run lint --max-warnings 0
-        continue-on-error: true  # Temporary enabled to not block other MRs
+        continue-on-error: true  # Temporarily enabled to not block other MRs

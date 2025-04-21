@@ -1,0 +1,13 @@
+name: FE lint
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - 'frontend/**'
+
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint-typescript.yml
