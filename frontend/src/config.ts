@@ -15,7 +15,7 @@ const devConfig: Config = {
   botName: 'ggooccttaa_bot',
   botLink: 'https://t.me/ggooccttaa_bot',
   CDN: 'https://pub-afc0b291195b4529b0de88319506f30b.r2.dev',
-  tonConnectManifestUrl: 'https://cdn.stickerdom.store/manifest.json',
+  tonConnectManifestUrl: 'https://cdn.joincommunity.xyz/gateway/manifest.json',
   accessToken: import.meta.env.VITE_ACCESS_TOKEN,
 }
 
@@ -25,7 +25,7 @@ const prodConfig: Config = {
   botName: 'ggooccttaa_bot',
   botLink: 'https://t.me/ggooccttaa_bot',
   CDN: 'https://pub-afc0b291195b4529b0de88319506f30b.r2.dev',
-  tonConnectManifestUrl: 'https://cdn.stickerdom.store/manifest.json',
+  tonConnectManifestUrl: 'https://cdn.joincommunity.xyz/gateway/manifest.json',
 }
 
 let config
