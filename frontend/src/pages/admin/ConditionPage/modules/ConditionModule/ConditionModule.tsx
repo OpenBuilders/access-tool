@@ -93,6 +93,13 @@ export const ConditionModule = () => {
       navigateToChatPage()
     } catch (error) {
       console.error(error)
+      if (error instanceof Error) {
+        showToast({
+          message: error.message,
+          type: 'error',
+        })
+        return
+      }
       showToast({
         message: 'Failed to delete condition',
         type: 'error',
