@@ -8,7 +8,7 @@ import {
   Text,
 } from '@components'
 import { useError } from '@hooks'
-import { goTo } from '@utils'
+import { goTo, separateNumber } from '@utils'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -69,13 +69,20 @@ export const ClientJoinPage = () => {
     <PageLayout center>
       <TelegramBackButton />
       <TelegramMainButton text="Join Group" onClick={handleJoinGroup} />
+      <ConfettiAnimation active={true} duration={5000} />
       <Image
         size={112}
         src={chat?.logoPath}
         borderRadius={50}
         fallback={chat?.title}
       />
-      <ConfettiAnimation active={true} duration={5000} />
+      {chat?.membersCount && (
+        <Block margin="top" marginValue={8}>
+          <Text type="text" color="tertiary">
+            {separateNumber(chat?.membersCount)} members
+          </Text>
+        </Block>
+      )}
       <Block margin="top" marginValue={8}>
         <Text type="title1" align="center" weight="bold">
           Welcome to

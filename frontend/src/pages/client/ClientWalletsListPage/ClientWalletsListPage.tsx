@@ -1,5 +1,12 @@
 import walletLottie from '@assets/wallet.json'
-import { Block, List, ListItem, StickerPlayer, Text } from '@components'
+import {
+  Block,
+  List,
+  ListItem,
+  StickerPlayer,
+  Text,
+  useToast,
+} from '@components'
 import { TelegramBackButton, TelegramMainButton } from '@components'
 import { PageLayout } from '@components'
 import { useAppNavigation } from '@hooks'
@@ -16,6 +23,8 @@ export const ClientWalletsListPage = () => {
   const chatSlugParam = params.clientChatSlug || ''
 
   const { appNavigate } = useAppNavigation()
+
+  const { showToast } = useToast()
 
   const { user } = useUser()
   const { completeChatTaskAction, connectExistingWalletAction } =
@@ -60,6 +69,10 @@ export const ClientWalletsListPage = () => {
       if (taskId) {
         await completeChatTaskAction(taskId)
       }
+      showToast({
+        message: 'New wallet connected',
+        type: 'success',
+      })
     } catch (error) {
       console.error(error)
     } finally {

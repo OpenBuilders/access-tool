@@ -74,13 +74,15 @@ export const ClientConnectedWalletPage = () => {
   const userFriendlyAddress = toUserFriendlyAddress(chatWallet)
   const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
 
+  const buttonText =
+    user?.wallets && user?.wallets?.length > 1
+      ? 'Choose Wallet'
+      : 'Connect New Wallet'
+
   return (
     <PageLayout center>
       <TelegramBackButton onClick={navigateToTasks} />
-      <TelegramMainButton
-        onClick={navigateToNewWalletPage}
-        text="Connect New Wallet"
-      />
+      <TelegramMainButton onClick={navigateToNewWalletPage} text={buttonText} />
       <StickerPlayer lottie={moneyLottie} />
       <Block margin="top" marginValue={16}>
         <Text type="title1" align="center" weight="bold">

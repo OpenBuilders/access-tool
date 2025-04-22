@@ -1,4 +1,5 @@
 import { Image, Text, Block } from '@components'
+import { separateNumber } from '@utils'
 
 import { useChat } from '@store'
 
@@ -23,6 +24,13 @@ export const ChatHeader = () => {
           {chat?.description}
         </Text>
       </Block>
+      {chat?.membersCount && (
+        <Block margin="top" marginValue={12}>
+          <Text type="text" color="tertiary">
+            {separateNumber(chat?.membersCount)} members
+          </Text>
+        </Block>
+      )}
     </>
   )
 }

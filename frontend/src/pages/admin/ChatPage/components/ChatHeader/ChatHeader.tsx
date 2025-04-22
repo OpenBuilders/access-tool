@@ -9,6 +9,7 @@ import {
   Text,
 } from '@components'
 import { useClipboard } from '@hooks'
+import { separateNumber } from '@utils'
 import { useState } from 'react'
 
 import config from '@config'
@@ -74,6 +75,13 @@ export const ChatHeader = () => {
           {chat?.title}
         </Text>
       </Block>
+      {chat?.membersCount && (
+        <Block margin="top" marginValue={12}>
+          <Text type="caption2" color="tertiary">
+            {separateNumber(chat?.membersCount)} members
+          </Text>
+        </Block>
+      )}
       {showLinks && (
         <Block
           margin="top"

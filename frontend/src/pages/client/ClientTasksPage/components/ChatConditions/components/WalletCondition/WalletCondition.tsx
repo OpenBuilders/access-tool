@@ -1,4 +1,4 @@
-import { Icon, ListItem, Text } from '@components'
+import { Icon, ListItem, Text, useToast } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { toUserFriendlyAddress, useTonConnectUI } from '@tonconnect/ui-react'
@@ -14,6 +14,8 @@ export const WalletCondition = () => {
   const params = useParams<{ clientChatSlug: string }>()
 
   const chatSlugParam = params.clientChatSlug || ''
+
+  const { showToast } = useToast()
 
   const { chatWallet } = useChat()
   const { fetchUserChatAction } = useChatActions()
@@ -48,9 +50,13 @@ export const WalletCondition = () => {
       taskId = await connectWalletAction(chatSlugParam, walletData)
     } catch (error) {
       console.error(error)
-    } finally {
-      return taskId
+      showToast({
+        message: 'Failed to connect wallet',
+        type: 'error',
+      })
     }
+
+    return taskId
   }
 
   const handleWalletDisconnect = () => {
@@ -89,6 +95,11 @@ export const WalletCondition = () => {
         if (taskId) {
           await handleCompleteTask(taskId)
         }
+
+        showToast({
+          message: 'New wallet connected',
+          type: 'success',
+        })
       }
     })
   }, [tonConnectUI])
