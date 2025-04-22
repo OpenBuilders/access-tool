@@ -21,6 +21,7 @@ jobs:
     uses: ./.github/workflows/build-and-push-frontend.yml
     with:
       branch: main
+      environment: staging
 
   deploy:
     needs:
@@ -29,6 +30,8 @@ jobs:
       - lint-typescript
       - test-python
     uses: ./.github/workflows/deployment.yml
+    with:
+      environment: staging
     secrets:
       VPS_IP: ${{ secrets.VPS_IP }}
       VPS_USERNAME: ${{ secrets.VPS_USERNAME }}

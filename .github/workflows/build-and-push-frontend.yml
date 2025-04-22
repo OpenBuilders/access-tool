@@ -7,6 +7,10 @@ on:
         required: false
         type: string
         description: The branch to deploy from.
+      environment:
+        required: true
+        type: string
+        description: Environment to deploy
 
 jobs:
   build-and-push-frontend:
@@ -14,7 +18,7 @@ jobs:
       contents: read  # Required for checkout
       packages: write  # Required for pushing to GHCR
     runs-on: ubuntu-latest
-    environment: staging
+    environment: ${{ inputs.environment }}
     env:
       CI: true
 
