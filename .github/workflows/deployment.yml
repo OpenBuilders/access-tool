@@ -9,11 +9,16 @@ on:
         required: true
       VPS_SSH_KEY:
         required: true
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: Environment to deploy
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: SSH into server and deploy
