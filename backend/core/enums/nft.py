@@ -1,4 +1,5 @@
 import enum
+from collections import namedtuple
 from typing import Self
 
 
@@ -129,9 +130,16 @@ NftCollectionCategoryType = (
 )
 
 
+# `is_optional` defines whether the category is optional for this type of asset.
+CategoryDefinition = namedtuple("CategoryDefinition", ("enum", "is_optional"))
+
 ASSET_TO_CATEGORY_TYPE_MAPPING = {
-    NftCollectionAsset.TELEGRAM_USERNAME: TelegramUsernameCategory,
-    NftCollectionAsset.TELEGRAM_NUMBER: TelegramNumberCategory,
-    NftCollectionAsset.TON_DNS: TonDnsCategory,
-    NftCollectionAsset.TELEGRAM_GIFTS: TelegramGiftsCategory,
+    NftCollectionAsset.TELEGRAM_USERNAME: CategoryDefinition(
+        TelegramUsernameCategory, True
+    ),
+    NftCollectionAsset.TELEGRAM_NUMBER: CategoryDefinition(
+        TelegramNumberCategory, True
+    ),
+    NftCollectionAsset.TON_DNS: CategoryDefinition(TonDnsCategory, True),
+    NftCollectionAsset.TELEGRAM_GIFTS: CategoryDefinition(TelegramGiftsCategory, False),
 }

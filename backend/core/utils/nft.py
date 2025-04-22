@@ -12,10 +12,24 @@ def find_relevant_nft_items(
     rule: TelegramChatNFTCollection, nft_items: list[NftItem]
 ) -> list[NftItem]:
     """
-    Find relevant NFT items for the rule
+    Filters a list of NFT items based on the given rule. The function determines the
+    relevant NFT items by either applying custom category-based logic or by matching
+    the collection address in the rule with that in the NFT items.
+
+    :param rule: A `TelegramChatNFTCollection` object that contains the filtering rule,
+        including the asset type, category, and collection address.
+
+    :param nft_items: A list of `NftItem` objects representing the NFT items to be
+        filtered against the given rule.
+
+    :return: A list of `NftItem` objects that satisfy the filtering rule. If a custom
+        category-based logic is applied, the matching items are returned based on that logic.
+        If only the collection address is used, the relevant items that match the address
+        are returned. An empty list is returned if no matching custom logic is found
+        for the specified category.
     """
-    # Means - custom rules should be applied
-    if rule.asset:
+    # If both asset type and category are set - custom rules should be applied
+    if rule.asset and rule.category:
         custom_logic_method = CATEGORY_TO_METHOD_MAPPING.get(rule.category)
         # If there is a custom logic method - use it to determine whether the valid rule is applied
         if custom_logic_method:

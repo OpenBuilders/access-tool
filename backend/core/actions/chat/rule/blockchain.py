@@ -85,7 +85,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
         :return: The resolved collection address or None if no valid resolution is found.
         """
         if category:
-            # If there is a mapping by category which is the lowest level - return that address
+            # If there is a mapping by category, that is the lowest level - return that address
             if address := NFT_CATEGORY_TO_ADDRESS_MAPPING.get(category):
                 return address
 

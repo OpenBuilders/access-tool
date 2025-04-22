@@ -64,8 +64,12 @@ async def fetch_nft_collection_details(
 @admin_resource_router.get("/categories/nft-collections")
 async def get_nft_collection_categories() -> list[CategoriesFDO]:
     return [
-        CategoriesFDO(asset=asset.value, categories=list(categories_enum))
-        for asset, categories_enum in ASSET_TO_CATEGORY_TYPE_MAPPING.items()
+        CategoriesFDO(
+            asset=asset.value,
+            categories=list(category_definition.enum)
+            + ([None] if category_definition.is_optional else []),
+        )
+        for asset, category_definition in ASSET_TO_CATEGORY_TYPE_MAPPING.items()
     ]
 
 
