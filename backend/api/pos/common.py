@@ -10,4 +10,4 @@ class StatusFDO(BaseModel):
 
 class CategoriesFDO(BaseFDO):
     asset: str
-    categories: list[str]
+    categories: list[str | None]

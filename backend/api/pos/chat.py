@@ -177,27 +177,34 @@ class TelegramChatNFTCollectionRuleCPO(BaseTelegramChatBlockchainResourceRuleCPO
     @model_validator(mode="after")
     def validate_category_and_asset(self) -> Self:
         """
-        Validates the logical consistency between the `category` and `asset` attributes
-        of the model after its initialization or modification. Ensures that if an
-        `asset` is provided, a corresponding valid `category` is specified and matches
-        the expected type.
+        Validates the combination of category and asset after model creation or updates,
+        checking their consistency based on predefined mappings and rules.
 
-        :raises ValueError: If `category` is None when `asset` is specified.
-        :raises ValueError: If `category` does not match the expected type as defined
-            in the mapping `ASSET_TO_CATEGORY_TYPE_MAPPING`.
+        This method ensures that if an asset is specified, an appropriate category
+        is either mandatory or optional based on its definition. It also validates
+        that the provided category aligns with the corresponding asset, enforcing
+        rules defined in the `ASSET_TO_CATEGORY_TYPE_MAPPING`.
+
+        :raises ValueError: If a category is not provided when it's mandatory for the asset,
+            or it doesn't match the asset.
         """
         if not self.asset:
             return self
 
+        category_definition = ASSET_TO_CATEGORY_TYPE_MAPPING[self.asset]
         if self.category is None:
-            raise ValueError("Category must be specified if asset is provided")
+            # If a category is mandatory for the asset, it must be provided.
+            if not category_definition.is_optional:
+                raise ValueError(
+                    "Category must be specified if asset is provided for that type of rule"
+                )
+            return self
 
+        # Otherwise, check if it corresponds a provided asset type
         try:
-            self.category = ASSET_TO_CATEGORY_TYPE_MAPPING[self.asset](
-                self.category.value
-            )
-        except ValueError:
-            raise ValueError("Category does not match asset")
+            self.category = category_definition.enum(self.category.value)
+        except ValueError as e:
+            raise ValueError("Category does not match asset") from e
 
         return self
 
