@@ -116,7 +116,7 @@ export const Jettons = ({
     <>
       <Block margin="top" marginValue={24}>
         <List>
-          <ListItem
+          {/* <ListItem
             text="Category"
             after={
               <AppSelect
@@ -128,9 +128,9 @@ export const Jettons = ({
                 }))}
               />
             }
-          />
+          /> */}
           <ListItem
-            text="Option"
+            text="Category"
             after={
               <AppSelect
                 onChange={(value) => handleChangeCondition('category', value)}

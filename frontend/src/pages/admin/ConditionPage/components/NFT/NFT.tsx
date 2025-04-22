@@ -109,15 +109,13 @@ export const NFT = ({
 
   const renderAddressField = !conditionState.asset
   const renderOptionField = !!conditionState.asset
-  const optionFieldText =
-    conditionState.asset === 'Telegram Gifts' ? 'Collection' : 'Length'
 
   return (
     <>
       <Block margin="top" marginValue={24}>
         <List>
           <ListItem
-            text="Category"
+            text="Collection"
             after={
               <AppSelect
                 onChange={(value) => {
@@ -153,7 +151,7 @@ export const NFT = ({
           />
           {renderOptionField && (
             <ListItem
-              text={optionFieldText}
+              text="Category"
               after={
                 <AppSelect
                   onChange={(value) => handleChangeCondition('category', value)}

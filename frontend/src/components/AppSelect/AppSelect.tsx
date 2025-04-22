@@ -26,14 +26,15 @@ export const AppSelect = ({
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         disabled={disabled}
+        dir="rtl"
       >
         {placeholder && (
-          <option value="" disabled>
+          <option dir="ltr" value="" disabled>
             {placeholder}
           </option>
         )}
         {options?.map((option) => (
-          <option key={option.value} value={option.value}>
+          <option key={option.value} dir="ltr" value={option.value}>
             {option.name}
           </option>
         ))}
