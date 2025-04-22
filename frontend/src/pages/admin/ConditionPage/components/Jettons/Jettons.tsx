@@ -130,7 +130,7 @@ export const Jettons = ({
             }
           />
           <ListItem
-            text="Category Option"
+            text="Option"
             after={
               <AppSelect
                 onChange={(value) => handleChangeCondition('category', value)}
