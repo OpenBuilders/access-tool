@@ -258,6 +258,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
             address_raw=nft_collection_dto.address,
             asset=asset,
             category=category,
+            entity_id=rule.id,
         )
 
         rule = self.telegram_chat_nft_collection_service.update(
