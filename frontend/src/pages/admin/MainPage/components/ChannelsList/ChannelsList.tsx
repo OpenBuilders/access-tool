@@ -1,7 +1,7 @@
 import { Block, Image, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { separateNumber } from '@utils'
+import { createMembersCount } from '@utils'
 
 import { AdminChat } from '@store'
 
@@ -43,7 +43,7 @@ export const ChannelsList = ({ channels }: ChannelsListProps) => {
                 description={
                   channel.membersCount && (
                     <Text type="caption2" color="tertiary">
-                      {separateNumber(channel.membersCount)} members
+                      {createMembersCount(channel.membersCount)}
                     </Text>
                   )
                 }

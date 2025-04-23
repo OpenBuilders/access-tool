@@ -94,6 +94,10 @@ export const NFT = ({
         expected: condition?.expected || '',
       }
 
+      if (condition?.asset) {
+        delete updatedConditionState.address
+      }
+
       if (!isNewCondition) {
         updatedConditionState = {
           ...updatedConditionState,
@@ -120,8 +124,8 @@ export const NFT = ({
               <AppSelect
                 onChange={(value) => {
                   if (value === 'Any') {
-                    handleChangeCondition('category', undefined)
-                    handleChangeCondition('asset', undefined)
+                    handleChangeCondition('category', null)
+                    handleChangeCondition('asset', null)
                     handleChangeCondition('address', '')
                     handleChangeCondition('blockchainAddress', '')
                     resetPrefetchedConditionDataAction()
@@ -131,7 +135,7 @@ export const NFT = ({
                       (asset) => asset.asset === value
                     )
                     handleChangeCondition('category', category?.categories[0])
-                    handleChangeCondition('address', undefined)
+                    handleChangeCondition('address', null)
                     handleChangeCondition('blockchainAddress', undefined)
                   }
                 }}
@@ -154,13 +158,19 @@ export const NFT = ({
               text="Category"
               after={
                 <AppSelect
-                  onChange={(value) => handleChangeCondition('category', value)}
-                  value={conditionState?.category}
+                  onChange={(value) => {
+                    if (value === 'any') {
+                      handleChangeCondition('category', null)
+                    } else {
+                      handleChangeCondition('category', value)
+                    }
+                  }}
+                  value={conditionState?.category || 'any'}
                   options={categories
                     .find((asset) => asset.asset === conditionState?.asset)
                     ?.categories?.map((category) => ({
-                      value: category,
-                      name: category,
+                      value: category || 'any',
+                      name: category || 'Any',
                     }))}
                 />
               }
