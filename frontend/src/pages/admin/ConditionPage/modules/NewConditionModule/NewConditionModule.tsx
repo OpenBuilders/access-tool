@@ -24,6 +24,8 @@ export const NewConditionModule = () => {
     conditionType: string
   }>()
 
+  const [isCreating, setIsCreating] = useState(false)
+
   const chatSlugParam = params.chatSlug || ''
   const conditionTypeParam = params.conditionType || ''
 
@@ -56,7 +58,7 @@ export const NewConditionModule = () => {
 
   const handleChangeCondition = (
     key: keyof Condition,
-    value?: string | number | number[] | undefined | boolean
+    value?: string | number | number[] | undefined | boolean | null
   ) => {
     setConditionState((prev) => ({
       ...prev,
@@ -65,6 +67,7 @@ export const NewConditionModule = () => {
   }
 
   const handleCreateCondition = async () => {
+    setIsCreating(true)
     try {
       const data = removeEmptyFields(conditionState)
       await createConditionAction({
@@ -91,6 +94,8 @@ export const NewConditionModule = () => {
         message: 'Failed to create condition',
         type: 'error',
       })
+    } finally {
+      setIsCreating(false)
     }
   }
 
@@ -122,6 +127,8 @@ export const NewConditionModule = () => {
       <TelegramMainButton
         text="Add Condition"
         onClick={handleCreateCondition}
+        loading={isCreating}
+        disabled={isCreating}
       />
       <Block margin="top" marginValue={32}>
         <Text type="title" weight="bold" align="center">

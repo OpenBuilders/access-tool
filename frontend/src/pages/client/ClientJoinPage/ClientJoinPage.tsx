@@ -8,7 +8,7 @@ import {
   Text,
 } from '@components'
 import { useError } from '@hooks'
-import { goTo, separateNumber } from '@utils'
+import { createMembersCount, goTo } from '@utils'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -78,8 +78,8 @@ export const ClientJoinPage = () => {
       />
       {chat?.membersCount && (
         <Block margin="top" marginValue={8}>
-          <Text type="text" color="tertiary">
-            {separateNumber(chat?.membersCount)} members
+          <Text type="text" color="tertiary" align="center">
+            {createMembersCount(chat?.membersCount)}
           </Text>
         </Block>
       )}

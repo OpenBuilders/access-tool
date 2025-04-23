@@ -9,7 +9,7 @@ import {
   Text,
 } from '@components'
 import { useClipboard } from '@hooks'
-import { separateNumber } from '@utils'
+import { createMembersCount } from '@utils'
 import { useState } from 'react'
 
 import config from '@config'
@@ -76,9 +76,9 @@ export const ChatHeader = () => {
         </Text>
       </Block>
       {chat?.membersCount && (
-        <Block margin="top" marginValue={12}>
-          <Text type="caption2" color="tertiary">
-            {separateNumber(chat?.membersCount)} members
+        <Block margin="top" marginValue={8}>
+          <Text type="caption2" color="tertiary" align="center">
+            {createMembersCount(chat?.membersCount)}
           </Text>
         </Block>
       )}

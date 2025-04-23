@@ -37,6 +37,7 @@ export const ConditionModule = () => {
 
   const [conditionState, setConditionState] = useState<Partial<Condition>>({})
   const [isSaved, setIsSaved] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const { showToast } = useToast()
 
@@ -110,7 +111,7 @@ export const ConditionModule = () => {
   const handleChangeCondition = useCallback(
     (
       key: keyof Condition,
-      value: string | number | number[] | undefined | boolean
+      value: string | number | number[] | undefined | boolean | null
     ) => {
       setIsSaved(false)
       setConditionState((prev) => ({ ...prev, [key]: value }))
@@ -120,6 +121,7 @@ export const ConditionModule = () => {
 
   const handleUpdateCondition = async () => {
     if (!conditionIdParam || !chatSlugParam) return
+    setIsUpdating(true)
     const data = removeEmptyFields(conditionState)
     try {
       await updateConditionAction({
@@ -139,6 +141,8 @@ export const ConditionModule = () => {
         message: 'Failed to update condition',
         type: 'error',
       })
+    } finally {
+      setIsUpdating(false)
     }
   }
   if (!condition) return null
@@ -161,8 +165,9 @@ export const ConditionModule = () => {
     <>
       <TelegramMainButton
         text="Save"
-        disabled={isSaved}
+        disabled={isSaved || isUpdating}
         onClick={handleUpdateCondition}
+        loading={isUpdating}
       />
       <Block margin="top" marginValue={32}>
         <Text type="title1" weight="bold" align="center">

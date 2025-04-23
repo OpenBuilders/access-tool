@@ -1,5 +1,5 @@
 import { Image, Text, Block } from '@components'
-import { separateNumber } from '@utils'
+import { createMembersCount } from '@utils'
 
 import { useChat } from '@store'
 
@@ -19,18 +19,18 @@ export const ChatHeader = () => {
           {chat?.title}
         </Text>
       </Block>
+      {chat?.membersCount && (
+        <Block margin="top" marginValue={8}>
+          <Text type="caption2" color="tertiary" align="center">
+            {createMembersCount(chat?.membersCount)}
+          </Text>
+        </Block>
+      )}
       <Block margin="top" marginValue={8}>
         <Text type="text" align="center" color="tertiary">
           {chat?.description}
         </Text>
       </Block>
-      {chat?.membersCount && (
-        <Block margin="top" marginValue={12}>
-          <Text type="text" color="tertiary">
-            {separateNumber(chat?.membersCount)} members
-          </Text>
-        </Block>
-      )}
     </>
   )
 }
