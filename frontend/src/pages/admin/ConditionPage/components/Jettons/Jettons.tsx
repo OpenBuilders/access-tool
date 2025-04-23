@@ -116,19 +116,6 @@ export const Jettons = ({
     <>
       <Block margin="top" marginValue={24}>
         <List>
-          {/* <ListItem
-            text="Category"
-            after={
-              <AppSelect
-                onChange={(value) => handleChangeCondition('asset', value)}
-                value={conditionState?.asset}
-                options={categories.map((asset) => ({
-                  value: asset.asset,
-                  name: asset.asset,
-                }))}
-              />
-            }
-          /> */}
           <ListItem
             text="Category"
             after={

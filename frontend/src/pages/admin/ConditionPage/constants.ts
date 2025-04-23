@@ -1,4 +1,12 @@
-import { Emoji, Jettons, NFT, Premium, Toncoin, Whitelist } from './components'
+import {
+  Emoji,
+  Jettons,
+  NFT,
+  Premium,
+  Toncoin,
+  Whitelist,
+  WhitelistExternal,
+} from './components'
 
 export const CONDITION_TYPES = [
   {
@@ -25,6 +33,10 @@ export const CONDITION_TYPES = [
     value: 'emoji',
     name: 'Emoji Status',
   },
+  {
+    value: 'whitelist_external',
+    name: 'Custom API',
+  },
 ]
 
 export const CONDITION_COMPONENTS = {
@@ -34,4 +46,5 @@ export const CONDITION_COMPONENTS = {
   toncoin: Toncoin,
   premium: Premium,
   emoji: Emoji,
+  whitelist_external: WhitelistExternal,
 }
