@@ -55,9 +55,13 @@ export const ListItem = ({
           {children && children}
         </div>
       </div>
-      <div className={cn(styles.right, chevron && isDarkTheme && styles.dark)}>
+      <div className={styles.right}>
         {after || null}
-        {chevron && <Icon name="chevron" />}
+        {chevron && (
+          <div className={cn(styles.chevron, isDarkTheme && styles.dark)}>
+            <Icon name="chevron" />
+          </div>
+        )}
       </div>
     </div>
   )

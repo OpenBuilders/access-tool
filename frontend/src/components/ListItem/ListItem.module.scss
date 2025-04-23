@@ -19,6 +19,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   flex: 1;
 }
 
@@ -46,6 +47,20 @@
 
 .clickable {
   cursor: pointer;
+}
+
+.chevron {
+  width: 7px;
+  max-width: 7px;
+  min-width: 7px;
+  height: 12px;
+  max-height: 12px;
+  min-height: 12px;
+
+  svg {
+    height: 100%;
+    width: 100%;
+  }
 }
 
 .dark {
