@@ -48,6 +48,7 @@ class TelethonService:
     async def start(self) -> None:
         if self.client.is_connected():
             return
+        logger.info("Initiating Telethon connection.")
         await self.client.start(bot_token=core_settings.telegram_bot_token)
 
     def start_sync(self) -> None:

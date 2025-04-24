@@ -57,7 +57,6 @@ class TelegramChatAction(BaseAction):
     def __init__(
         self, db_session: Session, telethon_client: TelegramClient | None = None
     ):
-        logger.info(f"Initializing TelegramChatAction {telethon_client=}")
         super().__init__(db_session)
         self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)

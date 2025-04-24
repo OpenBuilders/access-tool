@@ -1,3 +1,4 @@
+import re
 from collections.abc import Callable
 
 from core.enums.nft import NftCollectionAsset
@@ -16,6 +17,34 @@ class TelegramNumber:
         return len(self.digits)
 
 
+def _is_telegram_number(nft_item: NftItem) -> bool:
+    if (
+        nft_item.collection_address
+        != NFT_ASSET_TO_ADDRESS_MAPPING[NftCollectionAsset.TELEGRAM_NUMBER]
+    ):
+        return False
+
+    if not nft_item.blockchain_metadata.name:
+        return False
+
+    return True
+
+
+def _is_valid_length(item: NftItem, target_length: int) -> bool:
+    telegram_number = TelegramNumber(item.blockchain_metadata.name)
+    return len(telegram_number) <= target_length
+
+
+def _is_substring_in_number(item: NftItem, substring: str) -> bool:
+    telegram_number = TelegramNumber(item.blockchain_metadata.name)
+    return substring in telegram_number.digits
+
+
+def _is_regex_matched(item: NftItem, regex_pattern: re.Pattern) -> bool:
+    telegram_number = TelegramNumber(item.blockchain_metadata.name)
+    return bool(regex_pattern.match(telegram_number.digits))
+
+
 def handle_telegram_numbers_length_category(
     target_length: int,
 ) -> Callable[[list[NftItem]], list[NftItem]]:
@@ -31,23 +60,42 @@ def handle_telegram_numbers_length_category(
     """
 
     def _inner(nfts: list[NftItem]) -> list[NftItem]:
-        valid_nfts = []
+        return list(
+            filter(
+                lambda item: _is_telegram_number(item)
+                and _is_valid_length(item, target_length=target_length),
+                nfts,
+            )
+        )
 
-        for nft in nfts:
-            if (
-                nft.collection_address
-                != NFT_ASSET_TO_ADDRESS_MAPPING[NftCollectionAsset.TELEGRAM_NUMBER]
-            ):
-                continue
+    return _inner
 
-            if not nft.blockchain_metadata.name:
-                continue
 
-            telegram_number = TelegramNumber(nft.blockchain_metadata.name)
+def handle_telegram_numbers_substring_category(
+    substring: str,
+) -> Callable[[list[NftItem]], list[NftItem]]:
+    def _inner(nfts: list[NftItem]) -> list[NftItem]:
+        return list(
+            filter(
+                lambda item: _is_telegram_number(item)
+                and _is_substring_in_number(item, substring=substring),
+                nfts,
+            )
+        )
 
-            if len(telegram_number) <= target_length:
-                valid_nfts.append(nft)
+    return _inner
 
-        return valid_nfts
+
+def handle_telegram_numbers_regex_match_category(
+    regex_pattern: re.Pattern,
+) -> Callable[[list[NftItem]], list[NftItem]]:
+    def _inner(nfts: list[NftItem]) -> list[NftItem]:
+        return list(
+            filter(
+                lambda item: _is_telegram_number(item)
+                and _is_regex_matched(item, regex_pattern=regex_pattern),
+                nfts,
+            )
+        )
 
     return _inner
