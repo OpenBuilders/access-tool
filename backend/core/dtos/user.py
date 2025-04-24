@@ -23,10 +23,10 @@ class UserInitDataPO(BaseModel):
 
 class TelegramUserDTO(BaseModel):
     id: int
-    first_name: str
+    first_name: str = ""
     last_name: str | None = None
     username: str | None = None
-    is_premium: bool
+    is_premium: bool = False
     language_code: str
     photo_url: str | None = None
     allow_write_to_pm: bool = True

@@ -164,8 +164,9 @@ class TelegramChatAction(BaseAction):
                     last_name=participant_user.last_name,
                     username=participant_user.username,
                     is_premium=participant_user.premium or False,
-                    language_code=participant_user.lang_code
-                    or core_settings.default_language,
+                    language_code=(
+                        participant_user.lang_code or core_settings.default_language
+                    ),
                 )
             )
             self.telegram_chat_user_service.create_or_update(
@@ -192,10 +193,13 @@ class TelegramChatAction(BaseAction):
             logger.info(f"Creating a new chat invite link for the chat {chat_id!r}...")
             invite_link = await self.telethon_service.get_invite_link(chat)
             self.telegram_chat_service.refresh_invite_link(chat_id, invite_link.link)
-        logger.info(f"Chat {chat_id!r} created successfully")
         await self._load_participants(telegram_chat.id)
 
-    async def fetch_and_push_profile_photo(self, chat: ChatPeerType) -> Path | None:
+    async def fetch_and_push_profile_photo(
+        self,
+        chat: ChatPeerType,
+        current_logo_path: str | None,
+    ) -> Path | None:
         """
         Fetches the profile photo of a chat and uploads it for hosting. This function
         handles the download of the profile photo from the given chat and then pushes
@@ -203,15 +207,19 @@ class TelegramChatAction(BaseAction):
         be returned as a Path object; otherwise, None is returned.
 
         :param chat: The chat from which the profile photo is to be fetched.
+        :param current_logo_path: The current logo path in the database.
         :return: The local path of the fetched profile photo or None
         """
-        logo_path = await self.telethon_service.download_profile_photo(chat)
+        logo_path = await self.telethon_service.download_profile_photo(
+            entity=chat,
+            current_logo_path=current_logo_path,
+        )
         if logo_path:
             await self.cdn_service.upload_file(
                 file_path=logo_path,
                 object_name=logo_path.name,
             )
-            logger.info(f"Profile photo for chat {chat.id!r} uploaded")
+            logger.info(f"New profile photo for chat {chat.id!r} uploaded")
         return logo_path
 
     async def _create(
@@ -230,7 +238,9 @@ class TelegramChatAction(BaseAction):
         :return: A DTO containing the details of the created Telegram chat.
         :raises TelegramChatAlreadyExists: If the chat already exists in the database.
         """
-        logo_path = await self.fetch_and_push_profile_photo(chat)
+        logo_path = await self.fetch_and_push_profile_photo(
+            chat, current_logo_path=None
+        )
         try:
             chat_id = get_peer_id(chat, add_mark=True)
             telegram_chat = self.telegram_chat_service.create(
@@ -325,7 +335,7 @@ class TelegramChatAction(BaseAction):
         :raises TelegramChatNotSufficientPrivileges: If the bot lacks functionality privileges within the chat
         """
         try:
-            chat_entity, logo_path = await self._get_chat_data(chat.id)
+            chat_entity = await self._get_chat_data(chat.id)
 
         except (
             TelegramChatNotSufficientPrivileges,  # happens when bot has no rights to function in the chat
@@ -343,10 +353,16 @@ class TelegramChatAction(BaseAction):
             self.telegram_chat_service.delete(chat_id=chat.id)
             raise
 
+        logo_path = await self.fetch_and_push_profile_photo(
+            chat_entity, current_logo_path=chat.logo_path
+        )
+
         chat = self.telegram_chat_service.update(
             chat=chat,
             entity=chat_entity,
-            logo_path=logo_path.name,
+            # If a new logo was downloaded - use it,
+            #  otherwise fallback to the current one
+            logo_path=logo_path.name if logo_path else chat.logo_path,
         )
         await self.index(chat_entity)
         logger.info(f"Chat {chat.id!r} refreshed successfully")
