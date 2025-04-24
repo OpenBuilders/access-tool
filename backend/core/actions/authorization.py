@@ -14,6 +14,7 @@ from core.dtos.chat.rules import (
 from core.dtos.chat.rules.internal import (
     EligibilitySummaryInternalDTO,
     RulesEligibilitySummaryInternalDTO,
+    RulesEligibilityGroupSummaryInternalDTO,
 )
 from core.dtos.user import TelegramUserDTO
 from core.enums.nft import NftCollectionAsset
@@ -385,19 +386,6 @@ class AuthorizationAction(BaseAction):
             [
                 EligibilitySummaryInternalDTO(
                     id=rule.id,
-                    type=EligibilityCheckType.WHITELIST,
-                    expected=1,
-                    title=rule.name,
-                    actual=cls.is_whitelisted(user=user, rule=rule),
-                    is_enabled=rule.is_enabled,
-                )
-                for rule in eligibility_rules.whitelist_sources
-            ]
-        )
-        items.extend(
-            [
-                EligibilitySummaryInternalDTO(
-                    id=rule.id,
                     type=EligibilityCheckType.PREMIUM,
                     expected=1,
                     title="Telegram Premium",
@@ -441,9 +429,41 @@ class AuthorizationAction(BaseAction):
                 for rule in eligibility_rules.emoji
             ]
         )
-        return RulesEligibilitySummaryInternalDTO(
+        basic_group = RulesEligibilityGroupSummaryInternalDTO(
             items=items,
-            is_admin=bool(chat_member and chat_member.is_admin),
+        )
+        whitelist_group = RulesEligibilityGroupSummaryInternalDTO(
+            items=[
+                EligibilitySummaryInternalDTO(
+                    id=rule.id,
+                    type=EligibilityCheckType.WHITELIST,
+                    expected=1,
+                    title=rule.name,
+                    actual=cls.is_whitelisted(user=user, rule=rule),
+                    is_enabled=rule.is_enabled,
+                )
+                for rule in eligibility_rules.whitelist_sources
+            ]
+        )
+        external_source_group = RulesEligibilityGroupSummaryInternalDTO(
+            items=[
+                EligibilitySummaryInternalDTO(
+                    id=rule.id,
+                    type=EligibilityCheckType.EXTERNAL_SOURCE,
+                    expected=1,
+                    title=rule.name,
+                    actual=cls.is_whitelisted(user=user, rule=rule),
+                    is_enabled=rule.is_enabled,
+                )
+                for rule in eligibility_rules.whitelist_external_sources
+            ]
+        )
+        return RulesEligibilitySummaryInternalDTO(
+            groups=[
+                basic_group,
+                whitelist_group,
+                external_source_group,
+            ],
             wallet=user_wallet.address if user_wallet else None,
         )
 
