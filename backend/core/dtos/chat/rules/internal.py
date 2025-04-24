@@ -41,17 +41,43 @@ class EligibilitySummaryInternalDTO(BaseModel):
         )
 
 
-class RulesEligibilitySummaryInternalDTO(BaseModel):
+class RulesEligibilityGroupSummaryInternalDTO(BaseModel):
     """
-    Used for internal purposes to check if chat is eligible for promotion
+    Represents a summary of eligibility groups consisting of multiple eligibility
+    summary items.
+
+    This class acts as a container for a list of eligibility summary items and
+    provides utility methods to evaluate their collective eligibility state.
     """
 
     items: list[EligibilitySummaryInternalDTO]
-    wallet: str | None = None
-    is_admin: bool
 
     def __bool__(self):
         return all(item.is_eligible for item in self.items)
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} ({self.items=}) {self.is_admin=}>"
+        return f"<{self.__class__.__name__} ({self.items=})>"
+
+
+class RulesEligibilitySummaryInternalDTO(BaseModel):
+    """
+    Represents a summary of rule eligibility along with associated wallet details.
+
+    The class is designed to encapsulate multiple groups of rule eligibility
+    summaries and provide aggregated access to their items. It provides boolean
+    context for determining overall eligibility and a string representation of
+    its contents.
+    """
+
+    groups: list[RulesEligibilityGroupSummaryInternalDTO]
+    wallet: str | None = None
+
+    @property
+    def items(self) -> list[EligibilitySummaryInternalDTO]:
+        return [item for group in self.groups for item in group.items]
+
+    def __bool__(self):
+        return any(bool(group) for group in self.groups)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} ({self.items=})>"
