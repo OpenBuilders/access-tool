@@ -66,8 +66,10 @@ async def get_nft_collection_categories() -> list[CategoriesFDO]:
     return [
         CategoriesFDO(
             asset=asset.value,
-            categories=list(category_definition.enum)
-            + ([None] if category_definition.is_optional else []),
+            categories=(
+                ([None] if category_definition.is_optional else [])
+                + list(category_definition.enum)
+            ),
         )
         for asset, category_definition in ASSET_TO_CATEGORY_TYPE_MAPPING.items()
     ]

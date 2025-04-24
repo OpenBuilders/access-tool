@@ -45,6 +45,19 @@ class TelegramUsernameCategory(enum.StrEnum):
 class TelegramNumberCategory(enum.StrEnum):
     DIGITS_7 = "7 digits"
     DIGITS_11 = "11 digits"
+    CLUB_007 = "007 Club"
+    CLUB_69 = "69 Club"
+    CLUB_420 = "420 Club"
+    CLUB_666 = "666 Club"
+    CLUB_777 = "777 Club"
+    CLUB_888 = "888 Club"
+    CLUB_1337 = "1337 Club"
+    CLUB_BINARY = "Binary Club"
+    REPEAT_2 = "XX"
+    REPEAT_3 = "XXX"
+    REPEAT_4 = "XXXX"
+    REPEAT_5 = "XXXXX"
+    YEAR = "Year"
 
 
 class TonDnsCategory(enum.StrEnum):
