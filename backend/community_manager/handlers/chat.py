@@ -30,6 +30,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
         if not telegram_chat_service.check_exists(event.chat_id):
             logger.debug(
                 "Chat doesn't exist, but bot was not added to the chat: %d. Skipping event...",
+                event.chat_id,
             )
             return
 
@@ -43,7 +44,9 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 session, telethon_client=event.client
             )
             logo_path = await telegram_chat_action.fetch_and_push_profile_photo(
-                event.chat
+                event.chat,
+                # We definitely know here that the new photo was set - no need to fetch the current value
+                current_logo_path=None,
             )
             if logo_path:
                 logger.debug(

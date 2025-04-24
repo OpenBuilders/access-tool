@@ -42,8 +42,6 @@ def handle_telegram_username_length_category(
 
             telegram_username = TelegramUsername(nft.blockchain_metadata.name)
 
-            print(telegram_username.username, target_length, len(telegram_username))
-
             if len(telegram_username) <= target_length:
                 valid_nfts.append(nft)
 

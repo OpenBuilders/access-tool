@@ -1,4 +1,3 @@
-import datetime
 import logging
 from pathlib import Path
 from typing import AsyncGenerator
@@ -94,23 +93,31 @@ class TelethonService:
             )
         )
 
-    async def download_profile_photo(self, entity: Channel) -> Path | None:
+    async def download_profile_photo(
+        self,
+        entity: Channel,
+        current_logo_path: str | None = None,
+    ) -> Path | None:
         if not entity.photo or isinstance(entity.photo, ChatPhotoEmpty):
             logger.debug(f"Chat {entity.id!r} does not have a logo. Skipping")
             return None
 
-        # Adding timestamp allows to bypass the cache of the image to reflect the change
-        logo_path = f"{entity.id}-{int(datetime.datetime.now().timestamp())}.jpg"
+        # Adding timestamp allows bypassing the cache of the image to reflect the change
+        new_file_name = f"{entity.photo.photo_id}.png"
 
-        with open(CHAT_LOGO_PATH / logo_path, "wb") as f:
+        if current_logo_path and current_logo_path == new_file_name:
+            logger.debug(f"Logo for chat {entity.id} is up-to-date. Skipping download.")
+            return None
+
+        with open(CHAT_LOGO_PATH / new_file_name, "wb") as f:
             await self.client.download_profile_photo(entity, f)
 
-        # To avoid redundant files, we clean the old versions of the logo
+        # To avoid redundant files, we remove the previous file
         clean_old_versions(
-            path=CHAT_LOGO_PATH, prefix=f"{entity.id}-", current_file=logo_path
+            path=CHAT_LOGO_PATH, prefix=current_logo_path, current_file=new_file_name
         )
 
-        return CHAT_LOGO_PATH / logo_path
+        return CHAT_LOGO_PATH / new_file_name
 
     async def promote_user(
         self, chat_id: int, telegram_user_id: int, custom_title: str
