@@ -7,7 +7,7 @@ import { Condition } from '@store'
 
 import { ConditionComponentProps } from '../types'
 
-export const WhitelistExternal = ({
+export const ExternalSource = ({
   isNewCondition,
   handleChangeCondition,
   conditionState,
@@ -20,7 +20,7 @@ export const WhitelistExternal = ({
 
   useEffect(() => {
     let updatedConditionState: Partial<Condition> = {
-      type: 'whitelist_external',
+      type: 'external_source',
       description: condition?.description || '',
       authKey: condition?.authKey || undefined,
       authValue: condition?.authValue || undefined,

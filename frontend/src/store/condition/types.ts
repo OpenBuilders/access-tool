@@ -7,7 +7,7 @@ export type ConditionType =
   | 'jetton'
   | 'nft_collection'
   | 'whitelist'
-  | 'whitelist_external'
+  | 'external_source'
   | 'premium'
   | 'toncoin'
   | 'emoji'

@@ -5,7 +5,7 @@ import {
   Premium,
   Toncoin,
   Whitelist,
-  WhitelistExternal,
+  ExternalSource,
 } from './components'
 
 export const CONDITION_TYPES = [
@@ -34,7 +34,7 @@ export const CONDITION_TYPES = [
     name: 'Emoji Status',
   },
   {
-    value: 'whitelist_external',
+    value: 'external_source',
     name: 'Custom API',
   },
 ]
@@ -46,5 +46,5 @@ export const CONDITION_COMPONENTS = {
   toncoin: Toncoin,
   premium: Premium,
   emoji: Emoji,
-  whitelist_external: WhitelistExternal,
+  external_source: ExternalSource,
 }
