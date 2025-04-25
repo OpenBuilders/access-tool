@@ -123,6 +123,8 @@ async def add_chat_whitelist_external_source_rule(
             name=rule.name,
             description=rule.description,
             external_source_url=str(rule.url),
+            auth_key=rule.auth_key,
+            auth_value=rule.auth_value,
         )
     except Exception as e:
         logger.error("Failed to create whitelist external source", exc_info=e)
@@ -168,6 +170,8 @@ async def update_chat_whitelist_external_source_rule(
             name=rule.name,
             description=rule.description,
             external_source_url=str(rule.url),
+            auth_key=rule.auth_key,
+            auth_value=rule.auth_value,
             is_enabled=rule.is_enabled,
         )
     except Exception as e:

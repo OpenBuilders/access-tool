@@ -145,6 +145,16 @@ class TelegramChatWhitelistExternalSource(TelegramChatWhitelistBase):
     __tablename__ = "telegram_chat_whitelist_external_source"
 
     url = mapped_column(String(255), nullable=False)
+    auth_key = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Header name that will be used for authentication",
+    )
+    auth_value = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Header value that will be used for authentication",
+    )
 
     __table_args__ = (
         UniqueConstraint(

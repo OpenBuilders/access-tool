@@ -345,6 +345,17 @@ class CreateWhitelistRuleCPO(CreateWhitelistRuleBaseCPO):
 
 class CreateWhitelistRuleExternalCPO(CreateWhitelistRuleBaseCPO):
     url: AnyHttpUrl
+    auth_key: str | None = None
+    auth_value: str | None = None
+
+    @model_validator(mode="after")
+    def validate_key_value(self) -> Self:
+        if bool(self.auth_key) != bool(self.auth_value):
+            raise ValueError(
+                "Both auth_key and auth_value must be specified or omitted"
+            )
+
+        return self
 
 
 class UpdateWhitelistRuleCPO(CreateWhitelistRuleCPO):
