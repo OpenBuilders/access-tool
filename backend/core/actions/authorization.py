@@ -214,6 +214,9 @@ class AuthorizationAction(BaseAction):
         unique_wallets: set[tuple[int, str]] = {
             (chat_member.user_id, chat_member.wallet_link.address)
             for chat_member in chat_members
+            # Some users might don't have the wallet connected,
+            #  but are still chat members
+            if chat_member.wallet_link
         }
 
         nft_items_per_wallet = defaultdict(list)
@@ -224,16 +227,13 @@ class AuthorizationAction(BaseAction):
 
         # Prefetch wallet resources from the database
         for user_id, wallet in unique_wallets:
-            if not wallet:
-                continue
-
             nft_items_per_wallet[wallet] = nft_item_service.get_all(
                 owner_address=wallet
             )
             jetton_wallets_per_wallet[wallet] = self.jetton_wallet_service.get_all(
                 owner_address=wallet
             )
-            # Users could be repeated now if one user has multiple wallets connected e.g.
+            # Users could be repeated if one user has multiple wallets connected
             if user_id not in sticker_items_per_user:
                 sticker_items_per_user[user_id] = sticker_item_service.get_all(
                     user_id=user_id
@@ -242,16 +242,20 @@ class AuthorizationAction(BaseAction):
         ineligible_members = []
         for chat, members in members_per_chat.items():
             for member in members:
+                member_wallet = (
+                    member.wallet_link.wallet if member.wallet_link else None
+                )
+                member_wallet_address = member_wallet.address if member_wallet else None
                 if not (
                     eligibility_summary := self.check_chat_member_eligibility(
                         eligibility_rules=eligibility_rules_per_chat[chat],
                         user=member.user,
-                        user_wallet=member.wallet_link.wallet,
+                        user_wallet=member_wallet,
                         user_jettons=jetton_wallets_per_wallet.get(
-                            member.wallet_link.address, []
+                            member_wallet_address, []
                         ),
                         user_nft_items=nft_items_per_wallet.get(
-                            member.wallet_link.address, []
+                            member_wallet_address, []
                         ),
                         user_sticker_items=sticker_items_per_user.get(
                             member.user_id, []
