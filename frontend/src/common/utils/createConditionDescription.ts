@@ -6,7 +6,7 @@ const ASSETS_WITH_DESCRIPTION = [
   'TON DNS',
 ]
 
-export const renderDescription = (condition: Condition) => {
+export const createConditionDescription = (condition: Condition) => {
   const { type, category, asset } = condition
 
   if (

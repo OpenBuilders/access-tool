@@ -2,7 +2,7 @@ import { Block, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { CONDITION_TYPES } from '@pages'
 import { ROUTES_NAME } from '@routes'
-import { createConditionName } from '@utils'
+import { createConditionDescription, createConditionName } from '@utils'
 
 import { useChat, Condition } from '@store'
 
@@ -40,6 +40,7 @@ export const ChatConditions = () => {
             key={rule.id}
             chevron
             text={createConditionName(rule)}
+            description={createConditionDescription(rule)}
             onClick={() => navigateToConditionPage(rule)}
           />
         ))}
