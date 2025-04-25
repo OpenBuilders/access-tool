@@ -28,8 +28,9 @@ export const createButtonText = ({
 }: CreateButtonTextProps) => {
   const needWalletConnection = checkWalletRequirements(rules)
   const emojiCondition = rules?.find((rule) => rule.type === 'emoji')
+  const whitelistCondition = rules?.find((rule) => rule.type === 'whitelist')
 
-  if (emojiCondition) {
+  if (emojiCondition && !whitelistCondition) {
     const checkEmojiStatusCompleted = LocalStorageService.getItem(
       `emojiStatusCompleted_${chat.slug}_${emojiCondition.id}`
     )
