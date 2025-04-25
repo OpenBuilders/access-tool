@@ -1,10 +1,10 @@
 import { Icon, ListItem, Text } from '@components'
 import { createConditionName } from '@utils'
+import { createConditionDescription } from '@utils'
 
 import { ChatInstance, Condition } from '@store'
 
 import { EmojiStatusCondition } from '../EmojiStatusCondition/EmojiStatusCondition'
-import { renderDescription } from './helpers'
 
 interface ChatConditionItemProps {
   condition: Condition
@@ -70,7 +70,7 @@ export const ChatConditionItem = ({
         text={<Text type="text">{createConditionName(condition)}</Text>}
         description={
           <Text type="caption2" color="tertiary">
-            {renderDescription(condition)}
+            {createConditionDescription(condition)}
           </Text>
         }
       />
@@ -85,7 +85,7 @@ export const ChatConditionItem = ({
       text={<Text type="text">{createConditionName(condition)}</Text>}
       description={
         <Text type="caption2" color="tertiary">
-          {renderDescription(condition)}
+          {createConditionDescription(condition)}
         </Text>
       }
     />
