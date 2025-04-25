@@ -4,6 +4,7 @@ import { createConditionName } from '@utils'
 import { ChatInstance, Condition } from '@store'
 
 import { EmojiStatusCondition } from '../EmojiStatusCondition/EmojiStatusCondition'
+import { renderDescription } from './helpers'
 
 interface ChatConditionItemProps {
   condition: Condition
@@ -67,16 +68,26 @@ export const ChatConditionItem = ({
       <ListItem
         before={<Icon name="check" size={24} />}
         text={<Text type="text">{createConditionName(condition)}</Text>}
+        description={
+          <Text type="caption2" color="tertiary">
+            {renderDescription(condition)}
+          </Text>
+        }
       />
     )
   }
 
   return (
     <ListItem
-      chevron={!!promoteUrl || !disabled}
+      chevron={!!promoteUrl && !disabled}
       onClick={handleOpenLink}
       before={<Icon name="cross" size={24} />}
       text={<Text type="text">{createConditionName(condition)}</Text>}
+      description={
+        <Text type="caption2" color="tertiary">
+          {renderDescription(condition)}
+        </Text>
+      }
     />
   )
 }
