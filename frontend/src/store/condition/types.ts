@@ -31,6 +31,8 @@ export interface Condition {
   actual?: number
   url?: string
   emojiId?: string
+  authKey?: string
+  authValue?: string
 }
 
 export interface PrefetchedConditionData {

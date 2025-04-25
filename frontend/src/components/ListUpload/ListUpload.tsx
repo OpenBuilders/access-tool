@@ -1,4 +1,4 @@
-import { List, ListItem, Text } from '@components'
+import { List, ListItem, Spinner, Text } from '@components'
 import { collapseEnd } from '@utils'
 import Papa from 'papaparse'
 import { useEffect, useState } from 'react'
@@ -154,7 +154,7 @@ export const ListUpload = ({
         }
         after={
           isLoading ? (
-            <div className={styles.loader} />
+            <Spinner />
           ) : (
             <Text type="text" color="accent">
               {fileData?.name ? collapseEnd(fileData.name, 14) : 'Upload'}

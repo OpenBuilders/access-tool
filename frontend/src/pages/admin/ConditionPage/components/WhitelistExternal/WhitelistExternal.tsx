@@ -1,4 +1,4 @@
-import { List, ListInput, ListItem, Text } from '@components'
+import { List, ListInput, ListItem, Spinner, Text } from '@components'
 import { Block, useToast } from '@components'
 import { collapseEnd } from '@utils'
 import { useEffect, useState } from 'react'
@@ -16,12 +16,15 @@ export const WhitelistExternal = ({
 }: ConditionComponentProps) => {
   const { showToast } = useToast()
   const [apiData, setApiData] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     let updatedConditionState: Partial<Condition> = {
       type: 'whitelist_external',
-      description: condition?.description || 'Some description',
-      name: condition?.name || 'Custom API',
+      description: condition?.description || '',
+      authKey: condition?.authKey || undefined,
+      authValue: condition?.authValue || undefined,
+      name: condition?.name || '',
       url: condition?.url || '',
     }
 
@@ -46,33 +49,83 @@ export const WhitelistExternal = ({
       return
     }
 
+    setIsLoading(true)
     try {
-      const response = await fetch(conditionState.url)
-      const data = await response.json()
-      setApiData(collapseEnd(JSON.stringify(data, null, 2), 200))
-      showToast({
-        message: 'API call successful',
-        type: 'success',
+      const response = await fetch(conditionState.url, {
+        headers: {
+          Authorization: `${conditionState.authKey} ${conditionState.authValue}`,
+        },
       })
+      const data = await response.json()
+      setApiData(collapseEnd(JSON.stringify(data, null, 1), 200))
     } catch (error) {
       console.error(error)
       showToast({
         message: 'Failed to fetch data from API',
         type: 'error',
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <>
       <Block margin="top" marginValue={24}>
-        <List header="API Endpoint" footer="This condition is in progress">
+        <List header="Name and description">
+          <ListItem>
+            <ListInput
+              placeholder="Name"
+              value={conditionState.name}
+              onChange={(value) => {
+                handleChangeCondition('name', value)
+              }}
+            />
+          </ListItem>
+          <ListItem>
+            <ListInput
+              placeholder="Description (optional)"
+              value={conditionState.description}
+              onChange={(value) => {
+                handleChangeCondition('description', value)
+              }}
+            />
+          </ListItem>
+        </List>
+      </Block>
+      <Block margin="top" marginValue={24}>
+        <List header="API Endpoint">
           <ListItem>
             <ListInput
               placeholder="https://example.com/api/whitelist"
               value={conditionState.url}
               onChange={(value) => {
                 handleChangeCondition('url', value)
+              }}
+            />
+          </ListItem>
+        </List>
+      </Block>
+      <Block margin="top" marginValue={24}>
+        <List
+          header="API Authorization"
+          footer="When any of KEY or VALUE provided, the second value should also be provided"
+        >
+          <ListItem>
+            <ListInput
+              placeholder="Key"
+              value={conditionState.authKey}
+              onChange={(value) => {
+                handleChangeCondition('authKey', value)
+              }}
+            />
+          </ListItem>
+          <ListItem>
+            <ListInput
+              placeholder="Value"
+              value={conditionState.authValue}
+              onChange={(value) => {
+                handleChangeCondition('authValue', value)
               }}
             />
           </ListItem>
@@ -96,6 +149,14 @@ export const WhitelistExternal = ({
               </Text>
             }
           />
+          <ListItem
+            text="Response body"
+            after={
+              <Text type="text" color="tertiary">
+                {`{"users": [1, 2, 3]}`}
+              </Text>
+            }
+          />
         </List>
       </Block>
       <Block margin="top" marginValue={24}>
@@ -107,6 +168,7 @@ export const WhitelistExternal = ({
                 Test API Call
               </Text>
             }
+            after={isLoading ? <Spinner /> : null}
           />
           {apiData && <ListItem text={apiData} />}
         </List>
