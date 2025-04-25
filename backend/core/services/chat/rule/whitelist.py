@@ -61,7 +61,13 @@ class TelegramChatExternalSourceService(
     model = TelegramChatWhitelistExternalSource
 
     def create(
-        self, chat_id: int, name: str, description: str, external_source_url: str
+        self,
+        chat_id: int,
+        name: str,
+        description: str,
+        external_source_url: str,
+        auth_key: str | None,
+        auth_value: str | None,
     ) -> TelegramChatWhitelistExternalSource:
         """
         Warning: This method does not commit the transaction as it could be reverted if the external source is invalid.
@@ -69,6 +75,8 @@ class TelegramChatExternalSourceService(
         :param name: the name of the external source
         :param description: the description of the external source
         :param external_source_url: the external source url
+        :param auth_key: the auth key that will be used to authenticate the external source
+        :param auth_value: the auth value that will be used to authenticate the external source
         :return: the created external source
         """
         new_source = self.model(
@@ -76,6 +84,9 @@ class TelegramChatExternalSourceService(
             url=external_source_url,
             name=name,
             description=description,
+            auth_key=auth_key,
+            auth_value=auth_value,
+            is_enabled=True,
         )
         self.db_session.add(new_source)
         return new_source
@@ -87,6 +98,8 @@ class TelegramChatExternalSourceService(
         name: str,
         description: str,
         external_source_url: str,
+        auth_key: str | None,
+        auth_value: str | None,
         is_enabled: bool,
     ) -> TelegramChatWhitelistExternalSource:
         """
@@ -96,6 +109,8 @@ class TelegramChatExternalSourceService(
         :param name: the name of the external source
         :param description: the description of the external source
         :param external_source_url: the external source url
+        :param auth_key: the auth key that will be used to authenticate the external source
+        :param auth_value: the auth value that will be used to authenticate the external source
         :param is_enabled: whether the external source is enabled
         :return: the updated external source
         """
@@ -103,6 +118,8 @@ class TelegramChatExternalSourceService(
         source.url = external_source_url
         source.name = name
         source.description = description
+        source.auth_key = auth_key
+        source.auth_value = auth_value
         source.is_enabled = is_enabled
         return source
 

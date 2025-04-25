@@ -59,6 +59,8 @@ class WhitelistRuleDTO(BaseWhitelistRuleDTO):
 
 class WhitelistRuleExternalDTO(BaseWhitelistRuleDTO):
     url: str
+    auth_key: str | None
+    auth_value: str | None
 
     @classmethod
     def from_orm(cls, obj: TelegramChatWhitelistExternalSource) -> Self:
@@ -73,4 +75,6 @@ class WhitelistRuleExternalDTO(BaseWhitelistRuleDTO):
             updated_at=obj.updated_at,
             is_enabled=obj.is_enabled,
             users=obj.content,
+            auth_key=obj.auth_key,
+            auth_value=obj.auth_value,
         )

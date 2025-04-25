@@ -18,7 +18,7 @@ from core.services.chat.rule.whitelist import (
     TelegramChatWhitelistService,
 )
 from core.services.chat.user import TelegramChatUserService
-from core.utils.external_source import fetch_whitelist_members
+from core.utils.external_source import fetch_dynamic_allowed_members
 from core.exceptions.chat import (
     TelegramChatInvalidExternalSourceError,
 )
@@ -49,15 +49,15 @@ class TelegramChatWhitelistExternalSourceContentAction(BaseAction):
         raise_for_error: bool = False,
     ) -> None:
         """
-        Refreshes an external source for a Telegram chat whitelist.
+        Refreshes an external source for a Telegram chat dynamic list.
 
-        This method fetches the whitelist members from a given external source URL,
+        This method fetches the dynamic list members from a given external source URL,
         updates the internal data store to reflect the changes in the list, and
         handles the removal of chat members who are no longer eligible. It supports
         raising exceptions for errors encountered during the process, as controlled by
         the `raise_for_error` parameter.
 
-        :param source: The external source from which the whitelist members should be
+        :param source: The external source from which the dynamic list of members should be
             fetched. Represents the source URL and its current content.
         :param raise_for_error: A boolean flag to indicate whether exceptions should be
             raised when errors occur during the fetch operation. Defaults to False.
@@ -66,7 +66,11 @@ class TelegramChatWhitelistExternalSourceContentAction(BaseAction):
         :raises TelegramChatInvalidExternalSourceError: If the external source is invalid.
         """
         try:
-            result = await fetch_whitelist_members(source.url)
+            result = await fetch_dynamic_allowed_members(
+                source.url,
+                auth_key=source.auth_key,
+                auth_value=source.auth_value,
+            )
         except HTTPError as e:
             logger.warning(f"Failed to fetch external source {source.url!r}: {e}")
             if raise_for_error:
@@ -125,7 +129,12 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         return WhitelistRuleExternalDTO.from_orm(external_source)
 
     async def create(
-        self, external_source_url: str, name: str, description: str | None
+        self,
+        external_source_url: str,
+        name: str,
+        description: str | None,
+        auth_key: str | None,
+        auth_value: str | None,
     ) -> WhitelistRuleExternalDTO:
         """
         Creates a new external source for a chat and validates it. If validation fails, rolls
@@ -134,6 +143,8 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         :param external_source_url: The URL of the external source to be added.
         :param name: The name of the external source.
         :param description: An optional description of the external source.
+        :param auth_key: An authentication key for the external source.
+        :param auth_value: An authentication value for the external source.
         :return: An instance of WhitelistRuleExternalDTO representing the created external source.
 
         :raises TelegramChatInvalidExternalSourceError: If the external source is invalid.
@@ -143,6 +154,8 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
             external_source_url=external_source_url,
             name=name,
             description=description,
+            auth_key=auth_key,
+            auth_value=auth_value,
         )
         try:
             await self.content_action.refresh_external_source(
@@ -165,6 +178,8 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         external_source_url: str,
         name: str,
         description: str | None,
+        auth_key: str | None,
+        auth_value: str | None,
         is_enabled: bool,
     ) -> WhitelistRuleExternalDTO:
         """
@@ -177,6 +192,8 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         :param external_source_url: The URL of the external source to be updated.
         :param name: The name of the external source being updated.
         :param description: An optional description of the external source.
+        :param auth_key: An authentication key for the external source.
+        :param auth_value: An authentication value for the external source.
         :param is_enabled: A flag indicating whether the external source should be enabled or
             disabled.
         :return: An instance of `WhitelistRuleExternalDTO` containing the updated external
@@ -190,6 +207,8 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
             external_source_url=external_source_url,
             name=name,
             description=description,
+            auth_key=auth_key,
+            auth_value=auth_value,
             is_enabled=is_enabled,
         )
         if is_enabled:
