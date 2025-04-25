@@ -70,7 +70,8 @@ export const ClientTasksPage = () => {
 
   const buttonAction = async () => {
     const emojiCondition = rules.find((rule) => rule.type === 'emoji')
-    if (emojiCondition) {
+    const whitelistCondition = rules.find((rule) => rule.type === 'whitelist')
+    if (emojiCondition && !whitelistCondition) {
       const checkEmojiStatusCompleted = LocalStorageService.getItem(
         `emojiStatusCompleted_${chat?.slug}_${emojiCondition.id}`
       )
