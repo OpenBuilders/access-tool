@@ -1,33 +1,81 @@
 import { Block, List } from '@components'
 
-import { Condition, useChat } from '@store'
+import { useChat } from '@store'
 
 import { checkWalletRequirements } from '../../helpers'
+import { FormattedConditions } from '../../types'
 import { ChatConditionItem, WalletCondition } from './components'
 
 interface ChatConditionsProps {
-  conditions: Condition[]
+  conditions: FormattedConditions
 }
 
 export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
   const { chat } = useChat()
 
-  const renderWalletCondition = checkWalletRequirements(conditions)
-
-  if (!conditions.length) return null
+  const renderWalletCondition = checkWalletRequirements([
+    ...conditions.available,
+    ...conditions.notNeeded,
+    ...conditions.notAvailable,
+  ])
 
   return (
-    <Block margin="top" marginValue={24}>
-      <List separatorLeftGap={24}>
-        {renderWalletCondition && <WalletCondition />}
-        {conditions.map((condition) => (
-          <ChatConditionItem
-            condition={condition}
-            key={condition.id}
-            chat={chat}
-          />
-        ))}
-      </List>
-    </Block>
+    <>
+      {!!conditions.whitelist.length && (
+        <Block margin="top" marginValue={24}>
+          <List separatorLeftGap={24}>
+            {conditions.whitelist.map((condition) => (
+              <ChatConditionItem
+                condition={condition}
+                key={condition.id}
+                chat={chat}
+              />
+            ))}
+          </List>
+        </Block>
+      )}
+      {!!conditions.notAvailable.length && (
+        <Block margin="top" marginValue={24}>
+          <List separatorLeftGap={24} header="Not available">
+            {conditions.notAvailable.map((condition) => (
+              <ChatConditionItem
+                condition={condition}
+                key={condition.id}
+                chat={chat}
+                disabled
+              />
+            ))}
+          </List>
+        </Block>
+      )}
+      {!!conditions.notNeeded.length && (
+        <Block margin="top" marginValue={24}>
+          <List separatorLeftGap={24} header="Not needed">
+            {renderWalletCondition && <WalletCondition />}
+            {conditions.notNeeded.map((condition) => (
+              <ChatConditionItem
+                condition={condition}
+                key={condition.id}
+                chat={chat}
+              />
+            ))}
+          </List>
+        </Block>
+      )}
+      {!!conditions.available.length && (
+        <Block margin="top" marginValue={24}>
+          <List separatorLeftGap={24}>
+            {renderWalletCondition && <WalletCondition />}
+            {conditions.available.map((condition) => (
+              <ChatConditionItem
+                condition={condition}
+                key={condition.id}
+                chat={chat}
+              />
+            ))}
+          </List>
+        </Block>
+      )}
+    </>
   )
 }
