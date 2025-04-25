@@ -103,10 +103,10 @@ async def get_chat_whitelist_rule(
     return WhitelistRuleFDO.model_validate(result.model_dump())
 
 
-manage_external_whitelist_rules_router = APIRouter(prefix="/whitelist-external")
+manage_external_source_rules_router = APIRouter(prefix="/external-source")
 
 
-@manage_external_whitelist_rules_router.post("")
+@manage_external_source_rules_router.post("")
 async def add_chat_whitelist_external_source_rule(
     request: Request,
     slug: str,
@@ -135,7 +135,7 @@ async def add_chat_whitelist_external_source_rule(
     return WhitelistRuleExternalFDO.model_validate(new_rule.model_dump())
 
 
-@manage_external_whitelist_rules_router.get("/{rule_id}")
+@manage_external_source_rules_router.get("/{rule_id}")
 async def get_chat_whitelist_external_source_rule(
     request: Request,
     slug: str,
@@ -151,7 +151,7 @@ async def get_chat_whitelist_external_source_rule(
     return WhitelistRuleExternalFDO.model_validate(result.model_dump())
 
 
-@manage_external_whitelist_rules_router.put("/{rule_id}")
+@manage_external_source_rules_router.put("/{rule_id}")
 async def update_chat_whitelist_external_source_rule(
     request: Request,
     slug: str,
@@ -185,7 +185,7 @@ async def update_chat_whitelist_external_source_rule(
     return WhitelistRuleExternalFDO.model_validate(result.model_dump())
 
 
-@manage_external_whitelist_rules_router.delete("/{rule_id}")
+@manage_external_source_rules_router.delete("/{rule_id}")
 async def delete_chat_whitelist_external_source_rule(
     request: Request,
     slug: str,

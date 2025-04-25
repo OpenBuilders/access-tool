@@ -8,7 +8,7 @@ from api.routes.admin.chat.rule.sticker import manage_sticker_rules_router
 from api.routes.admin.chat.rule.toncoin import manage_toncoin_rules_router
 from api.routes.admin.chat.rule.whitelist import (
     manage_whitelist_rules_router,
-    manage_external_whitelist_rules_router,
+    manage_external_source_rules_router,
 )
 
 manage_rules_router = APIRouter(prefix="/rules", tags=["Chat Rules"])
@@ -19,4 +19,4 @@ manage_rules_router.include_router(manage_premium_rules_router)
 manage_rules_router.include_router(manage_emoji_rules_router)
 manage_rules_router.include_router(manage_sticker_rules_router)
 manage_rules_router.include_router(manage_whitelist_rules_router)
-manage_rules_router.include_router(manage_external_whitelist_rules_router)
+manage_rules_router.include_router(manage_external_source_rules_router)
