@@ -40,7 +40,11 @@ export const ChatConditions = () => {
             key={rule.id}
             chevron
             text={createConditionName(rule)}
-            description={createConditionDescription(rule)}
+            description={
+              <Text type="caption2" color="tertiary">
+                {createConditionDescription(rule)}
+              </Text>
+            }
             onClick={() => navigateToConditionPage(rule)}
           />
         ))}
