@@ -1,6 +1,7 @@
 import logging
 
 from httpx import HTTPError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from core.actions.authorization import AuthorizationAction
@@ -11,6 +12,7 @@ from core.dtos.chat.rules.whitelist import (
     WhitelistRuleDTO,
     WhitelistRuleExternalDTO,
 )
+from core.exceptions.rule import TelegramChatRuleExists
 from core.models.rule import TelegramChatWhitelistExternalSource
 from core.models.user import User
 from core.services.chat.rule.whitelist import (
@@ -149,14 +151,19 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
 
         :raises TelegramChatInvalidExternalSourceError: If the external source is invalid.
         """
-        external_source = self.telegram_chat_external_source_service.create(
-            chat_id=self.chat.id,
-            external_source_url=external_source_url,
-            name=name,
-            description=description,
-            auth_key=auth_key,
-            auth_value=auth_value,
-        )
+        try:
+            external_source = self.telegram_chat_external_source_service.create(
+                chat_id=self.chat.id,
+                external_source_url=external_source_url,
+                name=name,
+                description=description,
+                auth_key=auth_key,
+                auth_value=auth_value,
+            )
+        except IntegrityError as e:
+            message = f"External source rule already exists for chat {self.chat.id!r} with url {external_source_url!r}. "
+            logger.warning(message, exc_info=e)
+            raise TelegramChatRuleExists(message) from e
         try:
             await self.content_action.refresh_external_source(
                 source=external_source, raise_for_error=True

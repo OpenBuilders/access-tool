@@ -18,7 +18,8 @@ from core.actions.chat.rule.whitelist import (
     TelegramChatWhitelistAction,
     TelegramChatWhitelistExternalSourceAction,
 )
-
+from core.exceptions.chat import TelegramChatInvalidExternalSourceError
+from core.exceptions.rule import TelegramChatRuleExists
 
 logger = logging.getLogger(__name__)
 manage_whitelist_rules_router = admin_chat_router = APIRouter(prefix="/whitelist")
@@ -125,6 +126,16 @@ async def add_chat_whitelist_external_source_rule(
             external_source_url=str(rule.url),
             auth_key=rule.auth_key,
             auth_value=rule.auth_value,
+        )
+    except TelegramChatRuleExists:
+        raise HTTPException(
+            detail="External source rule already exists",
+            status_code=HTTP_400_BAD_REQUEST,
+        )
+    except TelegramChatInvalidExternalSourceError:
+        raise HTTPException(
+            detail="Invalid external source URL",
+            status_code=HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
         logger.error("Failed to create whitelist external source", exc_info=e)
