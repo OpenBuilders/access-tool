@@ -15,7 +15,7 @@ const ConditionTypePath: Record<ConditionType, string> = {
   jetton: 'jettons',
   nft_collection: 'nft-collections',
   whitelist: 'whitelist',
-  whitelist_external: 'whitelist-external',
+  external_source: 'external-source',
   premium: 'premium',
   toncoin: 'toncoin',
   emoji: 'emoji',
