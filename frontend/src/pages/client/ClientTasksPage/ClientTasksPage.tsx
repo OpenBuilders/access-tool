@@ -8,7 +8,8 @@ import { LocalStorageService } from '@services'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
-import { createButtonText } from './helpers'
+import { createButtonText, formatConditions } from './helpers'
+import { FormattedConditions } from './types'
 
 const webApp = window.Telegram.WebApp
 
@@ -20,6 +21,8 @@ export const ClientTasksPage = () => {
   const { toggleIsLoadingAction } = useAppActions()
 
   const [isChecking, setIsChecking] = useState(false)
+  const [sortedConditions, setSortedConditions] =
+    useState<FormattedConditions | null>(null)
 
   const { appNavigate } = useAppNavigation()
 
@@ -55,7 +58,15 @@ export const ClientTasksPage = () => {
     }
   }, [chat])
 
-  if (isLoading || !chat || !rules) return null
+  useEffect(() => {
+    if (!rules) return
+    const sortedConditions = formatConditions(rules)
+    setSortedConditions(sortedConditions)
+  }, [rules])
+
+  if (isLoading || !chat || !rules || !sortedConditions) return null
+
+  const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
 
   const buttonAction = async () => {
     const emojiCondition = rules.find((rule) => rule.type === 'emoji')
@@ -113,13 +124,13 @@ export const ClientTasksPage = () => {
       <TelegramBackButton />
       <TelegramMainButton
         text={buttonText}
-        isVisible={!!buttonText}
+        isVisible={!!buttonText && !hideButton}
         disabled={isLoading || isChecking}
         onClick={buttonAction}
         loading={isLoading || isChecking}
       />
       <ChatHeader />
-      <ChatConditions conditions={rules} />
+      <ChatConditions conditions={sortedConditions} />
     </PageLayout>
   )
 }

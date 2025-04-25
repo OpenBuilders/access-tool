@@ -9,11 +9,13 @@ const webApp = window.Telegram.WebApp
 interface EmojiStatusConditionProps {
   chat: ChatInstance | null
   rule: Condition
+  disabled?: boolean
 }
 
 export const EmojiStatusCondition = ({
   chat,
   rule,
+  disabled,
 }: EmojiStatusConditionProps) => {
   const [emojiStatusAdded, setEmojiStatusAdded] = useState(
     !!LocalStorageService.getItem(
@@ -42,6 +44,8 @@ export const EmojiStatusCondition = ({
   }, [])
 
   const handleEmojiStatus = async () => {
+    if (disabled) return
+
     if (!rule?.emojiId) {
       showToast({
         message: 'Emoji ID not found',
@@ -64,7 +68,7 @@ export const EmojiStatusCondition = ({
 
   return (
     <ListItem
-      chevron
+      chevron={!disabled}
       onClick={handleEmojiStatus}
       before={<Icon name="cross" size={24} />}
       text={<Text type="text">Emoji Status</Text>}
