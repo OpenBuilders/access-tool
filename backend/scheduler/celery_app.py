@@ -4,6 +4,7 @@ from celery.schedules import crontab
 from core.constants import (
     CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME,
     CELERY_SYSTEM_QUEUE_NAME,
+    CELERY_STICKER_FETCH_QUEUE_NAME,
 )
 from core.settings import core_settings
 
@@ -38,6 +39,11 @@ def create_app() -> Celery:
                     "task": "refresh-chats",
                     "schedule": crontab(hour="0"),  # Every day at midnight
                     "options": {"queue": CELERY_SYSTEM_QUEUE_NAME},
+                },
+                "fetch-sticker-ownership-details": {
+                    "task": "fetch-sticker-ownership-details",
+                    "schedule": crontab(minute="*/10"),  # Every 10 minutes
+                    "options": {"queue": CELERY_STICKER_FETCH_QUEUE_NAME},
                 },
             },
             "beat_schedule_filename": core_settings.beat_schedule_filename,

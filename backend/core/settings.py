@@ -1,8 +1,6 @@
-from pathlib import Path
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from core.constants import CERTS_PATH, STATIC_PATH
+from core.constants import STATIC_PATH
 
 
 class CoreSettings(BaseSettings):
@@ -63,9 +61,7 @@ class CoreSettings(BaseSettings):
     cdn_region: str = "auto"
     cdn_bucket_name: str
 
-    sticker_dom_private_key_path: str | Path = CERTS_PATH / "private_key.pem"
-    sticker_dom_base_url: str = "https://dev-api.stickerdom.store/api/v1"
-    sticker_dom_consumer_id: int
+    ton_api_key: str
 
 
 core_settings = CoreSettings()

@@ -4,7 +4,11 @@ from core.services.base import BaseService
 
 class StickerCharacterService(BaseService):
     def get(self, character_id: int) -> StickerCharacter:
-        return self.db_session.query(StickerCharacter.id == character_id).one()
+        return (
+            self.db_session.query(StickerCharacter)
+            .filter(StickerCharacter.id == character_id)
+            .one()
+        )
 
     def get_all(self, collection_id: int | None = None) -> list[StickerCharacter]:
         query = self.db_session.query(StickerCharacter)

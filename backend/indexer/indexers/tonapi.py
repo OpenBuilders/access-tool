@@ -13,7 +13,7 @@ from pytonapi.schema.nft import NftItems, NftCollection
 
 from core.dtos.resource import NftItemMetadataDTO, NftCollectionMetadataDTO
 from core.exceptions.external import ExternalResourceNotFound
-from indexer.settings import wallet_indexer_settings
+from core.settings import core_settings
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ DEFAULT_TONAPI_MAX_RETRIES = 10
 class TonApiService:
     def __init__(self):
         self._tonapi = AsyncTonapi(
-            api_key=wallet_indexer_settings.ton_api_key,
+            api_key=core_settings.ton_api_key,
             max_retries=DEFAULT_TONAPI_MAX_RETRIES,
         )
 
@@ -40,11 +40,11 @@ class TonApiService:
         limit: int = DEFAULT_TONAPI_LIMIT,
         attribute_name: str = "items",
         **kwargs,
-    ) -> AsyncGenerator[BaseModel, None, None]:
+    ) -> AsyncGenerator[BaseModel, None]:
         current_offset = offset
         previous_run_start: float | None = None
         while True:
-            # This is to avoid hitting the rate limit in free tier
+            # This is to avoid hitting the rate limit in the free tier
             if (
                 previous_run_start
                 and (to_wait := (time.time() - previous_run_start)) <= 1
@@ -89,7 +89,7 @@ class TonApiService:
 
     async def get_all_jetton_holders(
         self, account_id: str
-    ) -> AsyncGenerator[JettonHolders, None, None]:
+    ) -> AsyncGenerator[JettonHolders, None]:
         """
         Get all jettons' holders.
 
@@ -101,6 +101,7 @@ class TonApiService:
             account_id=account_id,
             attribute_name="addresses",
         ):
+            batch: JettonHolders
             yield batch
 
     async def get_all_jetton_balances(self, account_id: str) -> JettonsBalances:
@@ -116,9 +117,9 @@ class TonApiService:
 
     async def get_all_nft_items_for_user(
         self, wallet_address: str, collection_address: str | None = None
-    ) -> AsyncGenerator[NftItems, None, None]:
+    ) -> AsyncGenerator[NftItems, None]:
         """
-        Get all NFT items for user.
+        Get all NFT items for the user.
 
         :param wallet_address: Wallet address
         :param collection_address: Collection address
@@ -130,11 +131,12 @@ class TonApiService:
             collection=collection_address,
             attribute_name="nft_items",
         ):
+            batch: NftItems
             yield batch
 
     async def get_all_nft_items(
         self, collection_address: str
-    ) -> AsyncGenerator[NftItems, None, None]:
+    ) -> AsyncGenerator[NftItems, None]:
         """
         Get all NFT items.
 
@@ -147,6 +149,7 @@ class TonApiService:
             account_id=collection_address,
             attribute_name="nft_items",
         ):
+            batch: NftItems
             yield batch
 
     async def get_jetton_info(self, address: str) -> JettonInfo:
@@ -184,7 +187,7 @@ class TonApiService:
         Parse NFT collection metadata.
 
         :param address: NFT address
-        :param partial: Partial parsing meaning that only first batch will be fetched and based on it metadata will be returned
+        :param partial: Partial parsing meaning that only the first batch will be fetched and based on it metadata will be returned
         :return: list of NFT collection attributes
         """
         items_metadata = []
@@ -196,7 +199,7 @@ class TonApiService:
                 items_metadata.append(NftItemMetadataDTO.from_nft_item(item))
 
             if partial:
-                # When partial - break after first batch
+                # When partial - break after the first batch
                 break
 
             batch_idx += 1

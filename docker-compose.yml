@@ -39,14 +39,13 @@ services:
       "indexer.celery_app:app",
       "worker",
       "-Q",
-      "wallet-fetch-queue",
+      "wallet-fetch-queue,sticker-fetch-queue",
       "--loglevel=info"
     ]
-    environment:
-      - WORKER_CONCURRENCY=8
     volumes:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer
+      - ./config/certs/private_key.pem:/tmp/private_key.pem
 
   load-noticed-wallets:
     <<: *x-python-service
@@ -117,6 +116,7 @@ services:
     env_file:
       - ./backend/community_manager/config/.env
       - ./backend/core/config/.env
+      - ./backend/indexer/config/.env
     command: [
       "celery",
       "-A",
@@ -139,6 +139,7 @@ services:
     env_file:
       - ./backend/api/config/.env
       - ./backend/core/config/.env
+      - ./backend/indexer/config/.env
     container_name: "gateway-api"
     ports:
       - "8000:8000"

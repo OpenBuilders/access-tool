@@ -4,7 +4,11 @@ from core.services.base import BaseService
 
 class StickerCollectionService(BaseService):
     def get(self, collection_id: int) -> StickerCollection:
-        return self.db_session.query(StickerCollection.id == collection_id).one()
+        return (
+            self.db_session.query(StickerCollection)
+            .filter(StickerCollection.id == collection_id)
+            .one()
+        )
 
     def get_all(self) -> list[StickerCollection]:
         return (
@@ -15,11 +19,13 @@ class StickerCollectionService(BaseService):
 
     def create(
         self,
+        collection_id: int,
         title: str,
         description: str,
         logo_url: str,
     ) -> StickerCollection:
         new_collection = StickerCollection(
+            id=collection_id,
             title=title,
             description=description,
             logo_url=logo_url,

@@ -96,7 +96,11 @@ class StickerItemDTO(BaseModel):
 class StickerDomCollectionOwnershipMetadataDTO(BaseModel):
     collection_id: int
     url: str
-    plain_dek: bytes
+    plain_dek_hex: str
+
+    @property
+    def plain_dek(self) -> bytes:
+        return bytes.fromhex(self.plain_dek_hex)
 
 
 class StickerDomCollectionOwnershipDTO(BaseModel):

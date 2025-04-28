@@ -1,10 +1,14 @@
+from pathlib import Path
+
 from core.settings import CoreSettings
 
 
-class WalletIndexerSettings(CoreSettings):
-    ton_api_key: str
-
+class IndexerSettings(CoreSettings):
     worker_concurrency: int = 5
 
+    sticker_dom_private_key_path: str | Path
+    sticker_dom_base_url: str
+    sticker_dom_consumer_id: int
 
-wallet_indexer_settings = WalletIndexerSettings()
+
+indexer_settings = IndexerSettings()
