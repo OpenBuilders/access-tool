@@ -49,10 +49,12 @@ function App() {
       window.document.documentElement.style.backgroundColor = '#1c1c1e'
       webApp?.setHeaderColor('#1c1c1e')
       webApp?.setBackgroundColor('#1c1c1e')
+      webApp?.setBottomBarColor('#1c1c1e')
     } else {
       window.document.documentElement.style.backgroundColor = '#EFEFF4'
       webApp?.setHeaderColor('#EFEFF4')
       webApp?.setBackgroundColor('#EFEFF4')
+      webApp?.setBottomBarColor('#EFEFF4')
     }
   }, [darkTheme])
 
