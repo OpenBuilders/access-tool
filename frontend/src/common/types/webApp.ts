@@ -177,6 +177,9 @@ export interface WebApp {
   setBackgroundColor: (
     color: 'bg_color' | 'secondary_bg_color' | `#${string}`
   ) => void
+  setBottomBarColor: (
+    color: 'bg_color' | 'secondary_bg_color' | `#${string}`
+  ) => void
   showConfirm: (
     message: string,
     callback?: (confirmed: boolean) => void

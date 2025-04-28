@@ -8,9 +8,10 @@ interface IconProps {
   name: IconTypeName
   size?: IconSize
   color?: 'danger'
+  className?: string
 }
 
-export const Icon = ({ name, size, color }: IconProps) => {
+export const Icon = ({ name, size, color, className }: IconProps) => {
   const IconName = getIcon(name)
 
   if (!IconName) return null
@@ -20,7 +21,8 @@ export const Icon = ({ name, size, color }: IconProps) => {
       className={cn(
         styles.icon,
         size && styles[`size-${size}`],
-        color && styles[`color-${color}`]
+        color && styles[`color-${color}`],
+        className
       )}
     >
       {IconName}
