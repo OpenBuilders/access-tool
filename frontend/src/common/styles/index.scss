@@ -23,6 +23,7 @@ body {
   min-height: 100dvh;
   color: var(--color-textIconsPrimary);
   background-color: var(--color-backgroundSecondary);
+  overflow-x: hidden;
 }
 
 ::-webkit-scrollbar {
