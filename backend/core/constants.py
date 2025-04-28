@@ -30,23 +30,16 @@ PROJECT_ROOT = PACKAGE_ROOT.parent
 
 # ---------------- Static files ----------------
 STATIC_PATH = PACKAGE_ROOT / "static"
-DEFAULTS_PATH = STATIC_PATH / "defaults"
+CERTS_PATH = PACKAGE_ROOT.parent.parent / "config" / "certs"
 # Jettons
 JETTON_LOGO_SUB_PATH = "jettons"
-JETTON_LOGO_PATH = STATIC_PATH / JETTON_LOGO_SUB_PATH
-DEFAULT_JETTON_LOGO_PATH = DEFAULTS_PATH / "jetton.webp"
 # NFTs
 NFT_LOGO_SUB_PATH = "nfts"
-NFT_LOGO_PATH = STATIC_PATH / NFT_LOGO_SUB_PATH
-DEFAULT_NFT_LOGO_PATH = DEFAULTS_PATH / "nft.webp"
 # Chats
 CHAT_LOGO_SUB_PATH = "chats"
 CHAT_LOGO_PATH = STATIC_PATH / CHAT_LOGO_SUB_PATH
-DEFAULT_CHAT_LOGO_PATH = DEFAULTS_PATH / "chat.webp"
 # Avatars
 AVATAR_SUB_PATH = "avatars"
-AVATAR_PATH = STATIC_PATH / AVATAR_SUB_PATH
-DEFAULT_AVATAR_PATH = DEFAULTS_PATH / "avatar.webp"
 
 # ----------------- Requests -----------------
 REQUEST_TIMEOUT = 30

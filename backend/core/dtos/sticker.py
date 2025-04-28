@@ -1,3 +1,4 @@
+import json
 from typing import Self, Any
 
 from pydantic import BaseModel
@@ -89,4 +90,38 @@ class StickerItemDTO(BaseModel):
             character_id=obj.character_id,
             instance=obj.instance,
             user_id=obj.user_id,
+        )
+
+
+class StickerDomCollectionOwnershipMetadataDTO(BaseModel):
+    collection_id: int
+    url: str
+    plain_dek: bytes
+
+
+class StickerDomCollectionOwnershipDTO(BaseModel):
+    collection_id: int
+    timestamp: str
+    ownership_data: list[StickerItemDTO]
+
+    @classmethod
+    def from_raw(cls, raw: bytes, collection_id: int) -> Self:
+        json_data = json.loads(raw)
+        ownership_data = [
+            StickerItemDTO(
+                id=f"{collection_id}_{character_id}_{instance_id}",
+                collection_id=collection_id,
+                character_id=character_id,
+                user_id=user_id,
+                instance=instance_id,
+            )
+            for character_id, instances_per_user in json_data["data"].items()
+            for user_instances in instances_per_user
+            for user_id, instances in user_instances.items()
+            for instance_id in instances
+        ]
+        return cls(
+            collection_id=collection_id,
+            timestamp=json_data["timestamp"],
+            ownership_data=ownership_data,
         )
