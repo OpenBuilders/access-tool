@@ -25,6 +25,7 @@ class StickerCharacter(Base):
     name = mapped_column(String(255), nullable=False)
     description = mapped_column(String(255), nullable=True)
     supply = mapped_column(Integer, nullable=False)
+    logo_url = mapped_column(String(255), nullable=True)
 
     collection = relationship(
         "StickerCollection",

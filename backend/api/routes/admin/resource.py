@@ -89,9 +89,7 @@ async def get_stickers_collections(
     collections = await action.get_all_grouped()
 
     return [
-        MinimalStickerCollectionWithCharactersFDO.model_validate(
-            collection.model_dump()
-        )
+        MinimalStickerCollectionWithCharactersFDO.from_dto(collection)
         for collection in collections
     ]
 

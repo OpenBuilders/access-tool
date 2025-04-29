@@ -23,12 +23,14 @@ class MinimalStickerCollectionDTO(BaseModel):
 class MinimalStickerCharacterDTO(BaseModel):
     id: int
     name: str
+    logo_url: str | None
 
     @classmethod
     def from_orm(cls, obj: Any) -> Self:
         return cls(
             id=obj.id,
             name=obj.name,
+            logo_url=obj.logo_url,
         )
 
 
@@ -50,7 +52,6 @@ class MinimalStickerCollectionWithCharactersDTO(MinimalStickerCollectionDTO):
 
 class StickerCollectionDTO(MinimalStickerCollectionDTO):
     description: str | None
-    logo_url: str | None
 
     @classmethod
     def from_orm(cls, obj: StickerCollection) -> Self:
@@ -75,6 +76,7 @@ class StickerCharacterDTO(MinimalStickerCharacterDTO):
             collection_id=obj.collection_id,
             description=obj.description,
             supply=obj.supply,
+            logo_url=obj.logo_url,
         )
 
 
@@ -151,6 +153,7 @@ class StickerDomCollectionWithCharacters(StickerCollectionDTO):
                     collection_id=collection_json["id"],
                     description=character["description"],
                     supply=character["supply"],
+                    logo_url=character.get("logo_url"),
                 )
                 for character in collection_json["characters"]
             ],

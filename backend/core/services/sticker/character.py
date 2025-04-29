@@ -24,6 +24,7 @@ class StickerCharacterService(BaseService):
         name: str,
         description: str,
         supply: int,
+        logo_url: str | None,
     ) -> StickerCharacter:
         new_character = StickerCharacter(
             external_id=character_id,
@@ -31,6 +32,7 @@ class StickerCharacterService(BaseService):
             name=name,
             description=description,
             supply=supply,
+            logo_url=logo_url,
         )
         self.db_session.add(new_character)
         self.db_session.commit()
@@ -42,12 +44,14 @@ class StickerCharacterService(BaseService):
         name: str,
         description: str,
         supply: int,
+        logo_url: str | None,
     ) -> bool:
         return any(
             [
                 character.name != name,
                 character.description != description,
                 character.supply != supply,
+                character.logo_url != logo_url,
             ]
         )
 
@@ -57,9 +61,11 @@ class StickerCharacterService(BaseService):
         name: str,
         description: str,
         supply: int,
+        logo_url: str | None,
     ) -> StickerCharacter:
         character.name = name
         character.description = description
         character.supply = supply
+        character.logo_url = logo_url
         self.db_session.commit()
         return character
