@@ -159,6 +159,7 @@ class IndexerStickerItemAction:
                         name=character.name,
                         description=character.description,
                         supply=character.supply,
+                        logo_url=character.logo_url,
                     )
                 else:
                     if self.sticker_character_service.is_update_required(
@@ -166,6 +167,7 @@ class IndexerStickerItemAction:
                         name=character.name,
                         description=character.description,
                         supply=character.supply,
+                        logo_url=character.logo_url,
                     ):
                         logger.info(
                             f"Character {character.id=} for collection {collection.id=} has changed. Updating..."
@@ -175,6 +177,7 @@ class IndexerStickerItemAction:
                             name=character.name,
                             description=character.description,
                             supply=character.supply,
+                            logo_url=character.logo_url,
                         )
 
         # Set cache only on successful processing

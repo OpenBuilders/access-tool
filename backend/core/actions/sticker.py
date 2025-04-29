@@ -93,6 +93,7 @@ class StickerCharacterAction(BaseAction):
             name=dto.name,
             description=dto.description,
             supply=dto.supply,
+            logo_url=dto.logo_url,
         )
         return StickerCharacterDTO.from_orm(sticker_character)
 
