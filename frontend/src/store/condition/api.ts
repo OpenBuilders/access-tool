@@ -9,6 +9,7 @@ import {
   ConditionType,
   ConditionUpdateArgs,
   PrefetchedConditionData,
+  StickersCollection,
 } from './types'
 
 const ConditionTypePath: Record<ConditionType, string> = {
@@ -19,6 +20,7 @@ const ConditionTypePath: Record<ConditionType, string> = {
   premium: 'premium',
   toncoin: 'toncoin',
   emoji: 'emoji',
+  stickers: 'stickers',
 }
 
 // Jettons
@@ -53,16 +55,6 @@ export const updateConditionApi = async (
 ): Promise<ApiServiceResponse<Condition>> => {
   const { type, chatSlug, conditionId, data } = args
   const path = ConditionTypePath[type]
-  // let formData = {
-  //   ...data,
-  // }
-  // if (data?.type === 'jetton' || data?.type === 'nft_collection') {
-  //   formData = {
-  //     ...formData,
-  //     address: data?.address || data?.blockchainAddress || '',
-  //   } as any
-  //   delete formData.blockchainAddress
-  // }
 
   const response = await ApiService.put<Condition>({
     endpoint: `/admin/chats/${chatSlug}/rules/${path}/${conditionId}`,
@@ -102,6 +94,16 @@ export const fetchConditionCategoriesApi = async (
   const path = ConditionTypePath[type]
   const response = await ApiService.get<ConditionCategory[]>({
     endpoint: `/admin/resources/categories/${path}`,
+  })
+
+  return response
+}
+
+export const fetchStickersApi = async (): Promise<
+  ApiServiceResponse<StickersCollection[]>
+> => {
+  const response = await ApiService.get<StickersCollection[]>({
+    endpoint: `/admin/resources/stickers`,
   })
 
   return response

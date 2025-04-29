@@ -11,6 +11,7 @@ export type ConditionType =
   | 'premium'
   | 'toncoin'
   | 'emoji'
+  | 'stickers'
 export interface Condition {
   id: number
   type: ConditionType
@@ -73,4 +74,17 @@ export interface ConditionDeleteArgs {
   type: ConditionType
   chatSlug: string
   conditionId: string
+}
+
+export interface StickersCharacter {
+  id: number
+  name: string
+  logoUrl: string | null
+}
+
+export interface StickersCollection {
+  id: number
+  logoUrl: string | null
+  title: string
+  characters: StickersCharacter[]
 }
