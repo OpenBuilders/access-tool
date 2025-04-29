@@ -6,6 +6,7 @@ from core.constants import REQUEST_TIMEOUT, READ_TIMEOUT, CONNECT_TIMEOUT
 from core.dtos.sticker import (
     StickerDomCollectionOwnershipDTO,
     StickerDomCollectionOwnershipMetadataDTO,
+    StickerDomCollectionWithCharacters,
 )
 from core.utils.cipher import load_private_key, rsa_decrypt_wrapped_dek, aes_decrypt
 from indexer.settings import indexer_settings
@@ -31,6 +32,21 @@ class StickerDomService:
             f"?consumer_id={indexer_settings.sticker_dom_consumer_id}"
             f"&collection_id={collection_id}"
         )
+
+    @staticmethod
+    def _get_collections_url() -> str:
+        return f"{indexer_settings.sticker_dom_data_storage_base_url}/collections.json"
+
+    async def fetch_collections(self):
+        async with AsyncClient() as client:
+            response = await client.get(self._get_collections_url())
+            response.raise_for_status()
+            collections = response.json()
+
+        return [
+            StickerDomCollectionWithCharacters.from_json(collection)
+            for collection in collections
+        ]
 
     async def fetch_collection_ownership_metadata(
         self,

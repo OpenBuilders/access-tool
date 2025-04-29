@@ -32,7 +32,7 @@ async def get_sticker_ownership_details():
         collections_action = StickerCollectionAction(db_session=db_session)
         collections = collections_action.get_all()
         action = IndexerStickerItemAction(db_session)
-        targeted_users_ids = await action.batch_process_all(collections=collections)
+        targeted_users_ids = await action.refresh_ownerships(collections=collections)
         if targeted_users_ids:
             logger.info(
                 f"Found {len(targeted_users_ids)} users that should be double-checked"
@@ -50,3 +50,22 @@ async def get_sticker_ownership_details():
 )
 def fetch_sticker_ownership_details():
     asyncio.run(get_sticker_ownership_details())
+
+
+async def refresh_sticker_collections():
+    with DBService().db_session() as db_session:
+        action = IndexerStickerItemAction(db_session)
+        await action.refresh_collections()
+        logger.info("Sticker collections refreshed.")
+
+
+@app.task(
+    name="fetch-sticker-collections",
+    queue=CELERY_STICKER_FETCH_QUEUE_NAME,
+)
+def fetch_sticker_collections():
+    asyncio.run(refresh_sticker_collections())
+    app.send_task(
+        "fetch-sticker-ownership-details",
+        queue=CELERY_STICKER_FETCH_QUEUE_NAME,
+    )

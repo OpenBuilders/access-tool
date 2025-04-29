@@ -75,6 +75,7 @@ class StickerCharacterAction(BaseAction):
             MinimalStickerCollectionWithCharactersDTO(
                 id=collection.id,
                 title=collection.title,
+                logo_url=collection.logo_url,
                 characters=[
                     MinimalStickerCharacterDTO.from_orm(character)
                     for character in characters

@@ -9,12 +9,14 @@ from core.models.sticker import StickerCollection, StickerItem
 class MinimalStickerCollectionDTO(BaseModel):
     id: int
     title: str
+    logo_url: str | None
 
     @classmethod
     def from_orm(cls, obj: StickerCollection) -> Self:
         return cls(
             id=obj.id,
             title=obj.title,
+            logo_url=obj.logo_url,
         )
 
 
@@ -38,6 +40,7 @@ class MinimalStickerCollectionWithCharactersDTO(MinimalStickerCollectionDTO):
         return cls(
             id=obj.id,
             title=obj.title,
+            logo_url=obj.logo_url,
             characters=[
                 MinimalStickerCharacterDTO.from_orm(character)
                 for character in (obj.characters or [])
@@ -128,4 +131,27 @@ class StickerDomCollectionOwnershipDTO(BaseModel):
             collection_id=collection_id,
             timestamp=json_data["timestamp"],
             ownership_data=ownership_data,
+        )
+
+
+class StickerDomCollectionWithCharacters(StickerCollectionDTO):
+    characters: list[StickerCharacterDTO]
+
+    @classmethod
+    def from_json(cls, collection_json: dict[str, Any]) -> Self:
+        return cls(
+            id=collection_json["id"],
+            title=collection_json["title"],
+            description=collection_json["description"],
+            logo_url=collection_json["logo_url"],
+            characters=[
+                StickerCharacterDTO(
+                    id=character["id"],
+                    name=character["name"],
+                    collection_id=collection_json["id"],
+                    description=character["description"],
+                    supply=character["supply"],
+                )
+                for character in collection_json["characters"]
+            ],
         )

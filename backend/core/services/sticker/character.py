@@ -35,3 +35,31 @@ class StickerCharacterService(BaseService):
         self.db_session.add(new_character)
         self.db_session.commit()
         return new_character
+
+    @staticmethod
+    def is_update_required(
+        character: StickerCharacter,
+        name: str,
+        description: str,
+        supply: int,
+    ) -> bool:
+        return any(
+            [
+                character.name != name,
+                character.description != description,
+                character.supply != supply,
+            ]
+        )
+
+    def update(
+        self,
+        character: StickerCharacter,
+        name: str,
+        description: str,
+        supply: int,
+    ) -> StickerCharacter:
+        character.name = name
+        character.description = description
+        character.supply = supply
+        self.db_session.commit()
+        return character

@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 from sqlalchemy.orm import Session
@@ -6,6 +7,7 @@ from core.dtos.sticker import (
     StickerDomCollectionOwnershipDTO,
     StickerDomCollectionOwnershipMetadataDTO,
     StickerCollectionDTO,
+    StickerDomCollectionWithCharacters,
 )
 from core.services.sticker.character import StickerCharacterService
 from core.services.sticker.collection import StickerCollectionService
@@ -30,14 +32,160 @@ class IndexerStickerItemAction:
         self.redis_service = RedisService()
 
     @staticmethod
-    def _get_metadata_cache_key(collection_id: int) -> str:
+    def __get_metadata_cache_key(collection_id: int) -> str:
         return f"sticker-dom::{collection_id}::ownership-metadata"
 
     @staticmethod
-    def _get_data_cache_key(collection_id: int) -> str:
+    def __get_data_cache_key(collection_id: int) -> str:
         return f"sticker-dom::{collection_id}::ownership-data"
 
-    async def get_updated_ownership_info(
+    @staticmethod
+    def __get_collections_cache_key() -> str:
+        return "sticker-dom::collections"
+
+    @staticmethod
+    def __get_collection_cache_value(
+        collections: list[StickerDomCollectionWithCharacters],
+    ) -> str:
+        """
+        Generates a hash value based on the serialized data of the provided
+        collections.
+        This method is used for caching purposes by converting the data to its
+        JSON representation, concatenating it, and producing an SHA-256 hash.
+
+        :param collections: A list of StickerDomCollectionWithCharacters
+            instances representing the collections whose hash is to be
+            generated.
+        :return: A string representing the SHA-256 hash of the serialized
+            collections' data.
+        """
+        # Get hash of the serialized collections data
+        collections_raw = "".join(
+            [collection.model_dump_json() for collection in collections]
+        )
+        hash_object = hashlib.sha256(collections_raw.encode())
+        return hash_object.hexdigest()
+
+    async def _get_updated_collections(
+        self,
+    ) -> list[StickerDomCollectionWithCharacters] | None:
+        """
+        Fetches updated sticker collections and checks for any changes compared to the cached value.
+        If the collections from the service match the cached value, the method skips returning new
+        data and logs a message indicating no changes.
+        Otherwise, it returns the updated collections.
+
+        :return: List of updated StickerDomCollectionWithCharacters objects, or None if the collections
+                 are unchanged.
+        """
+        collections = await self.sticker_dom_service.fetch_collections()
+        collections_cache_key = self.__get_collections_cache_key()
+        collections_cache_value = self.__get_collection_cache_value(collections)
+
+        current_collections_cache_value = self.redis_service.get(collections_cache_key)
+        if current_collections_cache_value == collections_cache_value:
+            logger.debug("Collections are unchanged, skipping")
+            return None
+
+        return collections
+
+    async def refresh_collections(self) -> None:
+        """
+        Handles the refreshing of sticker collections and their respective characters by fetching the
+        most updated data available from the source, comparing it against the locally stored information,
+        and ensuring that only the necessary updates are performed.
+        The updated data is cached upon successful processing.
+
+        This method aims to ensure the local storage remains synchronized with the most recent
+        information about sticker collections and their characters, minimizing redundant updates by
+        checking against the current state.
+        """
+        if (collections := await self._get_updated_collections()) is None:
+            logger.info("No updated collections info found, skipping")
+            return None
+
+        current_collections = self.sticker_collection_service.get_all()
+        current_collections_by_id = {
+            collection.id: collection for collection in current_collections
+        }
+
+        current_characters = self.sticker_character_service.get_all()
+        current_characters_by_id = {
+            # On StickerDom, character ID is unique in the scope of a collection only
+            (character.collection_id, character.external_id): character
+            for character in current_characters
+        }
+
+        for collection in collections:
+            # Create or update collections
+            if not (current_collection := current_collections_by_id.get(collection.id)):
+                logger.info(
+                    f"New collection found: {collection.title=!r} ({collection.id=!r})"
+                )
+                self.sticker_collection_service.create(
+                    collection_id=collection.id,
+                    title=collection.title,
+                    description=collection.description,
+                    logo_url=collection.logo_url,
+                )
+            else:
+                if self.sticker_collection_service.is_update_required(
+                    collection=current_collection,
+                    title=collection.title,
+                    description=collection.description,
+                    logo_url=collection.logo_url,
+                ):
+                    logger.info(f"Collection {collection.id=} has changed. Updating...")
+                    self.sticker_collection_service.update(
+                        collection=current_collection,
+                        title=collection.title,
+                        description=collection.description,
+                        logo_url=collection.logo_url,
+                    )
+
+            # Create or update characters related to the target collection
+            for character in collection.characters:
+                if not (
+                    current_character := current_characters_by_id.get(
+                        (character.collection_id, character.id)
+                    )
+                ):
+                    logger.info(
+                        f"New character found: {character.name=!r} ({character.id=!r}) for collection {collection.id=!r}"
+                    )
+                    self.sticker_character_service.create(
+                        character_id=character.id,
+                        collection_id=character.collection_id,
+                        name=character.name,
+                        description=character.description,
+                        supply=character.supply,
+                    )
+                else:
+                    if self.sticker_character_service.is_update_required(
+                        character=current_character,
+                        name=character.name,
+                        description=character.description,
+                        supply=character.supply,
+                    ):
+                        logger.info(
+                            f"Character {character.id=} for collection {collection.id=} has changed. Updating..."
+                        )
+                        self.sticker_character_service.update(
+                            character=current_character,
+                            name=character.name,
+                            description=character.description,
+                            supply=character.supply,
+                        )
+
+        # Set cache only on successful processing
+        self.redis_service.set(
+            self.__get_collections_cache_key(),
+            self.__get_collection_cache_value(collections),
+        )
+        logger.info("Successfully updated collections")
+        return None
+
+    async def _get_updated_ownership_info(
         self, collection_id: int
     ) -> StickerDomCollectionOwnershipDTO | None:
         """
@@ -58,7 +206,7 @@ class IndexerStickerItemAction:
         if not metadata:
             return None
 
-        metadata_cache_key = self._get_metadata_cache_key(collection_id=collection_id)
+        metadata_cache_key = self.__get_metadata_cache_key(collection_id=collection_id)
         cached_metadata_raw = self.redis_service.get(metadata_cache_key)
 
         if (
@@ -81,7 +229,7 @@ class IndexerStickerItemAction:
         )
         # Set the cache for the ownership data so it could be reused to avoid heavy decryption operations.
         self.redis_service.set(
-            self._get_data_cache_key(collection_id=collection_id),
+            self.__get_data_cache_key(collection_id=collection_id),
             ownership_data.model_dump_json(),
         )
         # At the very end, set the cache for the metadata with expiry set to 6 hours.
@@ -91,7 +239,7 @@ class IndexerStickerItemAction:
         )
         return ownership_data
 
-    async def batch_process_collection(
+    async def process_collection_ownerships(
         self, collection_dto: StickerCollectionDTO
     ) -> set[int]:
         """
@@ -107,7 +255,7 @@ class IndexerStickerItemAction:
             batch processing of the given collection.
         """
         if (
-            new_items := await self.get_updated_ownership_info(
+            new_items := await self._get_updated_ownership_info(
                 collection_id=collection_dto.id
             )
         ) is None:
@@ -181,7 +329,7 @@ class IndexerStickerItemAction:
 
         return updated_users_ids
 
-    async def batch_process_all(
+    async def refresh_ownerships(
         self,
         collections: list[StickerCollectionDTO],
     ) -> set[int]:
@@ -204,7 +352,7 @@ class IndexerStickerItemAction:
         all_targeted_users_ids = set()
 
         for collection in collections:
-            targeted_users = await self.batch_process_collection(
+            targeted_users = await self.process_collection_ownerships(
                 collection_dto=collection
             )
             all_targeted_users_ids.update(targeted_users)

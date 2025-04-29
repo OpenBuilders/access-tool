@@ -34,6 +34,21 @@ class StickerCollectionService(BaseService):
         self.db_session.commit()
         return new_collection
 
+    @staticmethod
+    def is_update_required(
+        collection: StickerCollection,
+        title: str,
+        description: str,
+        logo_url: str,
+    ) -> bool:
+        return any(
+            [
+                collection.title != title,
+                collection.description != description,
+                collection.logo_url != logo_url,
+            ]
+        )
+
     def update(
         self,
         collection: StickerCollection,
