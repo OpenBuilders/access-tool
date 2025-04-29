@@ -57,7 +57,6 @@ class TelegramChatService(BaseService):
             is_forum=entity.forum,
             logo_path=logo_path,
             insufficient_privileges=False,
-            # TODO: handle cases with the same slug
             slug=self._get_unique_slug(entity.title),
         )
         self.db_session.add(chat)

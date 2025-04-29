@@ -61,5 +61,7 @@ class CoreSettings(BaseSettings):
     cdn_region: str = "auto"
     cdn_bucket_name: str
 
+    ton_api_key: str
+
 
 core_settings = CoreSettings()

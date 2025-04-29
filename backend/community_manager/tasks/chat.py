@@ -2,6 +2,7 @@ import asyncio
 
 from celery.utils.log import get_task_logger
 
+from community_manager.actions.chat import CommunityManagerChatAction
 from community_manager.celery_app import app
 from community_manager.entrypoint import init_client
 from community_manager.settings import community_manager_settings
@@ -12,25 +13,26 @@ from core.actions.chat.rule.whitelist import (
 )
 from core.constants import (
     CELERY_SYSTEM_QUEUE_NAME,
-    UPDATED_WALLETS_SET_NAME,
 )
 from core.services.chat.user import TelegramChatUserService
 from core.services.db import DBService
-from core.services.superredis import RedisService
 
 logger = get_task_logger(__name__)
 
 
-async def sanity_chat_checks(wallets: list[str] | None) -> None:
-    logger.info(f"Validating chat members for {wallets}")
+async def sanity_chat_checks(target_chat_members: set[tuple[int, int]]) -> None:
+    logger.info(f"Validating chat members for {target_chat_members}")
     with DBService().db_session() as db_session:
         telegram_chat_user_service = TelegramChatUserService(db_session)
-        chat_members = telegram_chat_user_service.get_all_by_linked_wallet(
-            addresses=wallets
+        chat_members = telegram_chat_user_service.get_all_pairs(
+            chat_member_pairs=target_chat_members
         )
 
         if not chat_members:
             logger.info("No chats to validate. Skipping")
+            return
+        else:
+            logger.info(f"Found {len(chat_members)} chat members to validate")
 
         telethon_service = init_client()
         authorization_action = AuthorizationAction(
@@ -50,23 +52,9 @@ def check_chat_members() -> None:
         logger.warning("Community manager is disabled.")
         return
 
-    redis_service = RedisService()
-    wallets = redis_service.pop_from_set(
-        name=UPDATED_WALLETS_SET_NAME,
-        count=community_manager_settings.items_per_task,
-    )
-    if isinstance(wallets, str):
-        wallets = [wallets]
-
-    if wallets:
-        try:
-            asyncio.run(sanity_chat_checks(wallets=wallets))
-        except Exception as exc:
-            # Add wallets back to the set to retry later
-            logger.error(f"Failed to validate chat members: {exc}", exc_info=True)
-            redis_service.add_to_set(UPDATED_WALLETS_SET_NAME, *wallets)
-    else:
-        logger.info("No users to validate. Skipping")
+    with DBService().db_session() as db_session:
+        action = CommunityManagerChatAction(db_session=db_session)
+        asyncio.run(action.sanity_chat_checks())
 
 
 @app.task(

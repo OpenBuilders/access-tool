@@ -1,4 +1,6 @@
-from sqlalchemy import func, and_
+from typing import Iterable
+
+from sqlalchemy import func, and_, or_
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -66,6 +68,39 @@ class TelegramChatUserService(BaseService):
 
         query = query.group_by(TelegramChatUser.chat_id)
         return dict(query.all())
+
+    def get_all_pairs(
+        self, chat_member_pairs: Iterable[tuple[int, int]]
+    ) -> list[TelegramChatUser]:
+        """
+        Fetches all `TelegramChatUser` instances that correspond to the given pairs of
+        user IDs and chat IDs.
+        It applies an optimized query to retrieve the data, ensuring that related wallet information
+        is also loaded to avoid multiple database hits.
+
+        :param chat_member_pairs: A list of tuples, where each tuple contains two
+            integers representing a 'chat_id' and a 'user_id'.
+        :return: A list of `TelegramChatUser` instances corresponding to the given
+            user and chat ID pairs.
+        """
+        query = self.db_session.query(TelegramChatUser)
+        query = query.filter(
+            or_(
+                *(
+                    and_(
+                        TelegramChatUser.user_id == user_id,
+                        TelegramChatUser.chat_id == chat_id,
+                    )
+                    for chat_id, user_id in chat_member_pairs
+                )
+            )
+        )
+        query = query.options(
+            joinedload(TelegramChatUser.wallet_link).options(
+                joinedload(TelegramChatUserWallet.wallet),
+            )
+        )
+        return query.all()
 
     def get_all(
         self, chat_id: int | None = None, user_ids: list[int] | None = None

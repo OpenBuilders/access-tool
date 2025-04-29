@@ -4,7 +4,9 @@ from core.services.base import BaseService
 
 class StickerItemService(BaseService):
     def get(self, item_id: str) -> StickerItem:
-        return self.db_session.query(StickerItem.id == item_id).one()
+        return (
+            self.db_session.query(StickerItem).filter(StickerItem.id == item_id).one()
+        )
 
     def get_all(
         self,

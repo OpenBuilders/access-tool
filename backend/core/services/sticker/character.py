@@ -4,7 +4,11 @@ from core.services.base import BaseService
 
 class StickerCharacterService(BaseService):
     def get(self, character_id: int) -> StickerCharacter:
-        return self.db_session.query(StickerCharacter.id == character_id).one()
+        return (
+            self.db_session.query(StickerCharacter)
+            .filter(StickerCharacter.id == character_id)
+            .one()
+        )
 
     def get_all(self, collection_id: int | None = None) -> list[StickerCharacter]:
         query = self.db_session.query(StickerCharacter)
@@ -31,3 +35,31 @@ class StickerCharacterService(BaseService):
         self.db_session.add(new_character)
         self.db_session.commit()
         return new_character
+
+    @staticmethod
+    def is_update_required(
+        character: StickerCharacter,
+        name: str,
+        description: str,
+        supply: int,
+    ) -> bool:
+        return any(
+            [
+                character.name != name,
+                character.description != description,
+                character.supply != supply,
+            ]
+        )
+
+    def update(
+        self,
+        character: StickerCharacter,
+        name: str,
+        description: str,
+        supply: int,
+    ) -> StickerCharacter:
+        character.name = name
+        character.description = description
+        character.supply = supply
+        self.db_session.commit()
+        return character

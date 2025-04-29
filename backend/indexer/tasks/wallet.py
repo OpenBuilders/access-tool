@@ -1,6 +1,6 @@
 import asyncio
-import logging
 
+from celery.utils.log import get_task_logger
 from pytonapi.schema.jettons import JettonsBalances
 from pytonapi.schema.nft import NftItems
 
@@ -18,9 +18,9 @@ from core.services.jetton import JettonService
 from core.services.nft import NftCollectionService, NftItemService
 from core.services.superredis import RedisService
 from core.services.wallet import JettonWalletService, WalletService
-from indexer.settings import wallet_indexer_settings
+from indexer.settings import indexer_settings
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 
 async def get_all_nfts_per_user(
@@ -40,7 +40,7 @@ async def get_all_nfts_per_user(
     queue=CELERY_WALLET_FETCH_QUEUE_NAME,
 )
 def fetch_wallet_details(address: str) -> None:
-    if address in wallet_indexer_settings.blacklisted_wallets:
+    if address in indexer_settings.blacklisted_wallets:
         logger.warning(f"Wallet {address!r} is blacklisted.")
         return
 
