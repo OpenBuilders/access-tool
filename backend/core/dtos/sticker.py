@@ -116,7 +116,7 @@ class StickerDomCollectionOwnershipDTO(BaseModel):
         json_data = json.loads(raw)
         ownership_data = [
             StickerItemDTO(
-                id=f"{collection_id}_{character_id}_{instance_id}",
+                id=f"{collection_id}_{character_id}_{instance_id}_{user_id}",
                 collection_id=collection_id,
                 character_id=character_id,
                 user_id=user_id,
