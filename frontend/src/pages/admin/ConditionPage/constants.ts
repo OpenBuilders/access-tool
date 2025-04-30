@@ -23,7 +23,7 @@ export const CONDITION_TYPES = [
     name: 'NFT',
   },
   {
-    value: 'stickers',
+    value: 'sticker_collection',
     name: 'Stickers',
   },
   {
@@ -52,5 +52,5 @@ export const CONDITION_COMPONENTS = {
   premium: Premium,
   emoji: Emoji,
   external_source: ExternalSource,
-  stickers: Stickers,
+  sticker_collection: Stickers,
 }

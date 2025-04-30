@@ -20,7 +20,7 @@ const ConditionTypePath: Record<ConditionType, string> = {
   premium: 'premium',
   toncoin: 'toncoin',
   emoji: 'emoji',
-  stickers: 'stickers',
+  sticker_collection: 'stickers',
 }
 
 // Jettons

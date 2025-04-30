@@ -11,7 +11,7 @@ export type ConditionType =
   | 'premium'
   | 'toncoin'
   | 'emoji'
-  | 'stickers'
+  | 'sticker_collection'
 export interface Condition {
   id: number
   type: ConditionType
@@ -21,7 +21,7 @@ export interface Condition {
   blockchainAddress?: string
   isEnabled: boolean
   asset: string
-  category?: string
+  category?: string | null
   promoteUrl: string
   address?: string
   requiredAttributes?: ConditionNFTCollectionAttribute[]
@@ -34,6 +34,8 @@ export interface Condition {
   emojiId?: string
   authKey?: string
   authValue?: string
+  collectionId?: number | string | null
+  characterId?: number | string | null
 }
 
 export interface PrefetchedConditionData {

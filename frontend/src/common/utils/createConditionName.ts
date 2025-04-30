@@ -30,5 +30,9 @@ export const createConditionName = (condition: Condition) => {
     return `Hold ${separateNumber(expected)} ${title}`
   }
 
+  if (type === 'sticker_collection') {
+    return `Stickers ${title}`
+  }
+
   return title
 }

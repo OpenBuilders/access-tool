@@ -1,7 +1,5 @@
 import cn from 'classnames'
 
-import config from '@config'
-
 import styles from './Image.module.scss'
 import { getColor, getFirstLetter } from './helpers'
 
@@ -53,10 +51,9 @@ export const Image = ({ src, size, borderRadius, fallback }: ImageProps) => {
     )
   }
 
-  const url = `${config.CDN}/${src}`
   return (
     <img
-      src={url}
+      src={src}
       alt="image"
       width={size}
       height={size}
