@@ -21,6 +21,6 @@ COPY backend/indexer ./indexer
 COPY backend/core ./core
 
 # Stage 2: Scheduler image
-FROM community-manager AS scheduler
+FROM harbor.stickerdom.store/tg-tools/community-manager:latest AS scheduler
 
 COPY backend/scheduler ./scheduler
