@@ -6,6 +6,7 @@ import {
   Toncoin,
   Whitelist,
   ExternalSource,
+  Stickers,
 } from './components'
 
 export const CONDITION_TYPES = [
@@ -20,6 +21,10 @@ export const CONDITION_TYPES = [
   {
     value: 'nft_collection',
     name: 'NFT',
+  },
+  {
+    value: 'sticker_collection',
+    name: 'Stickers',
   },
   {
     value: 'whitelist',
@@ -47,4 +52,5 @@ export const CONDITION_COMPONENTS = {
   premium: Premium,
   emoji: Emoji,
   external_source: ExternalSource,
+  sticker_collection: Stickers,
 }
