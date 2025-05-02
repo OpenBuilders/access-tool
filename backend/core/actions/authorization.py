@@ -7,6 +7,7 @@ from telethon import TelegramClient, Button
 from telethon.errors import UserAdminInvalidError, RPCError, HideRequesterMissingError
 
 from core.actions.base import BaseAction
+from core.actions.user import UserAction
 from core.dtos.chat.rules import (
     EligibilityCheckType,
     TelegramChatEligibilityRulesDTO,
@@ -560,7 +561,8 @@ class AuthorizationAction(BaseAction):
         await self.telethon_service.start()
         chat_service = TelegramChatService(self.db_session)
         chat = chat_service.get(chat_id)
-        local_user = self.user_service.get_or_create(user)
+        user_action = UserAction(self.db_session)
+        local_user = user_action.get_or_create(user)
 
         # If chat is not fully controlled and user was added -
         #  just ignore it and create entity in the database
@@ -614,8 +616,13 @@ class AuthorizationAction(BaseAction):
         :param chat_id: Chat ID
         :param user: User that left the chat
         """
-        local_user = self.user_service.get_or_create(user)
-        self.telegram_chat_user_service.delete(chat_id=chat_id, user_id=local_user.id)
+        try:
+            local_user = self.user_service.get(user)
+            self.telegram_chat_user_service.delete(
+                chat_id=chat_id, user_id=local_user.id
+            )
+        except NoResultFound:
+            logger.debug(f"No user {user.id!r} found in the database. Skipping.")
 
     async def on_join_request(
         self,
@@ -689,7 +696,8 @@ class AuthorizationAction(BaseAction):
 
         await self.telethon_service.start()
         telegram_user = await self.telethon_service.get_user(telegram_user_id)
-        local_user = self.user_service.get_or_create(
+        user_action = UserAction(self.db_session)
+        local_user = user_action.get_or_create(
             TelegramUserDTO.from_telethon_user(telegram_user)
         )
         if eligibility_summary := self.is_user_eligible_chat_member(

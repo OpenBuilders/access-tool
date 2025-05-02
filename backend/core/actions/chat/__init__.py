@@ -11,6 +11,7 @@ from telethon.errors import BadRequestError, ChatAdminRequiredError, RPCError
 from telethon.utils import get_peer_id
 
 from core.actions.chat.base import ManagedChatBaseAction
+from core.actions.user import UserAction
 from core.constants import REQUIRED_BOT_PRIVILEGES
 from core.dtos.chat import (
     TelegramChatDTO,
@@ -46,7 +47,6 @@ from core.services.cdn import CDNService
 from core.services.chat import TelegramChatService
 from core.services.chat.user import TelegramChatUserService
 from core.services.supertelethon import TelethonService, ChatPeerType
-from core.services.user import UserService
 from core.settings import core_settings
 
 
@@ -144,7 +144,7 @@ class TelegramChatAction(BaseAction):
             are to be loaded
         :return: This method does not return a value
         """
-        user_service = UserService(self.db_session)
+        user_action = UserAction(self.db_session)
         logger.info(f"Loading chat participants for chat {chat_identifier!r}...")
 
         await self.telethon_service.start()
@@ -156,7 +156,7 @@ class TelegramChatAction(BaseAction):
                 # Don't index bot users
                 continue
 
-            user = user_service.create_or_update(
+            user = user_action.create_or_update(
                 TelegramUserDTO(
                     id=participant_user.id,
                     first_name=participant_user.first_name or "",

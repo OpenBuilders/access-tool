@@ -5,13 +5,13 @@ from telethon import events
 
 from core.actions.authorization import AuthorizationAction
 from core.actions.chat import TelegramChatAction
+from core.actions.user import UserAction
 from core.dtos.chat import TelegramChatDTO
 from core.dtos.user import TelegramUserDTO
 from core.exceptions.chat import TelegramChatPublicError
 from core.services.chat import TelegramChatService
 from core.services.chat.user import TelegramChatUserService
 from core.services.db import DBService
-from core.services.user import UserService
 from core.utils.events import ChatJoinRequestEventBuilder, ChatAdminChangeEventBuilder
 
 logger = logging.getLogger(__name__)
@@ -230,8 +230,8 @@ async def handle_chat_participant_update(
             logger.debug(f"Bot user {target_telethon_user.id!r} is not handled.")
             return
 
-        user_service = UserService(session)
-        target_user = user_service.get_or_create(
+        user_action = UserAction(session)
+        target_user = user_action.get_or_create(
             telegram_user=TelegramUserDTO.from_telethon_user(target_telethon_user)
         )
         telegram_chat_user_service = TelegramChatUserService(db_session=session)
