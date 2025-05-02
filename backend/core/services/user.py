@@ -1,4 +1,3 @@
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from core.dtos.user import TelegramUserDTO
@@ -63,16 +62,3 @@ class UserService(BaseService):
         self.db_session.add(user)
         self.db_session.commit()
         return user
-
-    def create_or_update(self, telegram_user: TelegramUserDTO) -> User:
-        try:
-            user = self.get_by_telegram_id(telegram_user.id)
-            return self.update(user=user, telegram_user=telegram_user)
-        except NoResultFound:
-            return self.create(telegram_user)
-
-    def get_or_create(self, telegram_user: TelegramUserDTO) -> User:
-        try:
-            return self.get_by_telegram_id(telegram_user.id)
-        except NoResultFound:
-            return self.create(telegram_user)

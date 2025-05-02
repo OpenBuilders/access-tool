@@ -4,9 +4,9 @@ from api.deps import validate_user_init_data
 from api.pos.auth import TokenFDO
 from api.services.authentication import AuthenticationService
 from api.settings import api_settings
+from core.actions.user import UserAction
 from core.dtos.user import TelegramUserDTO, UserInitDataPO
 from core.services.db import DBService
-from core.services.user import UserService
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -16,8 +16,8 @@ async def telegram_auth(
     user_data: UserInitDataPO = Depends(validate_user_init_data),
 ) -> TokenFDO:
     with DBService().db_session() as db_session:
-        user_service = UserService(db_session)
-        user = user_service.create_or_update(
+        user_action = UserAction(db_session)
+        user = user_action.create_or_update(
             telegram_user=TelegramUserDTO(
                 id=user_data.id,
                 first_name=user_data.first_name,
