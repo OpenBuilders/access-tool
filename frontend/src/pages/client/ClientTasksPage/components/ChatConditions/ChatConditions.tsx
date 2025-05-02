@@ -27,7 +27,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
             {conditions.whitelist.map((condition) => (
               <ChatConditionItem
                 condition={condition}
-                key={condition.id}
+                key={`${condition.id}-${condition.type}`}
                 chat={chat}
               />
             ))}
@@ -40,7 +40,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
             {conditions.notAvailable.map((condition) => (
               <ChatConditionItem
                 condition={condition}
-                key={condition.id}
+                key={`${condition.id}-${condition.type}`}
                 chat={chat}
                 disabled
               />
@@ -55,7 +55,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
             {conditions.notNeeded.map((condition) => (
               <ChatConditionItem
                 condition={condition}
-                key={condition.id}
+                key={`${condition.id}-${condition.type}`}
                 chat={chat}
               />
             ))}
@@ -69,7 +69,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
             {conditions.available.map((condition) => (
               <ChatConditionItem
                 condition={condition}
-                key={condition.id}
+                key={`${condition.id}-${condition.type}`}
                 chat={chat}
               />
             ))}
