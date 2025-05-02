@@ -80,13 +80,15 @@ class StickerCharacterDTO(MinimalStickerCharacterDTO):
         )
 
 
-class StickerItemDTO(BaseModel):
+class BaseStickerItemDTO(BaseModel):
     id: str
     collection_id: int
     character_id: int
     instance: int
     user_id: int
 
+
+class StickerItemDTO(BaseStickerItemDTO):
     @classmethod
     def from_orm(cls, obj: StickerItem) -> Self:
         return cls(
@@ -96,6 +98,10 @@ class StickerItemDTO(BaseModel):
             instance=obj.instance,
             user_id=obj.user_id,
         )
+
+
+class ExternalStickerItemDTO(BaseStickerItemDTO):
+    ...
 
 
 class StickerDomCollectionOwnershipMetadataDTO(BaseModel):
@@ -108,16 +114,19 @@ class StickerDomCollectionOwnershipMetadataDTO(BaseModel):
         return bytes.fromhex(self.plain_dek_hex)
 
 
-class StickerDomCollectionOwnershipDTO(BaseModel):
+class BaseStickerDomCollectionOwnershipDTO(BaseModel):
     collection_id: int
     timestamp: str
-    ownership_data: list[StickerItemDTO]
+
+
+class ExternalStickerDomCollectionOwnershipDTO(BaseStickerDomCollectionOwnershipDTO):
+    ownership_data: list[ExternalStickerItemDTO]
 
     @classmethod
-    def from_raw(cls, raw: bytes, collection_id: int) -> Self:
+    def from_raw(cls, raw: bytes | str, collection_id: int) -> Self:
         json_data = json.loads(raw)
         ownership_data = [
-            StickerItemDTO(
+            ExternalStickerItemDTO(
                 id=f"{collection_id}_{character_id}_{instance_id}_{user_id}",
                 collection_id=collection_id,
                 character_id=character_id,
@@ -134,6 +143,10 @@ class StickerDomCollectionOwnershipDTO(BaseModel):
             timestamp=json_data["timestamp"],
             ownership_data=ownership_data,
         )
+
+
+class StickerDomCollectionOwnershipDTO(BaseStickerDomCollectionOwnershipDTO):
+    ownership_data: list[StickerItemDTO]
 
 
 class StickerDomCollectionWithCharacters(StickerCollectionDTO):

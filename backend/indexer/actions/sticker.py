@@ -1,10 +1,11 @@
-import hashlib
 import logging
 
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
+from core.actions.sticker.external import ExternalStickerAction
 from core.dtos.sticker import (
-    StickerDomCollectionOwnershipDTO,
+    ExternalStickerDomCollectionOwnershipDTO,
     StickerDomCollectionOwnershipMetadataDTO,
     StickerCollectionDTO,
     StickerDomCollectionWithCharacters,
@@ -30,41 +31,7 @@ class IndexerStickerItemAction:
         self.sticker_item_service = StickerItemService(db_session=db_session)
         self.user_service = UserService(db_session=db_session)
         self.redis_service = RedisService()
-
-    @staticmethod
-    def __get_metadata_cache_key(collection_id: int) -> str:
-        return f"sticker-dom::{collection_id}::ownership-metadata"
-
-    @staticmethod
-    def __get_data_cache_key(collection_id: int) -> str:
-        return f"sticker-dom::{collection_id}::ownership-data"
-
-    @staticmethod
-    def __get_collections_cache_key() -> str:
-        return "sticker-dom::collections"
-
-    @staticmethod
-    def __get_collection_cache_value(
-        collections: list[StickerDomCollectionWithCharacters],
-    ) -> str:
-        """
-        Generates a hash value based on the serialized data of the provided
-        collections.
-        This method is used for caching purposes by converting the data to its
-        JSON representation, concatenating it, and producing an SHA-256 hash.
-
-        :param collections: A list of StickerDomCollectionWithCharacters
-            instances representing the collections whose hash is to be
-            generated.
-        :return: A string representing the SHA-256 hash of the serialized
-            collections' data.
-        """
-        # Get hash of the serialized collections data
-        collections_raw = "".join(
-            [collection.model_dump_json() for collection in collections]
-        )
-        hash_object = hashlib.sha256(collections_raw.encode())
-        return hash_object.hexdigest()
+        self.external_sticker_action = ExternalStickerAction(db_session=db_session)
 
     async def _get_updated_collections(
         self,
@@ -79,8 +46,10 @@ class IndexerStickerItemAction:
                  are unchanged.
         """
         collections = await self.sticker_dom_service.fetch_collections()
-        collections_cache_key = self.__get_collections_cache_key()
-        collections_cache_value = self.__get_collection_cache_value(collections)
+        collections_cache_key = self.external_sticker_action.get_collections_cache_key()
+        collections_cache_value = (
+            self.external_sticker_action.get_collection_cache_value(collections)
+        )
 
         current_collections_cache_value = self.redis_service.get(collections_cache_key)
         if current_collections_cache_value == collections_cache_value:
@@ -182,15 +151,15 @@ class IndexerStickerItemAction:
 
         # Set cache only on successful processing
         self.redis_service.set(
-            self.__get_collections_cache_key(),
-            self.__get_collection_cache_value(collections),
+            self.external_sticker_action.get_collections_cache_key(),
+            self.external_sticker_action.get_collection_cache_value(collections),
         )
         logger.info("Successfully updated collections")
         return None
 
     async def _get_updated_ownership_info(
         self, collection_id: int
-    ) -> StickerDomCollectionOwnershipDTO | None:
+    ) -> ExternalStickerDomCollectionOwnershipDTO | None:
         """
         Fetch and return updated collection ownership information if it has changed.
 
@@ -209,7 +178,9 @@ class IndexerStickerItemAction:
         if not metadata:
             return None
 
-        metadata_cache_key = self.__get_metadata_cache_key(collection_id=collection_id)
+        metadata_cache_key = self.external_sticker_action.get_metadata_cache_key(
+            collection_id=collection_id
+        )
         cached_metadata_raw = self.redis_service.get(metadata_cache_key)
 
         if (
@@ -227,20 +198,24 @@ class IndexerStickerItemAction:
             )
             return None
 
-        ownership_data = await self.sticker_dom_service.fetch_collection_ownership_data(
+        ownership = await self.sticker_dom_service.fetch_collection_ownership_data(
             metadata=metadata
         )
         # Set the cache for the ownership data so it could be reused to avoid heavy decryption operations.
+        # IMPORTANT: Don't store mapped data as some records (e.g., users) might not exist in the database
+        # at the time of processing but could be created later.
         self.redis_service.set(
-            self.__get_data_cache_key(collection_id=collection_id),
-            ownership_data.model_dump_json(),
+            self.external_sticker_action.get_data_cache_key(
+                collection_id=collection_id
+            ),
+            ownership.model_dump_json(),
         )
         # At the very end, set the cache for the metadata with expiry set to 6 hours.
         # It'll help to ensure that at least every 6 hours the list is refreshed if needed
         self.redis_service.set(
             metadata_cache_key, metadata.model_dump_json(), ex=6 * 60 * 60
         )
-        return ownership_data
+        return ownership
 
     async def process_collection_ownerships(
         self, collection_dto: StickerCollectionDTO
@@ -267,58 +242,45 @@ class IndexerStickerItemAction:
             )
             return set()
 
-        target_telegram_ids = list(
-            {new_item.user_id for new_item in new_items.ownership_data}
-        )
-        all_users = self.user_service.get_all(telegram_ids=target_telegram_ids)
-        all_users_by_telegram_id = {u.telegram_id: u for u in all_users}
-        collection = self.sticker_collection_service.get(
-            collection_id=collection_dto.id
-        )
+        try:
+            collection = self.sticker_collection_service.get(
+                collection_id=collection_dto.id
+            )
+        except NoResultFound:
+            logger.error(
+                f"No result found for collection {collection_dto.id!r} when processing ownerships. "
+            )
+            return set()
+
         previous_items = self.sticker_item_service.get_all(collection_id=collection.id)
         previous_items_by_id = {sticker.id: sticker for sticker in previous_items}
+        internal_new_items = self.external_sticker_action.map_external_data_to_internal(
+            collection_id=collection.id,
+            items=new_items.ownership_data,
+        )
 
         updated_users_ids = set()
 
-        characters = self.sticker_character_service.get_all(collection_id=collection.id)
-        characters_by_external_id = {
-            character.external_id: character for character in characters
-        }
-
-        for new_item in new_items.ownership_data:
-            if not (internal_user := all_users_by_telegram_id.get(new_item.user_id)):
-                # We don't handle records for the users outside the internal database.
-                logger.debug(
-                    f"Missing user {new_item.user_id!r} for collection {collection.id!r}. Skipping item."
-                )
-                continue
-
-            if not (character := characters_by_external_id.get(new_item.character_id)):
-                # There is a desynchronization between Sticker Dom and the database.
-                logger.warning(
-                    f"Missing character {new_item.character_id!r} for collection {collection.id!r}. Skipping item."
-                )
-                continue
-
+        for new_item in internal_new_items:
             if not (previous_item := previous_items_by_id.get(new_item.id)):
                 logger.info(
                     f"Found new sticker item {new_item.id!r} for collection {collection.id!r} "
-                    f"with owner {internal_user.id!r}. Creating new item."
+                    f"with owner {new_item.user_id!r}. Creating new item."
                 )
                 self.sticker_item_service.create(
                     item_id=new_item.id,
-                    collection_id=collection.id,
-                    character_id=character.id,
-                    user_id=internal_user.id,
+                    collection_id=new_item.collection_id,
+                    character_id=new_item.character_id,
+                    user_id=new_item.user_id,
                     instance=new_item.instance,
                 )
                 # No need to inform about any updates as no ownership reduction has occurred.
                 continue
 
-            if previous_item.user_id != internal_user.id:
+            if previous_item.user_id != new_item.user_id:
                 logger.info(
                     f"Ownership of the sticker for item {new_item.id!r} in the collection {collection.id!r} changed "
-                    f"from {previous_item.user_id!r} to {internal_user.id!r}. Updating ownership."
+                    f"from {previous_item.user_id!r} to {new_item.user_id!r}. Updating ownership."
                 )
                 previous_user_id = previous_item.user_id
                 self.sticker_item_service.update(

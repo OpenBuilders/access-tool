@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from core.models.sticker import StickerItem
 from core.services.base import BaseService
 
@@ -54,5 +56,13 @@ class StickerItemService(BaseService):
 
     def delete(self, item_id: str) -> None:
         self.db_session.query(StickerItem).filter(StickerItem.id == item_id).delete(
+            synchronize_session="fetch"
+        )
+
+    def bulk_delete(
+        self,
+        item_ids: Iterable[str],
+    ) -> None:
+        self.db_session.query(StickerItem).filter(StickerItem.id.in_(item_ids)).delete(
             synchronize_session="fetch"
         )

@@ -4,7 +4,7 @@ from httpx import AsyncClient, Timeout
 
 from core.constants import REQUEST_TIMEOUT, READ_TIMEOUT, CONNECT_TIMEOUT
 from core.dtos.sticker import (
-    StickerDomCollectionOwnershipDTO,
+    ExternalStickerDomCollectionOwnershipDTO,
     StickerDomCollectionOwnershipMetadataDTO,
     StickerDomCollectionWithCharacters,
 )
@@ -93,7 +93,7 @@ class StickerDomService:
     @staticmethod
     async def fetch_collection_ownership_data(
         metadata: StickerDomCollectionOwnershipMetadataDTO,
-    ) -> StickerDomCollectionOwnershipDTO:
+    ) -> ExternalStickerDomCollectionOwnershipDTO:
         """
         Fetch the collection ownership data asynchronously for a given metadata.
 
@@ -127,7 +127,7 @@ class StickerDomService:
                 dek=metadata.plain_dek,
                 tag=tag,
             )
-            return StickerDomCollectionOwnershipDTO.from_raw(
+            return ExternalStickerDomCollectionOwnershipDTO.from_raw(
                 raw_collections_data,
                 collection_id=metadata.collection_id,
             )
