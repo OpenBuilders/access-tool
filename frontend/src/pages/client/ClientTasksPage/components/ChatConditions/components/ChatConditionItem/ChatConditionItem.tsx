@@ -68,6 +68,7 @@ export const ChatConditionItem = ({
       <ListItem
         before={<Icon name="check" size={24} />}
         text={<Text type="text">{createConditionName(condition)}</Text>}
+        disabled={disabled}
         description={
           <Text type="caption2" color="tertiary">
             {createConditionDescription(condition)}
@@ -82,6 +83,7 @@ export const ChatConditionItem = ({
       chevron={!!promoteUrl && !disabled}
       onClick={handleOpenLink}
       before={<Icon name="cross" size={24} />}
+      disabled={disabled}
       text={<Text type="text">{createConditionName(condition)}</Text>}
       description={
         <Text type="caption2" color="tertiary">
