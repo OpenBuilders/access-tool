@@ -14,6 +14,7 @@ from pydantic import (
 from pytonapi.utils import to_nano, to_amount, raw_to_userfriendly
 
 from api.pos.base import BaseFDO
+from api.utils import get_cdn_absolute_url
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
@@ -50,11 +51,17 @@ CHAT_INPUT_REGEX = re.compile(
 
 
 class TelegramChatFDO(BaseFDO, TelegramChatDTO):
-    ...
+    @model_validator(mode="after")
+    def format_logo_url(self) -> Self:
+        self.logo_path = get_cdn_absolute_url(self.logo_path)
+        return self
 
 
 class TelegramChatPovFDO(BaseFDO, TelegramChatPovDTO):
-    ...
+    @model_validator(mode="after")
+    def format_logo_url(self) -> Self:
+        self.logo_path = get_cdn_absolute_url(self.logo_path)
+        return self
 
 
 def validate_chat_identifier(v: str) -> str | int:
