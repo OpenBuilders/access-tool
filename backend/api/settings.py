@@ -7,5 +7,7 @@ class ApiSettings(CoreSettings):
     jwt_expiry: int = 3600
     sentry_dns: str
 
+    internal_cdn_base_url: str
+
 
 api_settings = ApiSettings()
