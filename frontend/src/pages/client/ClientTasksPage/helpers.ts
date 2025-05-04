@@ -77,7 +77,8 @@ export const formatConditions = (conditions: Condition[] | null) => {
   if (whitelistCondition) {
     result.whitelist.push(whitelistCondition)
     const conditionsWithoutWhitelist = conditions.filter(
-      (condition) => condition.id !== whitelistCondition.id
+      (condition) =>
+        condition.id !== whitelistCondition.id && condition.type !== 'whitelist'
     )
     if (whitelistCondition.isEligible) {
       result.notNeeded.push(...conditionsWithoutWhitelist)
