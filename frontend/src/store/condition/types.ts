@@ -36,6 +36,8 @@ export interface Condition {
   authValue?: string
   collectionId?: number | string | null
   characterId?: number | string | null
+  collection?: StickersCollection | null
+  character?: StickersCharacter | null
 }
 
 export interface PrefetchedConditionData {
