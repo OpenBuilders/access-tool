@@ -1,7 +1,8 @@
 from typing import Any, Self
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
+from core.constants import PROMOTE_STICKER_COLLECTION_TEMPLATE
 from core.dtos.chat.rules import ChatEligibilityRuleDTO, EligibilityCheckType
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 
@@ -29,6 +30,15 @@ class UpdateTelegramChatStickerCollectionRuleDTO(
 class StickerChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
     collection: MinimalStickerCollectionDTO | None
     character: MinimalStickerCharacterDTO | None
+
+    @computed_field
+    def promote_url(self) -> str | None:
+        if self.collection:
+            return PROMOTE_STICKER_COLLECTION_TEMPLATE.format(
+                collection_id=self.collection.id
+            )
+
+        return None
 
     @classmethod
     def from_orm(cls, obj: Any) -> Self:

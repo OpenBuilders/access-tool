@@ -51,5 +51,8 @@ PROMOTE_JETTON_TEMPLATE = (
     "https://app.ston.fi/swap?chartVisible=false&ft=TON&tt={jetton_master_address}"
 )
 PROMOTE_NFT_COLLECTION_TEMPLATE = "https://getgems.io/collection/{collection_address}"
+PROMOTE_STICKER_COLLECTION_TEMPLATE = (
+    "https://t.me/sticker_bot/?startapp=cid_{collection_id}"
+)
 BUY_TONCOIN_URL = "https://t.me/wallet/start"
 BUY_PREMIUM_URL = "https://t.me/PremiumBot"
