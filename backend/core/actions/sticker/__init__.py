@@ -1,5 +1,5 @@
-import itertools
 import logging
+from collections import defaultdict
 
 from sqlalchemy.exc import NoResultFound
 
@@ -70,7 +70,19 @@ class StickerCharacterAction(BaseAction):
         return [StickerCharacterDTO.from_orm(character) for character in characters]
 
     async def get_all_grouped(self) -> list[MinimalStickerCollectionWithCharactersDTO]:
+        """
+        Asynchronously retrieves all sticker collections grouped by their respective
+        characters.
+        Each collection includes a list of characters sorted by their names,
+        while the collections themselves are sorted by their titles.
+
+        :return: A list of `MinimalStickerCollectionWithCharactersDTO` objects
+            representing grouped sticker collections with nested characters.
+        """
         characters = self.sticker_character_service.get_all()
+        characters_by_collection = defaultdict(list)
+        for character in characters:
+            characters_by_collection[character.collection].append(character)
         return [
             MinimalStickerCollectionWithCharactersDTO(
                 id=collection.id,
@@ -78,11 +90,11 @@ class StickerCharacterAction(BaseAction):
                 logo_url=collection.logo_url,
                 characters=[
                     MinimalStickerCharacterDTO.from_orm(character)
-                    for character in characters
+                    for character in sorted(characters, key=lambda ch: ch.name)
                 ],
             )
-            for collection, characters in itertools.groupby(
-                characters, key=lambda x: x.collection
+            for collection, characters in sorted(
+                characters_by_collection.items(), key=lambda c_tuple: c_tuple[0].title
             )
         ]
 
