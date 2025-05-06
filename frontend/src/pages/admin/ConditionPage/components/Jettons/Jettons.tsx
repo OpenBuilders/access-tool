@@ -75,12 +75,12 @@ export const Jettons = ({
   useEffect(() => {
     if (
       !isNewCondition &&
-      conditionState?.blockchainAddress &&
+      condition?.blockchainAddress &&
       !prefetchedConditionData
     ) {
-      prefetchJetton(conditionState?.blockchainAddress)
+      prefetchJetton(condition?.blockchainAddress)
     }
-  }, [conditionState, isNewCondition])
+  }, [condition, isNewCondition])
 
   useEffect(() => {
     fetchConditionCategories()
