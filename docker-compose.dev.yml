@@ -19,9 +19,9 @@ services:
       target: api
     image: gateway-api
     env_file:
-      - ./backend/api/config/.env
-      - ./backend/core/config/.env
-      - ./backend/indexer/config/.env
+      - ./config/env/.api.env
+      - ./config/env/.core.env
+      - ./config/env/.indexer.env
     container_name: "gateway-api"
     ports:
       - "8000:8000"

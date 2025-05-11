@@ -64,11 +64,22 @@ _install_packages:
 _install_pre_commit_hooks:
 	pre-commit install
 
+_create_local_env_files:
+	# Check if ./config/env exists and creates it by copying ./config/env_template content otherwise
+	if [ -d "./config/env" ]; then \
+  		echo "Env directory already exists"; \
+  	else \
+  	  	echo "Creating local env variables"; \
+  		cp -R ./config/env_template ./config/env; \
+		echo "Env variables target created. Please, provide actual values before running application"; \
+  	fi
+
 setup-venv: \
 	_install_python_version \
 	_install_virtualenv \
 	_install_packages \
-	_install_pre_commit_hooks
+	_install_pre_commit_hooks \
+	_create_local_env_files
 
 generate-local-certs:
 	# Wait for confirmation from user to generate new certificates
@@ -84,4 +95,4 @@ generate-local-certs:
 	mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "localhost"
 
 
-include config/.env
+include config/env/.core.env

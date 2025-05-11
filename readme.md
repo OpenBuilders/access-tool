@@ -47,24 +47,8 @@ To install and run the project, follow these steps:
 
 ## Configuration
 
-The required configuration that should be set before any deployment is located in the following directories:
-
-- `backend/api/config/.env`
-- `backend/community_manager/config/.env`
-- `backend/core/config/.env`
-- `backend/indexer/config/.env`
-- `backend/transaction-lookup/.env`
-
-Prepare these files according to `.env.template` which you can find in the mentioned places.
-
-### Environment Variables
-
-Each component requires specific environment variables to be set. The most important ones include:
-
-- Database connection details (in `backend/core/config/.env`)
-- Redis connection details
-- API keys for blockchain services
-- Frontend API endpoint configuration
+Check [configuration guide](config/env_template/readme.md)
+to see how to deploy the application locally or on the server.
 
 ## Usage
 
