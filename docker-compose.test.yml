@@ -19,7 +19,7 @@ services:
       target: tests-executor
     image: gateway-tests
     env_file:
-      - ./backend/core/config/.env.test
+      - ./config/env_template/.core.env.test
     container_name: "gateway-tests"
     volumes:
       - ./backend:/app
@@ -44,7 +44,7 @@ services:
     ports:
       - "3307:3306"
     env_file:
-      - ./backend/core/config/.env.test
+      - ./config/env_template/.core.env.test
     volumes:
       - volume-data:/var/lib/mysql
     container_name: "gateway-mysql"

@@ -15,7 +15,7 @@ services:
       context: ./backend/transaction-lookup
       dockerfile: ./config/Dockerfile.worker
     env_file:
-      - ./backend/transaction-lookup/.env
+      - ./config/env/.transaction-lookup.env
     depends_on:
       redis:
         condition: service_healthy
@@ -30,8 +30,8 @@ services:
       target: indexer
     image: gateway-indexer
     env_file:
-      - ./backend/indexer/config/.env
-      - ./backend/core/config/.env
+      - ./config/env/.core.env
+      - ./config/env/.indexer.env
     restart: on-failure
     command: [
       "celery",
@@ -51,8 +51,8 @@ services:
     <<: *x-python-service
     image: gateway-indexer
     env_file:
-      - ./backend/indexer/config/.env
-      - ./backend/core/config/.env
+      - ./config/env/.core.env
+      - ./config/env/.indexer.env
     restart: on-failure
     command: [
       "celery",
@@ -78,8 +78,8 @@ services:
       target: community-manager
     image: gateway-community-manager
     env_file:
-      - ./backend/community_manager/config/.env
-      - ./backend/core/config/.env
+      - ./config/env/.core.env
+      - ./config/env/.community-manager.env
     command: [
       "celery",
       "-A",
@@ -98,8 +98,8 @@ services:
     <<: *x-python-service
     image: gateway-community-manager
     env_file:
-      - ./backend/community_manager/config/.env
-      - ./backend/core/config/.env
+      - ./config/env/.core.env
+      - ./config/env/.community-manager.env
     command: ["python3", "community_manager/entrypoint.py"]
     volumes:
       - ./backend/community_manager:/app/community_manager
@@ -114,9 +114,9 @@ services:
       target: scheduler
     image: gateway-scheduler
     env_file:
-      - ./backend/community_manager/config/.env
-      - ./backend/core/config/.env
-      - ./backend/indexer/config/.env
+      - ./config/env/.core.env
+      - ./config/env/.community-manager.env
+      - ./config/env/.indexer.env
     command: [
       "celery",
       "-A",
@@ -137,9 +137,9 @@ services:
       target: api
     image: gateway-api
     env_file:
-      - ./backend/api/config/.env
-      - ./backend/core/config/.env
-      - ./backend/indexer/config/.env
+      - ./config/env/.api.env
+      - ./config/env/.core.env
+      - ./config/env/.indexer.env
     container_name: "gateway-api"
     ports:
       - "8000:8000"
@@ -167,7 +167,7 @@ services:
     ports:
       - "3307:3306"
     env_file:
-      - ./backend/core/config/.env
+      - ./config/env/.core.env
     volumes:
       - volume-data:/var/lib/mysql
     container_name: "gateway-mysql"
