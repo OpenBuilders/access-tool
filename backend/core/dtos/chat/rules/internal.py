@@ -53,6 +53,10 @@ class RulesEligibilityGroupSummaryInternalDTO(BaseModel):
     items: list[EligibilitySummaryInternalDTO]
 
     def __bool__(self):
+        # If there are no items on the list - user should not be eligible for that empty group
+        if not self.items:
+            return False
+
         return all(item.is_eligible for item in self.items)
 
     def __repr__(self):
