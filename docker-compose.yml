@@ -190,8 +190,6 @@ services:
 
 volumes:
   volume-data:
-    name: octagate-bot_volume-data
-    external: true
   volume-queue:
   community-manager-session:
   community-manager-tasks-session:
