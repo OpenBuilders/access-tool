@@ -61,7 +61,7 @@ export const createButtonText = ({
 export const formatConditions = (conditions: Condition[] | null) => {
   const result: FormattedConditions = {
     whitelist: [],
-    notAvailable: [],
+    orRequired: [],
     available: [],
     notNeeded: [],
   }
@@ -74,16 +74,37 @@ export const formatConditions = (conditions: Condition[] | null) => {
     (condition) => condition.type === 'whitelist'
   )
 
-  if (whitelistCondition) {
-    result.whitelist.push(whitelistCondition)
-    const conditionsWithoutWhitelist = conditions.filter(
-      (condition) =>
-        condition.id !== whitelistCondition.id && condition.type !== 'whitelist'
-    )
-    if (whitelistCondition.isEligible) {
-      result.notNeeded.push(...conditionsWithoutWhitelist)
+  const externalSourceCondition = conditions.find(
+    (condition) => condition.type === 'external_source'
+  )
+
+  if (whitelistCondition || externalSourceCondition) {
+    const formattedConditions = conditions
+      .filter(
+        (condition) =>
+          condition.id !== whitelistCondition?.id &&
+          condition.type !== 'whitelist'
+      )
+      .filter(
+        (condition) =>
+          condition.id !== externalSourceCondition?.id &&
+          condition.type !== 'external_source'
+      )
+
+    console.log(formattedConditions)
+
+    if (whitelistCondition) {
+      result.whitelist.push(whitelistCondition)
+    }
+
+    if (externalSourceCondition) {
+      result.whitelist.push(externalSourceCondition)
+    }
+
+    if (whitelistCondition?.isEligible || externalSourceCondition?.isEligible) {
+      result.notNeeded.push(...formattedConditions)
     } else {
-      result.notAvailable.push(...conditionsWithoutWhitelist)
+      result.orRequired.push(...formattedConditions)
     }
 
     return result

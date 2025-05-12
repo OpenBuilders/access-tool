@@ -46,12 +46,12 @@ export const ChatConditionItem = ({
         <ListItem
           before={<Icon name="cross" size={24} color="danger" />}
           text={<Text type="text">{createConditionName(condition)}</Text>}
-          description={
-            <Text type="caption2" color="tertiary">
-              Sorry, but you can't access the chat. Connect another account if
-              you have access.
-            </Text>
-          }
+          // description={
+          //   <Text type="caption2" color="tertiary">
+          //     Sorry, but you can't access the chat. Connect another account if
+          //     you have access.
+          //   </Text>
+          // }
         />
       )
     }
