@@ -66,7 +66,7 @@ export const ClientTasksPage = () => {
 
   if (isLoading || !chat || !rules || !sortedConditions) return null
 
-  const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
+  // const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
 
   const buttonAction = async () => {
     const emojiCondition = rules.find((rule) => rule.type === 'emoji')
@@ -125,7 +125,7 @@ export const ClientTasksPage = () => {
       <TelegramBackButton />
       <TelegramMainButton
         text={buttonText}
-        isVisible={!!buttonText && !hideButton}
+        isVisible={!!buttonText}
         disabled={isLoading || isChecking}
         onClick={buttonAction}
         loading={isLoading || isChecking}

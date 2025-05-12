@@ -16,7 +16,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
   const renderWalletCondition = checkWalletRequirements([
     ...conditions.available,
     ...conditions.notNeeded,
-    ...conditions.notAvailable,
+    ...conditions.orRequired,
   ])
 
   return (
@@ -34,15 +34,15 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
           </List>
         </Block>
       )}
-      {!!conditions.notAvailable.length && (
+      {!!conditions.orRequired.length && (
         <Block margin="top" marginValue={24}>
-          <List separatorLeftGap={24} header="Not available">
-            {conditions.notAvailable.map((condition) => (
+          <List separatorLeftGap={24} header="OR">
+            {renderWalletCondition && <WalletCondition />}
+            {conditions.orRequired.map((condition) => (
               <ChatConditionItem
                 condition={condition}
                 key={`${condition.id}-${condition.type}`}
                 chat={chat}
-                disabled
               />
             ))}
           </List>
