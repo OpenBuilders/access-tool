@@ -2,7 +2,7 @@ import { Condition } from '@store'
 
 export interface FormattedConditions {
   whitelist: Condition[]
-  notAvailable: Condition[]
+  orRequired: Condition[]
   available: Condition[]
   notNeeded: Condition[]
 }
