@@ -23,8 +23,21 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
     <>
       {!!conditions.whitelist.length && (
         <Block margin="top" marginValue={24}>
-          <List separatorLeftGap={24}>
+          <List separatorLeftGap={24} header="Whitelist">
             {conditions.whitelist.map((condition) => (
+              <ChatConditionItem
+                condition={condition}
+                key={`${condition.id}-${condition.type}`}
+                chat={chat}
+              />
+            ))}
+          </List>
+        </Block>
+      )}
+      {!!conditions.externalSource.length && (
+        <Block margin="top" marginValue={24}>
+          <List separatorLeftGap={24} header="External Source">
+            {conditions.externalSource.map((condition) => (
               <ChatConditionItem
                 condition={condition}
                 key={`${condition.id}-${condition.type}`}
