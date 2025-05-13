@@ -1,4 +1,5 @@
 import logging
+import ssl
 
 import httpx
 from pydantic import ValidationError
@@ -10,8 +11,16 @@ from core.exceptions.chat import TelegramChatInvalidExternalSourceError
 
 logger = logging.getLogger(__name__)
 
+# Create the default SSL context and ensure it validates both the certificate and the hostname
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = True
+ssl_context.verify_mode = ssl.CERT_REQUIRED
+
 timeout = httpx.Timeout(REQUEST_TIMEOUT, read=READ_TIMEOUT, connect=CONNECT_TIMEOUT)
-sync_client = httpx.Client(timeout=timeout, follow_redirects=True)
+sync_client = httpx.Client(timeout=timeout, follow_redirects=True, verify=ssl_context)
+async_client = httpx.AsyncClient(
+    timeout=timeout, follow_redirects=True, verify=ssl_context
+)
 
 
 async def fetch_dynamic_allowed_members(
@@ -35,7 +44,7 @@ async def fetch_dynamic_allowed_members(
     if auth_key and auth_value:
         headers = {auth_key: auth_value}
 
-    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+    async with async_client as client:
         response = await client.get(url, headers=headers)
     response.raise_for_status()
     try:
