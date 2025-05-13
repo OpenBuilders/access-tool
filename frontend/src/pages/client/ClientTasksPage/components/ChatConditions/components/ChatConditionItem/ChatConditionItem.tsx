@@ -27,7 +27,7 @@ export const ChatConditionItem = ({
     webApp.openLink(condition.promoteUrl)
   }
 
-  if (type === 'whitelist') {
+  if (type === 'whitelist' || type === 'external_source') {
     if (isEligible) {
       return (
         <ListItem
@@ -42,16 +42,18 @@ export const ChatConditionItem = ({
         />
       )
     } else {
+      const text = chat?.isEligible
+        ? "You're not on the list. But you completed the other requirements and can access the chat."
+        : "Sorry, you're not on the list. But you can complete the other requirements to access the chat if they are available."
       return (
         <ListItem
           before={<Icon name="cross" size={24} color="danger" />}
           text={<Text type="text">{createConditionName(condition)}</Text>}
-          // description={
-          //   <Text type="caption2" color="tertiary">
-          //     Sorry, but you can't access the chat. Connect another account if
-          //     you have access.
-          //   </Text>
-          // }
+          description={
+            <Text type="caption2" color="tertiary">
+              {text}
+            </Text>
+          }
         />
       )
     }
