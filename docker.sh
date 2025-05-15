@@ -11,6 +11,9 @@ export $(grep -v '^#' ./config/env/.core.env | xargs)
 
 if [ "$MODE" = "test" ]; then
   echo "Running tests"
+  # Export test env variables
+  # shellcheck disable=SC2046
+  export $(grep -v '^#' ./config/env_template/.core.env.test | xargs)
   docker compose -f docker-compose.test.yml "$@"
 # Check if ENV is set to development
 elif [ "$ENV" = "development" ]; then

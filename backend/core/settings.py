@@ -16,16 +16,16 @@ class CoreSettings(BaseSettings):
     def broker_url(self):
         return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
 
-    mysql_host: str
-    mysql_port: int
-    mysql_database: str
-    mysql_user: str
-    mysql_password: str
-    mysql_root_password: str
+    sql_host: str
+    sql_port: int
+    sql_database: str
+    sql_user: str
+    sql_password: str
+    sql_driver: str
 
     @property
     def db_connection_string(self):
-        return f"mysql+mysqlconnector://{self.mysql_user}:{self.mysql_password}@{self.mysql_host}:{self.mysql_port}/{self.mysql_database}"
+        return f"{self.sql_driver}://{self.sql_user}:{self.sql_password}@{self.sql_host}:{self.sql_port}/{self.sql_database}"
 
     telegram_bot_token: str
     telegram_app_id: int

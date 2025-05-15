@@ -4,8 +4,8 @@ x-python-service:
   depends_on:
     redis:
       condition: service_healthy
-    mysql:
-      condition: service_healthy
+    postgres-test:
+      condition: service_started
   networks:
     - internal
 
@@ -39,26 +39,20 @@ services:
     networks:
       - internal
 
-  mysql:
-    image: "mysql:8.3.0"
+  postgres-test:
+    image: "postgres:17.5"
     ports:
-      - "3307:3306"
-    env_file:
-      - ./config/env_template/.core.env.test
-    volumes:
-      - volume-data:/var/lib/mysql
-    container_name: "gateway-mysql"
-    healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -hlocalhost -uroot -p${MYSQL_ROOT_PASSWORD}" ]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      - "5442:5432"
+    environment:
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+      - POSTGRES_DB=${SQL_DATABASE}
+    container_name: "gateway-postgres-test"
     networks:
       - internal
 
 
 volumes:
-  volume-data:
   volume-queue:
 
 
