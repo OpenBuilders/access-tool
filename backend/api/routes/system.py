@@ -1,10 +1,13 @@
 import random
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 from starlette.status import HTTP_502_BAD_GATEWAY, HTTP_200_OK
 
+from api.deps import get_db_session
 from api.pos.base import BaseExceptionFDO
 from api.pos.common import StatusFDO
+from core.actions.system import SystemAction
 from core.dtos.chat.rules.whitelist import WhitelistRuleCPO
 from core.utils.task import wait_for_task
 
@@ -43,3 +46,11 @@ async def get_random_users_list() -> WhitelistRuleCPO:
     return WhitelistRuleCPO(
         users=[random.randint(1234567, 23456789) for _ in range(10)]
     )
+
+
+@system_non_authenticated_router.get("/health", description="Health check")
+async def get_health(
+    db_session: Session = Depends(get_db_session),
+) -> StatusFDO:
+    action = SystemAction(db_session=db_session)
+    return action.healthcheck()
