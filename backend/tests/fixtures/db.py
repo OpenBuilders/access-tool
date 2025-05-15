@@ -2,7 +2,7 @@ from collections.abc import Iterator
 
 import pytest
 from factory.alchemy import SQLAlchemyModelFactory
-from sqlalchemy import create_engine, text, Engine
+from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import sessionmaker, Session
 from core.db import Base
 from core.settings import core_settings
@@ -30,21 +30,14 @@ def db_engine() -> Iterator[Engine]:
     """
     # Use the MySQL Docker service and root engine with no database context
     #  to create the test database first
-    connection_url = f"mysql+mysqlconnector://root:{core_settings.mysql_root_password}@{core_settings.mysql_host}:{core_settings.mysql_port}"
-    root_engine = create_engine(connection_url)
-    with root_engine.connect() as connection:
-        connection.execute(text("CREATE DATABASE IF NOT EXISTS gateway_test"))
+    engine = create_engine(core_settings.db_connection_string)
     # Create all tables at the beginning of the test session using the test database context
-    engine = create_engine(f"{connection_url}/gateway_test?charset=utf8mb4")
     Base.metadata.create_all(engine)
     try:
         yield engine
     finally:
         # Dispose of the engine after the session
         engine.dispose()
-        # After all tests are finished - remove the test database
-        with root_engine.connect() as connection:
-            connection.execute(text("DROP DATABASE gateway_test"))
 
 
 @pytest.fixture(scope="function")

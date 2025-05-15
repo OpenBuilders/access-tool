@@ -1,4 +1,3 @@
-import os
 from logging.config import fileConfig
 
 from sqlalchemy import create_engine, NullPool
@@ -6,6 +5,7 @@ from sqlalchemy import create_engine, NullPool
 from alembic import context
 
 from core.models import Base
+from core.settings import core_settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -27,13 +27,6 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-mysql_host = os.getenv("MYSQL_HOST")
-mysql_port = os.getenv("MYSQL_PORT")
-mysql_database = os.getenv("MYSQL_DATABASE")
-mysql_user = os.getenv("MYSQL_USER")
-mysql_password = os.getenv("MYSQL_PASSWORD")
-mysql_url = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
-
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -47,9 +40,10 @@ def run_migrations_offline() -> None:
     script output.
 
     """
+    connection_string = core_settings.db_connection_string
 
     context.configure(
-        url=mysql_url,
+        url=connection_string,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -66,7 +60,8 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = create_engine(url=mysql_url, poolclass=NullPool)
+    connection_string = core_settings.db_connection_string
+    connectable = create_engine(url=connection_string, poolclass=NullPool)
 
     with connectable.connect() as connection:
         context.configure(
