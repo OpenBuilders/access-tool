@@ -4,8 +4,8 @@ x-python-service:
   depends_on:
     redis:
       condition: service_healthy
-    mysql:
-      condition: service_healthy
+    postgres:
+      condition: service_started
   networks:
     - internal
 
