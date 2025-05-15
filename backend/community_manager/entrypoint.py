@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 
 from telethon import TelegramClient, events
 from telethon.sessions import SQLiteSession
@@ -18,14 +17,13 @@ logger = logging.getLogger(__name__)
 
 def init_client():
     # Make session persistent for the community manager
-    session_path = Path(__file__).parent.parent / "data"
-    if not session_path.exists():
+    if not (parent := community_manager_settings.telegram_session_path.parent.exists()):
         raise FileNotFoundError(
-            f"Session path {session_path} does not exist. Please create it."
+            f"Session storage location parent {parent} does not exist. Please create it."
         )
 
     # This session is not thread-safe and cannot be used by multiple clients at the same time.
-    session = SQLiteSession(str(session_path / "gateway.session"))
+    session = SQLiteSession(str(community_manager_settings.telegram_session_path))
     client = TelegramClient(
         session,
         community_manager_settings.telegram_app_id,
