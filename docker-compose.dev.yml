@@ -15,7 +15,7 @@ services:
     <<: *x-python-service
     build:
       context: .
-      dockerfile: ./config/docker/backend.Dockerfile
+      dockerfile: ./config/docker/Dockerfile.api
       target: api
     image: gateway-api
     env_file:

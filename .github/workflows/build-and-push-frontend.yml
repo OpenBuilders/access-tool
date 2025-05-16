@@ -47,7 +47,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: config/docker/frontend.Dockerfile
+          file: config/docker/Dockerfile.frontend
           push: true
           tags: |
             ghcr.io/${{ env.REPO }}/gateway-tool-frontend:latest
