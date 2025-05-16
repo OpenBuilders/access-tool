@@ -13,12 +13,8 @@ RUN yarn install
 # Copy the rest of the application code
 COPY frontend/ .
 
-FROM base AS production
-# Build the application
-RUN yarn build
+FROM base as development
 
-# Expose the port Vite preview uses
-EXPOSE 4173
+EXPOSE 3000
 
-# Use Vite's production-ready preview server
-CMD ["yarn", "preview"]
+CMD ["yarn", "run", "dev"]
