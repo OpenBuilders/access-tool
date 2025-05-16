@@ -145,7 +145,14 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/core/static:/app/core/static
-    command: ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    command: [
+      "gunicorn",
+      "api.app:app",
+      "-k", "uvicorn_worker.UvicornWorker",
+      "--bind", "0.0.0.0:8000",
+      "--workers", "4",
+      "--access-logfile", "-",
+    ]
 
   redis:
     image: "redis:7.2.4-alpine"
