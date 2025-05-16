@@ -166,7 +166,7 @@ class StickerDomCollectionWithCharacters(StickerCollectionDTO):
                     collection_id=collection_json["id"],
                     description=character["description"],
                     supply=character["supply"],
-                    logo_url=character.get("logo_url"),
+                    logo_url=character.get("preview_url"),
                 )
                 for character in collection_json["characters"]
             ],
