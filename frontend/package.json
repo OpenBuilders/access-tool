@@ -4,11 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "build:development": "NODE_ENV=development tsc && vite build",
-    "preview": "yarn --cache-folder .yarn-cache vite preview"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:development": "NODE_ENV=development vite build --mode development",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@tonconnect/ui-react": "^2.1.0",
