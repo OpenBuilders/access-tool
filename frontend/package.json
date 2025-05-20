@@ -7,6 +7,7 @@
     "dev": "vite --port 3000",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "build:development": "NODE_ENV=development tsc && vite build",
     "preview": "yarn --cache-folder .yarn-cache vite preview"
   },
   "dependencies": {
