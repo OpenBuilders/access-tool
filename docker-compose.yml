@@ -139,8 +139,6 @@ services:
     container_name: "gateway-api"
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend/core/static:/app/core/static
     command: [
       "gunicorn",
       "api.app:app",
