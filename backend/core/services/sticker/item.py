@@ -12,14 +12,14 @@ class StickerItemService(BaseService):
 
     def get_all(
         self,
-        user_id: int | None = None,
+        telegram_user_id: int | None = None,
         collection_id: int | None = None,
         character_id: int | None = None,
         item_ids: Iterable[str] | None = None,
     ) -> list[StickerItem]:
         query = self.db_session.query(StickerItem)
-        if user_id is not None:
-            query = query.filter(StickerItem.user_id == user_id)
+        if telegram_user_id is not None:
+            query = query.filter(StickerItem.telegram_user_id == telegram_user_id)
         if collection_id is not None:
             query = query.filter(StickerItem.collection_id == collection_id)
         if character_id is not None:
