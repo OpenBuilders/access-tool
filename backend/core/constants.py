@@ -10,6 +10,9 @@ DEFAULT_WALLET_TRACK_EXPIRATION = 60 * 60 * 24 * 365 * 10  # 10 years
 
 ASYNC_TASK_REDIS_PREFIX = "atask"
 
+# Performance
+DEFAULT_BATCH_PROCESSING_SIZE = 5_000
+
 # Privileges required for admin to manage the chat in the bot
 REQUIRED_ADMIN_PRIVILEGES = ["add_admins"]
 # Privileges required for a bot user to manage the chat
