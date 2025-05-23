@@ -3,7 +3,7 @@ import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { toUserFriendlyAddress, useTonConnectUI } from '@tonconnect/ui-react'
 import { collapseAddress } from '@utils'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -25,6 +25,8 @@ export const WalletCondition = () => {
   const connectWalletQuery = searchParams.get('connectWallet')
 
   const [tonConnectUI] = useTonConnectUI()
+
+  const processedWallets = useRef(new Set<string>())
 
   const fetchUserChat = async () => {
     try {
@@ -89,8 +91,11 @@ export const WalletCondition = () => {
     tonConnectUI.onStatusChange(async (wallet) => {
       if (
         wallet?.connectItems?.tonProof &&
-        'proof' in wallet.connectItems.tonProof
+        'proof' in wallet.connectItems.tonProof &&
+        !processedWallets.current.has(wallet.account.address)
       ) {
+        processedWallets.current.add(wallet.account.address)
+
         const data = {
           tonProof: wallet.connectItems.tonProof.proof,
           walletAddress: wallet.account.address,
@@ -105,6 +110,12 @@ export const WalletCondition = () => {
       }
     })
   }, [tonConnectUI])
+
+  useEffect(() => {
+    return () => {
+      processedWallets.current.clear()
+    }
+  }, [])
 
   useEffect(() => {
     if (connectWalletQuery) {
