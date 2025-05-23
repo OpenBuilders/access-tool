@@ -48,6 +48,11 @@ export const WalletCondition = () => {
     let taskId = null
     try {
       taskId = await connectWalletAction(chatSlugParam, walletData)
+
+      showToast({
+        message: 'New wallet connected',
+        type: 'success',
+      })
     } catch (error) {
       console.error(error)
       showToast({
@@ -96,10 +101,7 @@ export const WalletCondition = () => {
           await handleCompleteTask(taskId)
         }
 
-        showToast({
-          message: 'New wallet connected',
-          type: 'success',
-        })
+        await fetchUserChat()
       }
     })
   }, [tonConnectUI])
