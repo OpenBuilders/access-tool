@@ -7,7 +7,13 @@ import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
-import { useChat, useChatActions, useUserActions, WalletData } from '@store'
+import {
+  useChat,
+  useChatActions,
+  useUser,
+  useUserActions,
+  WalletData,
+} from '@store'
 
 export const WalletCondition = () => {
   const { appNavigate } = useAppNavigation()
@@ -16,6 +22,8 @@ export const WalletCondition = () => {
   const chatSlugParam = params.clientChatSlug || ''
 
   const { showToast } = useToast()
+
+  const { user } = useUser()
 
   const { chatWallet } = useChat()
   const { fetchUserChatAction } = useChatActions()
@@ -128,11 +136,23 @@ export const WalletCondition = () => {
     }
   }, [connectWalletQuery])
 
+  const handleWalletsList = () => {
+    if (user?.wallets.length) {
+      appNavigate({
+        path: ROUTES_NAME.CLIENT_WALLETS_LIST,
+        params: { clientChatSlug: chatSlugParam },
+      })
+      return
+    }
+
+    handleOpenWalletConnect()
+  }
+
   if (!chatWallet) {
     return (
       <ListItem
         chevron
-        onClick={handleOpenWalletConnect}
+        onClick={handleWalletsList}
         before={<Icon name="cross" size={24} />}
         text={
           <Text type="text" color="primary">
