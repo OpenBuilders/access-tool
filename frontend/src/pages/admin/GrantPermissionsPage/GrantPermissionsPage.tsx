@@ -100,7 +100,7 @@ export const GrantPermissionsPage = () => {
         <Icon name="gatewayBot" size={112} />
         <Block margin="top" marginValue={16}>
           <Text type="title" align="center" weight="bold">
-            Gateway Bot Has No Permissions
+            Access Bot Has No Permissions
           </Text>
         </Block>
         <Block margin="top" marginValue={12}>

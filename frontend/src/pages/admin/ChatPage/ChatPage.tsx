@@ -14,6 +14,7 @@ import { goTo } from '@utils'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import config from '@config'
 import { useApp, useAppActions, useChat, useChatActions } from '@store'
 
 import { ChatConditions, ChatHeader } from './components'
@@ -105,9 +106,9 @@ export const ChatPage = () => {
       </Block>
       <Block margin="top" marginValue="auto">
         <Text type="caption" align="center" color="tertiary">
-          To delete this page from Gateway,
+          To delete this page from Access,
           <br />
-          remove @gateway_bot from admins
+          remove @{config.botName} from admins
         </Text>
       </Block>
     </PageLayout>

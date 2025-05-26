@@ -20,8 +20,8 @@ const devConfig: Config = {
 const prodConfig: Config = {
   isProd: true,
   apiHost: 'https://api.gateway.tools.tg',
-  botName: 'gateway_app_bot',
-  botLink: 'https://t.me/gateway_app_bot',
+  botName: 'access_app_bot',
+  botLink: 'https://t.me/access_app_bot',
   tonConnectManifestUrl: 'https://cdn.joincommunity.xyz/gateway/manifest.json',
 }
 
