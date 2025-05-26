@@ -128,7 +128,7 @@ export const Stickers = ({
       <Block margin="top" marginValue={24}>
         <List>
           <ListItem
-            text="Character"
+            text="Pack"
             after={
               <AppSelect
                 onChange={(value) => {
@@ -168,7 +168,7 @@ export const Stickers = ({
       </Block>
       <Block margin="top" marginValue={24}>
         <ListItem
-          text="# of Characters"
+          text="# of Packs"
           after={
             <ListInput
               type="text"
