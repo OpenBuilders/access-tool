@@ -10,7 +10,7 @@ interface Config {
 
 const devConfig: Config = {
   isDev: true,
-  apiHost: 'https://dev-api.gateway.tools.tg',
+  apiHost: 'https://dev-api.access.tools.tg',
   botName: 'ggooccttaa_bot',
   botLink: 'https://t.me/ggooccttaa_bot',
   tonConnectManifestUrl: 'https://cdn.joincommunity.xyz/gateway/manifest.json',
@@ -19,7 +19,7 @@ const devConfig: Config = {
 
 const prodConfig: Config = {
   isProd: true,
-  apiHost: 'https://api.gateway.tools.tg',
+  apiHost: 'https://api.access.tools.tg',
   botName: 'access_app_bot',
   botLink: 'https://t.me/access_app_bot',
   tonConnectManifestUrl: 'https://cdn.joincommunity.xyz/gateway/manifest.json',

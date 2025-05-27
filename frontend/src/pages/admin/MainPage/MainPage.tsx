@@ -71,11 +71,11 @@ export const MainPage = () => {
         <Text align="center" type="caption" color="tertiary">
           This is open source contributed by independent
           <br />
-          developers, as part of Telegram Tools
-          {/* <Text type="caption" color="accent" as="span">
+          developers, as part of
+          <Text type="caption" href="https://tools.tg" color="accent" as="span">
             {' '}
             Telegram Tools
-          </Text> */}
+          </Text>
         </Text>
       </Block>
     </PageLayout>
