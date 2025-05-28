@@ -17,6 +17,10 @@ export const Skeleton = () => {
       <SkeletonElement
         style={{ width: '30%', height: '16px', margin: '8px auto 0' }}
       />
+      <Block margin="top" marginValue={24} gap={10} row>
+        <SkeletonElement style={{ flexBasis: '50%', height: '50px' }} />
+        <SkeletonElement style={{ flexBasis: '50%', height: '50px' }} />
+      </Block>
       <SkeletonElement
         style={{ width: '100%', height: '200px', marginTop: '24px' }}
       />
