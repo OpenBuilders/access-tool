@@ -17,6 +17,7 @@ from telethon.tl.types import (
     InputPeerUser,
     InputUser,
     ChatPhotoEmpty,
+    StarGiftUnique,
 )
 
 from core.settings import core_settings
@@ -124,6 +125,16 @@ class TelethonService:
         await self.client.download_profile_photo(entity, target_location)
 
         return new_file_name
+
+    async def download_unique_gift_thumbnail(
+        self,
+        entity: StarGiftUnique,
+        target_location: BinaryIO | IO[bytes],
+    ) -> str | None:
+        await self.client.download_media(
+            message=entity.attributes[0].document, file=target_location, thumb=0
+        )
+        return f"{entity.slug}-preview.png"
 
     async def promote_user(
         self, chat_id: int, telegram_user_id: int, custom_title: str
