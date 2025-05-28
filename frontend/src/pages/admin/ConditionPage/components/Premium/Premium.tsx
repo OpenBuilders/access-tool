@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Condition } from '@store'
 
 import { ConditionComponentProps } from '../types'
+import { Skeleton } from './Skeleton'
 
 export const Premium = ({
   isNewCondition,
@@ -20,7 +21,9 @@ export const Premium = ({
     setInitialState(updatedConditionState as Partial<Condition>)
   }, [condition, isNewCondition])
 
-  if (!conditionState?.type) return null
+  if (!conditionState?.type) {
+    return <Skeleton />
+  }
 
   return (
     <>

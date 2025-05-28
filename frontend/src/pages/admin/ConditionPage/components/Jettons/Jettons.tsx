@@ -18,6 +18,7 @@ import {
 } from '@store'
 
 import { ConditionComponentProps } from '../types'
+import { Skeleton } from './Skeleton'
 
 export const Jettons = ({
   isNewCondition,
@@ -110,7 +111,9 @@ export const Jettons = ({
     }
   }, [categories?.length, condition, isNewCondition])
 
-  if (!categories?.length || !conditionState?.type) return null
+  if (!categories?.length || !conditionState?.type) {
+    return <Skeleton />
+  }
 
   return (
     <>

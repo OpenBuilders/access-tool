@@ -87,3 +87,13 @@
 .align-end {
   align-items: flex-end;
 }
+
+.fadeIn {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}

@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom'
 import { LocalStorageService } from '@services'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
+import { Skeleton } from './Skeleton'
 import { ChatConditions, ChatHeader } from './components'
 import { createButtonText, formatConditions } from './helpers'
 import { FormattedConditions } from './types'
@@ -64,7 +65,14 @@ export const ClientTasksPage = () => {
     setSortedConditions(sortedConditions)
   }, [rules])
 
-  if (isLoading || !chat || !rules || !sortedConditions) return null
+  if (isLoading || !chat || !rules || !sortedConditions) {
+    return (
+      <PageLayout>
+        <TelegramBackButton />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
 
   // const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
 
