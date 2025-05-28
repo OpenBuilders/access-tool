@@ -1,0 +1,11 @@
+import { Block, SkeletonElement } from '@components'
+
+export const Skeleton = () => {
+  return (
+    <Block>
+      <SkeletonElement
+        style={{ width: '100%', height: '40px', marginTop: '24px' }}
+      />
+    </Block>
+  )
+}

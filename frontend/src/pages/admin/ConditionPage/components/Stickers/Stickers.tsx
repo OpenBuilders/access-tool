@@ -18,6 +18,7 @@ import {
 } from '@store'
 
 import { ConditionComponentProps } from '../types'
+import { Skeleton } from './Skeleton'
 import { getCharacterData, getCollectionData } from './helpers'
 
 export const Stickers = ({
@@ -79,11 +80,13 @@ export const Stickers = ({
     }
   }, [stickersData?.length, condition, isNewCondition])
 
-  if (!stickersData?.length || !conditionState?.type) return null
+  if (!stickersData?.length || !conditionState?.type) {
+    return <Skeleton />
+  }
 
   return (
     <>
-      <Block margin="top" marginValue={24}>
+      <Block margin="top" marginValue={24} fadeIn>
         <List>
           <ListItem
             text="Collection"

@@ -18,6 +18,8 @@ import { useParams } from 'react-router-dom'
 
 import { useChat, useChatActions, useUser, useUserActions } from '@store'
 
+import { Skeleton } from './Skeleton'
+
 export const ClientWalletsListPage = () => {
   const params = useParams<{ clientChatSlug: string }>()
   const chatSlugParam = params.clientChatSlug || ''
@@ -46,8 +48,6 @@ export const ClientWalletsListPage = () => {
     fetchUserChat()
   }, [chatSlugParam])
 
-  if (!user) return null
-
   const navigateToTasksPage = () => {
     appNavigate({
       path: ROUTES_NAME.CLIENT_TASKS,
@@ -61,6 +61,15 @@ export const ClientWalletsListPage = () => {
       params: { clientChatSlug: chatSlugParam },
       queryParams: { connectWallet: 'true' },
     })
+  }
+
+  if (!user) {
+    return (
+      <PageLayout>
+        <TelegramBackButton onClick={navigateToTasksPage} />
+        <Skeleton />
+      </PageLayout>
+    )
   }
 
   const connectExistingWallet = async (wallet: string) => {

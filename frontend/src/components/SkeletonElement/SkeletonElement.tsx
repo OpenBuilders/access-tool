@@ -1,20 +1,9 @@
 import styles from './SkeletonElement.module.scss'
 
 interface SkeletonElementProps {
-  width?: string
-  height?: string
-  borderRadius?: string
+  style?: React.CSSProperties
 }
 
-export const SkeletonElement = ({
-  width,
-  height,
-  borderRadius,
-}: SkeletonElementProps) => {
-  return (
-    <div
-      className={styles.skeletonElement}
-      style={{ width, height, borderRadius }}
-    />
-  )
+export const SkeletonElement = ({ style }: SkeletonElementProps) => {
+  return <div className={styles.skeletonElement} style={style} />
 }

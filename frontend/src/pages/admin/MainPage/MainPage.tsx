@@ -13,6 +13,7 @@ import { useCallback, useEffect } from 'react'
 
 import { useChat, useChatActions, useApp, useAppActions } from '@store'
 
+import { Skeleton } from './Skeleton'
 import { ChannelsList } from './components'
 import { EmptyList } from './components'
 
@@ -46,7 +47,14 @@ export const MainPage = () => {
     })
   }, [appNavigate])
 
-  if (isLoading) return null
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <TelegramBackButton />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
 
   const isEmpty = !adminChats || !adminChats?.length
 

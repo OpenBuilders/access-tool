@@ -17,6 +17,7 @@ import { useParams } from 'react-router-dom'
 import config from '@config'
 import { useApp, useAppActions, useChat, useChatActions } from '@store'
 
+import { Skeleton } from './Skeleton'
 import { ChatConditions, ChatHeader } from './components'
 
 export const ChatPage = () => {
@@ -69,7 +70,16 @@ export const ChatPage = () => {
     toggleIsLoadingAction(false)
   }, [chatSlug])
 
-  if (isLoading) return null
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <TelegramBackButton
+          onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
+        />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
 
   const handleOpenGroupChat = () => {
     if (!chat?.joinUrl) return

@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Condition } from '@store'
 
 import { ConditionComponentProps } from '../types'
+import { Skeleton } from './Skeleton'
 
 const ALLOWED_FILE_TYPES = '.csv,.txt,.json'
 
@@ -34,7 +35,9 @@ export const Whitelist = ({
     setInitialState(updatedConditionState as Partial<Condition>)
   }, [condition, isNewCondition])
 
-  if (!conditionState?.type) return null
+  if (!conditionState?.type) {
+    return <Skeleton />
+  }
 
   const handleChange = (file: FileData) => {
     if (!file.users?.length) {
