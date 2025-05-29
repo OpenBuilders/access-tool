@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Condition } from '@store'
 
 import { ConditionComponentProps } from '../types'
+import { Skeleton } from './Skeleton'
 
 export const Emoji = ({
   isNewCondition,
@@ -22,7 +23,9 @@ export const Emoji = ({
     setInitialState(updatedConditionState as Partial<Condition>)
   }, [condition, isNewCondition])
 
-  if (!conditionState?.type) return null
+  if (!conditionState?.type) {
+    return <Skeleton />
+  }
 
   return (
     <Block margin="top" marginValue={24}>

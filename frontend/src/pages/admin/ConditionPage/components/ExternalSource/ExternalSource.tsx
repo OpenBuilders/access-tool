@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Condition } from '@store'
 
 import { ConditionComponentProps } from '../types'
+import { Skeleton } from './Skeleton'
 
 export const ExternalSource = ({
   isNewCondition,
@@ -38,7 +39,9 @@ export const ExternalSource = ({
     setInitialState(updatedConditionState as Partial<Condition>)
   }, [condition, isNewCondition])
 
-  if (!conditionState?.type) return null
+  if (!conditionState?.type) {
+    return <Skeleton />
+  }
 
   const handleTestApiCall = async () => {
     if (!conditionState.url) {

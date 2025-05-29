@@ -13,6 +13,7 @@ import { useCallback, useEffect } from 'react'
 
 import { useChat, useChatActions, useApp, useAppActions } from '@store'
 
+import { Skeleton } from './Skeleton'
 import { ChannelsList } from './components'
 import { EmptyList } from './components'
 
@@ -46,7 +47,14 @@ export const MainPage = () => {
     })
   }, [appNavigate])
 
-  if (isLoading) return null
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <TelegramBackButton />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
 
   const isEmpty = !adminChats || !adminChats?.length
 
@@ -71,11 +79,11 @@ export const MainPage = () => {
         <Text align="center" type="caption" color="tertiary">
           This is open source contributed by independent
           <br />
-          developers, as part of Telegram Tools
-          {/* <Text type="caption" color="accent" as="span">
+          developers, as part of
+          <Text type="caption" href="https://tools.tg" color="accent" as="span">
             {' '}
             Telegram Tools
-          </Text> */}
+          </Text>
         </Text>
       </Block>
     </PageLayout>

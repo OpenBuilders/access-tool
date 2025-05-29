@@ -159,13 +159,13 @@ export const AddBotToChatPage = () => {
         <Icon name="gatewayBot" size={112} />
         <Block margin="top" marginValue={16}>
           <Text type="title" align="center" weight="bold">
-            Add Gateway Bot to The Group or Channel
+            Add Access Bot to The Group or Channel
           </Text>
         </Block>
         <Block margin="top" marginValue={12}>
           <Text align="center" type="text">
-            Gateway bot require admin access to control who can join the group
-            or channel. Telegram bots can’t read messages inside the group chat.
+            Access bot require admin access to control who can join the group or
+            channel. Telegram bots can’t read messages inside the group chat.
           </Text>
         </Block>
       </>

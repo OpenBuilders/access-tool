@@ -70,7 +70,7 @@ export const BotAddedSuccessPage = () => {
       </Block>
       <Block margin="top" marginValue={12}>
         <Text type="text" align="center">
-          Great! Your group is now connected to Gateway. Now it's time to set
+          Great! Your group is now connected to Access. Now it's time to set
           access conditions.
         </Text>
       </Block>

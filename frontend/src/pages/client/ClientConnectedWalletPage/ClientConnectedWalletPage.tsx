@@ -16,6 +16,8 @@ import { useParams } from 'react-router-dom'
 
 import { useChat, useChatActions, useUser } from '@store'
 
+import { Skeleton } from './Skeleton'
+
 export const ClientConnectedWalletPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
 
@@ -69,7 +71,14 @@ export const ClientConnectedWalletPage = () => {
     fetchUserChat()
   }, [clientChatSlug])
 
-  if (isLoading || !chat || !chatWallet) return null
+  if (isLoading || !chat || !chatWallet) {
+    return (
+      <PageLayout center>
+        <TelegramBackButton onClick={navigateToTasks} />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
 
   const userFriendlyAddress = toUserFriendlyAddress(chatWallet)
   const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
