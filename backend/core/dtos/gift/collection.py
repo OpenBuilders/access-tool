@@ -36,3 +36,18 @@ class GiftCollectionDTO(BaseModel):
             upgraded_count=obj.availability_issued,
             last_updated=datetime.datetime.now(tz=datetime.UTC),
         )
+
+
+class GiftCollectionMetadataDTO(BaseModel):
+    slug: str
+    title: str
+    preview_url: str | None
+    supply: int
+    upgraded_count: int
+    models: list[str]
+    backdrops: list[str]
+    patterns: list[str]
+
+
+class GiftCollectionsMetadataDTO(BaseModel):
+    collections: list[GiftCollectionMetadataDTO]

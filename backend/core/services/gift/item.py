@@ -1,5 +1,12 @@
+from collections import namedtuple
+
+from sqlalchemy import select, func
+
 from core.models.gift import GiftUnique
 from core.services.base import BaseService
+
+
+OptionsTuple = namedtuple("OptionsTuple", ["model", "backdrop", "pattern"])
 
 
 class GiftUniqueService(BaseService):
@@ -15,6 +22,35 @@ class GiftUniqueService(BaseService):
             .order_by(GiftUnique.number)
             .all()
         )
+
+    def get_options(self, collection_slug: str) -> list[OptionsTuple]:
+        query = (
+            select(
+                GiftUnique.model,
+                GiftUnique.backdrop,
+                GiftUnique.pattern,
+            )
+            .distinct()
+            .where(GiftUnique.collection_slug == collection_slug)
+            .order_by(GiftUnique.model, GiftUnique.backdrop, GiftUnique.pattern)
+        )
+
+        return [OptionsTuple(*row) for row in self.db_session.execute(query).all()]
+
+    def get_unique_options(self, collection_slug: str):
+        query = select(
+            func.array_agg(func.distinct(GiftUnique.model)).label("models"),
+            func.array_agg(func.distinct(GiftUnique.backdrop)).label("backdrops"),
+            func.array_agg(func.distinct(GiftUnique.pattern)).label("patterns"),
+        ).where(GiftUnique.collection_slug == collection_slug)
+
+        result = self.db_session.execute(query).first()
+
+        return {
+            "models": [m for m in result.models if m is not None],
+            "backdrops": [b for b in result.backdrops if b is not None],
+            "patterns": [p for p in result.patterns if p is not None],
+        }
 
     def find(self, slug: str) -> GiftUnique | None:
         return self.db_session.query(GiftUnique).filter(GiftUnique.slug == slug).first()

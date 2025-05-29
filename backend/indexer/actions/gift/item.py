@@ -5,6 +5,7 @@ from typing import AsyncGenerator
 from sqlalchemy.orm import Session
 
 from core.actions.base import BaseAction
+from core.constants import GIFT_COLLECTIONS_METADATA_KEY
 from core.models.gift import GiftUnique, GiftCollection
 from core.services.gift.collection import GiftCollectionService
 from core.services.gift.item import GiftUniqueService
@@ -93,6 +94,11 @@ class IndexerGiftUniqueAction(BaseAction):
                             last_updated=datetime.datetime.now(tz=datetime.UTC),
                         )
                     )
+            if to_create:
+                # Cache has to be cleared as new metadata could appear.
+                # It could be extended to clear only when new metadata options appear.
+                self.redis_service.delete(GIFT_COLLECTIONS_METADATA_KEY)
+
             self.db_session.bulk_save_objects(to_create)
             logger.info(
                 f"Created {len(to_create)} new unique items for collection {collection.slug!r}."
