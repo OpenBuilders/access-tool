@@ -44,6 +44,7 @@ services:
     volumes:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer
+      - ./config/env/indexer.session:/tmp/indexer.session:rw
       - ./config/certs/private_key.pem:/tmp/private_key.pem
 
   load-noticed-wallets:

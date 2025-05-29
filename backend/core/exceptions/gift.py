@@ -1,0 +1,2 @@
+class GiftCollectionAlreadyExistsError(Exception):
+    pass

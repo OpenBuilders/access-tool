@@ -9,4 +9,10 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3",
     ],
+    entry_points={
+        "console_scripts": [
+            "index-gift-collection = indexer.cli.index_gift_collection:main",
+            "index-gift-unique = indexer.cli.index_gift_unique:main",
+        ]
+    },
 )
