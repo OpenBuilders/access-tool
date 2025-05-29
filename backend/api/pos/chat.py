@@ -14,6 +14,8 @@ from pydantic import (
 from pytonapi.utils import to_nano, to_amount, raw_to_userfriendly
 
 from api.pos.base import BaseFDO
+from api.pos.gift import GiftCollectionFDO
+from api.pos.sticker import MinimalStickerCharacterFDO, MinimalStickerCollectionFDO
 from api.utils import get_cdn_absolute_url
 from core.dtos.chat import (
     TelegramChatDTO,
@@ -28,8 +30,14 @@ from core.dtos.chat.rules.emoji import (
     EmojiChatEligibilityRuleDTO,
     EmojiChatEligibilitySummaryDTO,
 )
-from core.dtos.chat.rules.gift import GiftChatEligibilityRuleDTO
-from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
+from core.dtos.chat.rules.gift import (
+    GiftChatEligibilityRuleDTO,
+    GiftChatEligibilitySummaryDTO,
+)
+from core.dtos.chat.rules.sticker import (
+    StickerChatEligibilityRuleDTO,
+    StickerChatEligibilitySummaryDTO,
+)
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
     TelegramChatWithEligibilitySummaryDTO,
@@ -276,8 +284,17 @@ class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO):
     ...
 
 
+class StickerChatEligibilitySummaryFDO(BaseFDO, StickerChatEligibilitySummaryDTO):
+    collection: MinimalStickerCollectionFDO | None
+    character: MinimalStickerCharacterFDO | None
+
+
 class GiftChatEligibilityRuleFDO(BaseFDO, GiftChatEligibilityRuleDTO):
     ...
+
+
+class GiftChatEligibilitySummaryFDO(BaseFDO, GiftChatEligibilitySummaryDTO):
+    collection: GiftCollectionFDO | None
 
 
 class EmojiChatEligibilityRuleFDO(BaseFDO, EmojiChatEligibilityRuleDTO):
@@ -340,6 +357,8 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
         RuleEligibilitySummaryFDO
         | NftRuleEligibilitySummaryFDO
         | EmojiChatEligibilitySummaryFDO
+        | StickerChatEligibilitySummaryFDO
+        | GiftChatEligibilitySummaryFDO
     ]
     wallet: str | None
 
@@ -348,6 +367,8 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
         mapping = {
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryFDO,
             EligibilityCheckType.EMOJI: EmojiChatEligibilitySummaryFDO,
+            EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilitySummaryFDO,
+            EligibilityCheckType.GIFT_COLLECTION: GiftChatEligibilitySummaryFDO,
         }
         return cls(
             chat=TelegramChatPovFDO.model_validate(dto.chat.model_dump()),

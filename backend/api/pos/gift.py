@@ -7,7 +7,12 @@ from api.utils import get_cdn_absolute_url
 from core.dtos.gift.collection import (
     GiftCollectionMetadataDTO,
     GiftCollectionsMetadataDTO,
+    GiftCollectionDTO,
 )
+
+
+class GiftCollectionFDO(BaseFDO, GiftCollectionDTO):
+    ...
 
 
 class GiftCollectionMetadataFDO(BaseFDO, GiftCollectionMetadataDTO):

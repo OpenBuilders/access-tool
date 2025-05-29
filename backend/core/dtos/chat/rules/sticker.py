@@ -4,6 +4,7 @@ from pydantic import BaseModel, computed_field
 
 from core.constants import PROMOTE_STICKER_COLLECTION_TEMPLATE
 from core.dtos.chat.rules import ChatEligibilityRuleDTO, EligibilityCheckType
+from core.dtos.chat.rules.internal import EligibilitySummaryStickerCollectionInternalDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 
 
@@ -60,4 +61,37 @@ class StickerChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
             character=MinimalStickerCharacterDTO.from_orm(obj.character)
             if obj.character
             else None,
+        )
+
+
+class StickerChatEligibilitySummaryDTO(StickerChatEligibilityRuleDTO):
+    actual: int | None = None
+    is_eligible: bool = False
+
+    @computed_field
+    def promote_url(self) -> str | None:
+        if self.collection:
+            return PROMOTE_STICKER_COLLECTION_TEMPLATE.format(
+                collection_id=self.collection.id
+            )
+
+        return None
+
+    @classmethod
+    def from_internal_dto(
+        cls, internal_dto: EligibilitySummaryStickerCollectionInternalDTO
+    ) -> Self:
+        return cls(
+            id=internal_dto.id,
+            type=internal_dto.type,
+            category=internal_dto.category,
+            title=internal_dto.title,
+            expected=internal_dto.expected,
+            photo_url=None,
+            blockchain_address=internal_dto.address,
+            is_enabled=internal_dto.is_enabled,
+            actual=internal_dto.actual,
+            is_eligible=internal_dto.is_eligible,  # type: ignore
+            collection=internal_dto.collection,
+            character=internal_dto.character,
         )

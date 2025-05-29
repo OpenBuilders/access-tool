@@ -49,5 +49,8 @@ PROMOTE_NFT_COLLECTION_TEMPLATE = "https://getgems.io/collection/{collection_add
 PROMOTE_STICKER_COLLECTION_TEMPLATE = (
     "https://t.me/sticker_bot/?startapp=cid_{collection_id}"
 )
+PROMOTE_GIFT_COLLECTION_TEMPLATE = (
+    "https://t.me/market_bot/?startapp=cid_{collection_slug}"
+)
 BUY_TONCOIN_URL = "https://t.me/wallet/start"
 BUY_PREMIUM_URL = "https://t.me/PremiumBot"

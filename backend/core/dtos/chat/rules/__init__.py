@@ -19,6 +19,7 @@ from core.models.rule import (
     TelegramChatPremium,
     TelegramChatStickerCollection,
     TelegramChatEmoji,
+    TelegramChatGiftCollection,
 )
 from core.models.rule import TelegramChatToncoin
 
@@ -41,6 +42,7 @@ class TelegramChatEligibilityRulesDTO:
     jettons: list[TelegramChatJetton]
     nft_collections: list[TelegramChatNFTCollection]
     stickers: list[TelegramChatStickerCollection]
+    gifts: list[TelegramChatGiftCollection]
     premium: list[TelegramChatPremium]
     whitelist_external_sources: list[TelegramChatWhitelistExternalSource]
     whitelist_sources: list[TelegramChatWhitelist]
