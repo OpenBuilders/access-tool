@@ -38,7 +38,7 @@ services:
       "indexer.celery_app:app",
       "worker",
       "-Q",
-      "wallet-fetch-queue,sticker-fetch-queue",
+      "wallet-fetch-queue,sticker-fetch-queue,gift-fetch-queue",
       "--loglevel=info"
     ]
     volumes:

@@ -1,12 +1,14 @@
 import datetime
 import logging
+from typing import AsyncGenerator
 
 from sqlalchemy.orm import Session
 
 from core.actions.base import BaseAction
-from core.models.gift import GiftUnique
+from core.models.gift import GiftUnique, GiftCollection
 from core.services.gift.collection import GiftCollectionService
 from core.services.gift.item import GiftUniqueService
+from core.services.superredis import RedisService
 from indexer.indexers.gift.item import GiftUniqueIndexer
 
 logger = logging.getLogger(__name__)
@@ -17,19 +19,19 @@ class IndexerGiftUniqueAction(BaseAction):
         super().__init__(db_session)
         self.collection_service = GiftCollectionService(db_session)
         self.service = GiftUniqueService(db_session)
+        self.redis_service = RedisService()
         self.indexer = GiftUniqueIndexer()
 
-    async def index(self, slug: str) -> set[int]:
+    async def index_all(self) -> AsyncGenerator[set[int], None]:
         """
-        Processes a collection of items by indexing, updating, or creating unique records. It also
-        tracks and returns Telegram IDs of previous owners of updated items for further actions.
-
-        :param slug: A unique identifier for the collection being processed.
-
-        :return: A set of Telegram IDs corresponding to previous owners of the updated
-                 items who need further actions.
+        Indexes all unique items in the database.
         """
-        collection = self.collection_service.get(slug)
+        logger.info("Starting indexing all unique items...")
+        for collection in self.collection_service.get_all():
+            yield await self._index(collection)
+        logger.info("Finished indexing all unique items.")
+
+    async def _index(self, collection: GiftCollection) -> set[int]:
         existing_items = {
             item.slug: item
             for item in self.service.get_all(collection_slug=collection.slug)
@@ -38,6 +40,8 @@ class IndexerGiftUniqueAction(BaseAction):
             f"Found existing {len(existing_items)} unique items for collection {collection.slug!r}."
         )
         targeted_telegram_owner_ids = set()
+
+        logger.info(f"Indexing unique items for collection {collection.slug!r}...")
 
         # Iterate over batches and process items
         async for batch in self.indexer.index_collection(
@@ -48,10 +52,11 @@ class IndexerGiftUniqueAction(BaseAction):
             to_update = []
             for item in batch:
                 if existing_item := existing_items.get(item.slug):
+                    # Update record only if necessary
                     if any(
                         (
-                            item.telegram_owner_id == existing_item.telegram_owner_id,
-                            item.owner_address == existing_item.owner_address,
+                            item.telegram_owner_id != existing_item.telegram_owner_id,
+                            item.owner_address != existing_item.owner_address,
                         )
                     ):
                         # Ignore if the owner was previously hidden
@@ -99,3 +104,16 @@ class IndexerGiftUniqueAction(BaseAction):
             self.db_session.commit()
 
         return targeted_telegram_owner_ids
+
+    async def index(self, slug: str) -> set[int]:
+        """
+        Processes a collection of items by indexing, updating, or creating unique records. It also
+        tracks and returns Telegram IDs of previous owners of updated items for further actions.
+
+        :param slug: A unique identifier for the collection being processed.
+
+        :return: A set of Telegram IDs corresponding to previous owners of the updated
+                 items who need further actions.
+        """
+        collection = self.collection_service.get(slug)
+        return await self._index(collection)
