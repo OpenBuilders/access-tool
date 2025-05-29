@@ -6,7 +6,12 @@ from community_manager.dtos.chat import TargetChatMembersDTO
 from community_manager.entrypoint import init_client
 from community_manager.settings import community_manager_settings
 from core.actions.authorization import AuthorizationAction
-from core.constants import UPDATED_WALLETS_SET_NAME, UPDATED_STICKERS_USER_IDS
+from core.constants import (
+    UPDATED_WALLETS_SET_NAME,
+    UPDATED_STICKERS_USER_IDS,
+    UPDATED_GIFT_USER_IDS,
+)
+from core.services.chat.rule.gift import TelegramChatGiftCollectionService
 from core.services.chat.rule.sticker import TelegramChatStickerCollectionService
 from core.services.chat.user import TelegramChatUserService
 from core.services.superredis import RedisService
@@ -22,6 +27,9 @@ class CommunityManagerChatAction:
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
         self.telegram_chat_sticker_collection_service = (
             TelegramChatStickerCollectionService(db_session)
+        )
+        self.telegram_chat_gift_collection_service = TelegramChatGiftCollectionService(
+            db_session
         )
         self.redis_service = RedisService()
 
@@ -56,6 +64,18 @@ class CommunityManagerChatAction:
             sticker_owners_telegram_ids = [sticker_owners_telegram_ids]
             sticker_owners_telegram_ids = set(map(int, sticker_owners_telegram_ids))
 
+        gift_owners_telegram_ids = (
+            self.redis_service.pop_from_set(
+                name=UPDATED_GIFT_USER_IDS,
+                count=community_manager_settings.items_per_task,
+            )
+            or []
+        )
+
+        if isinstance(gift_owners_telegram_ids, str):
+            gift_owners_telegram_ids = [gift_owners_telegram_ids]
+            gift_owners_telegram_ids = set(map(int, gift_owners_telegram_ids))
+
         target_chat_members: set[tuple[int, int]] = set()
 
         if wallets:
@@ -66,15 +86,29 @@ class CommunityManagerChatAction:
                 {(cm.chat_id, cm.user_id) for cm in chat_members}
             )
 
+        sticker_rules_chat_ids = {}
+        gift_rules_chat_ids = {}
+
         if sticker_owners_telegram_ids:
             rules = self.telegram_chat_sticker_collection_service.get_all(
                 enabled_only=True
             )
-            unique_chat_ids = {r.chat_id for r in rules}
-            users = self.user_service.get_all(telegram_ids=sticker_owners_telegram_ids)
+            sticker_rules_chat_ids = {r.chat_id for r in rules}
+
+        if gift_owners_telegram_ids:
+            rules = self.telegram_chat_gift_collection_service.get_all(
+                enabled_only=True,
+            )
+            gift_rules_chat_ids = {r.chat_id for r in rules}
+
+        for chat_ids, user_ids in zip(
+            (sticker_rules_chat_ids, gift_rules_chat_ids),
+            (sticker_owners_telegram_ids, gift_owners_telegram_ids),
+        ):
+            users = self.user_service.get_all(telegram_ids=user_ids)
             chat_members = self.telegram_chat_user_service.get_all(
                 user_ids=[user.id for user in users],
-                chat_ids=list(unique_chat_ids),
+                chat_ids=list(chat_ids),
                 with_wallet_details=False,
             )
             target_chat_members.update(
