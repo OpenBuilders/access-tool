@@ -28,6 +28,7 @@ from core.dtos.chat.rules.emoji import (
     EmojiChatEligibilityRuleDTO,
     EmojiChatEligibilitySummaryDTO,
 )
+from core.dtos.chat.rules.gift import GiftChatEligibilityRuleDTO
 from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
@@ -228,6 +229,20 @@ class TelegramChatStickerRuleCPO(BaseTelegramChatQuantityRuleCPO):
         return self
 
 
+class TelegramChatGiftRuleCPO(BaseTelegramChatQuantityRuleCPO):
+    collection_slug: str | None
+    model: str | None
+    backdrop: str | None
+    pattern: str | None
+
+    @model_validator(mode="after")
+    def validate_category_or_collection(self) -> Self:
+        if not self.category and not self.collection_slug:
+            raise ValueError("At least category of collection must be specified")
+
+        return self
+
+
 class TelegramChatPremiumRuleCPO(BaseFDO):
     is_enabled: bool
 
@@ -261,6 +276,10 @@ class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO):
     ...
 
 
+class GiftChatEligibilityRuleFDO(BaseFDO, GiftChatEligibilityRuleDTO):
+    ...
+
+
 class EmojiChatEligibilityRuleFDO(BaseFDO, EmojiChatEligibilityRuleDTO):
     ...
 
@@ -276,6 +295,7 @@ class TelegramChatWithRulesFDO(BaseFDO):
         | NftEligibilityRuleFDO
         | EmojiChatEligibilityRuleFDO
         | StickerChatEligibilityRuleFDO
+        | GiftChatEligibilityRuleFDO
     ]
 
     @classmethod

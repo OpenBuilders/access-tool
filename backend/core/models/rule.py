@@ -1,4 +1,5 @@
 import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Integer,
@@ -11,9 +12,12 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.dialects.mysql import JSON
-from sqlalchemy.orm import mapped_column, relationship
+from sqlalchemy.orm import mapped_column, relationship, Mapped
 
 from core.db import Base
+
+if TYPE_CHECKING:
+    from core.models.gift import GiftCollection
 
 
 class TelegramChatPremium(Base):
@@ -198,4 +202,33 @@ class TelegramChatStickerCollection(TelegramChatRuleBase):
         "StickerCharacter",
         lazy="joined",
         viewonly=True,
+    )
+
+
+class TelegramChatGiftCollection(TelegramChatRuleBase):
+    __tablename__ = "telegram_chat_gift_collection"
+    collection_slug = mapped_column(
+        ForeignKey("gift_collection.slug", ondelete="CASCADE"),
+        nullable=True,
+        doc="Collection slug that will be used to check eligibility for the collection.",
+    )
+    collection: Mapped["GiftCollection"] = relationship(
+        "GiftCollection",
+        lazy="joined",
+        viewonly=True,
+    )
+    model = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Model that will be used to check eligibility for the collection.",
+    )
+    backdrop = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Backdrop that will be used to check eligibility for the collection.",
+    )
+    pattern = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Pattern that will be used to check eligibility for the collection.",
     )

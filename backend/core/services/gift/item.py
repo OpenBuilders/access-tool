@@ -23,20 +23,6 @@ class GiftUniqueService(BaseService):
             .all()
         )
 
-    def get_options(self, collection_slug: str) -> list[OptionsTuple]:
-        query = (
-            select(
-                GiftUnique.model,
-                GiftUnique.backdrop,
-                GiftUnique.pattern,
-            )
-            .distinct()
-            .where(GiftUnique.collection_slug == collection_slug)
-            .order_by(GiftUnique.model, GiftUnique.backdrop, GiftUnique.pattern)
-        )
-
-        return [OptionsTuple(*row) for row in self.db_session.execute(query).all()]
-
     def get_unique_options(self, collection_slug: str):
         query = select(
             func.array_agg(func.distinct(GiftUnique.model)).label("models"),

@@ -4,6 +4,10 @@ from typing import Any
 
 from sqlalchemy import desc
 
+from core.dtos.chat.rules.gift import (
+    CreateTelegramChatGiftCollectionRuleDTO,
+    UpdateTelegramChatGiftCollectionRuleDTO,
+)
 from core.dtos.chat.rules.jetton import (
     CreateTelegramChatJettonRuleDTO,
     UpdateTelegramChatJettonRuleDTO,
@@ -24,6 +28,8 @@ from core.models.rule import (
     TelegramChatJetton,
     TelegramChatNFTCollection,
     TelegramChatToncoin,
+    TelegramChatStickerCollection,
+    TelegramChatGiftCollection,
 )
 from core.services.base import BaseService
 
@@ -31,19 +37,25 @@ from core.services.base import BaseService
 logger = logging.getLogger(__name__)
 
 TelegramChatRuleType = (
-    TelegramChatJetton | TelegramChatNFTCollection | TelegramChatToncoin
+    TelegramChatJetton
+    | TelegramChatNFTCollection
+    | TelegramChatToncoin
+    | TelegramChatStickerCollection
+    | TelegramChatGiftCollection
 )
 CreateTelegramChatRuleDTOType = (
     CreateTelegramChatJettonRuleDTO
     | CreateTelegramChatNFTCollectionRuleDTO
     | CreateTelegramChatToncoinRuleDTO
     | CreateTelegramChatStickerCollectionRuleDTO
+    | CreateTelegramChatGiftCollectionRuleDTO
 )
 UpdateTelegramChatRuleDTOType = (
     UpdateTelegramChatJettonRuleDTO
     | UpdateTelegramChatNFTCollectionRuleDTO
     | UpdateTelegramChatToncoinRuleDTO
     | UpdateTelegramChatStickerCollectionRuleDTO
+    | UpdateTelegramChatGiftCollectionRuleDTO
 )
 
 

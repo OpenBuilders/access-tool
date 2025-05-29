@@ -32,6 +32,7 @@ class EligibilityCheckType(enum.Enum):
     PREMIUM = "premium"
     STICKER_COLLECTION = "sticker_collection"
     EMOJI = "emoji"
+    GIFT_COLLECTION = "gift_collection"
 
 
 @dataclasses.dataclass

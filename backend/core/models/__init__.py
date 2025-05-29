@@ -15,6 +15,7 @@ from core.models.rule import (  # noqa
     TelegramChatStickerCollection,
     TelegramChatEmoji,
     TelegramChatPremium,
+    TelegramChatGiftCollection,
 )
 from core.models.sticker import StickerCollection, StickerCharacter, StickerItem  # noqa
 from core.models.user import User  # noqa
