@@ -62,7 +62,7 @@ class CommunityManagerChatAction:
         )
         if isinstance(sticker_owners_telegram_ids, str):
             sticker_owners_telegram_ids = [sticker_owners_telegram_ids]
-            sticker_owners_telegram_ids = set(map(int, sticker_owners_telegram_ids))
+        sticker_owners_telegram_ids = set(map(int, sticker_owners_telegram_ids))
 
         gift_owners_telegram_ids = (
             self.redis_service.pop_from_set(
@@ -74,7 +74,7 @@ class CommunityManagerChatAction:
 
         if isinstance(gift_owners_telegram_ids, str):
             gift_owners_telegram_ids = [gift_owners_telegram_ids]
-            gift_owners_telegram_ids = set(map(int, gift_owners_telegram_ids))
+        gift_owners_telegram_ids = set(map(int, gift_owners_telegram_ids))
 
         target_chat_members: set[tuple[int, int]] = set()
 
