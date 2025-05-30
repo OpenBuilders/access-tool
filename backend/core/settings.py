@@ -1,6 +1,3 @@
-from pathlib import Path
-
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from core.constants import STATIC_PATH
@@ -43,16 +40,6 @@ class CoreSettings(BaseSettings):
     redis_task_status_expiration: int = 300
 
     _blacklisted_wallets: list[str] | None = None
-
-    telegram_indexer_session_path: Path
-
-    @classmethod
-    @field_validator("telegram_indexer_session_path", mode="after")
-    def validate_telegram_session_path(cls, value: Path) -> Path:
-        if not value.parent.exists() or not value.parent.is_dir():
-            raise ValueError(f"Provided path {value} should have a parent existing")
-
-        return value
 
     @property
     def blacklisted_wallets(self):

@@ -5,7 +5,6 @@ from telethon.errors import BadRequestError
 
 from core.dtos.gift.item import GiftUniqueDTO
 from core.services.supertelethon import TelethonService
-from core.settings import core_settings
 from indexer.settings import indexer_settings
 from indexer.utils.gift import parse_collection_slug_from_gift_slug
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class GiftUniqueIndexer:
     def __init__(self) -> None:
         self.telethon_service = TelethonService(
-            session_path=core_settings.telegram_indexer_session_path
+            session_path=indexer_settings.telegram_indexer_session_path
         )
 
     async def index_collection(

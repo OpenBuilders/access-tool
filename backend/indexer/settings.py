@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pydantic import field_validator
+
 from core.constants import (
     DEFAULT_BATCH_PROCESSING_SIZE,
     DEFAULT_TELEGRAM_BATCH_PROCESSING_SIZE,
@@ -19,6 +21,16 @@ class IndexerSettings(CoreSettings):
     sticker_dom_batch_processing_size: int = DEFAULT_BATCH_PROCESSING_SIZE
 
     telegram_batch_processing_size: int = DEFAULT_TELEGRAM_BATCH_PROCESSING_SIZE
+
+    telegram_indexer_session_path: Path
+
+    @classmethod
+    @field_validator("telegram_indexer_session_path", mode="after")
+    def validate_telegram_session_path(cls, value: Path) -> Path:
+        if not value.parent.exists() or not value.parent.is_dir():
+            raise ValueError(f"Provided path {value} should have a parent existing")
+
+        return value
 
 
 indexer_settings = IndexerSettings()

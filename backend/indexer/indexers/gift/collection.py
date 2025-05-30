@@ -7,8 +7,7 @@ from core.dtos.gift.collection import GiftCollectionDTO
 from core.exceptions.gift import GiftCollectionAlreadyExistsError
 from core.services.cdn import CDNService
 from core.services.supertelethon import TelethonService
-from core.settings import core_settings
-
+from indexer.settings import indexer_settings
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 class GiftCollectionIndexer:
     def __init__(self) -> None:
         self.telethon_service = TelethonService(
-            session_path=core_settings.telegram_indexer_session_path
+            session_path=indexer_settings.telegram_indexer_session_path
         )
         self.cdn_service = CDNService()
 
