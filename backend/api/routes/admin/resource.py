@@ -13,7 +13,9 @@ from api.pos.blockchain import (
     NftCollectionFDO,
 )
 from api.pos.common import StatusFDO, CategoriesFDO
+from api.pos.gift import GiftCollectionsMetadataFDO
 from api.pos.sticker import MinimalStickerCollectionWithCharactersFDO
+from core.actions.gift import GiftUniqueAction
 from core.actions.jetton import JettonAction
 from core.actions.nft_collection import NftCollectionAction
 from core.actions.sticker import StickerCharacterAction
@@ -151,3 +153,12 @@ async def refresh_nft_collection_metadata(
         status="success",
         message="Metadata refresh initiated. It could take some time",
     )
+
+
+@admin_resource_router.get("/gifts")
+async def get_gifts_options(
+    db_session: Session = Depends(get_db_session),
+) -> GiftCollectionsMetadataFDO:
+    action = GiftUniqueAction(db_session)
+    result = action.get_metadata()
+    return GiftCollectionsMetadataFDO.from_dto(result)

@@ -1,6 +1,8 @@
 from pydantic import BaseModel, computed_field
 
 from core.dtos.chat.rules import EligibilityCheckType
+from core.dtos.gift.collection import GiftCollectionDTO
+from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 from core.enums.nft import NftCollectionAsset
 
 
@@ -26,7 +28,7 @@ class EligibilitySummaryInternalDTO(BaseModel):
         return self.address_raw
 
     @computed_field(return_type=bool)
-    def is_eligible(self):
+    def is_eligible(self) -> bool:
         return self.actual >= self.expected
 
     def __repr__(self):
@@ -39,6 +41,18 @@ class EligibilitySummaryInternalDTO(BaseModel):
             f"{self.actual=} "
             f"{self.expected=}>"
         )
+
+
+class EligibilitySummaryGiftCollectionInternalDTO(EligibilitySummaryInternalDTO):
+    collection: GiftCollectionDTO | None
+    model: str | None
+    backdrop: str | None
+    pattern: str | None
+
+
+class EligibilitySummaryStickerCollectionInternalDTO(EligibilitySummaryInternalDTO):
+    collection: MinimalStickerCollectionDTO | None
+    character: MinimalStickerCharacterDTO | None
 
 
 class RulesEligibilityGroupSummaryInternalDTO(BaseModel):

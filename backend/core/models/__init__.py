@@ -5,6 +5,7 @@ from core.models.chat import (  # noqa
     TelegramChat,
     TelegramChatUser,
 )
+from core.models.gift import GiftCollection, GiftUnique  # noqa
 from core.models.rule import (  # noqa
     TelegramChatJetton,
     TelegramChatNFTCollection,
@@ -14,6 +15,7 @@ from core.models.rule import (  # noqa
     TelegramChatStickerCollection,
     TelegramChatEmoji,
     TelegramChatPremium,
+    TelegramChatGiftCollection,
 )
 from core.models.sticker import StickerCollection, StickerCharacter, StickerItem  # noqa
 from core.models.user import User  # noqa

@@ -12,7 +12,7 @@ ASYNC_TASK_REDIS_PREFIX = "atask"
 
 # Performance
 DEFAULT_BATCH_PROCESSING_SIZE = 5_000
-
+DEFAULT_TELEGRAM_BATCH_PROCESSING_SIZE = 888
 # Privileges required for admin to manage the chat in the bot
 REQUIRED_ADMIN_PRIVILEGES = ["add_admins"]
 # Privileges required for a bot user to manage the chat
@@ -26,6 +26,10 @@ CELERY_WALLET_FETCH_QUEUE_NAME = "wallet-fetch-queue"
 CELERY_STICKER_FETCH_QUEUE_NAME = "sticker-fetch-queue"
 CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME = "noticed-wallets-upload-queue"
 CELERY_SYSTEM_QUEUE_NAME = "system-queue"
+# Gifts
+GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata"
+CELERY_GIFT_FETCH_QUEUE_NAME = "gift-fetch-queue"
+UPDATED_GIFT_USER_IDS = "updated_gift_user_ids"
 
 # ----------------- Paths ---------------------
 PACKAGE_ROOT = Path(__file__).parent
@@ -44,6 +48,9 @@ PROMOTE_JETTON_TEMPLATE = (
 PROMOTE_NFT_COLLECTION_TEMPLATE = "https://getgems.io/collection/{collection_address}"
 PROMOTE_STICKER_COLLECTION_TEMPLATE = (
     "https://t.me/sticker_bot/?startapp=cid_{collection_id}"
+)
+PROMOTE_GIFT_COLLECTION_TEMPLATE = (
+    "https://t.me/market_bot/?startapp=cid_{collection_slug}"
 )
 BUY_TONCOIN_URL = "https://t.me/wallet/start"
 BUY_PREMIUM_URL = "https://t.me/PremiumBot"

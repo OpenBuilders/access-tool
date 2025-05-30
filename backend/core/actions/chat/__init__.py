@@ -26,7 +26,14 @@ from core.dtos.chat.rules.emoji import (
     EmojiChatEligibilitySummaryDTO,
     EmojiChatEligibilityRuleDTO,
 )
-from core.dtos.chat.rules.sticker import StickerChatEligibilityRuleDTO
+from core.dtos.chat.rules.gift import (
+    GiftChatEligibilityRuleDTO,
+    GiftChatEligibilitySummaryDTO,
+)
+from core.dtos.chat.rules.sticker import (
+    StickerChatEligibilityRuleDTO,
+    StickerChatEligibilitySummaryDTO,
+)
 from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
     TelegramChatWithEligibilitySummaryDTO,
@@ -424,6 +431,8 @@ class TelegramChatAction(BaseAction):
         mapping = {
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryDTO,
             EligibilityCheckType.EMOJI: EmojiChatEligibilitySummaryDTO,
+            EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilitySummaryDTO,
+            EligibilityCheckType.GIFT_COLLECTION: GiftChatEligibilitySummaryDTO,
         }
 
         members_count = self.telegram_chat_user_service.get_members_count(chat.id)
@@ -539,6 +548,10 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                     *(
                         StickerChatEligibilityRuleDTO.from_orm(rule)
                         for rule in eligibility_rules.stickers
+                    ),
+                    *(
+                        GiftChatEligibilityRuleDTO.from_orm(rule)
+                        for rule in eligibility_rules.gifts
                     ),
                     *(
                         EmojiChatEligibilityRuleDTO.from_orm(rule)
