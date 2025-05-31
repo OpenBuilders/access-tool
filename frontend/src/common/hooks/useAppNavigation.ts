@@ -43,7 +43,7 @@ export const useAppNavigation = () => {
         url = url.replace(':clientChatSlug', params.clientChatSlug)
       }
 
-      navigate(url, { state: { ...location.state, ...state } })
+      navigate(url, { state: { ...location.state, ...state }, replace: true })
     },
   }
 }
