@@ -41,6 +41,7 @@ export const Image = ({ src, size, borderRadius, fallback }: ImageProps) => {
         style={{
           minWidth: size,
           minHeight: size,
+          borderRadius: borderRadius ? `${borderRadius}px` : '0px',
         }}
       />
     )

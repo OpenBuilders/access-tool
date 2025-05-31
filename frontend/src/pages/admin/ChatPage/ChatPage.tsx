@@ -31,11 +31,10 @@ export const ChatPage = () => {
   const { adminChatNotFound } = useError()
 
   const { chat } = useChat()
-  const { fetchChatAction, updateChatVisibilityAction } = useChatActions()
+  const { fetchChatAction, updateChatVisibilityAction, resetChatAction } =
+    useChatActions()
 
   const { showToast } = useToast()
-
-  console.log(chat)
 
   const fetchChat = async () => {
     if (!chatSlug) return
@@ -93,11 +92,14 @@ export const ChatPage = () => {
     })
   }
 
+  const handleBackNavigation = () => {
+    resetChatAction()
+    appNavigate({ path: ROUTES_NAME.MAIN })
+  }
+
   return (
     <PageLayout>
-      <TelegramBackButton
-        onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
-      />
+      <TelegramBackButton onClick={handleBackNavigation} />
       <TelegramMainButton text="View Page" onClick={handleOpenGroupChat} />
       <ChatHeader />
       <ChatConditions />

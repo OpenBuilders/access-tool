@@ -31,6 +31,7 @@ interface ChatActions {
       slug: string,
       data: Partial<ChatInstance>
     ) => void
+    resetChatAction: () => void
   }
 }
 
@@ -98,6 +99,9 @@ const useChatStore = create<ChatStore & ChatActions>((set) => ({
       }
 
       set({ chat: data })
+    },
+    resetChatAction: () => {
+      set({ chat: null })
     },
   },
 }))
