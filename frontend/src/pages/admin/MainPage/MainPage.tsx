@@ -9,7 +9,9 @@ import {
 import { Text } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { goTo } from '@utils'
 import { useCallback, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { useChat, useChatActions, useApp, useAppActions } from '@store'
 
@@ -23,6 +25,9 @@ export const MainPage = () => {
   const { adminChats } = useChat()
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
+
+  const location = useLocation()
+  const fromClientChat = location.state?.fromClientChat
 
   const { notFound } = useError()
 
@@ -47,6 +52,19 @@ export const MainPage = () => {
     })
   }, [appNavigate])
 
+  const handleBackNavigation = () => {
+    if (fromClientChat) {
+      appNavigate({
+        path: ROUTES_NAME.CLIENT_TASKS,
+        params: { clientChatSlug: fromClientChat },
+      })
+    }
+  }
+
+  const navigateToToolsPage = () => {
+    goTo('https://tools.tg')
+  }
+
   if (isLoading) {
     return (
       <PageLayout>
@@ -60,7 +78,9 @@ export const MainPage = () => {
 
   return (
     <PageLayout center={isEmpty}>
-      <TelegramBackButton />
+      <TelegramBackButton
+        onClick={fromClientChat ? handleBackNavigation : undefined}
+      />
       <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
       <StickerPlayer lottie={lockLottie} />
       <Block margin="top" marginValue={8}>
@@ -80,7 +100,12 @@ export const MainPage = () => {
           This is open source contributed by independent
           <br />
           developers, as part of
-          <Text type="caption" href="https://tools.tg" color="accent" as="span">
+          <Text
+            type="caption"
+            color="accent"
+            as="span"
+            onClick={navigateToToolsPage}
+          >
             {' '}
             Telegram Tools
           </Text>

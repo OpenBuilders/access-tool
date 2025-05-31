@@ -39,7 +39,10 @@ export const Emoji = ({
               inputMode="numeric"
               textColor="tertiary"
               value={conditionState?.emojiId}
-              onChange={(value) => handleChangeCondition('emojiId', value)}
+              onChange={(value) => {
+                const formatedNumberValue = value.replace(/[^\d]/g, '')
+                handleChangeCondition('emojiId', formatedNumberValue)
+              }}
             />
           }
         />

@@ -20,6 +20,17 @@
   }
 }
 
+.color-tertiary {
+  svg {
+    g {
+      opacity: 1;
+    }
+    path {
+      fill: var(--color-textIconsTertiary);
+    }
+  }
+}
+
 .size-112 {
   width: 112px;
   height: 112px;

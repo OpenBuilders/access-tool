@@ -198,7 +198,7 @@ export const Gifts = ({
       </Block>
       <Block margin="top" marginValue={24}>
         <ListItem
-          text="# of Packs"
+          text="# of Gifts"
           after={
             <ListInput
               type="text"

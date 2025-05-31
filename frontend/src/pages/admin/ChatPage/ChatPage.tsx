@@ -10,7 +10,6 @@ import {
 } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { goTo } from '@utils'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -35,6 +34,8 @@ export const ChatPage = () => {
   const { fetchChatAction, updateChatVisibilityAction } = useChatActions()
 
   const { showToast } = useToast()
+
+  console.log(chat)
 
   const fetchChat = async () => {
     if (!chatSlug) return
@@ -82,8 +83,14 @@ export const ChatPage = () => {
   }
 
   const handleOpenGroupChat = () => {
-    if (!chat?.joinUrl) return
-    goTo(chat?.joinUrl)
+    if (!chat?.title) return
+    appNavigate({
+      path: ROUTES_NAME.CLIENT_TASKS,
+      params: { clientChatSlug: chat?.slug },
+      state: {
+        fromChat: chat?.slug,
+      },
+    })
   }
 
   return (
@@ -91,10 +98,7 @@ export const ChatPage = () => {
       <TelegramBackButton
         onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
       />
-      <TelegramMainButton
-        text="Open Group Chat"
-        onClick={handleOpenGroupChat}
-      />
+      <TelegramMainButton text="View Page" onClick={handleOpenGroupChat} />
       <ChatHeader />
       <ChatConditions />
       <Block margin="top" marginValue={24}>
@@ -103,20 +107,26 @@ export const ChatPage = () => {
             paddingY={6}
             disabled={updateChatVisibilityLoading}
             text={
-              <Text type="text" color={chat?.isEnabled ? 'danger' : 'accent'}>
-                {chat?.isEnabled ? 'Hide Bot From Chat' : 'Show Bot in Chat'}
+              <Text type="text" color={chat?.isEnabled ? 'tertiary' : 'accent'}>
+                {chat?.isEnabled
+                  ? `Pause Access for New Users`
+                  : 'Allow Access for New Users'}
               </Text>
             }
             onClick={updateChatVisibility}
             before={
-              <Icon name={chat?.isEnabled ? 'eyeCrossed' : 'eye'} size={28} />
+              <Icon
+                name={chat?.isEnabled ? 'eyeCrossed' : 'eye'}
+                size={28}
+                color={chat?.isEnabled ? 'tertiary' : 'accent'}
+              />
             }
           />
         </Block>
       </Block>
       <Block margin="top" marginValue="auto">
         <Text type="caption" align="center" color="tertiary">
-          To delete this page from Access,
+          To delete access page to {chat?.title},
           <br />
           remove @{config.botName} from admins
         </Text>

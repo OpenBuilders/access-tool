@@ -1,8 +1,14 @@
-import { PageLayout, TelegramBackButton, TelegramMainButton } from '@components'
+import {
+  Block,
+  PageLayout,
+  TelegramBackButton,
+  TelegramMainButton,
+  Text,
+} from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import { LocalStorageService } from '@services'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
@@ -21,6 +27,8 @@ const webApp = window.Telegram.WebApp
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
   const { notFound } = useError()
+  const location = useLocation()
+  const fromChat = location.state?.fromChat
 
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
@@ -68,6 +76,20 @@ export const ClientTasksPage = () => {
     const sortedConditions = formatConditions(rules)
     setSortedConditions(sortedConditions)
   }, [rules])
+
+  const handleBackNavigation = () => {
+    if (fromChat) {
+      appNavigate({ path: ROUTES_NAME.CHAT, params: { chatSlug: fromChat } })
+    }
+  }
+
+  const handleToAccessApp = () => {
+    if (!chat?.slug) return
+    appNavigate({
+      path: ROUTES_NAME.MAIN,
+      state: { fromClientChat: chat?.slug },
+    })
+  }
 
   if (isLoading || !chat || !rules || !sortedConditions) {
     return (
@@ -135,7 +157,9 @@ export const ClientTasksPage = () => {
 
   return (
     <PageLayout>
-      <TelegramBackButton />
+      <TelegramBackButton
+        onClick={fromChat ? handleBackNavigation : undefined}
+      />
       <TelegramMainButton
         text={buttonText}
         isVisible={!!buttonText}
@@ -145,6 +169,16 @@ export const ClientTasksPage = () => {
       />
       <ChatHeader />
       <ChatConditions conditions={sortedConditions} />
+      <Block margin="top" marginValue="auto">
+        <Text
+          type="caption"
+          align="center"
+          color="tertiary"
+          onClick={handleToAccessApp}
+        >
+          Access App
+        </Text>
+      </Block>
     </PageLayout>
   )
 }
