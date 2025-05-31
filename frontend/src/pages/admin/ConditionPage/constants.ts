@@ -7,6 +7,7 @@ import {
   Whitelist,
   ExternalSource,
   Stickers,
+  Gifts,
 } from './components'
 
 export const CONDITION_TYPES = [
@@ -25,6 +26,10 @@ export const CONDITION_TYPES = [
   {
     value: 'sticker_collection',
     name: 'Stickers',
+  },
+  {
+    value: 'gift_collection',
+    name: 'Telegram Gifts',
   },
   {
     value: 'whitelist',
@@ -53,4 +58,5 @@ export const CONDITION_COMPONENTS = {
   emoji: Emoji,
   external_source: ExternalSource,
   sticker_collection: Stickers,
+  gift_collection: Gifts,
 }
