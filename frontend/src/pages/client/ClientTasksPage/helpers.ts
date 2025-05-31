@@ -43,7 +43,7 @@ export const createButtonText = ({
     return 'Join Group'
   }
 
-  if (chatWallet) {
+  if (chatWallet || !needWalletConnection) {
     return 'Check'
   }
 

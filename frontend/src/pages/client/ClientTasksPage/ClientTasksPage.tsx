@@ -9,7 +9,11 @@ import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { Skeleton } from './Skeleton'
 import { ChatConditions, ChatHeader } from './components'
-import { createButtonText, formatConditions } from './helpers'
+import {
+  checkWalletRequirements,
+  createButtonText,
+  formatConditions,
+} from './helpers'
 import { FormattedConditions } from './types'
 
 const webApp = window.Telegram.WebApp
@@ -77,6 +81,7 @@ export const ClientTasksPage = () => {
   // const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
 
   const buttonAction = async () => {
+    const needWalletConnection = checkWalletRequirements(rules)
     const emojiCondition = rules.find((rule) => rule.type === 'emoji')
     const whitelistCondition = rules.find((rule) => rule.type === 'whitelist')
     if (emojiCondition && !whitelistCondition) {
@@ -96,7 +101,7 @@ export const ClientTasksPage = () => {
       return
     }
 
-    if (chatWallet) {
+    if (chatWallet || !needWalletConnection) {
       setIsChecking(true)
       await fetchUserChat()
       setTimeout(() => {
