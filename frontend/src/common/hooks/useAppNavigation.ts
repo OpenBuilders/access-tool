@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 interface AppNavigateParams {
   chatSlug?: string
@@ -11,14 +11,16 @@ interface AppNavigation {
   path: string
   params?: AppNavigateParams
   queryParams?: Record<string, string>
+  state?: Record<string, string | boolean | number>
 }
 
 export const useAppNavigation = () => {
   const navigate = useNavigate()
+  const location = useLocation()
 
   return {
     appNavigate: (options: AppNavigation) => {
-      const { path, params, queryParams } = options
+      const { path, params, queryParams, state } = options
       let url = path
 
       if (params?.chatSlug) {
@@ -41,7 +43,7 @@ export const useAppNavigation = () => {
         url = url.replace(':clientChatSlug', params.clientChatSlug)
       }
 
-      navigate(url, { replace: true })
+      navigate(url, { state: { ...location.state, ...state }, replace: true })
     },
   }
 }

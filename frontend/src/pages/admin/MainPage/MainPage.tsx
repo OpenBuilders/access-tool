@@ -9,6 +9,7 @@ import {
 import { Text } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { goTo } from '@utils'
 import { useCallback, useEffect } from 'react'
 
 import { useChat, useChatActions, useApp, useAppActions } from '@store'
@@ -47,6 +48,10 @@ export const MainPage = () => {
     })
   }, [appNavigate])
 
+  const navigateToToolsPage = () => {
+    goTo('https://tools.tg')
+  }
+
   if (isLoading) {
     return (
       <PageLayout>
@@ -80,7 +85,12 @@ export const MainPage = () => {
           This is open source contributed by independent
           <br />
           developers, as part of
-          <Text type="caption" href="https://tools.tg" color="accent" as="span">
+          <Text
+            type="caption"
+            color="accent"
+            as="span"
+            onClick={navigateToToolsPage}
+          >
             {' '}
             Telegram Tools
           </Text>

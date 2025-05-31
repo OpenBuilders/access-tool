@@ -10,7 +10,7 @@ import {
 } from '@components'
 import { useClipboard } from '@hooks'
 import { createMembersCount } from '@utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import config from '@config'
 import { useChat, useChatActions } from '@store'
@@ -59,6 +59,12 @@ export const ChatHeader = () => {
     webApp.HapticFeedback.impactOccurred('soft')
     copy(url, 'Link copied!')
   }
+
+  useEffect(() => {
+    if (chat?.description) {
+      setDescription(chat?.description)
+    }
+  }, [chat?.description])
 
   const showLinks = rules && rules?.length > 0
 

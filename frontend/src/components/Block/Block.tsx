@@ -44,6 +44,7 @@ interface BlockProps {
   justify?: 'start' | 'center' | 'end' | 'between'
   align?: 'start' | 'center' | 'end'
   fadeIn?: boolean
+  onClick?: () => void
 }
 
 export const Block = ({
@@ -57,6 +58,7 @@ export const Block = ({
   align,
   padding,
   paddingValue,
+  onClick,
   fadeIn = true,
 }: BlockProps) => {
   const marginStyle = {
@@ -74,6 +76,7 @@ export const Block = ({
   }
   return (
     <div
+      onClick={onClick}
       style={{ ...marginStyle, ...paddingStyle }}
       className={cn(
         styles.root,
