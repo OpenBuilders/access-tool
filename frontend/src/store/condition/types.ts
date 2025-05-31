@@ -12,6 +12,7 @@ export type ConditionType =
   | 'toncoin'
   | 'emoji'
   | 'sticker_collection'
+  | 'gift_collection'
 export interface Condition {
   id: number
   type: ConditionType
@@ -36,8 +37,13 @@ export interface Condition {
   authValue?: string
   collectionId?: number | string | null
   characterId?: number | string | null
-  collection?: StickersCollection | null
+  collection?: StickersCollection | GiftsCollection | null
   character?: StickersCharacter | null
+  collectionSlug?: string
+  model?: string | null
+  backdrop?: string | null
+  pattern?: string | null
+  slug?: string | null
 }
 
 export interface PrefetchedConditionData {
@@ -91,4 +97,15 @@ export interface StickersCollection {
   logoUrl: string | null
   title: string
   characters: StickersCharacter[]
+}
+
+export interface GiftsCollection {
+  title: string
+  backdrops: string[]
+  models: string[]
+  patterns: string[]
+  previewUrl: string
+  slug: string
+  supply: number
+  upgradedCount: number
 }

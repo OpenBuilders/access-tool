@@ -89,8 +89,6 @@ function App() {
     }
   }, [isAuthenticated])
 
-  console.log(import.meta.env.MODE)
-
   if (!isAuthenticated) return null
 
   return (

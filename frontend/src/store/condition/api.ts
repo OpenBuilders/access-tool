@@ -8,6 +8,7 @@ import {
   ConditionFetchArgs,
   ConditionType,
   ConditionUpdateArgs,
+  GiftsCollection,
   PrefetchedConditionData,
   StickersCollection,
 } from './types'
@@ -21,6 +22,7 @@ const ConditionTypePath: Record<ConditionType, string> = {
   toncoin: 'toncoin',
   emoji: 'emoji',
   sticker_collection: 'stickers',
+  gift_collection: 'gifts',
 }
 
 // Jettons
@@ -104,6 +106,16 @@ export const fetchStickersApi = async (): Promise<
 > => {
   const response = await ApiService.get<StickersCollection[]>({
     endpoint: `/admin/resources/stickers`,
+  })
+
+  return response
+}
+
+export const fetchGiftsApi = async (): Promise<
+  ApiServiceResponse<{ collections: GiftsCollection[] }>
+> => {
+  const response = await ApiService.get<{ collections: GiftsCollection[] }>({
+    endpoint: `/admin/resources/gifts`,
   })
 
   return response
