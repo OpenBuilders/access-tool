@@ -34,5 +34,9 @@ export const createConditionName = (condition: Condition) => {
     return `Stickers ${title}`
   }
 
+  if (type === 'gift_collection') {
+    return `Gift ${title}`
+  }
+
   return title
 }
