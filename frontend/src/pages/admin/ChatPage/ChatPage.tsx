@@ -3,6 +3,7 @@ import {
   Icon,
   ListItem,
   PageLayout,
+  Spinner,
   TelegramBackButton,
   TelegramMainButton,
   Text,
@@ -115,6 +116,7 @@ export const ChatPage = () => {
                   : 'Allow Access for New Users'}
               </Text>
             }
+            after={updateChatVisibilityLoading && <Spinner size={16} />}
             onClick={updateChatVisibility}
             before={
               <Icon
