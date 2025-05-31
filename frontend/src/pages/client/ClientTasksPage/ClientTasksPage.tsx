@@ -7,9 +7,11 @@ import {
 } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { goTo } from '@utils'
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
+import config from '@config'
 import { LocalStorageService } from '@services'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
@@ -84,11 +86,7 @@ export const ClientTasksPage = () => {
   }
 
   const handleToAccessApp = () => {
-    if (!chat?.slug) return
-    appNavigate({
-      path: ROUTES_NAME.MAIN,
-      state: { fromClientChat: chat?.slug },
-    })
+    goTo(`${config.botLink}/?startapp=`)
   }
 
   if (isLoading || !chat || !rules || !sortedConditions) {
