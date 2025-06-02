@@ -36,12 +36,12 @@
 
   &-primary {
     background-color: var(--color-accentsBrandCommunity);
-    color: var(--color-textIconsWhite);
+    color: var(--tg-theme-button-text-color);
   }
 
   &-accent {
-    background-color: rgba(#007aff, 0.1);
-    color: var(--color-accentsBrandCommunity);
+    background-color: rgba(var(--color-accentsBrandCommunity), 0.1);
+    color: var(--tg-theme-button-text-color);
   }
 
   &-link {

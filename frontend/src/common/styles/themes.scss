@@ -10,7 +10,7 @@ html[data-theme='light'] {
   --color-textIconsBlack: #{$palette-dark100};
   --color-textIconsWhite: #{$palette-white100};
   --color-appliedSeparator: #{$palette-transparentDark8};
-  --color-accentsBrandCommunity: #{$palette-accentLight};
+  --color-accentsBrandCommunity: #{$native-accent};
   --color-accentsRed: #{$palette-extraRed};
   --color-accentsBgNegative: #{$palette-extraRed10};
   --color-accentsGreen: #{$palette-extraGreenDark};
@@ -29,7 +29,7 @@ html[data-theme='dark'] {
   --color-textIconsBlack: #{$palette-dark100};
   --color-textIconsWhite: #{$palette-white100};
   --color-appliedSeparator: #{$palette-transparentWhite8};
-  --color-accentsBrandCommunity: #{$palette-accentDark};
+  --color-accentsBrandCommunity: #{$native-accent};
   --color-accentsRed: #{$palette-extraRed};
   --color-accentsBgNegative: #{$palette-extraRed15};
   --color-accentsGreen: #{$palette-extraGreenLight};
