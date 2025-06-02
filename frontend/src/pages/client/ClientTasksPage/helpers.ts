@@ -15,9 +15,9 @@ export const checkWalletRequirements = (rules: Condition[] | null) => {
 
 interface CreateButtonTextProps {
   chatWallet: string | null
-  rules: Condition[]
+  rules: Condition[] | null
   isChecking: boolean
-  chat: ChatInstance
+  chat: ChatInstance | null
 }
 
 export const createButtonText = ({
@@ -26,6 +26,7 @@ export const createButtonText = ({
   isChecking,
   chat,
 }: CreateButtonTextProps) => {
+  if (!chat || !rules) return ''
   const needWalletConnection = checkWalletRequirements(rules)
   const emojiCondition = rules?.find((rule) => rule.type === 'emoji')
   const whitelistCondition = rules?.find((rule) => rule.type === 'whitelist')

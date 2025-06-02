@@ -52,50 +52,50 @@ export const MainPage = () => {
     goTo('https://tools.tg')
   }
 
-  if (isLoading) {
-    return (
-      <PageLayout>
-        <TelegramBackButton />
-        <Skeleton />
-      </PageLayout>
-    )
-  }
-
   const isEmpty = !adminChats || !adminChats?.length
 
   return (
     <PageLayout center={isEmpty}>
       <TelegramBackButton />
-      <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
-      <StickerPlayer lottie={lockLottie} />
-      <Block margin="top" marginValue={8}>
-        <Text type="title" align="center" weight="bold">
-          Access to Groups
-          <br />
-          and Channels
-        </Text>
-      </Block>
-      {isEmpty ? <EmptyList /> : <ChannelsList channels={adminChats} />}
-      <Block
-        margin="top"
-        marginValue="auto"
-        fixed={isEmpty ? 'bottom' : undefined}
-      >
-        <Text align="center" type="caption" color="tertiary">
-          This is open source contributed by independent
-          <br />
-          developers, as part of
-          <Text
-            type="caption"
-            color="accent"
-            as="span"
-            onClick={navigateToToolsPage}
+      {isLoading ? (
+        <Skeleton />
+      ) : (
+        <>
+          <TelegramMainButton
+            text="Add Group or Channel"
+            onClick={handleAddChat}
+          />
+          <StickerPlayer lottie={lockLottie} />
+          <Block margin="top" marginValue={8}>
+            <Text type="title" align="center" weight="bold">
+              Access to Groups
+              <br />
+              and Channels
+            </Text>
+          </Block>
+          {isEmpty ? <EmptyList /> : <ChannelsList channels={adminChats} />}
+          <Block
+            margin="top"
+            marginValue="auto"
+            fixed={isEmpty ? 'bottom' : undefined}
           >
-            {' '}
-            Telegram Tools
-          </Text>
-        </Text>
-      </Block>
+            <Text align="center" type="caption" color="tertiary">
+              This is open source contributed by independent
+              <br />
+              developers, as part of
+              <Text
+                type="caption"
+                color="accent"
+                as="span"
+                onClick={navigateToToolsPage}
+              >
+                {' '}
+                Telegram Tools
+              </Text>
+            </Text>
+          </Block>
+        </>
+      )}
     </PageLayout>
   )
 }
