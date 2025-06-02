@@ -31,6 +31,17 @@
   }
 }
 
+.color-primary {
+  svg {
+    g {
+      opacity: 1;
+    }
+    path {
+      fill: var(--tg-theme-button-text-color);
+    }
+  }
+}
+
 .size-112 {
   width: 112px;
   height: 112px;
