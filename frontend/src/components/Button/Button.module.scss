@@ -40,8 +40,12 @@
   }
 
   &-accent {
-    background-color: rgba(var(--color-accentsBrandCommunity), 0.1);
-    color: var(--tg-theme-button-text-color);
+    background-color: color-mix(
+      in srgb,
+      var(--color-accentsBrandCommunity) 10%,
+      transparent
+    );
+    color: var(--color-accentsBrandCommunity);
   }
 
   &-link {
