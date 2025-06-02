@@ -87,7 +87,7 @@ export const MainPage = () => {
           developers, as part of
           <Text
             type="caption"
-            color="accent"
+            color="native"
             as="span"
             onClick={navigateToToolsPage}
           >
