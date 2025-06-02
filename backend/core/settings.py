@@ -43,13 +43,21 @@ class CoreSettings(BaseSettings):
 
     @property
     def blacklisted_wallets(self):
-        if self._blacklisted_wallets is not None:
-            return self._blacklisted_wallets
-
-        with open(STATIC_PATH / "blacklisted_wallets.txt") as f:
-            self._blacklisted_wallets = f.read().splitlines()
+        if self._blacklisted_wallets is None:
+            with open(STATIC_PATH / "blacklisted_wallets.txt") as f:
+                self._blacklisted_wallets = f.read().splitlines()
 
         return self._blacklisted_wallets
+
+    _whitelisted_gift_collections: list[str] | None = None
+
+    @property
+    def whitelisted_gift_collections(self):
+        if self._whitelisted_gift_collections is None:
+            with open(STATIC_PATH / "whitelisted_gift_collections.txt") as f:
+                self._whitelisted_gift_collections = f.read().splitlines()
+
+        return self._whitelisted_gift_collections
 
     beat_schedule_filename: str = "/tmp/celerybeat-schedule"
 

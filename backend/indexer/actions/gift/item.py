@@ -11,6 +11,7 @@ from core.services.gift.collection import GiftCollectionService
 from core.services.gift.item import GiftUniqueService
 from core.services.superredis import RedisService
 from indexer.indexers.gift.item import GiftUniqueIndexer
+from indexer.settings import indexer_settings
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,9 @@ class IndexerGiftUniqueAction(BaseAction):
         Indexes all unique items in the database.
         """
         logger.info("Starting indexing all unique items...")
-        for collection in self.collection_service.get_all():
+        for collection in self.collection_service.get_all(
+            slugs=indexer_settings.whitelisted_gift_collections
+        ):
             yield await self._index(collection)
         logger.info("Finished indexing all unique items.")
 

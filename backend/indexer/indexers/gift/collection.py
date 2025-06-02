@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from telethon.errors import BadRequestError
 
 from core.dtos.gift.collection import GiftCollectionDTO
-from core.exceptions.gift import GiftCollectionAlreadyExistsError
+from core.exceptions.gift import GiftCollectionNotExistsError
 from core.services.cdn import CDNService
 from core.services.supertelethon import TelethonService
 from indexer.settings import indexer_settings
@@ -29,7 +29,7 @@ class GiftCollectionIndexer:
             )
         except BadRequestError as exc:
             logger.exception(f"Gift Collection with slug {slug!r} not found.")
-            raise GiftCollectionAlreadyExistsError(
+            raise GiftCollectionNotExistsError(
                 f"Gift Collection with slug {slug!r} not found."
             ) from exc
         logger.info(f"Indexed gift collection {slug!r}.")
