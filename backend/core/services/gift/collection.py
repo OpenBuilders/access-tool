@@ -10,8 +10,12 @@ class GiftCollectionService(BaseService):
             .one()
         )
 
-    def get_all(self) -> list[GiftCollection]:
-        return self.db_session.query(GiftCollection).order_by(GiftCollection.slug).all()
+    def get_all(self, slugs: list[str] | None = None) -> list[GiftCollection]:
+        query = self.db_session.query(GiftCollection)
+        if slugs:
+            query = query.filter(GiftCollection.slug.in_(slugs))
+        result = query.order_by(GiftCollection.slug).all()
+        return result
 
     def find(self, slug: str) -> GiftCollection | None:
         return (
