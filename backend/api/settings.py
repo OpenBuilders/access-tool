@@ -1,6 +1,6 @@
 import re
 
-from pydantic import field_validator, Field
+from pydantic import Field
 
 from core.settings import CoreSettings
 
@@ -13,19 +13,33 @@ class ApiSettings(CoreSettings):
     jwt_expiry: int = 3600
     sentry_dns: str
 
-    allowed_api_tokens: list[str] = Field(default_factory=list)
+    allowed_api_tokens_raw: str | None = Field(
+        None, validation_alias="ALLOWED_API_TOKENS"
+    )
 
-    @field_validator("allowed_api_tokens", mode="plain")
+    _allowed_api_tokens: list[str] = None
+
+    @property
+    def allowed_api_tokens(self) -> list[str]:
+        """
+        This property retrieves the allowed API tokens after validating raw tokens.
+        It ensures tokens are properly validated before exposing them for use.
+
+        :return: A list of valid API tokens.
+        """
+        if self._allowed_api_tokens is None:
+            self._allowed_api_tokens = self.validate_tokens(self.allowed_api_tokens_raw)
+
+        return self._allowed_api_tokens
+
     @classmethod
     def validate_tokens(cls, value: str | None) -> list[str]:
-        if value is None:
+        # If it's an empty string or None
+        if not value:
             return []
 
         if isinstance(value, str):
             values = [striped_v for v in value.split(",") if (striped_v := v.strip())]
-
-        elif isinstance(value, list):
-            values = value
 
         else:
             raise ValueError(
