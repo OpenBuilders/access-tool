@@ -89,11 +89,18 @@ export const ClientTasksPage = () => {
     goTo(`${config.botLink}/?startapp=`)
   }
 
+  if (isLoading || !chat || !rules || !sortedConditions) {
+    return (
+      <PageLayout>
+        <TelegramBackButton />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
+
   // const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
 
   const buttonAction = async () => {
-    if (isLoading || !chat || !rules || !sortedConditions) return
-
     const needWalletConnection = checkWalletRequirements(rules)
     const emojiCondition = rules.find((rule) => rule.type === 'emoji')
     const whitelistCondition = rules.find((rule) => rule.type === 'whitelist')
@@ -151,31 +158,25 @@ export const ClientTasksPage = () => {
       <TelegramBackButton
         onClick={fromChat ? handleBackNavigation : undefined}
       />
-      {isLoading || !chat || !rules || !sortedConditions ? (
-        <Skeleton />
-      ) : (
-        <>
-          <TelegramMainButton
-            text={buttonText}
-            isVisible={!!buttonText}
-            disabled={isLoading || isChecking}
-            onClick={buttonAction}
-            loading={isLoading || isChecking}
-          />
-          <ChatHeader />
-          <ChatConditions conditions={sortedConditions} />
-          <Block margin="top" marginValue="auto">
-            <Text
-              type="caption"
-              align="center"
-              color="tertiary"
-              onClick={handleToAccessApp}
-            >
-              Access App
-            </Text>
-          </Block>
-        </>
-      )}
+      <TelegramMainButton
+        text={buttonText}
+        isVisible={!!buttonText}
+        disabled={isLoading || isChecking}
+        onClick={buttonAction}
+        loading={isLoading || isChecking}
+      />
+      <ChatHeader />
+      <ChatConditions conditions={sortedConditions} />
+      <Block margin="top" marginValue="auto">
+        <Text
+          type="caption"
+          align="center"
+          color="tertiary"
+          onClick={handleToAccessApp}
+        >
+          Access App
+        </Text>
+      </Block>
     </PageLayout>
   )
 }

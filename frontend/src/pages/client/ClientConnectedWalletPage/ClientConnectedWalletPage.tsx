@@ -71,30 +71,33 @@ export const ClientConnectedWalletPage = () => {
     fetchUserChat()
   }, [clientChatSlug])
 
-  const userFriendlyAddress = toUserFriendlyAddress(chatWallet || '')
+  if (isLoading || !chat || !chatWallet) {
+    return (
+      <PageLayout center>
+        <TelegramBackButton onClick={navigateToTasks} />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
+
+  const userFriendlyAddress = toUserFriendlyAddress(chatWallet)
   const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
 
   return (
     <PageLayout center>
       <TelegramBackButton onClick={navigateToTasks} />
-      {isLoading || !chat || !chatWallet ? (
-        <Skeleton />
-      ) : (
-        <>
-          <TelegramMainButton
-            onClick={navigateToNewWalletPage}
-            text="Connect New Wallet"
-          />
-          <StickerPlayer lottie={moneyLottie} />
-          <Block margin="top" marginValue={16}>
-            <Text type="title1" align="center" weight="bold">
-              Wallet Connected
-              <br />
-              {collapsedAddress}
-            </Text>
-          </Block>
-        </>
-      )}
+      <TelegramMainButton
+        onClick={navigateToNewWalletPage}
+        text="Connect New Wallet"
+      />
+      <StickerPlayer lottie={moneyLottie} />
+      <Block margin="top" marginValue={16}>
+        <Text type="title1" align="center" weight="bold">
+          Wallet Connected
+          <br />
+          {collapsedAddress}
+        </Text>
+      </Block>
     </PageLayout>
   )
 }

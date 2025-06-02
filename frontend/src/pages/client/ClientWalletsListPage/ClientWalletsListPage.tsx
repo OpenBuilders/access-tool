@@ -63,6 +63,15 @@ export const ClientWalletsListPage = () => {
     })
   }
 
+  if (!user) {
+    return (
+      <PageLayout>
+        <TelegramBackButton onClick={navigateToTasksPage} />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
+
   const connectExistingWallet = async (wallet: string) => {
     try {
       const taskId = await connectExistingWalletAction(chatSlugParam, wallet)
@@ -85,45 +94,39 @@ export const ClientWalletsListPage = () => {
   return (
     <PageLayout>
       <TelegramBackButton onClick={navigateToTasksPage} />
-      {!user || !walletList ? (
-        <Skeleton />
-      ) : (
-        <>
-          <TelegramMainButton
-            text="Connect New Wallet"
-            onClick={navigateToTasksPageWithWalletConnect}
-          />
-          <StickerPlayer lottie={walletLottie} />
-          <Block margin="top" marginValue={16}>
-            <Text type="title1" align="center" weight="medium">
-              Select a Wallet
-            </Text>
-          </Block>
-          <Block margin="top" marginValue={8}>
-            <Text type="text" align="center" color="tertiary">
-              These are the wallets you’ve previously
-              <br />
-              connected — choose one or add a new one.
-            </Text>
-          </Block>
-          <Block margin="top" marginValue={24}>
-            <List>
-              {walletList.map((wallet) => {
-                const userFriendlyAddress = toUserFriendlyAddress(wallet)
-                const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
-                return (
-                  <ListItem
-                    key={wallet}
-                    text={<Text type="text">{collapsedAddress}</Text>}
-                    chevron
-                    onClick={() => connectExistingWallet(wallet)}
-                  />
-                )
-              })}
-            </List>
-          </Block>
-        </>
-      )}
+      <TelegramMainButton
+        text="Connect New Wallet"
+        onClick={navigateToTasksPageWithWalletConnect}
+      />
+      <StickerPlayer lottie={walletLottie} />
+      <Block margin="top" marginValue={16}>
+        <Text type="title1" align="center" weight="medium">
+          Select a Wallet
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={8}>
+        <Text type="text" align="center" color="tertiary">
+          These are the wallets you’ve previously
+          <br />
+          connected — choose one or add a new one.
+        </Text>
+      </Block>
+      <Block margin="top" marginValue={24}>
+        <List>
+          {walletList.map((wallet) => {
+            const userFriendlyAddress = toUserFriendlyAddress(wallet)
+            const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
+            return (
+              <ListItem
+                key={wallet}
+                text={<Text type="text">{collapsedAddress}</Text>}
+                chevron
+                onClick={() => connectExistingWallet(wallet)}
+              />
+            )
+          })}
+        </List>
+      </Block>
     </PageLayout>
   )
 }

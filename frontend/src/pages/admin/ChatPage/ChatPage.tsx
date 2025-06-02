@@ -71,6 +71,17 @@ export const ChatPage = () => {
     toggleIsLoadingAction(false)
   }, [chatSlug])
 
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <TelegramBackButton
+          onClick={() => appNavigate({ path: ROUTES_NAME.MAIN })}
+        />
+        <Skeleton />
+      </PageLayout>
+    )
+  }
+
   const handleOpenGroupChat = () => {
     if (!chat?.title) return
     appNavigate({
@@ -90,49 +101,40 @@ export const ChatPage = () => {
   return (
     <PageLayout>
       <TelegramBackButton onClick={handleBackNavigation} />
-      {isLoading ? (
-        <Skeleton />
-      ) : (
-        <>
-          <TelegramMainButton text="View Page" onClick={handleOpenGroupChat} />
-          <ChatHeader />
-          <ChatConditions />
-          <Block margin="top" marginValue={24}>
-            <Block margin="bottom" marginValue={24}>
-              <ListItem
-                paddingY={6}
-                disabled={updateChatVisibilityLoading}
-                text={
-                  <Text
-                    type="text"
-                    color={chat?.isEnabled ? 'tertiary' : 'accent'}
-                  >
-                    {chat?.isEnabled
-                      ? `Pause Access for New Users`
-                      : 'Allow Access for New Users'}
-                  </Text>
-                }
-                after={updateChatVisibilityLoading && <Spinner size={16} />}
-                onClick={updateChatVisibility}
-                before={
-                  <Icon
-                    name={chat?.isEnabled ? 'eyeCrossed' : 'eye'}
-                    size={28}
-                    color={chat?.isEnabled ? 'tertiary' : 'accent'}
-                  />
-                }
+      <TelegramMainButton text="View Page" onClick={handleOpenGroupChat} />
+      <ChatHeader />
+      <ChatConditions />
+      <Block margin="top" marginValue={24}>
+        <Block margin="bottom" marginValue={24}>
+          <ListItem
+            paddingY={6}
+            disabled={updateChatVisibilityLoading}
+            text={
+              <Text type="text" color={chat?.isEnabled ? 'tertiary' : 'accent'}>
+                {chat?.isEnabled
+                  ? `Pause Access for New Users`
+                  : 'Allow Access for New Users'}
+              </Text>
+            }
+            after={updateChatVisibilityLoading && <Spinner size={16} />}
+            onClick={updateChatVisibility}
+            before={
+              <Icon
+                name={chat?.isEnabled ? 'eyeCrossed' : 'eye'}
+                size={28}
+                color={chat?.isEnabled ? 'tertiary' : 'accent'}
               />
-            </Block>
-          </Block>
-          <Block margin="top" marginValue="auto">
-            <Text type="caption" align="center" color="tertiary">
-              To delete access page to {chat?.title},
-              <br />
-              remove @{config.botName} from admins
-            </Text>
-          </Block>
-        </>
-      )}
+            }
+          />
+        </Block>
+      </Block>
+      <Block margin="top" marginValue="auto">
+        <Text type="caption" align="center" color="tertiary">
+          To delete access page to {chat?.title},
+          <br />
+          remove @{config.botName} from admins
+        </Text>
+      </Block>
     </PageLayout>
   )
 }
