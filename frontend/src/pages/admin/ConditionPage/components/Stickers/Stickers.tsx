@@ -57,9 +57,12 @@ export const Stickers = ({
         type: 'sticker_collection',
         category: null,
         isEnabled: !!condition?.isEnabled || true,
-        collectionId: condition?.collection?.id || stickersData[0].id,
+        collectionId:
+          (condition?.collection as StickersCollection)?.id ||
+          stickersData[0].id,
         characterId:
-          condition?.character?.id || stickersData[0].characters[0].id,
+          (condition?.character as StickersCharacter)?.id ||
+          stickersData[0].characters[0].id,
         expected: condition?.expected || '',
       }
 

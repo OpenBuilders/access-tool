@@ -36,11 +36,15 @@
 
   &-primary {
     background-color: var(--color-accentsBrandCommunity);
-    color: var(--color-textIconsWhite);
+    color: var(--tg-theme-button-text-color);
   }
 
   &-accent {
-    background-color: rgba(#007aff, 0.1);
+    background-color: color-mix(
+      in srgb,
+      var(--color-accentsBrandCommunity) 10%,
+      transparent
+    );
     color: var(--color-accentsBrandCommunity);
   }
 

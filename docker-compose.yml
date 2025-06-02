@@ -8,6 +8,18 @@ x-python-service:
   networks:
     - internal
 
+x-indexer:
+  &x-indexer
+  <<: *x-python-service
+  build:
+    context: .
+    dockerfile: config/docker/Dockerfile.indexer
+  image: gateway-indexer
+  env_file:
+    - ./config/env/.core.env
+    - ./config/env/.indexer.env
+  restart: on-failure
+
 
 services:
   transaction-lookup:
@@ -22,29 +34,58 @@ services:
     networks:
       - internal
 
-  indexer:
-    <<: *x-python-service
-    build:
-      context: .
-      dockerfile: config/docker/Dockerfile.indexer
-    image: gateway-indexer
-    env_file:
-      - ./config/env/.core.env
-      - ./config/env/.indexer.env
-    restart: on-failure
+  indexer-blockchain:
+    <<: *x-indexer
     command: [
       "celery",
       "-A",
       "indexer.celery_app:app",
       "worker",
       "-Q",
-      "wallet-fetch-queue,sticker-fetch-queue",
+      "wallet-fetch-queue",
       "--loglevel=info"
     ]
+    environment:
+      - WORKER_CONCURRENCY=4
+    volumes:
+      - ./backend/core:/app/core
+      - ./backend/indexer:/app/indexer
+
+  indexer-stickers:
+    <<: *x-indexer
+    command: [
+      "celery",
+      "-A",
+      "indexer.celery_app:app",
+      "worker",
+      "-Q",
+      "sticker-fetch-queue",
+      "--loglevel=info"
+    ]
+    environment:
+      - WORKER_CONCURRENCY=1
     volumes:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer
       - ./config/certs/private_key.pem:/tmp/private_key.pem
+
+  indexer-gifts:
+    <<: *x-indexer
+    command: [
+      "celery",
+      "-A",
+      "indexer.celery_app:app",
+      "worker",
+      "-Q",
+      "gift-fetch-queue",
+      "--loglevel=info"
+    ]
+    environment:
+      - WORKER_CONCURRENCY=1
+    volumes:
+      - ./backend/core:/app/core
+      - ./backend/indexer:/app/indexer
+      - ./config/env/indexer.session:/tmp/indexer.session:rw
 
   load-noticed-wallets:
     <<: *x-python-service

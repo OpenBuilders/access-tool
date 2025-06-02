@@ -1,15 +1,27 @@
-import { PageLayout, TelegramBackButton, TelegramMainButton } from '@components'
+import {
+  Block,
+  PageLayout,
+  TelegramBackButton,
+  TelegramMainButton,
+  Text,
+} from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
+import { goTo } from '@utils'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
+import config from '@config'
 import { LocalStorageService } from '@services'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { Skeleton } from './Skeleton'
 import { ChatConditions, ChatHeader } from './components'
-import { createButtonText, formatConditions } from './helpers'
+import {
+  checkWalletRequirements,
+  createButtonText,
+  formatConditions,
+} from './helpers'
 import { FormattedConditions } from './types'
 
 const webApp = window.Telegram.WebApp
@@ -17,6 +29,8 @@ const webApp = window.Telegram.WebApp
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
   const { notFound } = useError()
+  const location = useLocation()
+  const fromChat = location.state?.fromChat
 
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
@@ -65,6 +79,16 @@ export const ClientTasksPage = () => {
     setSortedConditions(sortedConditions)
   }, [rules])
 
+  const handleBackNavigation = () => {
+    if (fromChat) {
+      appNavigate({ path: ROUTES_NAME.CHAT, params: { chatSlug: fromChat } })
+    }
+  }
+
+  const handleToAccessApp = () => {
+    goTo(`${config.botLink}/?startapp=`)
+  }
+
   if (isLoading || !chat || !rules || !sortedConditions) {
     return (
       <PageLayout>
@@ -77,6 +101,7 @@ export const ClientTasksPage = () => {
   // const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
 
   const buttonAction = async () => {
+    const needWalletConnection = checkWalletRequirements(rules)
     const emojiCondition = rules.find((rule) => rule.type === 'emoji')
     const whitelistCondition = rules.find((rule) => rule.type === 'whitelist')
     if (emojiCondition && !whitelistCondition) {
@@ -96,7 +121,7 @@ export const ClientTasksPage = () => {
       return
     }
 
-    if (chatWallet) {
+    if (chatWallet || !needWalletConnection) {
       setIsChecking(true)
       await fetchUserChat()
       setTimeout(() => {
@@ -130,7 +155,9 @@ export const ClientTasksPage = () => {
 
   return (
     <PageLayout>
-      <TelegramBackButton />
+      <TelegramBackButton
+        onClick={fromChat ? handleBackNavigation : undefined}
+      />
       <TelegramMainButton
         text={buttonText}
         isVisible={!!buttonText}
@@ -140,6 +167,16 @@ export const ClientTasksPage = () => {
       />
       <ChatHeader />
       <ChatConditions conditions={sortedConditions} />
+      <Block margin="top" marginValue="auto">
+        <Text
+          type="caption"
+          align="center"
+          color="tertiary"
+          onClick={handleToAccessApp}
+        >
+          Access App
+        </Text>
+      </Block>
     </PageLayout>
   )
 }

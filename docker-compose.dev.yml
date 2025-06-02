@@ -28,15 +28,8 @@ services:
     volumes:
       - ./backend/api:/app/api
       - ./backend/core:/app/core
-    command: [
-      "gunicorn",
-      "api.app:app",
-      "-k", "uvicorn_worker.UvicornWorker",
-      "--bind", "0.0.0.0:8000",
-      "--workers", "1",
-      "--access-logfile", "-",
-      "--reload"
-    ]
+    command: [ "uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--reload" ]
+
 
   nginx:
     image: "nginx:stable"

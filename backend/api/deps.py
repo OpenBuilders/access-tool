@@ -5,7 +5,7 @@ import re
 from typing import Annotated
 from urllib.parse import unquote_plus
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pytonapi.utils import userfriendly_to_raw, raw_to_userfriendly
 from sqlalchemy.orm import Session
@@ -122,3 +122,12 @@ def get_address_raw(address: str) -> str:
     raise HTTPException(
         detail=f"Invalid blockchain address: {address}", status_code=HTTP_404_NOT_FOUND
     )
+
+
+def validate_api_token(
+    token: Annotated[str, Query(pattern=r"^[a-zA-Z0-9\-\_]+$", min_length=64)],
+) -> str:
+    if token not in api_settings.allowed_api_tokens:
+        raise HTTPException(detail="Invalid API token", status_code=HTTP_403_FORBIDDEN)
+
+    return token

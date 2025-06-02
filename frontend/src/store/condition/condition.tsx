@@ -6,6 +6,7 @@ import {
   deleteConditionApi,
   fetchConditionApi,
   fetchConditionCategoriesApi,
+  fetchGiftsApi,
   fetchStickersApi,
   prefetchConditionDataApi,
   updateConditionApi,
@@ -18,6 +19,7 @@ import {
   ConditionFetchArgs,
   ConditionType,
   ConditionUpdateArgs,
+  GiftsCollection,
   PrefetchedConditionData,
   StickersCollection,
 } from './types'
@@ -28,6 +30,7 @@ interface ConditionStore {
   condition: Condition | null
   prefetchedConditionData: PrefetchedConditionData | null
   stickersData: StickersCollection[] | null
+  giftsData: GiftsCollection[] | null
 }
 
 interface ConditionActions {
@@ -50,6 +53,7 @@ interface ConditionActions {
       type: ConditionType
     ) => Promise<ConditionCategory[] | undefined>
     fetchStickersAction: () => void
+    fetchGiftsAction: () => void
   }
 }
 
@@ -59,6 +63,7 @@ const useConditionStore = create<ConditionStore & ConditionActions>((set) => ({
   condition: null,
   prefetchedConditionData: null,
   stickersData: null,
+  giftsData: null,
   actions: {
     setInitialConditionAction: (condition: Condition) => {
       set({ condition })
@@ -158,6 +163,16 @@ const useConditionStore = create<ConditionStore & ConditionActions>((set) => ({
       }
 
       set({ stickersData: data })
+    },
+
+    fetchGiftsAction: async () => {
+      const { data, ok, error } = await fetchGiftsApi()
+
+      if (!ok || !data || !data?.collections?.length) {
+        throw new Error(error)
+      }
+
+      set({ giftsData: data.collections })
     },
 
     resetPrefetchedConditionDataAction: () => {

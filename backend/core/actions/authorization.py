@@ -16,9 +16,14 @@ from core.dtos.chat.rules.internal import (
     EligibilitySummaryInternalDTO,
     RulesEligibilitySummaryInternalDTO,
     RulesEligibilityGroupSummaryInternalDTO,
+    EligibilitySummaryGiftCollectionInternalDTO,
+    EligibilitySummaryStickerCollectionInternalDTO,
 )
+from core.dtos.gift.collection import GiftCollectionDTO
+from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 from core.dtos.user import TelegramUserDTO
 from core.enums.nft import NftCollectionAsset
+from core.models import GiftUnique
 from core.models.sticker import StickerItem
 from core.models.user import User
 from core.models.wallet import JettonWallet, UserWallet
@@ -29,6 +34,7 @@ from core.models.chat import (
 from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWhitelist
 from core.services.chat import TelegramChatService
 from core.services.chat.rule.emoji import TelegramChatEmojiService
+from core.services.chat.rule.gift import TelegramChatGiftCollectionService
 from core.services.chat.rule.premium import TelegramChatPremiumService
 from core.services.chat.rule.sticker import TelegramChatStickerCollectionService
 from core.services.chat.rule.whitelist import (
@@ -41,10 +47,12 @@ from core.services.chat.rule.blockchain import (
     TelegramChatToncoinService,
 )
 from core.services.chat.user import TelegramChatUserService
+from core.services.gift.item import GiftUniqueService
 from core.services.nft import NftItemService
 from core.services.sticker.item import StickerItemService
 from core.services.supertelethon import TelethonService
 from core.services.wallet import JettonWalletService, TelegramChatUserWalletService
+from core.utils.gift import find_relevant_gift_items
 from core.utils.nft import find_relevant_nft_items
 from core.utils.sticker import find_relevant_sticker_items
 
@@ -83,6 +91,9 @@ class AuthorizationAction(BaseAction):
             TelegramChatStickerCollectionService(db_session)
         )
         self.telegram_chat_emoji_service = TelegramChatEmojiService(db_session)
+        self.telegram_chat_gift_collection_service = TelegramChatGiftCollectionService(
+            db_session
+        )
         self.telethon_service = TelethonService(client=telethon_client)
 
     def is_user_eligible_chat_member(
@@ -120,21 +131,40 @@ class AuthorizationAction(BaseAction):
                 user_wallet: UserWallet = self.telegram_chat_user_wallet_service.get(
                     user_id=user.id, chat_id=chat_id
                 ).wallet
-                user_nft_items = nft_item_service.get_all(
-                    owner_address=user_wallet.address
-                )
-                user_jettons = self.jetton_wallet_service.get_all(
-                    owner_address=user_wallet.address
-                )
+                if eligibility_rules.nft_collections:
+                    user_nft_items = nft_item_service.get_all(
+                        owner_address=user_wallet.address
+                    )
+                else:
+                    user_nft_items = []
+
+                if eligibility_rules.jettons:
+                    user_jettons = self.jetton_wallet_service.get_all(
+                        owner_address=user_wallet.address
+                    )
+                else:
+                    user_jettons = []
+
             except NoResultFound:
                 logger.debug(
                     f"User {user.id} doesn't have a connected wallet. Skipping."
                 )
 
-        sticker_item_service = StickerItemService(self.db_session)
-        user_sticker_items = sticker_item_service.get_all(
-            telegram_user_id=user.telegram_id
-        )
+        if eligibility_rules.stickers:
+            sticker_item_service = StickerItemService(self.db_session)
+            user_sticker_items = sticker_item_service.get_all(
+                telegram_user_id=user.telegram_id
+            )
+        else:
+            user_sticker_items = []
+
+        if eligibility_rules.gifts:
+            gift_unique_service = GiftUniqueService(self.db_session)
+            user_gift_unique_items = gift_unique_service.get_all(
+                telegram_user_id=user.telegram_id
+            )
+        else:
+            user_gift_unique_items = []
 
         eligibility_summary = self.check_chat_member_eligibility(
             eligibility_rules=eligibility_rules,
@@ -143,6 +173,7 @@ class AuthorizationAction(BaseAction):
             user_jettons=user_jettons,
             user_nft_items=user_nft_items,
             user_sticker_items=user_sticker_items,
+            user_gift_items=user_gift_unique_items,
             chat_member=telegram_chat_user,
         )
         return eligibility_summary
@@ -180,10 +211,14 @@ class AuthorizationAction(BaseAction):
         all_sticker_rules = self.telegram_chat_sticker_collection_service.get_all(
             chat_id, enabled_only=enabled_only
         )
+        all_gift_rules = self.telegram_chat_gift_collection_service.get_all(
+            chat_id, enabled_only=enabled_only
+        )
         return TelegramChatEligibilityRulesDTO(
             toncoin=all_toncoin_rules,
             jettons=all_jetton_rules,
             stickers=all_sticker_rules,
+            gifts=all_gift_rules,
             nft_collections=all_nft_collections,
             whitelist_external_sources=all_external_source_rules,
             whitelist_sources=all_whitelist_groups,
@@ -196,9 +231,15 @@ class AuthorizationAction(BaseAction):
         chat_members: list[TelegramChatUser],
     ) -> list[TelegramChatUser]:
         """
-        Process list of the current chat members and return the ones that are not eligible to be in the chat
-        :param chat_members: list of chat members
-        :return: list of ineligible chat members
+        Determines and returns a list of chat members who are ineligible to be part of their respective chats based on
+        eligibility rules and various related data sources such as wallets, NFTs, and gifts. This functionality checks
+        each member's eligibility against the chat's specific rules, wallet information, NFTs, jettons, stickers, and
+        other items associated with the user. Users that do not meet the criteria defined by the chat's eligibility
+        rules are considered ineligible.
+
+        :param chat_members: A list of TelegramChatUser objects representing the members of various Telegram chats.
+        :return: A list of TelegramChatUser objects representing chat members who are not eligible to be part of their
+            respective chats.
         """
         members_per_chat = defaultdict(list)
         user_id_to_telegram_id = {}
@@ -227,8 +268,10 @@ class AuthorizationAction(BaseAction):
         nft_items_per_wallet = defaultdict(list)
         jetton_wallets_per_wallet = defaultdict(list)
         sticker_items_per_user = {}
+        gift_items_per_user = {}
 
         sticker_item_service = StickerItemService(self.db_session)
+        gift_unique_service = GiftUniqueService(self.db_session)
 
         # Prefetch wallet resources from the database
         for user_id, wallet in unique_wallets:
@@ -241,6 +284,10 @@ class AuthorizationAction(BaseAction):
             # Users could be repeated if one user has multiple wallets connected
             if user_id not in sticker_items_per_user:
                 sticker_items_per_user[user_id] = sticker_item_service.get_all(
+                    telegram_user_id=user_id_to_telegram_id[user_id]
+                )
+            if user_id not in gift_items_per_user:
+                gift_items_per_user[user_id] = gift_unique_service.get_all(
                     telegram_user_id=user_id_to_telegram_id[user_id]
                 )
 
@@ -265,6 +312,7 @@ class AuthorizationAction(BaseAction):
                         user_sticker_items=sticker_items_per_user.get(
                             member.user_id, []
                         ),
+                        user_gift_items=gift_items_per_user.get(member.user_id, []),
                         chat_member=member,
                     )
                 ):
@@ -285,6 +333,7 @@ class AuthorizationAction(BaseAction):
         user_jettons: list[JettonWallet],
         user_nft_items: list[NftItem],
         user_sticker_items: list[StickerItem],
+        user_gift_items: list[GiftUnique],
         chat_member: TelegramChatUser | None = None,
     ) -> RulesEligibilitySummaryInternalDTO:
         """
@@ -303,6 +352,7 @@ class AuthorizationAction(BaseAction):
         :param user_nft_items: A list of user's NFT items collected, which are checked
             against required NFT eligibility rules.
         :param user_sticker_items: A list of user's sticker items collected, which are checked
+        :param user_gift_items: A list of user's gift unique items collected, which are checked
         :param chat_member: Optional parameter representing the Telegram chat member.
             Includes attributes such as admin status in the chat.
         :return: A detailed summary encapsulating the carried-out eligibility checks,
@@ -406,7 +456,7 @@ class AuthorizationAction(BaseAction):
         )
         items.extend(
             [
-                EligibilitySummaryInternalDTO(
+                EligibilitySummaryStickerCollectionInternalDTO(
                     id=rule.id,
                     type=EligibilityCheckType.STICKER_COLLECTION,
                     expected=rule.threshold,
@@ -415,6 +465,12 @@ class AuthorizationAction(BaseAction):
                         or (rule.character.name if rule.character else None)
                         or (rule.collection.title if rule.collection else None)
                     ),
+                    collection=MinimalStickerCollectionDTO.from_orm(rule.collection)
+                    if rule.collection
+                    else None,
+                    character=MinimalStickerCharacterDTO.from_orm(rule.character)
+                    if rule.character
+                    else None,
                     actual=len(
                         find_relevant_sticker_items(
                             rule=rule, sticker_items=user_sticker_items
@@ -423,6 +479,28 @@ class AuthorizationAction(BaseAction):
                     is_enabled=rule.is_enabled,
                 )
                 for rule in eligibility_rules.stickers
+            ]
+        )
+        items.extend(
+            [
+                EligibilitySummaryGiftCollectionInternalDTO(
+                    id=rule.id,
+                    type=EligibilityCheckType.GIFT_COLLECTION,
+                    expected=rule.threshold,
+                    title=(rule.collection.title if rule.collection else rule.category),
+                    category=rule.category,
+                    collection=GiftCollectionDTO.from_orm(rule.collection)
+                    if rule.collection
+                    else None,
+                    model=rule.model,
+                    backdrop=rule.backdrop,
+                    pattern=rule.pattern,
+                    actual=len(
+                        find_relevant_gift_items(rule=rule, gift_items=user_gift_items)
+                    ),
+                    is_enabled=rule.is_enabled,
+                )
+                for rule in eligibility_rules.gifts
             ]
         )
         items.extend(

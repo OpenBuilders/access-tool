@@ -72,24 +72,22 @@ function App() {
 
   useEffect(() => {
     webApp.disableVerticalSwipes()
-    if (!location.pathname.includes('client')) {
+    if (location.pathname && !location.pathname.includes('client')) {
       webApp.expand()
     }
-  }, [])
+  }, [location.pathname])
 
   useEffect(() => {
     if (!isAuthenticated) {
       authenticateUser()
     }
-  }, [location.pathname])
+  }, [])
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchUser()
     }
   }, [isAuthenticated])
-
-  console.log(import.meta.env.MODE)
 
   if (!isAuthenticated) return null
 

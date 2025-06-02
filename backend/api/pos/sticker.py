@@ -4,7 +4,12 @@ from api.pos.base import BaseFDO
 from core.dtos.sticker import (
     MinimalStickerCollectionWithCharactersDTO,
     MinimalStickerCharacterDTO,
+    MinimalStickerCollectionDTO,
 )
+
+
+class MinimalStickerCollectionFDO(BaseFDO, MinimalStickerCollectionDTO):
+    ...
 
 
 class MinimalStickerCharacterFDO(BaseFDO, MinimalStickerCharacterDTO):

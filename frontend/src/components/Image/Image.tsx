@@ -1,5 +1,6 @@
 import cn from 'classnames'
 
+import { SkeletonElement } from '../SkeletonElement'
 import styles from './Image.module.scss'
 import { getColor, getFirstLetter } from './helpers'
 
@@ -36,18 +37,13 @@ export const Image = ({ src, size, borderRadius, fallback }: ImageProps) => {
       )
     }
     return (
-      <div
-        className={cn(
-          styles.emptyImage,
-          borderRadius && styles[`border-radius-${borderRadius}`]
-        )}
+      <SkeletonElement
         style={{
           minWidth: size,
           minHeight: size,
+          borderRadius: borderRadius ? `${borderRadius}px` : '0px',
         }}
-      >
-        😔
-      </div>
+      />
     )
   }
 

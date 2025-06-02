@@ -89,7 +89,7 @@ export const ClientWalletsListPage = () => {
     }
   }
 
-  const walletList = user.wallets?.filter((wallet) => wallet !== chatWallet)
+  const walletList = user?.wallets?.filter((wallet) => wallet !== chatWallet)
 
   return (
     <PageLayout>

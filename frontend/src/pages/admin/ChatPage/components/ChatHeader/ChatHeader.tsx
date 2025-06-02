@@ -10,7 +10,7 @@ import {
 } from '@components'
 import { useClipboard } from '@hooks'
 import { createMembersCount } from '@utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import config from '@config'
 import { useChat, useChatActions } from '@store'
@@ -60,6 +60,12 @@ export const ChatHeader = () => {
     copy(url, 'Link copied!')
   }
 
+  useEffect(() => {
+    if (chat?.description) {
+      setDescription(chat?.description)
+    }
+  }, [chat?.description])
+
   const showLinks = rules && rules?.length > 0
 
   return (
@@ -94,7 +100,7 @@ export const ChatHeader = () => {
           <div style={{ flex: 1 }}>
             <Button
               type="primary"
-              prefix={<Icon name="share" size={24} />}
+              prefix={<Icon name="share" color="accent" size={24} />}
               onClick={handleShareLink}
             >
               Share

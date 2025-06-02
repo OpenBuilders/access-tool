@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
+from core.actions.base import BaseAction
 from core.actions.sticker.external import ExternalStickerAction
 from core.dtos.sticker import (
     ExternalStickerDomCollectionOwnershipDTO,
@@ -12,28 +13,26 @@ from core.dtos.sticker import (
     StickerDomCollectionWithCharacters,
     StickerItemDTO,
 )
-from core.models import StickerItem
+from core.models.sticker import StickerItem
 from core.services.sticker.character import StickerCharacterService
 from core.services.sticker.collection import StickerCollectionService
 from core.services.sticker.item import StickerItemService
 from core.services.superredis import RedisService
-from core.services.user import UserService
 from indexer.indexers.stickerdom import StickerDomService
 from indexer.settings import indexer_settings
 
 logger = logging.getLogger(__name__)
 
 
-class IndexerStickerItemAction:
+class IndexerStickerItemAction(BaseAction):
     def __init__(self, db_session: Session) -> None:
-        self.db_session = db_session
+        super().__init__(db_session)
         self.sticker_dom_service = StickerDomService()
         self.sticker_collection_service = StickerCollectionService(
             db_session=db_session
         )
         self.sticker_character_service = StickerCharacterService(db_session=db_session)
         self.sticker_item_service = StickerItemService(db_session=db_session)
-        self.user_service = UserService(db_session=db_session)
         self.redis_service = RedisService()
         self.external_sticker_action = ExternalStickerAction(db_session=db_session)
 

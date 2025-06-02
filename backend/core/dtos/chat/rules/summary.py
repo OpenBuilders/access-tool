@@ -5,8 +5,10 @@ from pydantic import BaseModel
 from core.dtos.chat import TelegramChatPovDTO
 from core.dtos.chat.rules import ChatEligibilityRuleDTO
 from core.dtos.chat.rules.emoji import EmojiChatEligibilitySummaryDTO
+from core.dtos.chat.rules.gift import GiftChatEligibilitySummaryDTO
 from core.dtos.chat.rules.internal import EligibilitySummaryInternalDTO
 from core.dtos.chat.rules.nft import NftRuleEligibilitySummaryDTO
+from core.dtos.chat.rules.sticker import StickerChatEligibilitySummaryDTO
 
 
 class RuleEligibilitySummaryDTO(ChatEligibilityRuleDTO):
@@ -35,5 +37,7 @@ class TelegramChatWithEligibilitySummaryDTO(BaseModel):
         RuleEligibilitySummaryDTO
         | NftRuleEligibilitySummaryDTO
         | EmojiChatEligibilitySummaryDTO
+        | StickerChatEligibilitySummaryDTO
+        | GiftChatEligibilitySummaryDTO
     ]
     wallet: str | None = None
