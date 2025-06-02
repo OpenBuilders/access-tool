@@ -42,7 +42,11 @@ from core.dtos.chat.rules.summary import (
     RuleEligibilitySummaryDTO,
     TelegramChatWithEligibilitySummaryDTO,
 )
-from core.dtos.chat.rules.whitelist import WhitelistRuleDTO, WhitelistRuleExternalDTO
+from core.dtos.chat.rules.whitelist import (
+    WhitelistRuleDTO,
+    WhitelistRuleExternalDTO,
+    WhitelistRuleCPO,
+)
 from core.dtos.chat.rules.nft import NftEligibilityRuleDTO, NftRuleEligibilitySummaryDTO
 from core.dtos.base import NftItemAttributeDTO
 from core.enums.jetton import CurrencyCategory
@@ -419,4 +423,8 @@ class WhitelistRuleFDO(BaseFDO, WhitelistRuleDTO):
 
 
 class WhitelistRuleExternalFDO(BaseFDO, WhitelistRuleExternalDTO):
+    ...
+
+
+class WhitelistRuleUsersFDO(WhitelistRuleCPO):
     ...

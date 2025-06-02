@@ -34,9 +34,9 @@ class GiftUniqueService(BaseService):
         result = self.db_session.execute(query).first()
 
         return {
-            "models": [m for m in result.models if m is not None],
-            "backdrops": [b for b in result.backdrops if b is not None],
-            "patterns": [p for p in result.patterns if p is not None],
+            "models": [m for m in (result.models or []) if m is not None],
+            "backdrops": [b for b in (result.backdrops or []) if b is not None],
+            "patterns": [p for p in (result.patterns or []) if p is not None],
         }
 
     def find(self, slug: str) -> GiftUnique | None:

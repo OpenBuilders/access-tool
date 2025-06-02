@@ -1,4 +1,5 @@
 from typing import Self
+from urllib.parse import unquote
 
 from pydantic import model_validator
 
@@ -8,6 +9,7 @@ from core.dtos.gift.collection import (
     GiftCollectionMetadataDTO,
     GiftCollectionsMetadataDTO,
     GiftCollectionDTO,
+    GiftFilterDTO,
 )
 
 
@@ -32,3 +34,9 @@ class GiftCollectionsMetadataFDO(BaseFDO, GiftCollectionsMetadataDTO):
     @classmethod
     def from_dto(cls, dto: GiftCollectionsMetadataDTO) -> Self:
         return cls.model_validate(dto.model_dump())
+
+
+class GiftFilterPO(GiftFilterDTO):
+    @classmethod
+    def from_query_string(cls, value: str) -> Self:
+        return cls.model_validate_json(unquote(value))

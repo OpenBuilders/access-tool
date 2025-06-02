@@ -6,9 +6,9 @@ from starlette.status import HTTP_502_BAD_GATEWAY, HTTP_200_OK
 
 from api.deps import get_db_session
 from api.pos.base import BaseExceptionFDO
+from api.pos.chat import WhitelistRuleUsersFDO
 from api.pos.common import StatusFDO
 from core.actions.system import SystemAction
-from core.dtos.chat.rules.whitelist import WhitelistRuleCPO
 from core.utils.task import wait_for_task
 
 system_router = APIRouter(prefix="/system", tags=["System"])
@@ -42,8 +42,8 @@ async def get_task_status_status(
     "/test-get-random-users-list",
     description="Test dynamic whitelist endpoint. Should not be used in the production",
 )
-async def get_random_users_list() -> WhitelistRuleCPO:
-    return WhitelistRuleCPO(
+async def get_random_users_list() -> WhitelistRuleUsersFDO:
+    return WhitelistRuleUsersFDO(
         users=[random.randint(1234567, 23456789) for _ in range(10)]
     )
 

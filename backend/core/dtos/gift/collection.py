@@ -51,3 +51,42 @@ class GiftCollectionMetadataDTO(BaseModel):
 
 class GiftCollectionsMetadataDTO(BaseModel):
     collections: list[GiftCollectionMetadataDTO]
+
+
+class GiftFilterDTO(BaseModel):
+    collection: str
+    model: str | None = None
+    backdrop: str | None = None
+    pattern: str | None = None
+
+
+class GiftFiltersDTO(BaseModel):
+    filters: list[GiftFilterDTO]
+
+    @classmethod
+    def validate_with_context(
+        cls, objs: list[GiftFilterDTO], context: GiftCollectionsMetadataDTO
+    ) -> Self:
+        context_by_slug = {
+            collection.slug: collection for collection in context.collections
+        }
+        for obj in objs:
+            if not (collection_metadata := context_by_slug.get(obj.collection)):
+                raise ValueError(f"Collection {obj.collection} not found in metadata")
+
+            if obj.model and obj.model not in collection_metadata.models:
+                raise ValueError(
+                    f"Model {obj.model} not found in collection {obj.collection}"
+                )
+
+            if obj.backdrop and obj.backdrop not in collection_metadata.backdrops:
+                raise ValueError(
+                    f"Backdrop {obj.backdrop} not found in collection {obj.collection}"
+                )
+
+            if obj.pattern and obj.pattern not in collection_metadata.patterns:
+                raise ValueError(
+                    f"Pattern {obj.pattern} not found in collection {obj.collection}"
+                )
+
+        return cls(filters=objs)

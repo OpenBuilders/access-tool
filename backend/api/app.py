@@ -2,11 +2,12 @@ import sentry_sdk
 from fastapi import FastAPI, APIRouter, Depends
 from starlette.middleware.cors import CORSMiddleware
 
-from api.deps import validate_access_token
+from api.deps import validate_access_token, validate_api_token
 from api.routes.admin.chat import admin_chat_router
 from api.routes.admin.resource import admin_resource_router
 from api.routes.auth import auth_router
 from api.routes.chat import chat_router
+from api.routes.gift import gift_router
 from api.routes.system import system_router, system_non_authenticated_router
 from api.routes.user import user_router
 from api.settings import api_settings
@@ -35,6 +36,12 @@ def include_non_authenticated_routes(_app: FastAPI) -> None:
     _app.include_router(non_authenticated_router)
 
 
+def include_token_authenticated_routes(_app: FastAPI) -> None:
+    token_authenticated_router = APIRouter(dependencies=[Depends(validate_api_token)])
+    token_authenticated_router.include_router(gift_router)
+    _app.include_router(token_authenticated_router)
+
+
 def include_admin_routes(_app: FastAPI) -> None:
     admin_router = APIRouter(
         prefix="/admin", dependencies=[Depends(validate_access_token)]
@@ -54,6 +61,7 @@ def create_app() -> FastAPI:
     include_authenticated_routes(_app)
     include_non_authenticated_routes(_app)
     include_admin_routes(_app)
+    include_token_authenticated_routes(_app)
     _app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # Adjust this to your needs
