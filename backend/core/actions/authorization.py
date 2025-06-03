@@ -435,19 +435,6 @@ class AuthorizationAction(BaseAction):
             [
                 EligibilitySummaryInternalDTO(
                     id=rule.id,
-                    type=EligibilityCheckType.EXTERNAL_SOURCE,
-                    expected=1,
-                    title=rule.name,
-                    actual=cls.is_whitelisted(user=user, rule=rule),
-                    is_enabled=rule.is_enabled,
-                )
-                for rule in eligibility_rules.whitelist_external_sources
-            ]
-        )
-        items.extend(
-            [
-                EligibilitySummaryInternalDTO(
-                    id=rule.id,
                     type=EligibilityCheckType.PREMIUM,
                     expected=1,
                     title="Telegram Premium",
