@@ -32,7 +32,7 @@ async def get_sticker_ownership_details(collection_id: int) -> None:
         collections_action = StickerCollectionAction(db_session=db_session)
         collection = collections_action.get(collection_id)
         action = IndexerStickerItemAction(db_session)
-        logger.info(f"Processing sticker collection {collection.name!r}")
+        logger.info(f"Processing sticker collection {collection.title!r}")
         async for targeted_users_ids in action.refresh_ownerships(
             collections=[collection]
         ):
