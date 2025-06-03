@@ -12,7 +12,7 @@ from indexer.celery_app import app
 logger = get_task_logger(__name__)
 
 
-async def get_sticker_ownership_details():
+async def get_sticker_ownership_details(collection_id: int) -> None:
     """
     Fetches sticker ownership details by retrieving collections and processing them to
     identify targeted user IDs, which are subsequently updated in the system.
@@ -30,10 +30,11 @@ async def get_sticker_ownership_details():
     """
     with DBService().db_session() as db_session:
         collections_action = StickerCollectionAction(db_session=db_session)
-        collections = collections_action.get_all()
+        collection = collections_action.get(collection_id)
         action = IndexerStickerItemAction(db_session)
+        logger.info(f"Processing sticker collection {collection.name!r}")
         async for targeted_users_ids in action.refresh_ownerships(
-            collections=collections
+            collections=[collection]
         ):
             if targeted_users_ids:
                 logger.info(
@@ -48,15 +49,16 @@ async def get_sticker_ownership_details():
     name="fetch-sticker-ownership-details",
     queue=CELERY_STICKER_FETCH_QUEUE_NAME,
 )
-def fetch_sticker_ownership_details():
-    asyncio.run(get_sticker_ownership_details())
+def fetch_sticker_ownership_details(collection_id: int) -> None:
+    asyncio.run(get_sticker_ownership_details(collection_id))
 
 
 async def refresh_sticker_collections():
     with DBService().db_session() as db_session:
         action = IndexerStickerItemAction(db_session)
-        await action.refresh_collections()
+        updated_collections = await action.refresh_collections()
         logger.info("Sticker collections refreshed.")
+        return updated_collections
 
 
 @app.task(
@@ -64,8 +66,11 @@ async def refresh_sticker_collections():
     queue=CELERY_STICKER_FETCH_QUEUE_NAME,
 )
 def fetch_sticker_collections():
-    asyncio.run(refresh_sticker_collections())
-    app.send_task(
-        "fetch-sticker-ownership-details",
-        queue=CELERY_STICKER_FETCH_QUEUE_NAME,
-    )
+    updated_collections = asyncio.run(refresh_sticker_collections())
+    if updated_collections:
+        for collection in updated_collections:
+            app.send_task(
+                "fetch-sticker-ownership-details",
+                queue=CELERY_STICKER_FETCH_QUEUE_NAME,
+                args=(collection.id,),
+            )

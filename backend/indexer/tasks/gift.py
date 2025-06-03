@@ -3,7 +3,8 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from core.constants import UPDATED_GIFT_USER_IDS
+from core.constants import UPDATED_GIFT_USER_IDS, CELERY_GIFT_FETCH_QUEUE_NAME
+from core.dtos.gift.collection import GiftCollectionDTO
 from core.exceptions.gift import GiftCollectionNotExistsError
 from core.services.db import DBService
 from indexer.actions.gift.collection import IndexerGiftCollectionAction
@@ -14,19 +15,19 @@ from indexer.settings import indexer_settings
 logger = logging.getLogger(__name__)
 
 
-async def index_whitelisted_gift_collections(db_session: Session) -> None:
+async def index_whitelisted_gift_collections(
+    db_session: Session,
+) -> list[GiftCollectionDTO]:
     """
-    Indexes whitelisted gift collections by verifying existing entries in the database
-    and indexing the ones that are missing.
-    This function ensures that any whitelisted gift collection not present in the database is indexed.
-    Logs warnings for missing collections and handles errors if collections cannot be indexed.
-    Additionally, it ensures proper cleanup of resources by stopping the telethon service.
+    Asynchronously indexes whitelisted gift collections in the database. This function checks for any
+    gift collections that are whitelisted but missing from the database and attempts to index them.
+    It also ensures that the database lock related to the indexing process is released after execution.
 
-    BE AWARE: This function will not remove the previously indexed collections from the database
-     if they are no longer whitelisted
-
-    :param db_session: The database session that used for querying and managing database
-                       interactions.
+    :param db_session: A database session used to perform operations on the gift collections.
+    :type db_session: Session
+    :return: A list of `GiftCollectionDTO` objects representing the gift collections retrieved
+        and indexed from the database.
+    :rtype: list[GiftCollectionDTO]
     """
     collection_action = IndexerGiftCollectionAction(db_session)
     collections = collection_action.service.get_all()
@@ -47,39 +48,64 @@ async def index_whitelisted_gift_collections(db_session: Session) -> None:
     # To ensure that the DB lock is released
     await collection_action.indexer.telethon_service.stop()
 
+    return [GiftCollectionDTO.from_orm(c) for c in collections]
 
-async def index_gift_ownerships() -> None:
+
+async def index_gift_collections() -> list[GiftCollectionDTO]:
     """
-    Indexes and updates the gift ownerships in the database and Redis cache.
+    Indexes and retrieves a list of gift collections that have been whitelisted
+    from the database.
 
-    This function initializes a database session and indexes gift collections that are
-    whitelisted.
-    It uses an asynchronous process to batch-process the indexing of all gift
-    ownerships.
-    For each batch that is processed:
-    - If the batch is empty, logs that no gift ownership changes were found.
-    - If the batch contains data, updates the Redis cache with the user IDs.
+    This function establishes a database session using the DBService, interacts
+    with the database to fetch whitelisted gift collections, and returns the
+    retrieved list.
+    It operates asynchronously to support non-blocking functionality.
 
-    Once all batches are processed and indexed, a summary log confirms the operation.
-
-    :raises Exception: If issues occur during the database session or indexing of gift ownerships.
-
-    :return: This asynchronous function does not return a value.
+    :return: A list of whitelisted gift collections, represented as
+             instances of `GiftCollectionDTO`.
     """
     with DBService().db_session() as db_session:
-        await index_whitelisted_gift_collections(db_session)
+        result = await index_whitelisted_gift_collections(db_session)
+        return result
+
+
+async def index_gift_collection_ownerships(slug: str) -> None:
+    """
+    Indexes gift ownership data for a specified collection by processing
+    unique gift actions related to the given collection slug. After indexing,
+    updated user identifiers are logged, and certain identifiers are stored
+    within a Redis set for further processing.
+
+    :param slug: The slug that uniquely identifies the gift collection whose
+                 ownership data is being indexed.
+    """
+    with DBService().db_session() as db_session:
         action = IndexerGiftUniqueAction(db_session)
-        async for batch in action.index_all():
-            if not batch:
-                logger.info("No gift ownerships changes found.")
-                continue
+        batch_telegram_ids = await action.index(slug=slug)
+        if batch_telegram_ids:
+            logger.info(f"Updated user IDs count: {len(batch_telegram_ids)}")
+            action.redis_service.add_to_set(UPDATED_GIFT_USER_IDS, *batch_telegram_ids)
 
-            action.redis_service.add_to_set(UPDATED_GIFT_USER_IDS, *batch)
-            logger.info(f"Updated user IDs count: {len(batch)}")
-
-        logger.info("Gift ownerships indexed.")
+        logger.info(f"Gift ownerships for collection {slug!r} indexed.")
 
 
-@app.task(name="fetch-gift-ownership-details")
+@app.task(
+    name="fetch-gift-collection-ownership-details",
+    queue=CELERY_GIFT_FETCH_QUEUE_NAME,
+)
+def fetch_gift_collection_ownership_details(slug: str):
+    asyncio.run(index_gift_collection_ownerships(slug))
+
+
+@app.task(
+    name="fetch-gift-ownership-details",
+    queue=CELERY_GIFT_FETCH_QUEUE_NAME,
+)
 def fetch_gift_ownership_details():
-    asyncio.run(index_gift_ownerships())
+    collections = asyncio.run(index_gift_collections())
+    for collection in collections:
+        app.send_task(
+            "fetch-gift-collection-ownership-details",
+            args=(collection.slug,),
+            queue=CELERY_GIFT_FETCH_QUEUE_NAME,
+        )

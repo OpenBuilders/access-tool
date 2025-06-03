@@ -61,7 +61,9 @@ class IndexerStickerItemAction(BaseAction):
 
         return collections
 
-    async def refresh_collections(self) -> None:
+    async def refresh_collections(
+        self,
+    ) -> list[StickerDomCollectionWithCharacters] | None:
         """
         Handles the refreshing of sticker collections and their respective characters by fetching the
         most updated data available from the source, comparing it against the locally stored information,
@@ -158,7 +160,7 @@ class IndexerStickerItemAction(BaseAction):
             self.external_sticker_action.get_collection_cache_value(collections),
         )
         logger.info("Successfully updated collections")
-        return None
+        return collections
 
     async def _get_updated_ownership_info(
         self, collection_id: int

@@ -52,6 +52,7 @@ from core.services.nft import NftItemService
 from core.services.sticker.item import StickerItemService
 from core.services.supertelethon import TelethonService
 from core.services.wallet import JettonWalletService, TelegramChatUserWalletService
+from core.settings import core_settings
 from core.utils.gift import find_relevant_gift_items
 from core.utils.nft import find_relevant_nft_items
 from core.utils.sticker import find_relevant_sticker_items
@@ -94,7 +95,9 @@ class AuthorizationAction(BaseAction):
         self.telegram_chat_gift_collection_service = TelegramChatGiftCollectionService(
             db_session
         )
-        self.telethon_service = TelethonService(client=telethon_client)
+        self.telethon_service = TelethonService(
+            client=telethon_client, bot_token=core_settings.telegram_bot_token
+        )
 
     def is_user_eligible_chat_member(
         self, user_id: int, chat_id: int, check_wallet: bool = True

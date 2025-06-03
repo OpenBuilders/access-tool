@@ -58,6 +58,7 @@ class GiftFilterDTO(BaseModel):
     model: str | None = None
     backdrop: str | None = None
     pattern: str | None = None
+    threshold: int = 1
 
 
 class GiftFiltersDTO(BaseModel):

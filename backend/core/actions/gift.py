@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlalchemy import and_, or_, select, ColumnElement, distinct
+from sqlalchemy import and_, select, distinct, func, union_all, Select
 from sqlalchemy.orm import Session
 
 from core.actions.base import BaseAction
@@ -58,72 +58,84 @@ class GiftUniqueAction(BaseAction):
     @staticmethod
     def __construct_filter_options_query(
         options: list[GiftFilterDTO],
-    ) -> ColumnElement[bool]:
+    ) -> Select[tuple[int]]:
         """
-        Constructs an SQLAlchemy filter query using the provided list of `GiftFilterDTO` objects
-        to filter gift items based on various criteria such as collection, model, backdrop, and
-        pattern.
+        Constructs a SQL query to filter and retrieve unique telegram_owner_ids
+        based on the provided filter options. This function processes a list
+        of `GiftFilterDTO` objects, applies specific filtering criteria, and
+        aggregates results based on an ownership threshold using HAVING clauses.
 
-        Filters are applied with an `OR` condition between objects and an `AND` condition within
-        the fields of a single object.
-        Fields that are `None` are excluded from filtering.
+        The method builds multiple subqueries, each reflecting individual
+        filter criteria (e.g., collection, model, backdrop, pattern) and thresholds,
+        combines them using UNION ALL, and then extracts distinct owner IDs
+        ordered by their values.
 
-        :param options: A list of `GiftFilterDTO`, each containing filtering options for
-            collection_slug, model, backdrop, and pattern.
-        :return: An SQLAlchemy `ColumnElement` representing the constructed filter query.
+        :param options: A list of filter data transfer objects (`GiftFilterDTO`)
+            that define the filtering criteria such as collection, model,
+            backdrop, pattern, and threshold values.
+        :type options: list[GiftFilterDTO]
+
+        :return: A SQLAlchemy Select statement object to retrieve distinct
+            telegram_owner_ids that satisfy the filter conditions.
+        :rtype: Select[tuple[int]]
         """
-        return or_(
-            *[
-                and_(
-                    GiftUnique.collection_slug == option.collection,
-                    *filter(
-                        # Excludes None values
-                        None.__ne__,
-                        [
-                            (GiftUnique.model == option.model)
-                            if option.model
-                            else None,
-                            (GiftUnique.backdrop == option.backdrop)
-                            if option.backdrop
-                            else None,
-                            (GiftUnique.pattern == option.pattern)
-                            if option.pattern
-                            else None,
-                        ],
-                    ),
-                )
-                for option in options
-            ]
+        # Initialize a list of conditional subqueries
+        subqueries = []
+
+        for option in options:
+            # Basic filtering logic (collection, model, backdrop, pattern)
+            base_filter = and_(
+                GiftUnique.collection_slug == option.collection,
+                GiftUnique.telegram_owner_id.isnot(None),
+                *filter(
+                    None.__ne__,
+                    [
+                        (GiftUnique.model == option.model) if option.model else None,
+                        (GiftUnique.backdrop == option.backdrop)
+                        if option.backdrop
+                        else None,
+                        (GiftUnique.pattern == option.pattern)
+                        if option.pattern
+                        else None,
+                    ],
+                ),
+            )
+
+            # Group by telegram_owner_id and apply threshold in HAVING
+            subquery = (
+                select(GiftUnique.telegram_owner_id)
+                .where(base_filter)
+                .group_by(GiftUnique.telegram_owner_id)
+                .having(func.count(1) >= option.threshold)
+            )
+
+            subqueries.append(subquery)
+
+            # Combine all subqueries using UNION ALL
+        union_query = union_all(*subqueries)
+
+        # Final query to fetch distinct telegram_owner_id
+        final_query = select(distinct(union_query.c.telegram_owner_id)).order_by(
+            union_query.c.telegram_owner_id,
         )
+
+        return final_query
 
     def get_collections_holders(self, options: list[GiftFilterDTO]) -> Sequence[int]:
         """
-        Fetches a sequence of unique Telegram user IDs that match the provided filter options.
+        Fetches collection holder IDs based on provided filter options.
 
-        The method validates the filter options using the context metadata, constructs a query
-        based on the validated filters, and retrieves distinct Telegram owner IDs that satisfy
-        the query conditions.
-        The result is a sequence of ordered user IDs.
+        This method validates the specified filter options using the context derived
+        from the metadata and constructs a database query using the validated filters.
+        The query is then executed to retrieve all matching collection holder IDs.
 
-        :param options: A list of GiftFilterDTO objects that define the filtering criteria.
-        :return: Sequence of distinct Telegram owner IDs sorted in ascending order.
+        :param options: A list of GiftFilterDTO objects representing the filters to apply.
+        :return: A sequence of integers representing the IDs of the collection holders
+            that match the specified filter options.
         """
         validated_obj = GiftFiltersDTO.validate_with_context(
             objs=options, context=self.get_metadata()
         )
-        filters = self.__construct_filter_options_query(options=validated_obj.filters)
-        result = (
-            self.db_session.execute(
-                select(distinct(GiftUnique.telegram_owner_id))
-                .where(
-                    filters,
-                    GiftUnique.telegram_owner_id.isnot(None),
-                )
-                .order_by(
-                    GiftUnique.telegram_owner_id,
-                )
-            )
-            .scalars()
-            .all()
-        )
+        query = self.__construct_filter_options_query(options=validated_obj.filters)
+        result = self.db_session.execute(query).scalars().all()
         return result

@@ -148,7 +148,7 @@ class TelegramChatWhitelistBase(Base):
 class TelegramChatWhitelistExternalSource(TelegramChatWhitelistBase):
     __tablename__ = "telegram_chat_whitelist_external_source"
 
-    url = mapped_column(String(255), nullable=False)
+    url = mapped_column(String(2000), nullable=False)
     auth_key = mapped_column(
         String(255),
         nullable=True,

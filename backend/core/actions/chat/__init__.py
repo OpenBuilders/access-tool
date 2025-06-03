@@ -70,7 +70,9 @@ class TelegramChatAction(BaseAction):
         self.authorization_action = AuthorizationAction(
             db_session, telethon_client=telethon_client
         )
-        self.telethon_service = TelethonService(client=telethon_client)
+        self.telethon_service = TelethonService(
+            client=telethon_client, bot_token=core_settings.telegram_bot_token
+        )
         self.cdn_service = CDNService()
 
     def get_all(self, requestor: User) -> list[TelegramChatDTO]:
