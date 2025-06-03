@@ -41,9 +41,20 @@ class TelethonService:
         self,
         client: TelegramClient | None = None,
         session_path: Path | None = None,
+        bot_token: str | None = None,
     ) -> None:
         """
-        :param client: Allows drilling down the TelegramClient instance from the update event.
+        Initializes the Telegram bot client with a given Telegram client instance or creates one
+        using the provided session path or an in-memory session.
+        The bot token is used for authentication if provided.
+        This class facilitates interaction with the Telegram API.
+
+        :param client: An instance of `TelegramClient`.
+            If None, a new client instance is created.
+        :param session_path: Path to the session file for the Telegram client.
+            If None, an in-memory session is used.
+        :param bot_token: The token string for the Telegram bot.
+            If provided, the client authenticates using this token.
         """
         if not client:
             if session_path:
@@ -56,17 +67,60 @@ class TelethonService:
                 core_settings.telegram_app_hash,
             )
         self.client = client
+        self.bot_token = bot_token
 
     async def start(self) -> None:
+        """
+        Initiates the connection process for the Telethon client.
+
+        This method checks if the client is already connected. If not, it begins
+        the connection process. Depending on whether a bot token is provided, it
+        will either start a bot session or a user session. Logs information about
+        the initiation process.
+
+        :raises Exception: May propagate exceptions raised during the connection
+            initiation process.
+        """
         if self.client.is_connected():
             return
+
         logger.info("Initiating Telethon connection.")
-        await self.client.start(bot_token=core_settings.telegram_bot_token)
+        if self.bot_token:
+            await self._start_bot_session()
+        else:
+            await self._start_session()
+
+    async def _start_bot_session(self) -> None:
+        """
+        Starts the bot session using the provided bot token.
+
+        This method initializes the bot session by starting the client with the
+        specific bot token.
+        """
+        await self.client.start(bot_token=self.bot_token)
+
+    async def _start_session(self) -> None:
+        """
+        Starts a Telegram client session asynchronously.
+
+        This internal method initializes the session by invoking the Telethon client's
+        start method.
+        It provides a placeholder phone number to bypass the actual authentication requirement,
+        as signup is not supported by Telethon.
+        Therefore, it requires a session to be initialized prior to this method execution.
+        """
+        # Setting the wrong number on purpose as signup is not supported by Telethon
+        # https://github.com/LonamiWebs/Telethon/issues/4050
+        await self.client.start(phone=lambda: "+888")
 
     def start_sync(self) -> None:
         if self.client.is_connected():
             return
-        self.client.start(bot_token=core_settings.telegram_bot_token)
+
+        if not self.bot_token:
+            raise ValueError("Bot token is required for synchronous connection.")
+
+        self.client.start(bot_token=self.bot_token)
 
     async def stop(self) -> None:
         await self.client.disconnect()

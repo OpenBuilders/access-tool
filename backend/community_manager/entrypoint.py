@@ -25,7 +25,9 @@ def init_client():
         community_manager_settings.telegram_app_id,
         community_manager_settings.telegram_app_hash,
     )
-    service = TelethonService(client=client)
+    service = TelethonService(
+        client=client, bot_token=community_manager_settings.telegram_bot_token
+    )
     return service
 
 
