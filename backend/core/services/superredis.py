@@ -8,20 +8,18 @@ from core.settings import core_settings
 
 class RedisService:
     def __init__(self, external: bool = False) -> None:
-        if not external:
-            self.client = redis.StrictRedis(
-                host=core_settings.redis_host,
-                port=core_settings.redis_port,
-                db=core_settings.redis_db,
-                decode_responses=True,
-            )
-        else:
-            self.client = redis.StrictRedis(
-                host=core_settings.redis_host,
-                port=core_settings.redis_port,
-                db=core_settings.redis_transaction_db,
-                decode_responses=True,
-            )
+        self.client = redis.StrictRedis(
+            host=core_settings.redis_host,
+            port=core_settings.redis_port,
+            db=(
+                core_settings.redis_db
+                if not external
+                else core_settings.redis_transaction_db
+            ),
+            username=core_settings.redis_username,
+            password=core_settings.redis_password,
+            decode_responses=True,
+        )
 
     def get(self, key: str) -> str:
         return self.client.get(key)
