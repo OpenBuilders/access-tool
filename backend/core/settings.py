@@ -14,7 +14,10 @@ class CoreSettings(BaseSettings):
 
     @property
     def broker_url(self):
-        return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
+        authentication_string: str = ""
+        if self.redis_username and self.redis_password:
+            authentication_string = f"{self.redis_username}:{self.redis_password}@"
+        return f"redis://{authentication_string}{self.redis_host}:{self.redis_port}/{self.redis_db}"
 
     sql_host: str
     sql_port: int
