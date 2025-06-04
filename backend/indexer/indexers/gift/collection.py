@@ -45,6 +45,8 @@ class GiftCollectionIndexer:
             logger.info(
                 f"Downloaded unique gift thumbnail for {slug!r}: {file_name!r}.."
             )
+        # Free session for the next process
+        await self.telethon_service.stop()
         return GiftCollectionDTO.from_telethon(
             slug=slug,
             obj=first_unique_gift,

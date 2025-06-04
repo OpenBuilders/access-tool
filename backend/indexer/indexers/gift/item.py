@@ -58,6 +58,8 @@ class GiftUniqueIndexer:
                 entities = []
 
         yield entities
+        # Free session for the next process
+        await self.telethon_service.stop()
         return
 
     async def index_user_gifts(
@@ -89,4 +91,5 @@ class GiftUniqueIndexer:
             entities.append(
                 GiftUniqueDTO.from_telethon(collection_slug=collection_slug, obj=gift)
             )
+        await self.telethon_service.stop()
         return entities

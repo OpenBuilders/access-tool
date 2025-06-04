@@ -45,9 +45,6 @@ async def index_whitelisted_gift_collections(
             except GiftCollectionNotExistsError as e:
                 logger.error(f"Failed to index gift collection {slug}: {e}")
 
-    # To ensure that the DB lock is released
-    await collection_action.indexer.telethon_service.stop()
-
     return [GiftCollectionDTO.from_orm(c) for c in collections]
 
 
