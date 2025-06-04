@@ -41,4 +41,6 @@ class IndexerGiftCollectionAction(BaseAction):
         logger.info(f"Created gift collection {gift_collection.slug!r} successfully.")
         # Reset the metadata cache as new items appear
         self.redis_service.delete(GIFT_COLLECTIONS_METADATA_KEY)
+        # To ensure that the DB lock is released
+        await self.indexer.telethon_service.stop()
         return GiftCollectionDTO.from_orm(gift_collection)
