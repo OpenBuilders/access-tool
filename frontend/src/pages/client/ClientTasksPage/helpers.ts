@@ -82,16 +82,8 @@ export const formatConditions = (conditions: Condition[] | null) => {
 
   if (whitelistCondition || externalSourceCondition) {
     const formattedConditions = conditions
-      .filter(
-        (condition) =>
-          condition.id !== whitelistCondition?.id &&
-          condition.type !== 'whitelist'
-      )
-      .filter(
-        (condition) =>
-          condition.id !== externalSourceCondition?.id &&
-          condition.type !== 'external_source'
-      )
+      .filter((condition) => condition.type !== 'whitelist')
+      .filter((condition) => condition.type !== 'external_source')
 
     if (whitelistCondition) {
       result.whitelist.push(whitelistCondition)
