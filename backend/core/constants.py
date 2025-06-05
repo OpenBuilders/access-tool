@@ -13,6 +13,7 @@ ASYNC_TASK_REDIS_PREFIX = "atask"
 # Performance
 DEFAULT_BATCH_PROCESSING_SIZE = 5_000
 DEFAULT_TELEGRAM_BATCH_PROCESSING_SIZE = 888
+DEFAULT_TELEGRAM_BATCH_REQUEST_SIZE = 3
 # Privileges required for admin to manage the chat in the bot
 REQUIRED_ADMIN_PRIVILEGES = ["add_admins"]
 # Privileges required for a bot user to manage the chat

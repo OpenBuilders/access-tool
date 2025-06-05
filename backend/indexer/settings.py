@@ -5,6 +5,7 @@ from pydantic import field_validator
 from core.constants import (
     DEFAULT_BATCH_PROCESSING_SIZE,
     DEFAULT_TELEGRAM_BATCH_PROCESSING_SIZE,
+    DEFAULT_TELEGRAM_BATCH_REQUEST_SIZE,
 )
 from core.settings import CoreSettings
 
@@ -21,6 +22,7 @@ class IndexerSettings(CoreSettings):
     sticker_dom_batch_processing_size: int = DEFAULT_BATCH_PROCESSING_SIZE
 
     telegram_batch_processing_size: int = DEFAULT_TELEGRAM_BATCH_PROCESSING_SIZE
+    telegram_batch_request_size: int = DEFAULT_TELEGRAM_BATCH_REQUEST_SIZE
 
     telegram_indexer_session_path: Path
 
