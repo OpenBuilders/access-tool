@@ -1,8 +1,6 @@
 import logging
 from typing import AsyncGenerator
 
-from telethon.errors import BadRequestError
-
 from core.dtos.gift.item import GiftUniqueDTO
 from core.services.supertelethon import TelethonService
 from indexer.settings import indexer_settings
@@ -31,25 +29,30 @@ class GiftUniqueIndexer:
         """
         await self.telethon_service.start()
         entities = []
-        for num in range(upgraded_count):
-            try:
-                gift = await self.telethon_service.index_gift(
-                    slug=collection_slug,
-                    number=num + 1,
-                )
-            except BadRequestError:
-                logger.error(
-                    f"Can't retrieve gift {num + 1} for {collection_slug!r}. Skipping."
-                )
-                continue
+        for num in range(
+            1, upgraded_count + 1, indexer_settings.telegram_batch_request_size
+        ):
+            gifts = await self.telethon_service.index_gifts_batch(
+                slugs=[
+                    f"{collection_slug}-{gift_id}"
+                    for i in range(indexer_settings.telegram_batch_request_size)
+                    if (gift_id := num + i) <= upgraded_count
+                ]
+            )
 
-            logger.debug(f"Indexed gift {num + 1} for {collection_slug!r}.")
+            logger.debug(
+                f"Indexed gifts {num}...{num + indexer_settings.telegram_batch_request_size - 1} "
+                f"for {collection_slug!r}."
+            )
 
-            entities.append(
-                GiftUniqueDTO.from_telethon(
-                    collection_slug=collection_slug,
-                    obj=gift,
-                )
+            entities.extend(
+                [
+                    GiftUniqueDTO.from_telethon(
+                        collection_slug=collection_slug,
+                        obj=gift,
+                    )
+                    for gift in gifts
+                ]
             )
 
             if len(entities) >= indexer_settings.telegram_batch_processing_size:

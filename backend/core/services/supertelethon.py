@@ -1,8 +1,10 @@
+import asyncio
 import logging
 from pathlib import Path
 from typing import AsyncGenerator, IO, BinaryIO
 
 from telethon import TelegramClient, Button
+from telethon.errors import MultiError, FloodWaitError
 from telethon.sessions import MemorySession, SQLiteSession
 from telethon.tl.functions.messages import (
     ExportChatInviteRequest,
@@ -294,6 +296,46 @@ class TelethonService:
         """
         gift = await self.client(GetUniqueStarGiftRequest(slug=f"{slug}-{number}"))
         return gift.gift
+
+    async def index_gifts_batch(
+        self,
+        slugs: list[str],
+    ) -> list[StarGiftUnique]:
+        """
+        Indexes a batch of gifts by processing a list of slugs.
+
+        Each slug is used to make a request to retrieve the corresponding unique star gifts.
+        The method ensures that any MultiError exceptions encountered are handled to
+        extract valid responses, and returns a list of unique star gifts based on
+        valid fetched data.
+
+        More info: https://docs.telethon.dev/en/stable/concepts/full-api.html#requests-in-parallel
+
+        :param slugs: A list of slug strings used to fetch unique star gifts.
+        :return: A list of StarGiftUnique objects that correspond to the provided
+            slugs.
+        """
+        try:
+            gifts = await self.client(
+                [GetUniqueStarGiftRequest(slug=slug) for slug in slugs],
+                # ordered=True # There is a way to run them ordered, but we don't really care about the order
+            )
+        except MultiError as e:
+            logger.error(f"Error occurred while fetching gifts: {e}")
+            if any((isinstance(exc, FloodWaitError) for exc in e.exceptions)):
+                # Typical Flood timeout for gifts fetching is 3 seconds
+                # We can go forward, but there is a chance of get banned or lose some data because of the errors
+                logger.warning(
+                    f"FloodWaitError occurred while fetching gifts: {e.exceptions[0]}. Waiting for 3 seconds."
+                )
+                await asyncio.sleep(3.1)
+
+            gifts = [r for r in e.results if r]
+            logger.warning(
+                f"Received {len(gifts)} gifts from the API out of {len(slugs)} requested."
+            )
+
+        return [gift.gift for gift in gifts if isinstance(gift.gift, StarGiftUnique)]
 
     async def index_user_gifts(
         self,
