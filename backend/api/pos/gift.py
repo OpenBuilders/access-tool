@@ -11,6 +11,7 @@ from core.dtos.gift.collection import (
     GiftCollectionDTO,
     GiftFilterDTO,
 )
+from core.dtos.gift.item import GiftUniqueDTO
 
 
 class GiftCollectionFDO(BaseFDO, GiftCollectionDTO):
@@ -40,3 +41,27 @@ class GiftFilterPO(GiftFilterDTO):
     @classmethod
     def from_query_string(cls, value: str) -> Self:
         return cls.model_validate_json(unquote(value))
+
+
+class GiftUniqueInfoFDO(BaseFDO):
+    id: int
+    model: str
+    backdrop: str | None = None
+    pattern: str | None = None
+    telegram_owner_id: int | None = None
+    owner_address: str | None = None
+
+    @classmethod
+    def from_dto(cls, obj: GiftUniqueDTO) -> Self:
+        return cls(
+            id=obj.number,
+            model=obj.model,
+            backdrop=obj.backdrop,
+            pattern=obj.pattern,
+            telegram_owner_id=obj.telegram_owner_id,
+            owner_address=obj.owner_address,
+        )
+
+
+class GiftUniqueItemsFDO(BaseFDO):
+    items: list[GiftUniqueInfoFDO]
