@@ -86,7 +86,7 @@ export const ClientTasksPage = () => {
   }
 
   const handleToAccessApp = () => {
-    goTo(`${config.botLink}/?startapp=`)
+    goTo(`${config.botLink}`)
   }
 
   if (isLoading || !chat || !rules || !sortedConditions) {
@@ -168,13 +168,19 @@ export const ClientTasksPage = () => {
       <ChatHeader />
       <ChatConditions conditions={sortedConditions} />
       <Block margin="top" marginValue="auto">
-        <Text
-          type="caption"
-          align="center"
-          color="tertiary"
-          onClick={handleToAccessApp}
-        >
-          Access App
+        <Text align="center" type="caption" color="tertiary">
+          Set up your own private access for your
+          <br />
+          chat or channel in the
+          <Text
+            type="caption"
+            color="accent"
+            as="span"
+            onClick={handleToAccessApp}
+          >
+            {' '}
+            Access App
+          </Text>
         </Text>
       </Block>
     </PageLayout>

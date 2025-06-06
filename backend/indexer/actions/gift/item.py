@@ -45,7 +45,9 @@ class IndexerGiftUniqueAction(BaseAction):
         )
         targeted_telegram_owner_ids = set()
 
-        logger.info(f"Indexing unique items for collection {collection.slug!r}...")
+        logger.info(
+            f"Indexing {collection.upgraded_count} unique items for collection {collection.slug!r}..."
+        )
 
         # Iterate over batches and process items
         async for batch in self.indexer.index_collection(
