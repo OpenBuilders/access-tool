@@ -86,7 +86,7 @@ export const ClientTasksPage = () => {
   }
 
   const handleToAccessApp = () => {
-    goTo(`${config.botLink}/?startapp=`)
+    goTo(`${config.botLink}`)
   }
 
   if (isLoading || !chat || !rules || !sortedConditions) {
