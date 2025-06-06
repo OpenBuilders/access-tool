@@ -9,6 +9,14 @@ logger = logging.getLogger(__name__)
 
 def start_health_check_server(is_healthy_callback: Callable[[], bool]):
     class HealthCheckHandler(BaseHTTPRequestHandler):
+        def log_request(self, code="-", size="-") -> None:
+            """Override the default log_request method to avoid logging health check requests."""
+            if code == 200:
+                logger.debug(f"Health check request: {self.path}")
+                return None
+
+            return super().log_request(code, size)
+
         def do_GET(self):
             if self.path == "/health":
                 # Pass the service as an argument
