@@ -6,11 +6,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.orm import joinedload
 
+from core.constants import DEFAULT_DB_QUERY_MAX_PARAMETERS_SIZE
 from core.exceptions.wallet import (
     UserWalletConnectedError,
     UserWalletConnectedAnotherUserError,
 )
-from core.models import User
+from core.models.user import User
 from core.models.blockchain import Jetton
 from core.models.wallet import UserWallet, JettonWallet, TelegramChatUserWallet
 from core.services.base import BaseService
@@ -51,8 +52,10 @@ class WalletService(BaseService):
 
     def get_owners_telegram_ids(self, addresses: list[str]) -> set[int]:
         final_set: set[int] = set()
-        for step in range(0, len(addresses), 500):
-            step_addresses = addresses[step : step + 500]
+        for step in range(0, len(addresses), DEFAULT_DB_QUERY_MAX_PARAMETERS_SIZE):
+            step_addresses = addresses[
+                step : step + DEFAULT_DB_QUERY_MAX_PARAMETERS_SIZE
+            ]
             query = (
                 select(User.telegram_id)
                 .distinct()
