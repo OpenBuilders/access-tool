@@ -24,6 +24,7 @@ from core.dtos.chat.rules.toncoin import (
 )
 from core.enums.jetton import CurrencyCategory
 from core.enums.nft import NftCollectionAsset, NftCollectionCategoryType
+from core.exceptions.external import ExternalResourceNotFound
 from core.utils.custom_rules.addresses import (
     NFT_ASSET_TO_ADDRESS_MAPPING,
     NFT_CATEGORY_TO_ADDRESS_MAPPING,
@@ -354,7 +355,13 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         :raises HTTPException: If there is a problem resolving the jetton address or
             the rule duplication is detected.
         """
-        jetton_dto = await self.jetton_action.get_or_create(address_raw)
+        try:
+            jetton_dto = await self.jetton_action.get_or_create(address_raw)
+        except ExternalResourceNotFound:
+            raise HTTPException(
+                detail="Can't resolve jetton address",
+                status_code=HTTP_400_BAD_REQUEST,
+            )
         self.check_duplicate(self.chat.id, jetton_dto.address, category)
 
         new_rule = self.telegram_chat_jetton_service.create(

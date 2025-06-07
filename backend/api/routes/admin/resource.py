@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.params import Query
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_404_NOT_FOUND
 
 from api.deps import get_db_session, get_address_raw
 from api.pos.blockchain import (
@@ -41,7 +42,7 @@ async def fetch_jetton_details(
     except ExternalResourceNotFound:
         raise HTTPException(
             detail=f"Jetton data not found for {address_raw!r}",
-            status_code=404,
+            status_code=HTTP_404_NOT_FOUND,
         )
 
 
@@ -59,7 +60,7 @@ async def fetch_nft_collection_details(
     except ExternalResourceNotFound:
         raise HTTPException(
             detail=f"NFT collection data not found for {address_raw!r}",
-            status_code=404,
+            status_code=HTTP_404_NOT_FOUND,
         )
 
 
