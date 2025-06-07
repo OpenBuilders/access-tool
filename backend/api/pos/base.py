@@ -1,6 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
+from core.dtos.base import BaseThresholdFilterDTO
+
 
 class BaseFDO(BaseModel):
     model_config = ConfigDict(
@@ -11,3 +13,7 @@ class BaseFDO(BaseModel):
 
 class BaseExceptionFDO(BaseModel):
     detail: str
+
+
+class BaseThresholdFilterPO(BaseThresholdFilterDTO):
+    ...
