@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_404_NOT_FOUND
 
 from core.actions.base import BaseAction
 from core.dtos.base import BaseThresholdFilterDTO
@@ -26,7 +27,7 @@ class JettonWalletAction(BaseAction):
         except NoResultFound:
             raise HTTPException(
                 detail=f"Jetton {address_raw!r} not found",
-                status_code=404,
+                status_code=HTTP_404_NOT_FOUND,
             )
 
         all_wallets = self.jetton_wallet_service.get_all(
