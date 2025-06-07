@@ -110,7 +110,7 @@ export const ChatPage = () => {
             paddingY={6}
             disabled={updateChatVisibilityLoading}
             text={
-              <Text type="text" color={chat?.isEnabled ? 'tertiary' : 'accent'}>
+              <Text type="text" color={chat?.isEnabled ? 'danger' : 'accent'}>
                 {chat?.isEnabled
                   ? `Pause Access for New Users`
                   : 'Allow Access for New Users'}
@@ -122,7 +122,7 @@ export const ChatPage = () => {
               <Icon
                 name={chat?.isEnabled ? 'eyeCrossed' : 'eye'}
                 size={28}
-                color={chat?.isEnabled ? 'tertiary' : 'accent'}
+                color={chat?.isEnabled ? 'danger' : 'accent'}
               />
             }
           />
