@@ -1,7 +1,10 @@
 from typing import Sequence
 
+from fastapi import HTTPException
 from sqlalchemy import and_, select, distinct, func, union_all, Select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_404_NOT_FOUND
 
 from core.actions.base import BaseAction
 from core.constants import GIFT_COLLECTIONS_METADATA_KEY
@@ -11,6 +14,7 @@ from core.dtos.gift.collection import (
     GiftFilterDTO,
     GiftFiltersDTO,
 )
+from core.dtos.gift.item import GiftUniqueDTO
 from core.models.gift import GiftUnique
 from core.services.gift.collection import GiftCollectionService
 from core.services.gift.item import GiftUniqueService
@@ -139,3 +143,19 @@ class GiftUniqueAction(BaseAction):
         query = self.__construct_filter_options_query(options=validated_obj.filters)
         result = self.db_session.execute(query).scalars().all()
         return result
+
+    def get_all(self, collection_slug: str) -> Sequence[GiftUniqueDTO]:
+        """
+        Fetches all unique items in a given collection.
+        """
+        try:
+            self.collection_service.get(slug=collection_slug)
+        except NoResultFound:
+            raise HTTPException(
+                status_code=HTTP_404_NOT_FOUND,
+                detail=f"Collection {collection_slug!r} not found",
+            )
+        return [
+            GiftUniqueDTO.from_orm(gift)
+            for gift in self.service.get_all(collection_slug=collection_slug)
+        ]

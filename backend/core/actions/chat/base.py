@@ -3,7 +3,7 @@ import logging
 from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_403_FORBIDDEN
+from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
 from core.actions.base import BaseAction
 from core.models.user import User
@@ -46,7 +46,7 @@ class ManagedChatBaseAction(BaseAction):
             logger.debug(f"Chat with slug {chat_slug!r} not found")
             raise HTTPException(
                 detail="Chat not found",
-                status_code=404,
+                status_code=HTTP_404_NOT_FOUND,
             )
 
         if self.is_admin_action:

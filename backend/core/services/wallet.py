@@ -2,13 +2,16 @@ import logging
 from collections.abc import Generator
 
 from pytonapi.schema.jettons import JettonBalance, JettonsBalances
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.orm import joinedload
 
+from core.constants import DEFAULT_DB_QUERY_MAX_PARAMETERS_SIZE
 from core.exceptions.wallet import (
     UserWalletConnectedError,
     UserWalletConnectedAnotherUserError,
 )
+from core.models.user import User
 from core.models.blockchain import Jetton
 from core.models.wallet import UserWallet, JettonWallet, TelegramChatUserWallet
 from core.services.base import BaseService
@@ -42,7 +45,28 @@ class WalletService(BaseService):
         if addresses:
             query = query.filter(UserWallet.address.in_(addresses))
 
+        query = query.options(joinedload(UserWallet.user))
+        query = query.order_by(UserWallet.address)
+
         return query.all()
+
+    def get_owners_telegram_ids(self, addresses: list[str]) -> set[int]:
+        final_set: set[int] = set()
+        for step in range(0, len(addresses), DEFAULT_DB_QUERY_MAX_PARAMETERS_SIZE):
+            step_addresses = addresses[
+                step : step + DEFAULT_DB_QUERY_MAX_PARAMETERS_SIZE
+            ]
+            query = (
+                select(User.telegram_id)
+                .distinct()
+                .join(UserWallet, UserWallet.user_id == User.id)
+                .where(UserWallet.address.in_(step_addresses))
+                .order_by(User.telegram_id)
+            )
+            result = self.db_session.execute(query).scalars().all()
+            final_set |= set(result)
+
+        return final_set
 
     def get_all_wallet_addresses(self) -> Generator[str, None, None]:
         query = self.db_session.query(UserWallet.address).all()
@@ -180,12 +204,24 @@ class JettonWalletService(BaseService):
             .one()
         )
 
-    def get_all(self, owner_address: str) -> list[JettonWallet]:
-        return (
-            self.db_session.query(JettonWallet)
-            .filter(JettonWallet.owner_address == owner_address)
-            .all()
-        )
+    def get_all(
+        self,
+        owner_address: str | None = None,
+        jetton_master_address: str | None = None,
+        min_balance: int | None = None,
+    ) -> list[JettonWallet]:
+        query = self.db_session.query(JettonWallet)
+        if owner_address:
+            query = query.filter(JettonWallet.owner_address == owner_address)
+
+        if jetton_master_address:
+            query = query.filter(
+                JettonWallet.jetton_master_address == jetton_master_address
+            )
+
+        if min_balance:
+            query = query.filter(JettonWallet.balance >= int(min_balance))
+        return query.order_by(JettonWallet.address).all()
 
     def _create_or_update(
         self, jetton_balance: JettonBalance, owner_address: str

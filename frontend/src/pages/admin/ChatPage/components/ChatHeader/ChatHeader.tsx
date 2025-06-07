@@ -18,7 +18,7 @@ import { useChat, useChatActions } from '@store'
 const webApp = window.Telegram?.WebApp
 
 export const ChatHeader = () => {
-  const { chat, rules } = useChat()
+  const { chat } = useChat()
   const { updateChatAction } = useChatActions()
   const [description, setDescription] = useState(chat?.description ?? '')
 
@@ -66,8 +66,6 @@ export const ChatHeader = () => {
     }
   }, [chat?.description])
 
-  const showLinks = rules && rules?.length > 0
-
   return (
     <>
       <Image
@@ -88,31 +86,29 @@ export const ChatHeader = () => {
           </Text>
         </Block>
       )}
-      {showLinks && (
-        <Block
-          margin="top"
-          marginValue={24}
-          row
-          justify="between"
-          align="center"
-          gap={10}
-        >
-          <div style={{ flex: 1 }}>
-            <Button
-              type="primary"
-              prefix={<Icon name="share" color="accent" size={24} />}
-              onClick={handleShareLink}
-            >
-              Share
-            </Button>
-          </div>
-          <div style={{ flex: 1 }}>
-            <Button type="accent" onClick={handleCopyLink}>
-              Copy Link
-            </Button>
-          </div>
-        </Block>
-      )}
+      <Block
+        margin="top"
+        marginValue={24}
+        row
+        justify="between"
+        align="center"
+        gap={10}
+      >
+        <div style={{ flex: 1 }}>
+          <Button
+            type="primary"
+            prefix={<Icon name="share" color="accent" size={24} />}
+            onClick={handleShareLink}
+          >
+            Share
+          </Button>
+        </div>
+        <div style={{ flex: 1 }}>
+          <Button type="accent" onClick={handleCopyLink}>
+            Copy Link
+          </Button>
+        </div>
+      </Block>
       <Block margin="top" marginValue={24}>
         <List header="Description">
           <ListItem>

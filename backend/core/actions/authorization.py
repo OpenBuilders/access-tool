@@ -247,11 +247,19 @@ class AuthorizationAction(BaseAction):
         members_per_chat = defaultdict(list)
         user_id_to_telegram_id = {}
         eligibility_rules_per_chat: dict[int, TelegramChatEligibilityRulesDTO] = {}
-        for chat_member in chat_members:
-            # Skip checks for non-managed users in the chats where
-            if not chat_member.chat.is_full_control and not chat_member.is_managed:
-                continue
 
+        chat_members = [
+            # Skip checks for non-managed users in the chats where full control is disabled
+            chat_member
+            for chat_member in chat_members
+            if chat_member.chat.is_full_control or chat_member.is_managed
+        ]
+
+        if not chat_members:
+            logger.info("No chat members to check eligibility for. Skipping.")
+            return []
+
+        for chat_member in chat_members:
             members_per_chat[chat_member.chat_id].append(chat_member)
             eligibility_rules_per_chat[
                 chat_member.chat_id

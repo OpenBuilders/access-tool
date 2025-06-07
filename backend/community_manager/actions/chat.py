@@ -178,7 +178,9 @@ class CommunityManagerChatAction:
             to be updated in Redis sets.
         """
         logger.warning("Activating fallback method for chat members.")
-        self.redis_service.add_to_set(UPDATED_WALLETS_SET_NAME, *dto.wallets)
-        self.redis_service.add_to_set(
-            UPDATED_STICKERS_USER_IDS, *map(str, dto.sticker_owners_ids)
-        )
+        if dto.wallets:
+            self.redis_service.add_to_set(UPDATED_WALLETS_SET_NAME, *dto.wallets)
+        if dto.sticker_owners_ids:
+            self.redis_service.add_to_set(
+                UPDATED_STICKERS_USER_IDS, *map(str, dto.sticker_owners_ids)
+            )
