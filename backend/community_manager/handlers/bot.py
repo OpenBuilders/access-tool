@@ -29,7 +29,6 @@ async def handle_start_message(event: events.NewMessage()) -> None:
             ]
         ),
         link_preview=False,
-        # TODO: replace with a valid one
-        file="https://tools.tg/assets/main-BDnNcXwl.png",
+        file="https://cdn.joincommunity.xyz/gateway/Access.mp4",
     )
     raise events.StopPropagation
