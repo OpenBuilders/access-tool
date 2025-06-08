@@ -4,6 +4,7 @@ import threading
 from telethon import TelegramClient, events
 from telethon.sessions import SQLiteSession
 
+from community_manager.handlers.bot import handle_start_message
 from community_manager.handlers.chat import (
     handle_join_request,
     handle_chat_action,
@@ -12,7 +13,10 @@ from community_manager.handlers.chat import (
 from core.utils.probe import start_health_check_server
 from community_manager.settings import community_manager_settings
 from core.services.supertelethon import TelethonService
-from core.utils.events import ChatJoinRequestEventBuilder, ChatAdminChangeEventBuilder
+from community_manager.events import (
+    ChatJoinRequestEventBuilder,
+    ChatAdminChangeEventBuilder,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +36,17 @@ def init_client():
 
 
 def add_event_handlers(service: TelethonService):
+    service.client.add_event_handler(
+        handle_start_message,
+        # Handle start command in private chats only
+        events.NewMessage(pattern="/start", func=lambda e: e.is_private),
+    )
     service.client.add_event_handler(handle_join_request, ChatJoinRequestEventBuilder())
-    service.client.add_event_handler(handle_chat_action, events.ChatAction())
     service.client.add_event_handler(
         handle_chat_participant_update, ChatAdminChangeEventBuilder()
     )
+    # Generic chat action handler should go at the very end
+    service.client.add_event_handler(handle_chat_action, events.ChatAction())
     return service
 
 
