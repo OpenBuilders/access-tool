@@ -52,6 +52,10 @@ export const MainPage = () => {
     goTo('https://tools.tg')
   }
 
+  const handleToProjectPage = () => {
+    goTo('https://github.com/OpenBuilders/gateway-tool')
+  }
+
   if (isLoading) {
     return (
       <PageLayout>
@@ -82,7 +86,16 @@ export const MainPage = () => {
         fixed={isEmpty ? 'bottom' : undefined}
       >
         <Text align="center" type="caption" color="tertiary">
-          This is open source contributed by independent
+          This tool is{' '}
+          <Text
+            type="caption"
+            color="accent"
+            as="span"
+            onClick={handleToProjectPage}
+          >
+            open source
+          </Text>
+          , created by independent
           <br />
           developers, as part of
           <Text
