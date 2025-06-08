@@ -140,6 +140,8 @@ services:
       - ./config/env/.core.env
       - ./config/env/.community-manager.env
     command: ["python3", "community_manager/entrypoint.py"]
+    ports:
+      - "8081:8080"
     volumes:
       - ./backend/community_manager:/app/community_manager
       - ./backend/core:/app/core

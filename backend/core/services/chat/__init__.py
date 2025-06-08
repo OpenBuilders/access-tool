@@ -199,6 +199,17 @@ class TelegramChatService(BaseService):
         self.db_session.commit()
         logger.debug(f"Telegram Chat {chat_id!r} logo set.")
 
+    def set_title(self, chat_id: int, title: str) -> None:
+        """
+        Updates the title for a specified Telegram chat in the database by its
+        chat ID. Commits the changes to the database and logs the operation.
+        """
+        self.db_session.query(TelegramChat).filter(TelegramChat.id == chat_id).update(
+            {"title": title}
+        )
+        self.db_session.commit()
+        logger.debug(f"Telegram Chat {chat_id!r} title set.")
+
     def clear_logo(self, chat_id: int) -> None:
         chat = self.get(chat_id)
         chat.logo_path = None
