@@ -12,7 +12,10 @@ from core.exceptions.chat import TelegramChatPublicError
 from core.services.chat import TelegramChatService
 from core.services.chat.user import TelegramChatUserService
 from core.services.db import DBService
-from core.utils.events import ChatJoinRequestEventBuilder, ChatAdminChangeEventBuilder
+from community_manager.events import (
+    ChatJoinRequestEventBuilder,
+    ChatAdminChangeEventBuilder,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +35,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 "Chat doesn't exist, but bot was not added to the chat: %d. Skipping event...",
                 event.chat_id,
             )
-            return
+            raise events.StopPropagation
 
         if event.new_photo:
             # Photo was deleted
@@ -49,17 +52,34 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 current_logo_path=None,
             )
             if logo_path:
-                logger.debug(
+                logger.info(
                     f"Updating logo for chat {event.chat_id!r} with path {logo_path!r}..."
                 )
                 telegram_chat_service.set_logo(
                     chat_id=event.chat_id, logo_path=logo_path
                 )
+                logger.info(
+                    f"Updated logo for chat {event.chat_id!r} with path {logo_path!r}.."
+                )
             else:
                 logger.warning(
                     f"Ignoring update for chat {event.chat_id!r} as logo was not downloaded.."
                 )
-            return
+            raise events.StopPropagation
+
+        if event.new_title:
+            # Title was updated
+            logger.info(
+                f"Updating title for chat {event.chat_id!r} with title {event.new_title!r}..."
+            )
+            telegram_chat_service.set_title(
+                chat_id=event.chat_id,
+                title=event.new_title,
+            )
+            logger.info(
+                f"Updated title for chat {event.chat_id!r} with title {event.new_title!r}.."
+            )
+            raise events.StopPropagation
 
         logger.debug(
             f"Chat action: {event.chat_id=!r} {event.user_id=!r} {event.action_message=!r}",
@@ -69,7 +89,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
         if not any(
             [event.user_joined, event.user_added, event.user_left, event.user_kicked]
         ):
-            # To avoid handling other chat actions as they are not supported
+            # To avoid handling other chat actions as they are not supported in that function
             logger.debug(f"Unhandled chat action: {event!r}. Skipping.")
             return
 
@@ -77,11 +97,11 @@ async def handle_chat_action(event: events.ChatAction.Event):
             # To avoid handling multiple events twice (users are added or removed and the action message is sent)
             # The only message that should be handled is when bot is added to the chat
             logger.debug(f"Chat action message {event!r} is not handled.")
-            return
+            raise events.StopPropagation
 
         elif event.user.bot and not event.user.is_self:
             logger.debug(f"Another bot user {event.user.id!r} is not handled.")
-            return
+            raise events.StopPropagation
 
         authorization_action = AuthorizationAction(
             session, telethon_client=event.client
@@ -109,13 +129,9 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 chat_id=event.chat_id,
                 user=TelegramUserDTO.from_telethon_user(event.user),
             )
+            raise events.StopPropagation
 
         elif event.user_left or event.user_kicked:
-            if event.kicked_by and event.kicked_by.is_self:
-                # Do not handle actions made by the bot
-                logger.debug(f"Action made by the bot {event.kicked_by.id!r}.")
-                return
-
             if event.user.is_self:
                 logger.warning(
                     f"Bot was kicked from chat: {event.chat_id=!r}",
@@ -124,14 +140,21 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 await authorization_action.on_bot_kicked(chat_id=event.chat_id)
                 return
 
-            logger.info(
-                f"Chat member left/kicked: {event.chat_id=!r} {event.user_id=!r}",
-                extra={"event": event},
-            )
-            await authorization_action.on_chat_member_out(
-                chat_id=event.chat_id,
-                user=TelegramUserDTO.from_telethon_user(event.user),
-            )
+            if event.kicked_by and event.kicked_by.is_self:
+                # Do not handle actions made by the bot
+                logger.debug(f"Action made by the bot {event.kicked_by.id!r}.")
+
+            else:
+                logger.info(
+                    f"Chat member left/kicked: {event.chat_id=!r} {event.user_id=!r}",
+                    extra={"event": event},
+                )
+                await authorization_action.on_chat_member_out(
+                    chat_id=event.chat_id,
+                    user=TelegramUserDTO.from_telethon_user(event.user),
+                )
+
+            raise events.StopPropagation
 
         else:
             logger.debug(f"Unhandled chat action: {event!r}")
@@ -195,7 +218,7 @@ async def handle_chat_participant_update(
                 logger.debug(
                     f"Chat {chat_id!r} doesn't exist, but bot was added without admin rights. Skipping."
                 )
-            return
+            raise events.StopPropagation
 
         # If chat already existed
         logger.debug("Handling chat participant update %s", event)
@@ -223,12 +246,12 @@ async def handle_chat_participant_update(
                     telegram_chat_service.set_insufficient_privileges(
                         chat_id=chat_id, value=False
                     )
-            return
+            raise events.StopPropagation
 
         # Ignore actions done on other bots
         if (target_telethon_user := event.user) and target_telethon_user.bot:
             logger.debug(f"Bot user {target_telethon_user.id!r} is not handled.")
-            return
+            raise events.StopPropagation
 
         user_action = UserAction(session)
         target_user = user_action.get_or_create(
@@ -251,7 +274,7 @@ async def handle_chat_participant_update(
                 # Because it was not added by the bot user
                 is_managed=False,
             )
-            return
+            raise events.StopPropagation
 
         # Handle admin privileges update on the normal user
         if event.is_demoted or not event.has_enough_rights:
@@ -260,7 +283,7 @@ async def handle_chat_participant_update(
                 telegram_chat_user_service.demote_admin(
                     chat_id=chat.id, user_id=target_chat_user.user_id
                 )
-            return
+            raise events.StopPropagation
 
         elif event.has_enough_rights:
             if not target_chat_user.is_admin:
@@ -269,4 +292,4 @@ async def handle_chat_participant_update(
                     chat_id=chat.id,
                     user_id=target_user.id,
                 )
-            return
+            raise events.StopPropagation

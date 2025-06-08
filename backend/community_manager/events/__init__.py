@@ -7,13 +7,13 @@ from telethon.tl.types import (
     UpdateBotChatInviteRequester,
     UpdateChannelParticipant,
     ChannelParticipantAdmin,
+    ChannelParticipantBanned,
     ChannelParticipantSelf,
     User as TelethonUser,
     ChannelParticipantCreator,
-    ChannelParticipantBanned,
 )
 
-from core.constants import REQUIRED_BOT_PRIVILEGES, REQUIRED_ADMIN_PRIVILEGES
+from core.constants import REQUIRED_ADMIN_PRIVILEGES, REQUIRED_BOT_PRIVILEGES
 
 logger = logging.getLogger(__name__)
 
