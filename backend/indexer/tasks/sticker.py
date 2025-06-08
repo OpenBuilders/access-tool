@@ -4,6 +4,7 @@ from celery.utils.log import get_task_logger
 
 from core.actions.sticker import StickerCollectionAction
 from core.constants import UPDATED_STICKERS_USER_IDS, CELERY_STICKER_FETCH_QUEUE_NAME
+from core.dtos.sticker import StickerCollectionDTO
 from core.services.db import DBService
 from indexer.actions.sticker import IndexerStickerItemAction
 from indexer.celery_app import app
@@ -53,12 +54,13 @@ def fetch_sticker_ownership_details(collection_id: int) -> None:
     asyncio.run(get_sticker_ownership_details(collection_id))
 
 
-async def refresh_sticker_collections():
+async def refresh_sticker_collections() -> list[StickerCollectionDTO]:
     with DBService().db_session() as db_session:
         action = IndexerStickerItemAction(db_session)
-        updated_collections = await action.refresh_collections()
+        await action.refresh_collections()
         logger.info("Sticker collections refreshed.")
-        return updated_collections
+        all_collections = action.sticker_collection_service.get_all()
+        return [StickerCollectionDTO.from_orm(c) for c in all_collections]
 
 
 @app.task(
@@ -66,11 +68,10 @@ async def refresh_sticker_collections():
     queue=CELERY_STICKER_FETCH_QUEUE_NAME,
 )
 def fetch_sticker_collections():
-    updated_collections = asyncio.run(refresh_sticker_collections())
-    if updated_collections:
-        for collection in updated_collections:
-            app.send_task(
-                "fetch-sticker-ownership-details",
-                queue=CELERY_STICKER_FETCH_QUEUE_NAME,
-                args=(collection.id,),
-            )
+    all_collections = asyncio.run(refresh_sticker_collections())
+    for collection in all_collections:
+        app.send_task(
+            "fetch-sticker-ownership-details",
+            queue=CELERY_STICKER_FETCH_QUEUE_NAME,
+            args=(collection.id,),
+        )
