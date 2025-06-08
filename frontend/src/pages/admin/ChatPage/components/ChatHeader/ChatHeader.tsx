@@ -97,7 +97,7 @@ export const ChatHeader = () => {
         <div style={{ flex: 1 }}>
           <Button
             type="primary"
-            prefix={<Icon name="share" color="accent" size={24} />}
+            prefix={<Icon name="share" color="primary" size={24} />}
             onClick={handleShareLink}
           >
             Share
