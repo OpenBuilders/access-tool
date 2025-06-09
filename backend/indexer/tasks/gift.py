@@ -7,10 +7,12 @@ from core.constants import UPDATED_GIFT_USER_IDS, CELERY_GIFT_FETCH_QUEUE_NAME
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.exceptions.gift import GiftCollectionNotExistsError
 from core.services.db import DBService
+from core.services.gift.collection import GiftCollectionService
 from indexer.actions.gift.collection import IndexerGiftCollectionAction
 from indexer.actions.gift.item import IndexerGiftUniqueAction
 from indexer.celery_app import app
 from indexer.settings import indexer_settings
+from indexer.utils.session import SessionLockManager
 
 logger = logging.getLogger(__name__)
 
@@ -24,26 +26,30 @@ async def index_whitelisted_gift_collections(
     It also ensures that the database lock related to the indexing process is released after execution.
 
     :param db_session: A database session used to perform operations on the gift collections.
-    :type db_session: Session
     :return: A list of `GiftCollectionDTO` objects representing the gift collections retrieved
         and indexed from the database.
-    :rtype: list[GiftCollectionDTO]
     """
-    collection_action = IndexerGiftCollectionAction(db_session)
-    collections = collection_action.service.get_all()
+    gift_collection_service = GiftCollectionService(db_session)
+    collections = gift_collection_service.get_all()
 
     missing_collections = set(indexer_settings.whitelisted_gift_collections) - set(
         c.slug for c in collections
     )
     if missing_collections:
-        logger.warning(
-            f"Missing whitelisted gift collections: {missing_collections}. Indexing them now."
-        )
-        for slug in missing_collections:
-            try:
-                await collection_action.index(slug)
-            except GiftCollectionNotExistsError as e:
-                logger.error(f"Failed to index gift collection {slug}: {e}")
+        with SessionLockManager(
+            indexer_settings.telegram_indexer_session_path
+        ) as session_path:
+            collection_action = IndexerGiftCollectionAction(
+                db_session, session_path=session_path
+            )
+            logger.warning(
+                f"Missing whitelisted gift collections: {missing_collections}. Indexing them now."
+            )
+            for slug in missing_collections:
+                try:
+                    await collection_action.index(slug)
+                except GiftCollectionNotExistsError as e:
+                    logger.error(f"Failed to index gift collection {slug}: {e}")
 
     return [GiftCollectionDTO.from_orm(c) for c in collections]
 
@@ -77,11 +83,16 @@ async def index_gift_collection_ownerships(slug: str) -> None:
                  ownership data is being indexed.
     """
     with DBService().db_session() as db_session:
-        action = IndexerGiftUniqueAction(db_session)
-        batch_telegram_ids = await action.index(slug=slug)
-        if batch_telegram_ids:
-            logger.info(f"Updated user IDs count: {len(batch_telegram_ids)}")
-            action.redis_service.add_to_set(UPDATED_GIFT_USER_IDS, *batch_telegram_ids)
+        with SessionLockManager(
+            indexer_settings.telegram_indexer_session_path
+        ) as session_path:
+            action = IndexerGiftUniqueAction(db_session, session_path=session_path)
+            batch_telegram_ids = await action.index(slug=slug)
+            if batch_telegram_ids:
+                logger.info(f"Updated user IDs count: {len(batch_telegram_ids)}")
+                action.redis_service.add_to_set(
+                    UPDATED_GIFT_USER_IDS, *batch_telegram_ids
+                )
 
         logger.info(f"Gift ownerships for collection {slug!r} indexed.")
 

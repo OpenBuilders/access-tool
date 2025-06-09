@@ -5,3 +5,13 @@ SwissWatch
 BondedRing
 GemSignet
 ScaredCat
+LootBag
+NekoHelmet
+IonGem
+TopHat
+MiniOscar
+MagicPotion
+AstralShard
+VintageCigar
+ElectricSkull
+SignetRing

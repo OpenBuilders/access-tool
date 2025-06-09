@@ -1,5 +1,6 @@
 import datetime
 import logging
+from pathlib import Path
 from typing import AsyncGenerator
 
 from sqlalchemy.orm import Session
@@ -17,12 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class IndexerGiftUniqueAction(BaseAction):
-    def __init__(self, db_session: Session) -> None:
+    def __init__(self, db_session: Session, session_path: Path) -> None:
         super().__init__(db_session)
         self.collection_service = GiftCollectionService(db_session)
         self.service = GiftUniqueService(db_session)
         self.redis_service = RedisService()
-        self.indexer = GiftUniqueIndexer()
+        self.indexer = GiftUniqueIndexer(session_path=session_path)
 
     async def index_all(self) -> AsyncGenerator[set[int], None]:
         """
@@ -36,6 +37,16 @@ class IndexerGiftUniqueAction(BaseAction):
         logger.info("Finished indexing all unique items.")
 
     async def _index(self, collection: GiftCollection) -> set[int]:
+        """
+        Indexes and processes a collection of unique items while managing creation,
+        updates, and targeted owners.
+        This function interacts with a database to synchronize the collection data
+        and updates Redis caching as necessary.
+
+        :param collection: The gift collection object to be indexed.
+        :return: A set of Telegram owner IDs that require targeted actions due to
+                 ownership changes or updates.
+        """
         existing_items = {
             item.slug: item
             for item in self.service.get_all(collection_slug=collection.slug)

@@ -109,7 +109,7 @@ export const Gifts = ({
               }
               text={
                 <Text type="text" weight="medium">
-                  {currentCollection.slug}
+                  {currentCollection.title}
                 </Text>
               }
             />

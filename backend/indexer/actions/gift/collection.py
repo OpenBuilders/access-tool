@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
@@ -15,10 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 class IndexerGiftCollectionAction(BaseAction):
-    def __init__(self, db_session: Session) -> None:
+    def __init__(self, db_session: Session, session_path: Path) -> None:
         super().__init__(db_session)
         self.service = GiftCollectionService(db_session)
-        self.indexer = GiftCollectionIndexer()
+        self.indexer = GiftCollectionIndexer(session_path=session_path)
         self.redis_service = RedisService()
 
     async def index(self, slug: str) -> GiftCollectionDTO:

@@ -81,11 +81,11 @@ services:
       "--loglevel=info"
     ]
     environment:
-      - WORKER_CONCURRENCY=1
+      - WORKER_CONCURRENCY=2
     volumes:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer
-      - ./config/env/indexer.session:/tmp/indexer.session:rw
+      - ./config/env/sessions:/tmp:rw
 
   load-noticed-wallets:
     <<: *x-python-service

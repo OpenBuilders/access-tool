@@ -2,10 +2,13 @@ import asyncio
 
 from celery.utils.log import get_task_logger
 
-from community_manager.actions.chat import CommunityManagerChatAction
+from community_manager.actions.chat import (
+    CommunityManagerTaskChatAction,
+    CommunityManagerChatAction,
+)
 from community_manager.celery_app import app
+from community_manager.entrypoint import init_client
 from community_manager.settings import community_manager_settings
-from core.actions.chat import TelegramChatAction
 from core.actions.chat.rule.whitelist import (
     TelegramChatWhitelistExternalSourceContentAction,
 )
@@ -17,6 +20,17 @@ from core.services.db import DBService
 logger = get_task_logger(__name__)
 
 
+async def run_sanity_checks() -> None:
+    """
+    Separate function to ensure that the telethon client is initiated in the same event loop
+    """
+    client = init_client()
+    with DBService().db_session() as db_session:
+        action = CommunityManagerTaskChatAction(db_session)
+        await action.sanity_chat_checks(client)
+        logger.info("Chat sanity checks completed.")
+
+
 @app.task(
     name="check-chat-members",
     queue=CELERY_SYSTEM_QUEUE_NAME,
@@ -26,9 +40,7 @@ def check_chat_members() -> None:
         logger.warning("Community manager is disabled.")
         return
 
-    with DBService().db_session() as db_session:
-        action = CommunityManagerChatAction(db_session=db_session)
-        asyncio.run(action.sanity_chat_checks())
+    asyncio.run(run_sanity_checks())
 
 
 @app.task(
@@ -53,7 +65,7 @@ async def refresh_all_chats_async() -> None:
     Separate function to ensure that the telethon client is initiated in the same event loop
     """
     with DBService().db_session() as db_session:
-        action = TelegramChatAction(db_session)
+        action = CommunityManagerChatAction(db_session)
         await action.refresh_all()
 
 
