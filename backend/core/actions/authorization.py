@@ -4,7 +4,12 @@ from collections import defaultdict
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from telethon import TelegramClient, Button
-from telethon.errors import UserAdminInvalidError, RPCError, HideRequesterMissingError
+from telethon.errors import (
+    UserAdminInvalidError,
+    RPCError,
+    HideRequesterMissingError,
+    PeerIdInvalidError,
+)
 
 from core.actions.base import BaseAction
 from core.actions.user import UserAction
@@ -787,11 +792,16 @@ class AuthorizationAction(BaseAction):
                 chat_id=chat_id, telegram_user_id=local_user.telegram_id
             )
             if local_user.allows_write_to_pm:
-                await self.telethon_service.send_message(
-                    chat_id=telegram_user_id,
-                    message=f"You join request for **{chat.title}** was successfully approved! 🎉\n\nWelcome aboard! 🚀",
-                    buttons=[[Button.url("Open Chat", chat.invite_link)]],
-                )
+                try:
+                    await self.telethon_service.send_message(
+                        chat_id=telegram_user_id,
+                        message=f"You join request for **{chat.title}** was successfully approved! 🎉\n\nWelcome aboard! 🚀",
+                        buttons=[[Button.url("Open Chat", chat.invite_link)]],
+                    )
+                except PeerIdInvalidError as e:
+                    logger.warning(
+                        f"Can't send confirmation message to user {telegram_user_id=!r}: {e.message}"
+                    )
             self.telegram_chat_user_service.create_or_update(
                 chat_id=chat_id,
                 user_id=local_user.id,

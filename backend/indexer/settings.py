@@ -29,8 +29,11 @@ class IndexerSettings(CoreSettings):
     @classmethod
     @field_validator("telegram_indexer_session_path", mode="after")
     def validate_telegram_session_path(cls, value: Path) -> Path:
-        if not value.parent.exists() or not value.parent.is_dir():
-            raise ValueError(f"Provided path {value} should have a parent existing")
+        if value.is_file():
+            value = value.parent
+
+        if not value.exists() or not value.is_dir():
+            raise ValueError(f"Provided directory {value} should exist")
 
         return value
 

@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import AsyncGenerator
 
 from core.dtos.gift.item import GiftUniqueDTO
@@ -10,10 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class GiftUniqueIndexer:
-    def __init__(self) -> None:
-        self.telethon_service = TelethonService(
-            session_path=indexer_settings.telegram_indexer_session_path
-        )
+    def __init__(self, session_path: Path) -> None:
+        self.telethon_service = TelethonService(session_path=session_path)
 
     async def index_collection(
         self, collection_slug: str, upgraded_count: int
