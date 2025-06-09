@@ -26,12 +26,16 @@ class IndexerSettings(CoreSettings):
 
     telegram_indexer_session_path: Path
 
-    @classmethod
-    @field_validator("telegram_indexer_session_path", mode="after")
-    def validate_telegram_session_path(cls, value: Path) -> Path:
-        if value.is_file():
+    @field_validator("telegram_indexer_session_path", mode="before")
+    def validate_and_transform_path(cls, value: str | Path) -> Path:
+        # Ensure it's a Path object
+        value = Path(value)
+
+        # Transform to parent if it's a file
+        if value.is_file() or not value.exists():
             value = value.parent
 
+        # Validate it exists and is a directory
         if not value.exists() or not value.is_dir():
             raise ValueError(f"Provided directory {value} should exist")
 
