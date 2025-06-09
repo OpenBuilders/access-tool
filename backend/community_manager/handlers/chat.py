@@ -32,7 +32,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
 
         telegram_chat_service = TelegramChatService(session)
         if not telegram_chat_service.check_exists(event.chat_id):
-            logger.info(
+            logger.warning(
                 "Chat doesn't exist, but bot was not added to the chat: %d. Skipping event...",
                 event.chat_id,
             )
@@ -61,19 +61,19 @@ async def handle_chat_action(event: events.ChatAction.Event):
         #     return
 
         elif event.user.bot and not event.user.is_self:
-            logger.info(f"Another bot user {event.user.id!r} is not handled.")
+            logger.debug(f"Another bot user {event.user.id!r} is not handled.")
             return
 
         if event.user_joined or event.user_added:
             if event.added_by and event.added_by.is_self:
                 # Do not handle actions made by the bot
-                logger.info(
+                logger.debug(
                     f"Action made by the bot {event.added_by.id!r}. Already handled."
                 )
                 return
 
             elif event.user.is_self:
-                logger.info(
+                logger.debug(
                     f"Bot was added to chat: {event.chat_id=!r}. Action is handled in another handler"
                 )
                 return
@@ -98,7 +98,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
 
             if event.kicked_by and event.kicked_by.is_self:
                 # Do not handle actions made by the bot
-                logger.info(f"Action made by the bot {event.kicked_by.id!r}.")
+                logger.debug(f"Action made by the bot {event.kicked_by.id!r}.")
 
             else:
                 logger.info(
@@ -140,7 +140,7 @@ async def handle_chat_participant_update(
     """Does not handle kicks from the chat"""
     # Chat ID received from the event is not prefixed with -100 for channels,
     #  so we need to prefix it if needed
-    logger.info(
+    logger.debug(
         f"Chat action: {event.chat_id=!r} {event.original_update.stringify()=!r}",
         extra={"event": event},
     )
