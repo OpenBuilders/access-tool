@@ -3,16 +3,13 @@ from collections import defaultdict
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from telethon import TelegramClient, Button
+from telethon import TelegramClient
 from telethon.errors import (
     UserAdminInvalidError,
     RPCError,
-    HideRequesterMissingError,
-    PeerIdInvalidError,
 )
 
 from core.actions.base import BaseAction
-from core.actions.user import UserAction
 from core.dtos.chat.rules import (
     EligibilityCheckType,
     TelegramChatEligibilityRulesDTO,
@@ -26,18 +23,22 @@ from core.dtos.chat.rules.internal import (
 )
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
-from core.dtos.user import TelegramUserDTO
 from core.enums.nft import NftCollectionAsset
 from core.models import GiftUnique
-from core.models.sticker import StickerItem
-from core.models.user import User
-from core.models.wallet import JettonWallet, UserWallet
 from core.models.blockchain import NftItem
 from core.models.chat import (
     TelegramChatUser,
 )
 from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWhitelist
+from core.models.sticker import StickerItem
+from core.models.user import User
+from core.models.wallet import JettonWallet, UserWallet
 from core.services.chat import TelegramChatService
+from core.services.chat.rule.blockchain import (
+    TelegramChatJettonService,
+    TelegramChatNFTCollectionService,
+    TelegramChatToncoinService,
+)
 from core.services.chat.rule.emoji import TelegramChatEmojiService
 from core.services.chat.rule.gift import TelegramChatGiftCollectionService
 from core.services.chat.rule.premium import TelegramChatPremiumService
@@ -45,11 +46,6 @@ from core.services.chat.rule.sticker import TelegramChatStickerCollectionService
 from core.services.chat.rule.whitelist import (
     TelegramChatExternalSourceService,
     TelegramChatWhitelistService,
-)
-from core.services.chat.rule.blockchain import (
-    TelegramChatJettonService,
-    TelegramChatNFTCollectionService,
-    TelegramChatToncoinService,
 )
 from core.services.chat.user import TelegramChatUserService
 from core.services.gift.item import GiftUniqueService
@@ -631,196 +627,3 @@ class AuthorizationAction(BaseAction):
             await self.kick_chat_member(member)
         else:
             logger.info("No ineligible chat members found")
-
-    async def on_chat_member_in(
-        self,
-        user: TelegramUserDTO,
-        chat_id: int,
-    ) -> None:
-        """
-        Handle the event when users join the chat without being approved by bot
-        :param user: Users that joined the chat
-        :param chat_id: Chat ID
-        :return:
-        """
-        await self.telethon_service.start()
-        chat_service = TelegramChatService(self.db_session)
-        chat = chat_service.get(chat_id)
-        user_action = UserAction(self.db_session)
-        local_user = user_action.get_or_create(user)
-
-        # If chat is not fully controlled and user was added -
-        #  just ignore it and create entity in the database
-        if not chat.is_full_control or not chat.is_enabled:
-            self.telegram_chat_user_service.create_or_update(
-                chat_id=chat_id,
-                user_id=local_user.id,
-                is_admin=False,
-                is_managed=False,
-            )
-            return
-        # If chat is fully controlled by the bot - check the user eligibility
-        #  and only then create a new chat member record
-        elif eligibility_summary := self.is_user_eligible_chat_member(
-            user_id=local_user.id, chat_id=chat_id
-        ):
-            self.telegram_chat_user_service.create_or_update(
-                chat_id=chat_id, user_id=local_user.id, is_admin=False, is_managed=True
-            )
-            logger.debug(
-                f"User {local_user.telegram_id!r} was added to chat {chat_id!r}"
-            )
-        # If user is not eligible - kick it from the chat
-        else:
-            await self.telethon_service.kick_chat_member(
-                chat_id=chat_id, telegram_user_id=local_user.telegram_id
-            )
-            logger.warning(
-                f"User {local_user.telegram_id!r} is not eligible to join chat {chat_id!r} even though was added. Kicking the user",
-                extra={
-                    "eligibility_summary": eligibility_summary,
-                },
-            )
-
-    async def on_bot_kicked(self, chat_id: int) -> None:
-        """
-        Handle the event when the bot is kicked from the chat
-        :param chat_id: Chat ID
-        """
-        telegram_chat_service = TelegramChatService(self.db_session)
-        telegram_chat_service.delete(chat_id=chat_id)
-        logger.info(f"Chat {chat_id!r} was removed as bot was kicked from it.")
-
-    async def on_chat_member_out(
-        self,
-        user: TelegramUserDTO,
-        chat_id: int,
-    ) -> None:
-        """
-        Handle the event when users leave the chat
-        :param chat_id: Chat ID
-        :param user: User that left the chat
-        """
-        try:
-            local_user = self.user_service.get_by_telegram_id(telegram_id=user.id)
-            self.telegram_chat_user_service.delete(
-                chat_id=chat_id, user_id=local_user.id
-            )
-        except NoResultFound:
-            logger.debug(f"No user {user.id!r} found in the database. Skipping.")
-
-    async def on_join_request(
-        self,
-        telegram_user_id: int,
-        chat_id: int,
-        invited_by_bot: bool = False,
-        invite_link: str | None = None,
-    ) -> None:
-        """
-        Handles join requests for a chat and takes appropriate action based on the bot’s
-        permissions, the chat's status, and the user's eligibility.
-
-        This method is intended to process join requests for Telegram chats where the
-        bot is present. Depending on the chat's configuration and the user's eligibility,
-        it will either approve or decline the join request. It also handles other related
-        tasks such as revoking invite links if a chat is disabled or updating user-chat
-        relations in the database.
-
-        :param telegram_user_id: The unique identifier of the Telegram user making the
-            join request.
-        :param chat_id: The unique identifier of the Telegram chat where the join
-            request was made.
-        :param invited_by_bot: Indicates whether the user was invited by the bot.
-        :param invite_link: The invite link used by the user, if available.
-        """
-        telegram_chat_service = TelegramChatService(self.db_session)
-        try:
-            chat = telegram_chat_service.get(chat_id)
-        except NoResultFound:
-            # If bot sees the join request - it should be an admin, means chat should exist. Raise a flag
-            logger.warning(f"Chat {chat_id!r} does not exist in the database.")
-            return
-
-        if chat.insufficient_privileges:
-            logger.warning(
-                f"User join request {telegram_user_id=} and {chat_id=} "
-                f"can't be approved or rejected as bot lacks privileges to manage the chat. Skipping."
-            )
-            return
-
-        if not chat.is_enabled and invited_by_bot and invite_link is not None:
-            await self.telethon_service.start()
-            try:
-                logger.warning(
-                    f"Declining join request from user {telegram_user_id!r} for chat {chat_id!r} as it is disabled. "
-                )
-                await self.telethon_service.decline_chat_join_request(
-                    chat_id=chat_id, telegram_user_id=telegram_user_id
-                )
-                logger.warning(
-                    f"Chat {chat_id!r} is disabled. Revoking the invite link."
-                )
-                await self.telethon_service.revoke_chat_invite(
-                    chat_id=chat_id, link=invite_link
-                )
-            except HideRequesterMissingError as e:
-                logger.warning(f"Join request is already handled. Skipping. {e!r}")
-            except RPCError:
-                logger.exception("Error while removing invite link.")
-
-            return
-
-        logger.info(f"New join request: {telegram_user_id=!r} to join {chat_id=!r}")
-
-        if not chat.is_full_control and not invited_by_bot:
-            logger.warning(
-                f"The user {telegram_user_id!r} was not invited by the bot"
-                f" and the chat {chat_id!r} is not fully managed. Should be handled manually.",
-            )
-            return
-
-        await self.telethon_service.start()
-        telegram_user = await self.telethon_service.get_user(telegram_user_id)
-        user_action = UserAction(self.db_session)
-        local_user = user_action.get_or_create(
-            TelegramUserDTO.from_telethon_user(telegram_user)
-        )
-        if eligibility_summary := self.is_user_eligible_chat_member(
-            user_id=local_user.id, chat_id=chat_id
-        ):
-            await self.telethon_service.approve_chat_join_request(
-                chat_id=chat_id, telegram_user_id=local_user.telegram_id
-            )
-            if local_user.allows_write_to_pm:
-                try:
-                    await self.telethon_service.send_message(
-                        chat_id=telegram_user_id,
-                        message=f"You join request for **{chat.title}** was successfully approved! 🎉\n\nWelcome aboard! 🚀",
-                        buttons=[[Button.url("Open Chat", chat.invite_link)]],
-                    )
-                except PeerIdInvalidError as e:
-                    logger.warning(
-                        f"Can't send confirmation message to user {telegram_user_id=!r}: {e.message}"
-                    )
-            self.telegram_chat_user_service.create_or_update(
-                chat_id=chat_id,
-                user_id=local_user.id,
-                is_admin=False,
-                is_managed=True,
-            )
-            logger.info(
-                f"User {local_user.telegram_id!r} was approved to join chat {chat_id!r}",
-                extra={
-                    "eligibility_summary": eligibility_summary,
-                },
-            )
-        else:
-            await self.telethon_service.decline_chat_join_request(
-                chat_id=chat_id, telegram_user_id=local_user.telegram_id
-            )
-            logger.info(
-                f"User {local_user.telegram_id!r} is not eligible to join chat {chat_id!r}. Declining the request.",
-                extra={
-                    "eligibility_summary": eligibility_summary,
-                },
-            )
