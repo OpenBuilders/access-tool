@@ -24,8 +24,27 @@ class RedisService:
     def get(self, key: str) -> str:
         return self.client.get(key)
 
-    def set(self, key: str, value: str, ex: int | None = None) -> None:
-        self.client.set(key, value, ex=ex)
+    def set(
+        self, key: str, value: str, ex: int | None = None, nx: bool = False
+    ) -> bool:
+        """
+        Set a key-value pair in the datastore.
+
+        This method adds a new key-value pair to the datastore or updates the value
+        of an existing key.
+        It optionally supports specifying an expiration time for the key
+        and conditional inserts for non-existing keys.
+
+        :param key: The key to be set in the datastore.
+        :param value: The value corresponding to the key to be set.
+        :param ex: Optional expiration time in seconds for the key.
+            Defaults to None, which means no expiration.
+        :param nx: Boolean flag indicating if the key should only be set if it does
+            not already exist.
+            Defaults to False.
+        :return: A boolean indicating whether the key was successfully set or not.
+        """
+        return self.client.set(key, value, ex=ex, nx=nx)
 
     def set_all(self, data: dict, ex: int | None = None) -> None:
         pipeline = self.client.pipeline()

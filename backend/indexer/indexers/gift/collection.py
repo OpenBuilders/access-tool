@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from telethon.errors import BadRequestError
@@ -7,16 +8,13 @@ from core.dtos.gift.collection import GiftCollectionDTO
 from core.exceptions.gift import GiftCollectionNotExistsError
 from core.services.cdn import CDNService
 from core.services.supertelethon import TelethonService
-from indexer.settings import indexer_settings
 
 logger = logging.getLogger(__name__)
 
 
 class GiftCollectionIndexer:
-    def __init__(self) -> None:
-        self.telethon_service = TelethonService(
-            session_path=indexer_settings.telegram_indexer_session_path
-        )
+    def __init__(self, session_path: Path) -> None:
+        self.telethon_service = TelethonService(session_path=session_path)
         self.cdn_service = CDNService()
 
     async def index(self, slug: str) -> GiftCollectionDTO:

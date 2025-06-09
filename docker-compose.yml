@@ -85,7 +85,7 @@ services:
     volumes:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer
-      - ./config/env/indexer.session:/tmp/indexer.session:rw
+      - ./config/env/sessions:/tmp/indexer.session:rw
 
   load-noticed-wallets:
     <<: *x-python-service
