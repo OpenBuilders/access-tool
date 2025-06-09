@@ -12,7 +12,7 @@ from indexer.actions.gift.collection import IndexerGiftCollectionAction
 from indexer.actions.gift.item import IndexerGiftUniqueAction
 from indexer.celery_app import app
 from indexer.settings import indexer_settings
-from indexer.utils.session import get_available_session_with_lock
+from indexer.utils.session import SessionLockManager
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ async def index_whitelisted_gift_collections(
         c.slug for c in collections
     )
     if missing_collections:
-        with get_available_session_with_lock(
+        with SessionLockManager(
             indexer_settings.telegram_indexer_session_path
         ) as session_path:
             collection_action = IndexerGiftCollectionAction(
@@ -83,7 +83,7 @@ async def index_gift_collection_ownerships(slug: str) -> None:
                  ownership data is being indexed.
     """
     with DBService().db_session() as db_session:
-        with get_available_session_with_lock(
+        with SessionLockManager(
             indexer_settings.telegram_indexer_session_path
         ) as session_path:
             action = IndexerGiftUniqueAction(db_session, session_path=session_path)

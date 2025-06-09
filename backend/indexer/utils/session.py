@@ -1,17 +1,22 @@
-import contextlib
 import logging
 import sqlite3
+import threading
 from pathlib import Path
-from typing import Generator
+
+from celery import signals
 
 from core.services.superredis import RedisService
 
 
 logger = logging.getLogger(__name__)
 
-LOCK_KEY_TEMPLATE = "indexer:session:{session_id}:lock"
-DEFAULT_SESSION_EXPIRATION_SECONDS = 1800  # 30 minutes
+SESSION_LOCK_KEY_TEMPLATE = "indexer:session:{session_id}:lock"
+DEFAULT_SESSION_EXPIRATION_SECONDS = 60  # 1 minute
 DEFAULT_TEMP_SESSION_EXPIRATION_SECONDS = 15  # 15 seconds
+RENEW_SESSION_LOCK_INTERVAL_SECONDS = 30  # 30 seconds
+
+
+active_managers = set()
 
 
 class SessionUnavailableError(Exception):
@@ -42,60 +47,108 @@ def check_available(session_file: Path) -> bool:
             raise e
 
 
-@contextlib.contextmanager
-def get_available_session_with_lock(
-    session_dir_path: Path | None,
-) -> Generator[Path, None, None]:
-    """
-    Acquire an available session file from the specified directory with a temporary lock. This function
-    iterates through session files in the provided directory, attempting to acquire a lock for each
-    eligible file. If a lock is obtained and the session is available, the function yields the session
-    file for further use. The lock prevents concurrent usage of the same session file. Once processing
-    is complete, the lock is released.
+class SessionLockManager:
+    def __init__(
+        self,
+        session_dir_path: Path | None,
+        renew_interval_seconds: int = RENEW_SESSION_LOCK_INTERVAL_SECONDS,
+        cache_ttl: int = DEFAULT_SESSION_EXPIRATION_SECONDS,
+    ) -> None:
+        if not session_dir_path or not session_dir_path.is_dir():
+            raise AttributeError(
+                f"Invalid session directory path: {session_dir_path!r}"
+            )
 
-    :param session_dir_path: Path to the directory containing session files.
-    :return: A generator yielding the path of the available session file with a lock.
-    :raises AttributeError: If the session directory path is invalid or does not exist.
-    :raises SessionUnavailableError: If no available session files are found in the directory.
-    """
-    if not session_dir_path or not session_dir_path.is_dir():
-        raise AttributeError(f"Invalid session directory path: {session_dir_path!r}")
+        self.session_dir_path = session_dir_path
+        self.redis_service = RedisService()
+        self.stop_event = threading.Event()
+        self._lock_key = None
+        self._renew_lock_thread = None
+        self.renew_interval_seconds = renew_interval_seconds
+        self._ttl = cache_ttl
 
-    redis_service = RedisService()
-    target_session_file = None
-    lock_key = None
-    for session_file in session_dir_path.glob("*.session"):
-        lock_key = LOCK_KEY_TEMPLATE.format(session_id=session_file.name)
-        is_locked = redis_service.set(
+    def acquire_lock(self, session_file: Path) -> bool:
+        lock_key = SESSION_LOCK_KEY_TEMPLATE.format(session_id=session_file.name)
+        is_locked = self.redis_service.set(
             lock_key, "1", ex=DEFAULT_SESSION_EXPIRATION_SECONDS, nx=True
         )
 
         if not is_locked:
             # It means that the lock was not acquired
             logger.warning(f"Session lock is already active: {lock_key!r}")
-            continue
+            return False
 
         if not check_available(session_file):
             # The session is not available despite lock was acquired
             logger.error(
                 f"Session lock is not active but session is still unavailable: {session_file!r}"
             )
-            redis_service.delete(lock_key)
             # Set lock for 15 seconds so there won't be attempts to reuse that session as it seems to be blocked
-            redis_service.set(lock_key, "1", ex=DEFAULT_TEMP_SESSION_EXPIRATION_SECONDS)
-            continue
+            self.redis_service.expire(
+                lock_key, ex=DEFAULT_TEMP_SESSION_EXPIRATION_SECONDS
+            )
+            return False
 
-        logger.info(f"Acquired session lock: {lock_key!r}")
-        target_session_file = session_file
-        break
+        self._lock_key = lock_key
+        return True
 
-    if not target_session_file:
-        raise SessionUnavailableError(
-            f"No available session found in {session_dir_path!r}"
-        )
+    def release_lock(self) -> None:
+        if not self._lock_key:
+            logger.debug("No lock to release.")
+            return
 
-    try:
-        yield target_session_file
-    finally:
-        logger.info(f"Releasing session lock: {lock_key!r}")
-        redis_service.delete(lock_key)
+        logger.info(f"Releasing lock: {self._lock_key}")
+        try:
+            self.redis_service.delete(self._lock_key)
+        except Exception as e:
+            logger.exception(f"Failed to release lock: {e}")
+
+    def _renew_loop(self) -> None:
+        while not self.stop_event.wait(self.renew_interval_seconds):
+            try:
+                self.redis_service.expire(self._lock_key, self._ttl)
+                logger.debug(f"Extended lock TTL: {self._lock_key}")
+            except Exception as e:
+                logger.exception(f"Failed to renew TTL for {self._lock_key}: {e}")
+
+    def __enter__(self) -> Path:
+        active_managers.add(self)
+        target_session_file = None
+        for session_file in self.session_dir_path.glob("*.session"):
+            if not self.acquire_lock(session_file):
+                continue
+
+            target_session_file = session_file
+            logger.info(f"Acquired session lock: {session_file.name!r}")
+            break
+
+        if not target_session_file:
+            active_managers.discard(self)
+            raise SessionUnavailableError(
+                f"No available session found in {self.session_dir_path!r}"
+            )
+
+        self.renew_thread = threading.Thread(target=self._renew_loop, daemon=True)
+        self.renew_thread.start()
+        return target_session_file
+
+    def __exit__(
+        self, exc_type: Exception, exc_val: str, exc_tb: Exception.__traceback__
+    ) -> None:
+        self.stop_event.set()
+        if self.renew_thread:
+            self.renew_thread.join(timeout=self.renew_interval_seconds + 2)
+        self.release_lock()
+        active_managers.discard(self)
+
+
+@signals.worker_shutdown.connect
+def clean_up_locks_on_shutdown(*args, **kwargs):
+    for manager in active_managers:
+        manager.stop_event.set()
+        if manager.renew_thread:
+            logger.info(f"Waiting for renew thread to exit for {manager!r}")
+            manager.renew_thread.join(timeout=manager.renew_interval_seconds + 2)
+        manager.release_lock()
+    active_managers.clear()
+    logger.info("All locks have been released.")

@@ -6,14 +6,14 @@ import click
 from indexer.actions.gift.collection import IndexerGiftCollectionAction
 from core.services.db import DBService
 from indexer.settings import indexer_settings
-from indexer.utils.session import get_available_session_with_lock
+from indexer.utils.session import SessionLockManager
 
 logger = logging.getLogger(__name__)
 
 
 async def index_gift_collection(slug: str) -> None:
     with DBService().db_session() as db_session:
-        with get_available_session_with_lock(
+        with SessionLockManager(
             indexer_settings.telegram_indexer_session_path
         ) as session_path:
             action = IndexerGiftCollectionAction(db_session, session_path=session_path)
