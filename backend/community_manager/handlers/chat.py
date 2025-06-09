@@ -111,7 +111,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 )
 
         else:
-            logger.info(f"Unhandled chat action: {event!r}")
+            logger.info(f"Unhandled chat action: {event.original_update!r}")
 
     raise events.StopPropagation
 

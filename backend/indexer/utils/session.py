@@ -44,7 +44,7 @@ def check_available(session_file: Path) -> bool:
 
 @contextlib.contextmanager
 def get_available_session_with_lock(
-    session_dir_path: Path,
+    session_dir_path: Path | None,
 ) -> Generator[Path, None, None]:
     """
     Acquire an available session file from the specified directory with a temporary lock. This function
@@ -58,7 +58,7 @@ def get_available_session_with_lock(
     :raises AttributeError: If the session directory path is invalid or does not exist.
     :raises SessionUnavailableError: If no available session files are found in the directory.
     """
-    if not session_dir_path.is_dir():
+    if not session_dir_path or not session_dir_path.is_dir():
         raise AttributeError(f"Invalid session directory path: {session_dir_path!r}")
 
     redis_service = RedisService()
