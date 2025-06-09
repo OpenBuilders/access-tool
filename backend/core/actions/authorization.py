@@ -697,7 +697,7 @@ class AuthorizationAction(BaseAction):
         :param user: User that left the chat
         """
         try:
-            local_user = self.user_service.get(user)
+            local_user = self.user_service.get_by_telegram_id(telegram_id=user.id)
             self.telegram_chat_user_service.delete(
                 chat_id=chat_id, user_id=local_user.id
             )
