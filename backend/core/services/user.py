@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from sqlalchemy.orm import joinedload
 
 from core.dtos.user import TelegramUserDTO
@@ -6,7 +8,7 @@ from core.services.base import BaseService
 
 
 class UserService(BaseService):
-    def get_all(self, telegram_ids: list[int] | None = None) -> list[User]:
+    def get_all(self, telegram_ids: Iterable[int] | None = None) -> list[User]:
         query = self.db_session.query(User)
         if telegram_ids:
             query = query.filter(User.telegram_id.in_(telegram_ids))
