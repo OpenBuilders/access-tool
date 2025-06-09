@@ -34,6 +34,7 @@ async def run_sanity_checks() -> None:
 @app.task(
     name="check-chat-members",
     queue=CELERY_SYSTEM_QUEUE_NAME,
+    ignore_result=True,
 )
 def check_chat_members() -> None:
     if not community_manager_settings.enable_manager:
@@ -47,6 +48,7 @@ def check_chat_members() -> None:
     name="refresh-chat-external-sources",
     queue=CELERY_SYSTEM_QUEUE_NAME,
     rate_limit="1/m",
+    ignore_result=True,
 )
 def refresh_chat_external_sources() -> None:
     if not community_manager_settings.enable_manager:
@@ -72,6 +74,7 @@ async def refresh_all_chats_async() -> None:
 @app.task(
     name="refresh-chats",
     queue=CELERY_SYSTEM_QUEUE_NAME,
+    ignore_result=True,
 )
 def refresh_chats() -> None:
     if not community_manager_settings.enable_manager:

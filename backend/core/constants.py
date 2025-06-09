@@ -10,6 +10,9 @@ DEFAULT_WALLET_TRACK_EXPIRATION = 60 * 60 * 24 * 365 * 10  # 10 years
 
 ASYNC_TASK_REDIS_PREFIX = "atask"
 
+DEFAULT_CELERY_TASK_RETRY_DELAY = 60
+DEFAULT_CELERY_TASK_MAX_RETRIES = 5
+
 # Performance
 DEFAULT_BATCH_PROCESSING_SIZE = 5_000
 # https://klotzandrew.com/blog/postgres-passing-65535-parameter-limit/

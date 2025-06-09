@@ -49,6 +49,7 @@ async def get_sticker_ownership_details(collection_id: int) -> None:
 @app.task(
     name="fetch-sticker-ownership-details",
     queue=CELERY_STICKER_FETCH_QUEUE_NAME,
+    ignore_result=True,
 )
 def fetch_sticker_ownership_details(collection_id: int) -> None:
     asyncio.run(get_sticker_ownership_details(collection_id))
@@ -66,6 +67,7 @@ async def refresh_sticker_collections() -> list[StickerCollectionDTO]:
 @app.task(
     name="fetch-sticker-collections",
     queue=CELERY_STICKER_FETCH_QUEUE_NAME,
+    ignore_result=True,
 )
 def fetch_sticker_collections():
     all_collections = asyncio.run(refresh_sticker_collections())
