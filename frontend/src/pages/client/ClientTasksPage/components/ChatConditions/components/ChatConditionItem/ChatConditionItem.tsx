@@ -1,5 +1,5 @@
 import { Icon, ListItem, Text } from '@components'
-import { createConditionName } from '@utils'
+import { createConditionName, goTo } from '@utils'
 import { createConditionDescription } from '@utils'
 
 import { ChatInstance, Condition } from '@store'
@@ -12,8 +12,6 @@ interface ChatConditionItemProps {
   disabled?: boolean
 }
 
-const webApp = window.Telegram.WebApp
-
 export const ChatConditionItem = ({
   condition,
   chat,
@@ -24,7 +22,7 @@ export const ChatConditionItem = ({
   const handleOpenLink = () => {
     if (!promoteUrl || disabled) return
 
-    webApp.openLink(condition.promoteUrl)
+    goTo(condition.promoteUrl)
   }
 
   if (type === 'whitelist' || type === 'external_source') {
