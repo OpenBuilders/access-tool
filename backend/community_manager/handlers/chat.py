@@ -64,7 +64,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
             logger.debug(f"Another bot user {event.user.id!r} is not handled.")
             return
 
-        if event.user_joined or event.user_added:
+        elif event.user_joined or event.user_added:
             if event.added_by and event.added_by.is_self:
                 # Do not handle actions made by the bot
                 logger.debug(
