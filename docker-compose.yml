@@ -81,7 +81,7 @@ services:
       "--loglevel=info"
     ]
     environment:
-      - WORKER_CONCURRENCY=1
+      - WORKER_CONCURRENCY=2
     volumes:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer

@@ -72,7 +72,7 @@ def get_available_session_with_lock(
 
         if not is_locked:
             # It means that the lock was not acquired
-            logger.warning(f"Session lock is already active: {lock_key!r}: {is_locked}")
+            logger.warning(f"Session lock is already active: {lock_key!r}")
             continue
 
         if not check_available(session_file):
