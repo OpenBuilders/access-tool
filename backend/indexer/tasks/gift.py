@@ -28,7 +28,6 @@ async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
     gift collections that are whitelisted but missing from the database and attempts to index them.
     It also ensures that the database lock related to the indexing process is released after execution.
 
-    :param db_session: A database session used to perform operations on the gift collections.
     :return: A list of `GiftCollectionDTO` objects representing the gift collections retrieved
         and indexed from the database.
     """
@@ -49,11 +48,16 @@ async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
                 logger.warning(
                     f"Missing whitelisted gift collections: {missing_collections}. Indexing them now."
                 )
-                for slug in missing_collections:
-                    try:
-                        await collection_action.index(slug)
-                    except GiftCollectionNotExistsError as e:
-                        logger.error(f"Failed to index gift collection {slug}: {e}")
+                try:
+                    for slug in missing_collections:
+                        try:
+                            await collection_action.index(slug)
+                        except GiftCollectionNotExistsError as e:
+                            logger.error(f"Failed to index gift collection {slug}: {e}")
+                except PhoneNumberBannedError as e:
+                    # Rename session to mark as dirty
+                    session_path.rename(f"{session_path}-dirty")
+                    raise e
 
         return [GiftCollectionDTO.from_orm(c) for c in collections]
 
@@ -73,7 +77,13 @@ async def index_gift_collection_ownerships(slug: str) -> None:
             indexer_settings.telegram_indexer_session_path
         ) as session_path:
             action = IndexerGiftUniqueAction(db_session, session_path=session_path)
-            batch_telegram_ids = await action.index(slug=slug)
+            try:
+                batch_telegram_ids = await action.index(slug=slug)
+            except PhoneNumberBannedError as e:
+                # Rename session to mark as dirty
+                session_path.rename(f"{session_path}-dirty")
+                raise e
+
             if batch_telegram_ids:
                 logger.info(f"Updated user IDs count: {len(batch_telegram_ids)}")
                 action.redis_service.add_to_set(
