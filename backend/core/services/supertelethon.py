@@ -10,6 +10,8 @@ from telethon.tl.functions.messages import (
     ExportChatInviteRequest,
     HideChatJoinRequestRequest,
     EditExportedChatInviteRequest,
+    GetCustomEmojiDocumentsRequest,
+    GetStickerSetRequest,
 )
 from telethon.tl.functions.payments import (
     GetUniqueStarGiftRequest,
@@ -25,6 +27,9 @@ from telethon.tl.types import (
     InputUser,
     ChatPhotoEmpty,
     StarGiftUnique,
+    Document,
+    DocumentAttributeCustomEmoji,
+    StickerSet,
 )
 from telethon.tl.types.payments import SavedStarGifts
 
@@ -281,6 +286,38 @@ class TelethonService:
         chat = await self.get_chat(chat_id)
         await self.client.send_message(chat, message, buttons=buttons)
         logger.debug(f"Message {message!r} was sent to the chat {chat_id!r}.")
+
+    async def index_emoji(self, emoji_id: int) -> tuple[Document, StickerSet]:
+        """
+        Indexes a custom emoji based on its unique identifier and retrieves its associated
+        sticker set. This function queries the Telegram API to fetch the emoji document
+        and its sticker set details. If more than one emoji document is returned, an
+        error is raised to ensure exactly one emoji is processed.
+
+        :param emoji_id: The unique identifier of the emoji to be indexed.
+        :return: A tuple containing the emoji document and the corresponding sticker
+            set details.
+        :raises ValueError: If the number of emoji documents returned is not exactly one.
+        """
+        emojis = await self.client(
+            GetCustomEmojiDocumentsRequest(document_id=[emoji_id])
+        )
+        if len(emojis) != 1:
+            logger.error(
+                f"Expected exactly one emoji, got {len(emojis)}: {[e.stringify() for e in emojis]}"
+            )
+            raise ValueError(f"Expected exactly one emoji, got {len(emojis)}")
+
+        emoji = emojis[0]
+        sticker_set_input = next(
+            filter(
+                lambda a: isinstance(a, DocumentAttributeCustomEmoji), emoji.attributes
+            )
+        ).stickerset
+        sticker_set = await self.client(
+            GetStickerSetRequest(stickerset=sticker_set_input, hash=0)
+        )
+        return emoji, sticker_set
 
     async def index_gift(self, slug: str, number: int) -> StarGiftUnique:
         """
