@@ -1,19 +1,26 @@
 import { Condition } from '@store'
 
-const ASSETS_WITH_DESCRIPTION = [
-  'Telegram Usernames',
-  'Telegram Numbers',
-  'TON DNS',
-]
-
 export const createConditionDescription = (condition: Condition) => {
-  const { type, category, asset } = condition
+  const { type, category, expected, model, pattern, backdrop } = condition
 
-  if (
-    type === 'nft_collection' &&
-    ASSETS_WITH_DESCRIPTION.includes(asset || '')
-  ) {
-    return category
+  if (type === 'nft_collection') {
+    const secondPart = category
+      ? category
+      : Number(expected) > 1
+        ? 'Items'
+        : 'Item'
+    return `${expected} ${secondPart}`.trim()
+  }
+
+  if (type === 'sticker_collection') {
+    const secondPart = Number(expected) > 1 ? 'Items' : 'Item'
+    return `${expected} ${secondPart}`.trim()
+  }
+
+  if (type === 'gift_collection') {
+    const secondPart = Number(expected) > 1 ? 'Gifts' : 'Gift'
+    const options = [model, pattern, backdrop].filter(Boolean).join(', ')
+    return `${expected} ${secondPart}${options ? `, ${options}` : ''}`.trim()
   }
 
   return null
