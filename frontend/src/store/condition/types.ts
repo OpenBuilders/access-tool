@@ -90,6 +90,7 @@ export interface StickersCharacter {
   id: number
   name: string
   logoUrl: string | null
+  logo_url: string | null
 }
 
 export interface StickersCollection {

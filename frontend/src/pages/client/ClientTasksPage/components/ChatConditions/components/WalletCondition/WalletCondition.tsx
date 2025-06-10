@@ -1,4 +1,4 @@
-import { Icon, ListItem, Text, useToast } from '@components'
+import { ConditionIcon, ListItem, Text, useToast } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { toUserFriendlyAddress, useTonConnectUI } from '@tonconnect/ui-react'
@@ -151,9 +151,13 @@ export const WalletCondition = () => {
   if (!chatWallet) {
     return (
       <ListItem
+        padding="4px 16px"
+        height="48px"
         chevron
+        showCheck
+        isCompleted={false}
         onClick={handleWalletsList}
-        before={<Icon name="cross" size={24} />}
+        before={<ConditionIcon walletCondition />}
         text={
           <Text type="text" color="primary">
             Connect Wallet
@@ -171,13 +175,17 @@ export const WalletCondition = () => {
   }
 
   const userFriendlyAddress = toUserFriendlyAddress(chatWallet)
-  const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
+  const collapsedAddress = collapseAddress(userFriendlyAddress, 2)
 
   return (
     <ListItem
+      padding="4px 16px"
+      height="48px"
       chevron
+      showCheck
+      isCompleted
       onClick={navigateToConnectedWalletPage}
-      before={<Icon name="check" size={24} />}
+      before={<ConditionIcon walletCondition />}
       after={
         <Text type="text" color="tertiary">
           {collapsedAddress}

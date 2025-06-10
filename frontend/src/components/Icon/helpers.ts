@@ -10,6 +10,17 @@ import {
   chevron,
   eyeCrossed,
   eye,
+  connectWallet,
+  toncoin,
+  premium,
+  whitelist,
+  externalSource,
+  emoji,
+  jetton,
+  nftCollection,
+  stickers,
+  gifts,
+  checkUnable,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -37,5 +48,27 @@ export const getIcon = (name: IconTypeName) => {
       return eyeCrossed
     case 'eye':
       return eye
+    case 'connectWallet':
+      return connectWallet
+    case 'toncoin':
+      return toncoin
+    case 'premium':
+      return premium
+    case 'whitelist':
+      return whitelist
+    case 'externalSource':
+      return externalSource
+    case 'emoji':
+      return emoji
+    case 'jetton':
+      return jetton
+    case 'nftCollection':
+      return nftCollection
+    case 'stickers':
+      return stickers
+    case 'gifts':
+      return gifts
+    case 'checkUnable':
+      return checkUnable
   }
 }

@@ -32,8 +32,6 @@ export const ClientTasksPage = () => {
   const location = useLocation()
   const fromChat = location.state?.fromChat
 
-  console.log('fromChat', fromChat)
-
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
 

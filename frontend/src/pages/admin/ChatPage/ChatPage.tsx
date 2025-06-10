@@ -107,7 +107,7 @@ export const ChatPage = () => {
       <Block margin="top" marginValue={24}>
         <Block margin="bottom" marginValue={24}>
           <ListItem
-            paddingY={6}
+            padding="6px 16px"
             disabled={updateChatVisibilityLoading}
             text={
               <Text type="text" color={chat?.isEnabled ? 'danger' : 'accent'}>

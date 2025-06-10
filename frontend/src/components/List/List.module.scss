@@ -53,3 +53,11 @@
     }
   }
 }
+
+.listWithSeparator-70 {
+  > div {
+    &:after {
+      left: calc(70px + 16px + 10px);
+    }
+  }
+}
