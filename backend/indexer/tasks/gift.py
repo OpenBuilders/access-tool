@@ -1,6 +1,7 @@
 import asyncio
 
 from celery.utils.log import get_task_logger
+from telethon.errors import PhoneNumberBannedError
 
 from core.constants import (
     UPDATED_GIFT_USER_IDS,
@@ -86,7 +87,7 @@ async def index_gift_collection_ownerships(slug: str) -> None:
     name="fetch-gift-collection-ownership-details",
     queue=CELERY_GIFT_FETCH_QUEUE_NAME,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
-    autoretry_for=(SessionUnavailableError,),
+    autoretry_for=(SessionUnavailableError, PhoneNumberBannedError),
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
     ignore_result=True,
 )
@@ -98,7 +99,7 @@ def fetch_gift_collection_ownership_details(slug: str):
     name="fetch-gift-ownership-details",
     queue=CELERY_GIFT_FETCH_QUEUE_NAME,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
-    autoretry_for=(SessionUnavailableError,),
+    autoretry_for=(SessionUnavailableError, PhoneNumberBannedError),
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
     ignore_result=True,
 )
