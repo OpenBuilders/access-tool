@@ -50,7 +50,10 @@ export const ListItem = ({
         onClick && styles.clickable,
         disabled && styles.disabled
       )}
-      style={{ padding: padding || '10px 16px', height: height || undefined }}
+      style={{
+        padding: padding || '10px 16px',
+        minHeight: height || undefined,
+      }}
       onClick={handleClick}
     >
       <div className={styles.left}>
