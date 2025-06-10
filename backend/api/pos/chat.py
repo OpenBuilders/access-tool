@@ -8,13 +8,15 @@ from pydantic import (
     Field,
     AnyHttpUrl,
     model_validator,
+    PlainSerializer,
 )
-from pytonapi.utils import raw_to_userfriendly
+from pytonapi.utils import raw_to_userfriendly, userfriendly_to_raw
 
 from api.pos.base import BaseFDO
 from api.pos.fields import AmountFacadeField, CDNImageField, AmountInputField
 from api.pos.gift import GiftCollectionFDO
 from api.pos.sticker import MinimalStickerCharacterFDO, MinimalStickerCollectionFDO
+from core.constants import USER_FRIENDLY_ADDRESS_REGEX, RAW_ADDRESS_REGEX
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
@@ -91,15 +93,19 @@ def validate_address(is_required: bool) -> Callable[[str | None], str | None]:
                 raise ValueError("Missing blockchain address")
             return v
 
-        try:
-            # Only to test if the format is valid
-            raw_to_userfriendly(v)
-        except ValueError:
-            logger.warning(f"Invalid blockchain address: {v!r}")
-            raise ValueError("Invalid blockchain address")
-        except Exception as e:
-            logger.warning(f"Invalid blockchain address: {e}", exc_info=True)
-            raise ValueError("Invalid blockchain address")
+        if USER_FRIENDLY_ADDRESS_REGEX.match(v):
+            v = userfriendly_to_raw(v)
+
+        elif RAW_ADDRESS_REGEX.match(v):
+            try:
+                # To validate the blockchain address
+                raw_to_userfriendly(v)
+            except ValueError:
+                logger.warning(f"Invalid blockchain address: {v!r}")
+                raise ValueError("Invalid blockchain address")
+            except Exception as e:
+                logger.warning(f"Invalid blockchain address: {e}", exc_info=True)
+                raise ValueError("Invalid blockchain address")
 
         return v
 
@@ -257,6 +263,7 @@ class ToncoinEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
 class JettonEligibilityRuleFDO(BaseFDO, JettonEligibilityRuleDTO):
     photo_url: CDNImageField
     expected: AmountFacadeField
+    blockchain_address: Annotated[str, PlainSerializer(raw_to_userfriendly)]
 
 
 class JettonEligibilitySummaryFDO(BaseFDO, JettonEligibilitySummaryDTO):
@@ -267,6 +274,7 @@ class JettonEligibilitySummaryFDO(BaseFDO, JettonEligibilitySummaryDTO):
 
 class NftEligibilityRuleFDO(BaseFDO, NftEligibilityRuleDTO):
     photo_url: CDNImageField
+    blockchain_address: Annotated[str, PlainSerializer(raw_to_userfriendly)]
 
 
 class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):

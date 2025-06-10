@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import AsyncGenerator, IO, BinaryIO
 
 from telethon import TelegramClient, Button
-from telethon.errors import MultiError, FloodWaitError
+from telethon.errors import MultiError, FloodWaitError, RPCError
 from telethon.sessions import MemorySession, SQLiteSession
 from telethon.tl.functions.messages import (
     ExportChatInviteRequest,
@@ -334,6 +334,10 @@ class TelethonService:
             logger.warning(
                 f"Received {len(gifts)} gifts from the API out of {len(slugs)} requested."
             )
+        except RPCError as e:
+            # If there is only one item left – it'll raise an RPCError instead of MultiError
+            logger.error(f"Error occurred while fetching gift: {e}")
+            gifts = []
 
         return [gift.gift for gift in gifts if isinstance(gift.gift, StarGiftUnique)]
 

@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 POOL_TIMEOUT = 30
@@ -60,3 +61,6 @@ PROMOTE_GIFT_COLLECTION_TEMPLATE = (
 )
 BUY_TONCOIN_URL = "https://t.me/wallet/start"
 BUY_PREMIUM_URL = "https://t.me/PremiumBot"
+
+RAW_ADDRESS_REGEX = re.compile(r"0:[0-9a-fA-F]{64}")
+USER_FRIENDLY_ADDRESS_REGEX = re.compile(r"(EQ|UQ)[a-zA-Z0-9\-\_]{46}")
