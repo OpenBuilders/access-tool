@@ -62,7 +62,6 @@ export const createButtonText = ({
 export const formatConditions = (conditions: Condition[] | null) => {
   const result: FormattedConditions = {
     whitelist: [],
-    externalSource: [],
     orRequired: [],
     available: [],
     notNeeded: [],
@@ -90,7 +89,7 @@ export const formatConditions = (conditions: Condition[] | null) => {
     }
 
     if (externalSourceCondition) {
-      result.externalSource.push(externalSourceCondition)
+      result.whitelist.push(externalSourceCondition)
     }
 
     if (whitelistCondition?.isEligible || externalSourceCondition?.isEligible) {

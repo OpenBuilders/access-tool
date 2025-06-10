@@ -9,8 +9,7 @@ import {
   Text,
   useToast,
 } from '@components'
-import debounce from 'debounce'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   useCondition,
@@ -19,6 +18,7 @@ import {
   Condition,
 } from '@store'
 
+import { createDebouncedPrefetch } from '../../helpers'
 import { ConditionComponentProps } from '../types'
 import { Skeleton } from './Skeleton'
 
@@ -35,46 +35,52 @@ export const Jettons = ({
     resetPrefetchedConditionDataAction,
   } = useConditionActions()
   const { prefetchedConditionData } = useCondition()
-  const [isPrefetching, setIsPrefetching] = useState(false)
+  const [isPrefetching, setIsPrefetching] = useState(!isNewCondition)
   const { showToast } = useToast()
 
   const [categories, setCategories] = useState<ConditionCategory[]>([])
 
-  const prefetchJetton = async (address: string) => {
-    if (!conditionState?.type) return
-    setIsPrefetching(true)
-    try {
-      await prefetchConditionDataAction('jetton', address)
-    } catch (error) {
-      console.error(error)
-      showToast({
-        type: 'error',
-        message: 'Nothing found',
-        time: 1500,
-      })
-      resetPrefetchedConditionDataAction()
-    } finally {
-      setIsPrefetching(false)
-    }
-  }
+  const debouncedPrefetchRef = useRef(createDebouncedPrefetch(1000))
 
-  const debouncedPrefetchJetton = useCallback(
-    debounce(async (address?: string) => {
-      if (!address) {
+  const prefetchJetton = useCallback(
+    async (address?: string) => {
+      if (!conditionState?.type || !address) return
+      setIsPrefetching(true)
+      try {
+        await prefetchConditionDataAction('jetton', address)
+      } catch (error) {
+        console.error(error)
+        showToast({
+          type: 'error',
+          message: 'Nothing found',
+          time: 1500,
+        })
+        resetPrefetchedConditionDataAction()
+      } finally {
+        setIsPrefetching(false)
+      }
+    },
+    [
+      conditionState?.type,
+      prefetchConditionDataAction,
+      resetPrefetchedConditionDataAction,
+      showToast,
+    ]
+  )
+
+  const handleAddressChange = useCallback(
+    (value: string) => {
+      handleChangeCondition('address', value)
+
+      if (!value) {
         resetPrefetchedConditionDataAction()
         return
       }
 
-      prefetchJetton(address)
-    }, 1000),
-    []
+      debouncedPrefetchRef.current(value, prefetchJetton)
+    },
+    [handleChangeCondition, prefetchJetton, resetPrefetchedConditionDataAction]
   )
-
-  useEffect(() => {
-    if (conditionState?.address) {
-      debouncedPrefetchJetton(conditionState?.address)
-    }
-  }, [conditionState?.address])
 
   const fetchConditionCategories = async () => {
     try {
@@ -91,14 +97,16 @@ export const Jettons = ({
   }
 
   useEffect(() => {
-    if (
-      !isNewCondition &&
-      condition?.blockchainAddress &&
-      !prefetchedConditionData
-    ) {
-      prefetchJetton(condition?.blockchainAddress)
+    if (condition?.blockchainAddress || condition?.address) {
+      prefetchJetton(condition?.blockchainAddress || condition?.address)
     }
-  }, [condition, isNewCondition])
+  }, [
+    condition?.blockchainAddress,
+    isNewCondition,
+    conditionState?.type,
+    condition?.address,
+    prefetchJetton,
+  ])
 
   useEffect(() => {
     fetchConditionCategories()
@@ -161,10 +169,7 @@ export const Jettons = ({
               <ListInput
                 placeholder="Jetton Address"
                 value={conditionState.address}
-                onChange={(value) => {
-                  handleChangeCondition('address', value)
-                  debouncedPrefetchJetton(value)
-                }}
+                onChange={handleAddressChange}
               />
             </ListItem>
             {prefetchedConditionData && (

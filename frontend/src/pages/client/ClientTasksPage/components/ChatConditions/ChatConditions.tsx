@@ -10,6 +10,8 @@ interface ChatConditionsProps {
   conditions: FormattedConditions
 }
 
+const SEPARATOR_LEFT_GAP = 70
+
 export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
   const { chat } = useChat()
 
@@ -23,21 +25,8 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
     <>
       {!!conditions.whitelist.length && (
         <Block margin="top" marginValue={24}>
-          <List separatorLeftGap={24} header="Whitelist">
+          <List separatorLeftGap={SEPARATOR_LEFT_GAP}>
             {conditions.whitelist.map((condition) => (
-              <ChatConditionItem
-                condition={condition}
-                key={`${condition.id}-${condition.type}`}
-                chat={chat}
-              />
-            ))}
-          </List>
-        </Block>
-      )}
-      {!!conditions.externalSource.length && (
-        <Block margin="top" marginValue={24}>
-          <List separatorLeftGap={24} header="External Source">
-            {conditions.externalSource.map((condition) => (
               <ChatConditionItem
                 condition={condition}
                 key={`${condition.id}-${condition.type}`}
@@ -49,7 +38,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
       )}
       {!!conditions.orRequired.length && (
         <Block margin="top" marginValue={24}>
-          <List separatorLeftGap={24} header="OR">
+          <List separatorLeftGap={SEPARATOR_LEFT_GAP} header="OR">
             {renderWalletCondition && <WalletCondition />}
             {conditions.orRequired.map((condition) => (
               <ChatConditionItem
@@ -63,7 +52,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
       )}
       {!!conditions.notNeeded.length && (
         <Block margin="top" marginValue={24}>
-          <List separatorLeftGap={24} header="Not needed">
+          <List separatorLeftGap={SEPARATOR_LEFT_GAP} header="Not needed">
             {renderWalletCondition && <WalletCondition />}
             {conditions.notNeeded.map((condition) => (
               <ChatConditionItem
@@ -77,7 +66,7 @@ export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
       )}
       {!!conditions.available.length && (
         <Block margin="top" marginValue={24}>
-          <List separatorLeftGap={24}>
+          <List separatorLeftGap={SEPARATOR_LEFT_GAP}>
             {renderWalletCondition && <WalletCondition />}
             {conditions.available.map((condition) => (
               <ChatConditionItem
