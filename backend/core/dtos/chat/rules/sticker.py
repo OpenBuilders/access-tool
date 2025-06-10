@@ -78,7 +78,7 @@ class StickerChatEligibilitySummaryDTO(StickerChatEligibilityRuleDTO):
             category=internal_dto.category,
             title=internal_dto.title,
             expected=internal_dto.expected,
-            photo_url=internal_dto.collection.logo_url,
+            photo_url=internal_dto.character.logo_url,
             blockchain_address=internal_dto.address,
             is_enabled=internal_dto.is_enabled,
             actual=internal_dto.actual,
