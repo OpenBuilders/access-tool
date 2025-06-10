@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 from core.dtos.chat.rules import EligibilityCheckType, ChatEligibilityRuleDTO
-from core.dtos.chat.rules.internal import EligibilitySummaryInternalDTO
+from core.dtos.chat.rules.internal import EligibilitySummaryNftCollectionInternalDTO
 from core.models.rule import TelegramChatNFTCollection
 from core.enums.nft import NftCollectionAsset, NftCollectionCategoryType
 
@@ -58,7 +58,9 @@ class NftRuleEligibilitySummaryDTO(NftEligibilityRuleDTO):
     is_eligible: bool = False
 
     @classmethod
-    def from_internal_dto(cls, internal_dto: EligibilitySummaryInternalDTO):
+    def from_internal_dto(
+        cls, internal_dto: EligibilitySummaryNftCollectionInternalDTO
+    ):
         return cls(
             id=internal_dto.id,
             type=internal_dto.type,
@@ -66,7 +68,7 @@ class NftRuleEligibilitySummaryDTO(NftEligibilityRuleDTO):
             category=internal_dto.category,
             title=internal_dto.title,
             expected=internal_dto.expected,
-            photo_url=None,
+            photo_url=internal_dto.collection.logo_path,
             blockchain_address=internal_dto.address,
             is_enabled=internal_dto.is_enabled,
             actual=internal_dto.actual,

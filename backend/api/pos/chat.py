@@ -34,6 +34,10 @@ from core.dtos.chat.rules.gift import (
     GiftChatEligibilityRuleDTO,
     GiftChatEligibilitySummaryDTO,
 )
+from core.dtos.chat.rules.jetton import (
+    JettonEligibilityRuleDTO,
+    JettonEligibilitySummaryDTO,
+)
 from core.dtos.chat.rules.sticker import (
     StickerChatEligibilityRuleDTO,
     StickerChatEligibilitySummaryDTO,
@@ -267,21 +271,52 @@ class TelegramChatEmojiRuleCPO(BaseFDO):
 class ChatEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
     @field_serializer("expected", return_type=float | int)
     def preprocess_expected(self, v: int) -> float | int:
-        if not v or self.type not in (
-            EligibilityCheckType.JETTON,
-            EligibilityCheckType.TONCOIN,
-        ):
+        if not v or self.type not in (EligibilityCheckType.TONCOIN,):
+            return v
+
+        return to_amount(v)
+
+
+class JettonEligibilityRuleFDO(BaseFDO, JettonEligibilityRuleDTO):
+    @model_validator(mode="after")
+    def format_photo_url(self) -> Self:
+        self.photo_url = get_cdn_absolute_url(self.photo_url)
+        return self
+
+    @field_serializer("expected", return_type=float | int)
+    def preprocess_expected(self, v: int) -> float | int:
+        if not v:
+            return v
+
+        return to_amount(v)
+
+
+class JettonEligibilitySummaryFDO(BaseFDO, JettonEligibilitySummaryDTO):
+    @model_validator(mode="after")
+    def format_photo_url(self) -> Self:
+        self.photo_url = get_cdn_absolute_url(self.photo_url)
+        return self
+
+    @field_serializer("expected", return_type=float | int)
+    def preprocess_expected(self, v: int) -> float | int:
+        if not v:
             return v
 
         return to_amount(v)
 
 
 class NftEligibilityRuleFDO(BaseFDO, NftEligibilityRuleDTO):
-    ...
+    @model_validator(mode="after")
+    def format_photo_url(self) -> Self:
+        self.photo_url = get_cdn_absolute_url(self.photo_url)
+        return self
 
 
 class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):
-    ...
+    @model_validator(mode="after")
+    def format_photo_url(self) -> Self:
+        self.photo_url = get_cdn_absolute_url(self.photo_url)
+        return self
 
 
 class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO):
@@ -294,11 +329,19 @@ class StickerChatEligibilitySummaryFDO(BaseFDO, StickerChatEligibilitySummaryDTO
 
 
 class GiftChatEligibilityRuleFDO(BaseFDO, GiftChatEligibilityRuleDTO):
-    ...
+    @model_validator(mode="after")
+    def format_photo_url(self) -> Self:
+        self.photo_url = get_cdn_absolute_url(self.photo_url)
+        return self
 
 
 class GiftChatEligibilitySummaryFDO(BaseFDO, GiftChatEligibilitySummaryDTO):
     collection: GiftCollectionFDO | None
+
+    @model_validator(mode="after")
+    def format_photo_url(self) -> Self:
+        self.photo_url = get_cdn_absolute_url(self.photo_url)
+        return self
 
 
 class EmojiChatEligibilityRuleFDO(BaseFDO, EmojiChatEligibilityRuleDTO):
@@ -313,6 +356,7 @@ class TelegramChatWithRulesFDO(BaseFDO):
     chat: TelegramChatFDO
     rules: list[
         ChatEligibilityRuleFDO
+        | JettonEligibilityRuleFDO
         | NftEligibilityRuleFDO
         | EmojiChatEligibilityRuleFDO
         | StickerChatEligibilityRuleFDO
@@ -322,9 +366,11 @@ class TelegramChatWithRulesFDO(BaseFDO):
     @classmethod
     def from_dto(cls, dto: TelegramChatWithRulesDTO) -> Self:
         mapping = {
+            EligibilityCheckType.JETTON: JettonEligibilityRuleFDO,
             EligibilityCheckType.NFT_COLLECTION: NftEligibilityRuleFDO,
             EligibilityCheckType.EMOJI: EmojiChatEligibilityRuleFDO,
             EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilityRuleFDO,
+            EligibilityCheckType.GIFT_COLLECTION: GiftChatEligibilityRuleFDO,
         }
         return cls(
             chat=TelegramChatFDO.model_validate(dto.chat.model_dump()),
@@ -359,6 +405,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
     chat: TelegramChatPovFDO
     rules: list[
         RuleEligibilitySummaryFDO
+        | JettonEligibilitySummaryFDO
         | NftRuleEligibilitySummaryFDO
         | EmojiChatEligibilitySummaryFDO
         | StickerChatEligibilitySummaryFDO
@@ -369,6 +416,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
     @classmethod
     def from_dto(cls, dto: TelegramChatWithEligibilitySummaryDTO) -> Self:
         mapping = {
+            EligibilityCheckType.JETTON: JettonEligibilitySummaryFDO,
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryFDO,
             EligibilityCheckType.EMOJI: EmojiChatEligibilitySummaryFDO,
             EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilitySummaryFDO,

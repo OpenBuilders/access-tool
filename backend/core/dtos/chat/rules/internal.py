@@ -2,6 +2,7 @@ from pydantic import BaseModel, computed_field
 
 from core.dtos.chat.rules import EligibilityCheckType
 from core.dtos.gift.collection import GiftCollectionDTO
+from core.dtos.resource import NftCollectionDTO, JettonDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 from core.enums.nft import NftCollectionAsset
 
@@ -18,7 +19,6 @@ class EligibilitySummaryInternalDTO(BaseModel):
     actual: float | int = 0.0
     expected: float | int
     is_enabled: bool
-    asset: NftCollectionAsset | None = None
     category: str | None = None
 
     @property
@@ -41,6 +41,15 @@ class EligibilitySummaryInternalDTO(BaseModel):
             f"{self.actual=} "
             f"{self.expected=}>"
         )
+
+
+class EligibilitySummaryJettonInternalDTO(EligibilitySummaryInternalDTO):
+    jetton: JettonDTO
+
+
+class EligibilitySummaryNftCollectionInternalDTO(EligibilitySummaryInternalDTO):
+    asset: NftCollectionAsset | None = None
+    collection: NftCollectionDTO
 
 
 class EligibilitySummaryGiftCollectionInternalDTO(EligibilitySummaryInternalDTO):

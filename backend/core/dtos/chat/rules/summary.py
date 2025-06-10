@@ -7,6 +7,7 @@ from core.dtos.chat.rules import ChatEligibilityRuleDTO
 from core.dtos.chat.rules.emoji import EmojiChatEligibilitySummaryDTO
 from core.dtos.chat.rules.gift import GiftChatEligibilitySummaryDTO
 from core.dtos.chat.rules.internal import EligibilitySummaryInternalDTO
+from core.dtos.chat.rules.jetton import JettonEligibilitySummaryDTO
 from core.dtos.chat.rules.nft import NftRuleEligibilitySummaryDTO
 from core.dtos.chat.rules.sticker import StickerChatEligibilitySummaryDTO
 
@@ -35,6 +36,7 @@ class TelegramChatWithEligibilitySummaryDTO(BaseModel):
     chat: TelegramChatPovDTO
     rules: list[
         RuleEligibilitySummaryDTO
+        | JettonEligibilitySummaryDTO
         | NftRuleEligibilitySummaryDTO
         | EmojiChatEligibilitySummaryDTO
         | StickerChatEligibilitySummaryDTO

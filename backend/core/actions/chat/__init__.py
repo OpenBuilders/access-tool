@@ -27,6 +27,10 @@ from core.dtos.chat.rules.gift import (
     GiftChatEligibilityRuleDTO,
     GiftChatEligibilitySummaryDTO,
 )
+from core.dtos.chat.rules.jetton import (
+    JettonEligibilityRuleDTO,
+    JettonEligibilitySummaryDTO,
+)
 from core.dtos.chat.rules.nft import NftEligibilityRuleDTO, NftRuleEligibilitySummaryDTO
 from core.dtos.chat.rules.sticker import (
     StickerChatEligibilityRuleDTO,
@@ -137,6 +141,7 @@ class TelegramChatAction(BaseAction):
         is_eligible = bool(eligibility_summary)
 
         mapping = {
+            EligibilityCheckType.JETTON: JettonEligibilitySummaryDTO,
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryDTO,
             EligibilityCheckType.EMOJI: EmojiChatEligibilitySummaryDTO,
             EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilitySummaryDTO,
@@ -218,7 +223,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                         for rule in eligibility_rules.toncoin
                     ),
                     *(
-                        ChatEligibilityRuleDTO.from_jetton_rule(rule)
+                        JettonEligibilityRuleDTO.from_jetton_rule(rule)
                         for rule in eligibility_rules.jettons
                     ),
                     *(
