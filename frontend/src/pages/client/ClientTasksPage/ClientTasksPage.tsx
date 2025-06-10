@@ -32,6 +32,8 @@ export const ClientTasksPage = () => {
   const location = useLocation()
   const fromChat = location.state?.fromChat
 
+  console.log('fromChat', fromChat)
+
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
 
@@ -82,7 +84,10 @@ export const ClientTasksPage = () => {
   const handleBackNavigation = () => {
     if (fromChat) {
       appNavigate({ path: ROUTES_NAME.CHAT, params: { chatSlug: fromChat } })
+      return
     }
+
+    webApp.close()
   }
 
   const handleToAccessApp = () => {
@@ -92,7 +97,6 @@ export const ClientTasksPage = () => {
   if (isLoading || !chat || !rules || !sortedConditions) {
     return (
       <PageLayout>
-        <TelegramBackButton />
         <Skeleton />
       </PageLayout>
     )
@@ -153,9 +157,11 @@ export const ClientTasksPage = () => {
     chat,
   })
 
+  console.log('fromChat', fromChat)
+
   return (
     <PageLayout>
-      <TelegramBackButton hidden={!fromChat} onClick={handleBackNavigation} />
+      <TelegramBackButton onClick={handleBackNavigation} />
       <TelegramMainButton
         text={buttonText}
         isVisible={!!buttonText}
