@@ -1,6 +1,14 @@
-import { AppSelect, Block, Image, List, ListInput, ListItem } from '@components'
-import debounce from 'debounce'
-import { useCallback, useEffect, useState } from 'react'
+import {
+  AppSelect,
+  Block,
+  Image,
+  List,
+  ListInput,
+  ListItem,
+  Spinner,
+  useToast,
+} from '@components'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   useCondition,
@@ -9,6 +17,7 @@ import {
   Condition,
 } from '@store'
 
+import { createDebouncedPrefetch } from '../../helpers'
 import { ConditionComponentProps } from '../types'
 import { Skeleton } from './Skeleton'
 
@@ -25,29 +34,85 @@ export const NFT = ({
     resetPrefetchedConditionDataAction,
   } = useConditionActions()
   const { prefetchedConditionData } = useCondition()
+  const [isPrefetching, setIsPrefetching] = useState(false)
+  const { showToast } = useToast()
 
   const [categories, setCategories] = useState<ConditionCategory[]>([])
 
-  const prefetchNFTCollection = async (address: string) => {
-    if (!conditionState?.type) return
-    try {
-      await prefetchConditionDataAction('nft_collection', address)
-    } catch (error) {
-      console.error(error)
-      resetPrefetchedConditionDataAction()
-    }
-  }
+  const debouncedPrefetchRef = useRef(createDebouncedPrefetch(1000))
 
-  const debouncedPrefetchNFTCollection = useCallback(
-    debounce(async (address?: string) => {
-      if (!address) {
+  const prefetchNFTCollection = useCallback(
+    async (address: string) => {
+      if (!conditionState?.type) return
+      setIsPrefetching(true)
+      try {
+        await prefetchConditionDataAction('nft_collection', address)
+      } catch (error) {
+        console.error(error)
+        resetPrefetchedConditionDataAction()
+        showToast({
+          type: 'error',
+          message: 'Nothing found',
+          time: 1500,
+        })
+      } finally {
+        setIsPrefetching(false)
+      }
+    },
+    [
+      conditionState?.type,
+      prefetchConditionDataAction,
+      resetPrefetchedConditionDataAction,
+      showToast,
+    ]
+  )
+
+  const handleAddressChange = useCallback(
+    (value: string) => {
+      handleChangeCondition('address', value)
+
+      if (!value) {
         resetPrefetchedConditionDataAction()
         return
       }
 
-      prefetchNFTCollection(address)
-    }, 150),
-    []
+      debouncedPrefetchRef.current(value, prefetchNFTCollection)
+    },
+    [
+      handleChangeCondition,
+      prefetchNFTCollection,
+      resetPrefetchedConditionDataAction,
+    ]
+  )
+
+  const handleCollectionChange = useCallback(
+    (value: string) => {
+      if (value === 'Any') {
+        handleChangeCondition('category', null)
+        handleChangeCondition('asset', null)
+        handleChangeCondition('address', '')
+        handleChangeCondition('blockchainAddress', '')
+        resetPrefetchedConditionDataAction()
+      } else {
+        handleChangeCondition('asset', value)
+        const category = categories.find((asset) => asset.asset === value)
+        handleChangeCondition('category', category?.categories[0])
+        handleChangeCondition('address', null)
+        handleChangeCondition('blockchainAddress', undefined)
+      }
+    },
+    [categories, handleChangeCondition, resetPrefetchedConditionDataAction]
+  )
+
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      if (value === 'any') {
+        handleChangeCondition('category', null)
+      } else {
+        handleChangeCondition('category', value)
+      }
+    },
+    [handleChangeCondition]
   )
 
   const fetchConditionCategories = async () => {
@@ -76,7 +141,12 @@ export const NFT = ({
         conditionState?.blockchainAddress || conditionState?.address || ''
       )
     }
-  }, [conditionState])
+  }, [
+    conditionState,
+    isNewCondition,
+    prefetchedConditionData,
+    prefetchNFTCollection,
+  ])
 
   useEffect(() => {
     fetchConditionCategories()
@@ -125,23 +195,7 @@ export const NFT = ({
             text="Collection"
             after={
               <AppSelect
-                onChange={(value) => {
-                  if (value === 'Any') {
-                    handleChangeCondition('category', null)
-                    handleChangeCondition('asset', null)
-                    handleChangeCondition('address', '')
-                    handleChangeCondition('blockchainAddress', '')
-                    resetPrefetchedConditionDataAction()
-                  } else {
-                    handleChangeCondition('asset', value)
-                    const category = categories.find(
-                      (asset) => asset.asset === value
-                    )
-                    handleChangeCondition('category', category?.categories[0])
-                    handleChangeCondition('address', null)
-                    handleChangeCondition('blockchainAddress', undefined)
-                  }
-                }}
+                onChange={handleCollectionChange}
                 value={conditionState?.asset}
                 options={[
                   {
@@ -161,13 +215,7 @@ export const NFT = ({
               text="Category"
               after={
                 <AppSelect
-                  onChange={(value) => {
-                    if (value === 'any') {
-                      handleChangeCondition('category', null)
-                    } else {
-                      handleChangeCondition('category', value)
-                    }
-                  }}
+                  onChange={handleCategoryChange}
                   value={conditionState?.category || 'any'}
                   options={categories
                     .find((asset) => asset.asset === conditionState?.asset)
@@ -183,18 +231,19 @@ export const NFT = ({
         {renderAddressField && (
           <Block margin="top" marginValue={24}>
             <List footer="TON (The Open Network)">
-              <ListItem>
+              <ListItem
+                after={isPrefetching ? <Spinner size={16} /> : null}
+                disabled={isPrefetching}
+              >
                 <ListInput
                   placeholder="NFT Collection Address"
                   value={conditionState?.address || ''}
-                  onChange={(value) => {
-                    handleChangeCondition('address', value)
-                    debouncedPrefetchNFTCollection(value)
-                  }}
+                  onChange={handleAddressChange}
                 />
               </ListItem>
               {prefetchedConditionData && (
                 <ListItem
+                  disabled={isPrefetching}
                   before={
                     <Image
                       src={prefetchedConditionData?.logoPath}

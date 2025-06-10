@@ -1,5 +1,5 @@
-import { Icon, ListItem, Text } from '@components'
-import { createConditionName } from '@utils'
+import { ConditionIcon, ListItem, Text } from '@components'
+import { createConditionName, goTo } from '@utils'
 import { createConditionDescription } from '@utils'
 
 import { ChatInstance, Condition } from '@store'
@@ -12,8 +12,6 @@ interface ChatConditionItemProps {
   disabled?: boolean
 }
 
-const webApp = window.Telegram.WebApp
-
 export const ChatConditionItem = ({
   condition,
   chat,
@@ -24,14 +22,15 @@ export const ChatConditionItem = ({
   const handleOpenLink = () => {
     if (!promoteUrl || disabled) return
 
-    webApp.openLink(condition.promoteUrl)
+    goTo(condition.promoteUrl)
   }
 
   if (type === 'whitelist' || type === 'external_source') {
     if (isEligible) {
       return (
         <ListItem
-          before={<Icon name="check" size={24} />}
+          showCheck
+          isCompleted
           text={<Text type="text">{createConditionName(condition)}</Text>}
           description={
             <Text type="caption2" color="tertiary">
@@ -47,7 +46,8 @@ export const ChatConditionItem = ({
         : "Sorry, you're not on the list. But you can complete the other requirements to access the chat if they are available."
       return (
         <ListItem
-          before={<Icon name="cross" size={24} color="danger" />}
+          showCheck
+          isCompleted={false}
           text={<Text type="text">{createConditionName(condition)}</Text>}
           description={
             <Text type="caption2" color="tertiary">
@@ -68,7 +68,11 @@ export const ChatConditionItem = ({
   if (isEligible) {
     return (
       <ListItem
-        before={<Icon name="check" size={24} />}
+        padding="4px 16px"
+        height="48px"
+        showCheck
+        isCompleted
+        before={<ConditionIcon condition={condition} />}
         text={<Text type="text">{createConditionName(condition)}</Text>}
         disabled={disabled}
         description={
@@ -82,9 +86,13 @@ export const ChatConditionItem = ({
 
   return (
     <ListItem
+      padding="4px 16px"
+      height="48px"
       chevron={!!promoteUrl && !disabled}
       onClick={handleOpenLink}
-      before={<Icon name="cross" size={24} />}
+      showCheck
+      isCompleted={false}
+      before={<ConditionIcon condition={condition} />}
       disabled={disabled}
       text={<Text type="text">{createConditionName(condition)}</Text>}
       description={

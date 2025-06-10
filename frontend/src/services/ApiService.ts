@@ -1,5 +1,5 @@
 // src/services/ApiService.ts
-import { API_VALIDATION_ERROR, getValidationError } from '@utils'
+import { getValidationError } from '@utils'
 import ky, { HTTPError, Options } from 'ky'
 
 import config from '@config'

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette.requests import Request
 
 from api.deps import get_db_session
-from api.pos.chat import ChatEligibilityRuleFDO, TelegramChatJettonRuleCPO
+from api.pos.chat import TelegramChatJettonRuleCPO, JettonEligibilityRuleFDO
 from core.actions.chat.rule.blockchain import TelegramChatJettonAction
 
 
@@ -16,13 +16,13 @@ async def get_chat_jetton_rule(
     slug: str,
     rule_id: int,
     db_session: Session = Depends(get_db_session),
-) -> ChatEligibilityRuleFDO:
+) -> JettonEligibilityRuleFDO:
     telegram_chat_jetton_action = TelegramChatJettonAction(
         db_session=db_session,
         requestor=request.state.user,
         chat_slug=slug,
     )
-    return ChatEligibilityRuleFDO.model_validate(
+    return JettonEligibilityRuleFDO.model_validate(
         telegram_chat_jetton_action.read(rule_id=rule_id).model_dump()
     )
 
@@ -33,7 +33,7 @@ async def add_chat_jetton_rule(
     slug: str,
     rule: TelegramChatJettonRuleCPO,
     db_session: Session = Depends(get_db_session),
-) -> ChatEligibilityRuleFDO:
+) -> JettonEligibilityRuleFDO:
     telegram_chat_jetton_action = TelegramChatJettonAction(
         db_session=db_session,
         requestor=request.state.user,
@@ -44,7 +44,7 @@ async def add_chat_jetton_rule(
         address_raw=rule.address,
         threshold=rule.expected,
     )
-    return ChatEligibilityRuleFDO.model_validate(chat_jetton_rule.model_dump())
+    return JettonEligibilityRuleFDO.model_validate(chat_jetton_rule.model_dump())
 
 
 @manage_jetton_rules_router.put("/{rule_id}")
@@ -54,7 +54,7 @@ async def update_chat_jetton_rule(
     rule_id: int,
     rule: TelegramChatJettonRuleCPO,
     db_session: Session = Depends(get_db_session),
-) -> ChatEligibilityRuleFDO:
+) -> JettonEligibilityRuleFDO:
     action = TelegramChatJettonAction(
         db_session=db_session,
         requestor=request.state.user,
@@ -67,7 +67,7 @@ async def update_chat_jetton_rule(
         threshold=rule.expected,
         is_enabled=rule.is_enabled,
     )
-    return ChatEligibilityRuleFDO.model_validate(chat_jetton_rule.model_dump())
+    return JettonEligibilityRuleFDO.model_validate(chat_jetton_rule.model_dump())
 
 
 @manage_jetton_rules_router.delete("/{rule_id}")

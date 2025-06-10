@@ -1,9 +1,14 @@
 import asyncio
-import logging
 
-from sqlalchemy.orm import Session
+from celery.utils.log import get_task_logger
+from telethon.errors import PhoneNumberBannedError
 
-from core.constants import UPDATED_GIFT_USER_IDS, CELERY_GIFT_FETCH_QUEUE_NAME
+from core.constants import (
+    UPDATED_GIFT_USER_IDS,
+    CELERY_GIFT_FETCH_QUEUE_NAME,
+    DEFAULT_CELERY_TASK_RETRY_DELAY,
+    DEFAULT_CELERY_TASK_MAX_RETRIES,
+)
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.exceptions.gift import GiftCollectionNotExistsError
 from core.services.db import DBService
@@ -12,14 +17,12 @@ from indexer.actions.gift.collection import IndexerGiftCollectionAction
 from indexer.actions.gift.item import IndexerGiftUniqueAction
 from indexer.celery_app import app
 from indexer.settings import indexer_settings
-from indexer.utils.session import SessionLockManager
+from indexer.utils.session import SessionLockManager, SessionUnavailableError
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 
-async def index_whitelisted_gift_collections(
-    db_session: Session,
-) -> list[GiftCollectionDTO]:
+async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
     """
     Asynchronously indexes whitelisted gift collections in the database. This function checks for any
     gift collections that are whitelisted but missing from the database and attempts to index them.
@@ -29,47 +32,30 @@ async def index_whitelisted_gift_collections(
     :return: A list of `GiftCollectionDTO` objects representing the gift collections retrieved
         and indexed from the database.
     """
-    gift_collection_service = GiftCollectionService(db_session)
-    collections = gift_collection_service.get_all()
-
-    missing_collections = set(indexer_settings.whitelisted_gift_collections) - set(
-        c.slug for c in collections
-    )
-    if missing_collections:
-        with SessionLockManager(
-            indexer_settings.telegram_indexer_session_path
-        ) as session_path:
-            collection_action = IndexerGiftCollectionAction(
-                db_session, session_path=session_path
-            )
-            logger.warning(
-                f"Missing whitelisted gift collections: {missing_collections}. Indexing them now."
-            )
-            for slug in missing_collections:
-                try:
-                    await collection_action.index(slug)
-                except GiftCollectionNotExistsError as e:
-                    logger.error(f"Failed to index gift collection {slug}: {e}")
-
-    return [GiftCollectionDTO.from_orm(c) for c in collections]
-
-
-async def index_gift_collections() -> list[GiftCollectionDTO]:
-    """
-    Indexes and retrieves a list of gift collections that have been whitelisted
-    from the database.
-
-    This function establishes a database session using the DBService, interacts
-    with the database to fetch whitelisted gift collections, and returns the
-    retrieved list.
-    It operates asynchronously to support non-blocking functionality.
-
-    :return: A list of whitelisted gift collections, represented as
-             instances of `GiftCollectionDTO`.
-    """
     with DBService().db_session() as db_session:
-        result = await index_whitelisted_gift_collections(db_session)
-        return result
+        gift_collection_service = GiftCollectionService(db_session)
+        collections = gift_collection_service.get_all()
+
+        missing_collections = set(indexer_settings.whitelisted_gift_collections) - set(
+            c.slug for c in collections
+        )
+        if missing_collections:
+            with SessionLockManager(
+                indexer_settings.telegram_indexer_session_path
+            ) as session_path:
+                collection_action = IndexerGiftCollectionAction(
+                    db_session, session_path=session_path
+                )
+                logger.warning(
+                    f"Missing whitelisted gift collections: {missing_collections}. Indexing them now."
+                )
+                for slug in missing_collections:
+                    try:
+                        await collection_action.index(slug)
+                    except GiftCollectionNotExistsError as e:
+                        logger.error(f"Failed to index gift collection {slug}: {e}")
+
+        return [GiftCollectionDTO.from_orm(c) for c in collections]
 
 
 async def index_gift_collection_ownerships(slug: str) -> None:
@@ -100,6 +86,10 @@ async def index_gift_collection_ownerships(slug: str) -> None:
 @app.task(
     name="fetch-gift-collection-ownership-details",
     queue=CELERY_GIFT_FETCH_QUEUE_NAME,
+    default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
+    autoretry_for=(SessionUnavailableError, PhoneNumberBannedError),
+    retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
+    ignore_result=True,
 )
 def fetch_gift_collection_ownership_details(slug: str):
     asyncio.run(index_gift_collection_ownerships(slug))
@@ -108,9 +98,13 @@ def fetch_gift_collection_ownership_details(slug: str):
 @app.task(
     name="fetch-gift-ownership-details",
     queue=CELERY_GIFT_FETCH_QUEUE_NAME,
+    default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
+    autoretry_for=(SessionUnavailableError, PhoneNumberBannedError),
+    retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
+    ignore_result=True,
 )
 def fetch_gift_ownership_details():
-    collections = asyncio.run(index_gift_collections())
+    collections = asyncio.run(index_whitelisted_gift_collections())
     for collection in collections:
         app.send_task(
             "fetch-gift-collection-ownership-details",

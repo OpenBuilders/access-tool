@@ -1,7 +1,7 @@
 import logging
 
 from celery.result import AsyncResult
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.orm import Session
 
 from core.actions.authorization import AuthorizationAction
@@ -234,12 +234,22 @@ class WalletAction(BaseAction):
                 chat_id=chat_id,
             )
 
-        # Connect new wallet only if it was not connected before
-        self.telegram_chat_user_wallet_service.connect(
-            user_id=user_id,
-            chat_id=chat_id,
-            wallet_address=wallet_address,
-        )
+        try:
+            # Connect new wallet only if it was not connected before
+            self.telegram_chat_user_wallet_service.connect(
+                user_id=user_id,
+                chat_id=chat_id,
+                wallet_address=wallet_address,
+            )
+        except IntegrityError:
+            logger.warning(
+                f"User {user_id!r} tried to connect wallet {wallet_address!r} to the chat {chat_id!r} "
+                f"that was already connected by user (was not detected on the first check). Ignoring."
+            )
+            raise UserWalletConnectedError(
+                f"Wallet {wallet_address!r} was already connected by user"
+            )
+
         logger.info(
             f"User {user_id!r} set wallet {wallet_address!r} for chat {chat_id!r}"
         )

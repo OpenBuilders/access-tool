@@ -68,11 +68,13 @@ export const Toncoin = ({
           after={
             <AppSelect
               onChange={(value) => handleChangeCondition('category', value)}
-              options={categories.map((category) => ({
-                value: category.asset,
-                name: category.asset,
-              }))}
-              value={conditionState?.asset}
+              options={categories
+                ?.find((asset) => asset.asset === conditionState?.asset)
+                ?.categories.map((category) => ({
+                  value: category,
+                  name: category,
+                }))}
+              value={conditionState?.category}
             />
           }
         />

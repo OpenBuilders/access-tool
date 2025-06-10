@@ -6,16 +6,20 @@ export const createConditionName = (condition: Condition) => {
   if (!condition) return ''
   const { type, expected, title } = condition
 
-  if (type === 'jetton') {
+  if (type === 'jetton' || type === 'toncoin') {
     return `Hold ${separateNumber(expected)} ${title}`
   }
 
   if (type === 'emoji') {
-    return 'Emoji Status'
+    return 'Set Emoji Status'
   }
 
-  if (type === 'nft_collection') {
+  if (type === 'nft_collection' || type === 'gift_collection') {
     return `Hold ${title}`
+  }
+
+  if (type === 'sticker_collection') {
+    return `Hold ${condition.collection?.title} ${condition.character?.name} Stickers`
   }
 
   if (type === 'premium') {
@@ -24,18 +28,6 @@ export const createConditionName = (condition: Condition) => {
 
   if (type === 'whitelist') {
     return 'Be in the User List'
-  }
-
-  if (type === 'toncoin') {
-    return `Hold ${separateNumber(expected)} ${title}`
-  }
-
-  if (type === 'sticker_collection') {
-    return `Stickers ${title}`
-  }
-
-  if (type === 'gift_collection') {
-    return `Gift ${title}`
   }
 
   return title

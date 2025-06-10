@@ -49,7 +49,7 @@ class GiftChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
             type=EligibilityCheckType.GIFT_COLLECTION,
             title=obj.collection.title if obj.collection else obj.category,
             expected=obj.threshold,
-            photo_url=obj.backdrop,
+            photo_url=obj.collection.preview_url,
             blockchain_address=None,
             is_enabled=obj.is_enabled,
             collection=GiftCollectionDTO.from_orm(obj.collection)
@@ -85,7 +85,7 @@ class GiftChatEligibilitySummaryDTO(GiftChatEligibilityRuleDTO):
             category=internal_dto.category,
             title=internal_dto.title,
             expected=internal_dto.expected,
-            photo_url=internal_dto.backdrop,
+            photo_url=internal_dto.collection.preview_url,
             blockchain_address=internal_dto.address,
             is_enabled=internal_dto.is_enabled,
             actual=internal_dto.actual,

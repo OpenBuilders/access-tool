@@ -5,18 +5,18 @@ from typing import Annotated, Self
 
 from pydantic import (
     AfterValidator,
-    field_validator,
-    field_serializer,
     Field,
     AnyHttpUrl,
     model_validator,
+    PlainSerializer,
 )
-from pytonapi.utils import to_nano, to_amount, raw_to_userfriendly
+from pytonapi.utils import raw_to_userfriendly, userfriendly_to_raw
 
 from api.pos.base import BaseFDO
+from api.pos.fields import AmountFacadeField, CDNImageField, AmountInputField
 from api.pos.gift import GiftCollectionFDO
 from api.pos.sticker import MinimalStickerCharacterFDO, MinimalStickerCollectionFDO
-from api.utils import get_cdn_absolute_url
+from core.constants import USER_FRIENDLY_ADDRESS_REGEX, RAW_ADDRESS_REGEX
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
@@ -33,6 +33,10 @@ from core.dtos.chat.rules.emoji import (
 from core.dtos.chat.rules.gift import (
     GiftChatEligibilityRuleDTO,
     GiftChatEligibilitySummaryDTO,
+)
+from core.dtos.chat.rules.jetton import (
+    JettonEligibilityRuleDTO,
+    JettonEligibilitySummaryDTO,
 )
 from core.dtos.chat.rules.sticker import (
     StickerChatEligibilityRuleDTO,
@@ -64,17 +68,11 @@ CHAT_INPUT_REGEX = re.compile(
 
 
 class TelegramChatFDO(BaseFDO, TelegramChatDTO):
-    @model_validator(mode="after")
-    def format_logo_url(self) -> Self:
-        self.logo_path = get_cdn_absolute_url(self.logo_path)
-        return self
+    logo_path: CDNImageField
 
 
 class TelegramChatPovFDO(BaseFDO, TelegramChatPovDTO):
-    @model_validator(mode="after")
-    def format_logo_url(self) -> Self:
-        self.logo_path = get_cdn_absolute_url(self.logo_path)
-        return self
+    logo_path: CDNImageField
 
 
 def validate_chat_identifier(v: str) -> str | int:
@@ -95,15 +93,19 @@ def validate_address(is_required: bool) -> Callable[[str | None], str | None]:
                 raise ValueError("Missing blockchain address")
             return v
 
-        try:
-            # Only to test if the format is valid
-            raw_to_userfriendly(v)
-        except ValueError:
-            logger.warning(f"Invalid blockchain address: {v!r}")
-            raise ValueError("Invalid blockchain address")
-        except Exception as e:
-            logger.warning(f"Invalid blockchain address: {e}", exc_info=True)
-            raise ValueError("Invalid blockchain address")
+        if USER_FRIENDLY_ADDRESS_REGEX.match(v):
+            v = userfriendly_to_raw(v)
+
+        elif RAW_ADDRESS_REGEX.match(v):
+            try:
+                # To validate the blockchain address
+                raw_to_userfriendly(v)
+            except ValueError:
+                logger.warning(f"Invalid blockchain address: {v!r}")
+                raise ValueError("Invalid blockchain address")
+            except Exception as e:
+                logger.warning(f"Invalid blockchain address: {e}", exc_info=True)
+                raise ValueError("Invalid blockchain address")
 
         return v
 
@@ -144,26 +146,12 @@ class BaseTelegramChatBlockchainResourceRuleCPO(BaseTelegramChatQuantityRuleCPO)
 
 class TelegramChatToncoinRuleCPO(BaseTelegramChatQuantityRuleCPO):
     category: CurrencyCategory = CurrencyCategory.BALANCE
-
-    @field_validator("expected")
-    @classmethod
-    def preprocess_expected(cls, v: float | int) -> float | int:
-        if not v:
-            return v
-
-        return to_nano(v)
+    expected: AmountInputField
 
 
 class TelegramChatJettonRuleCPO(BaseTelegramChatBlockchainResourceRuleCPO):
     category: CurrencyCategory = CurrencyCategory.BALANCE
-
-    @field_validator("expected")
-    @classmethod
-    def preprocess_expected(cls, v: float | int) -> float | int:
-        if not v:
-            return v
-
-        return to_nano(v)
+    expected: AmountInputField
 
 
 class NftItemAttributeFDO(BaseFDO, NftItemAttributeDTO):
@@ -265,23 +253,32 @@ class TelegramChatEmojiRuleCPO(BaseFDO):
 
 
 class ChatEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
-    @field_serializer("expected", return_type=float | int)
-    def preprocess_expected(self, v: int) -> float | int:
-        if not v or self.type not in (
-            EligibilityCheckType.JETTON,
-            EligibilityCheckType.TONCOIN,
-        ):
-            return v
+    ...
 
-        return to_amount(v)
+
+class ToncoinEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
+    expected: AmountFacadeField
+
+
+class JettonEligibilityRuleFDO(BaseFDO, JettonEligibilityRuleDTO):
+    photo_url: CDNImageField
+    expected: AmountFacadeField
+    blockchain_address: Annotated[str, PlainSerializer(raw_to_userfriendly)]
+
+
+class JettonEligibilitySummaryFDO(BaseFDO, JettonEligibilitySummaryDTO):
+    photo_url: CDNImageField
+    expected: AmountFacadeField
+    actual: AmountFacadeField
 
 
 class NftEligibilityRuleFDO(BaseFDO, NftEligibilityRuleDTO):
-    ...
+    photo_url: CDNImageField
+    blockchain_address: Annotated[str, PlainSerializer(raw_to_userfriendly)]
 
 
 class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):
-    ...
+    photo_url: CDNImageField
 
 
 class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO):
@@ -294,11 +291,12 @@ class StickerChatEligibilitySummaryFDO(BaseFDO, StickerChatEligibilitySummaryDTO
 
 
 class GiftChatEligibilityRuleFDO(BaseFDO, GiftChatEligibilityRuleDTO):
-    ...
+    photo_url: CDNImageField
 
 
 class GiftChatEligibilitySummaryFDO(BaseFDO, GiftChatEligibilitySummaryDTO):
     collection: GiftCollectionFDO | None
+    photo_url: CDNImageField
 
 
 class EmojiChatEligibilityRuleFDO(BaseFDO, EmojiChatEligibilityRuleDTO):
@@ -313,6 +311,8 @@ class TelegramChatWithRulesFDO(BaseFDO):
     chat: TelegramChatFDO
     rules: list[
         ChatEligibilityRuleFDO
+        | ToncoinEligibilityRuleFDO
+        | JettonEligibilityRuleFDO
         | NftEligibilityRuleFDO
         | EmojiChatEligibilityRuleFDO
         | StickerChatEligibilityRuleFDO
@@ -322,9 +322,12 @@ class TelegramChatWithRulesFDO(BaseFDO):
     @classmethod
     def from_dto(cls, dto: TelegramChatWithRulesDTO) -> Self:
         mapping = {
+            EligibilityCheckType.JETTON: JettonEligibilityRuleFDO,
+            EligibilityCheckType.TONCOIN: ToncoinEligibilityRuleFDO,
             EligibilityCheckType.NFT_COLLECTION: NftEligibilityRuleFDO,
             EligibilityCheckType.EMOJI: EmojiChatEligibilityRuleFDO,
             EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilityRuleFDO,
+            EligibilityCheckType.GIFT_COLLECTION: GiftChatEligibilityRuleFDO,
         }
         return cls(
             chat=TelegramChatFDO.model_validate(dto.chat.model_dump()),
@@ -338,16 +341,8 @@ class TelegramChatWithRulesFDO(BaseFDO):
 
 
 class RuleEligibilitySummaryFDO(BaseFDO, RuleEligibilitySummaryDTO):
-    # TODO it should parse actual the same way as it stores it in nano in the database
-    @field_serializer("expected", return_type=float | int)
-    def preprocess_expected(self, v: int) -> float | int:
-        if not v or self.type not in (
-            EligibilityCheckType.JETTON,
-            EligibilityCheckType.TONCOIN,
-        ):
-            return v
-
-        return to_amount(v)
+    expected: AmountFacadeField
+    actual: AmountFacadeField
 
 
 class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
@@ -359,6 +354,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
     chat: TelegramChatPovFDO
     rules: list[
         RuleEligibilitySummaryFDO
+        | JettonEligibilitySummaryFDO
         | NftRuleEligibilitySummaryFDO
         | EmojiChatEligibilitySummaryFDO
         | StickerChatEligibilitySummaryFDO
@@ -369,6 +365,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
     @classmethod
     def from_dto(cls, dto: TelegramChatWithEligibilitySummaryDTO) -> Self:
         mapping = {
+            EligibilityCheckType.JETTON: JettonEligibilitySummaryFDO,
             EligibilityCheckType.NFT_COLLECTION: NftRuleEligibilitySummaryFDO,
             EligibilityCheckType.EMOJI: EmojiChatEligibilitySummaryFDO,
             EligibilityCheckType.STICKER_COLLECTION: StickerChatEligibilitySummaryFDO,

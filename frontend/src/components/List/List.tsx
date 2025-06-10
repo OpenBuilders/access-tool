@@ -8,7 +8,7 @@ interface ListProps {
   children: React.ReactNode
   header?: string
   footer?: React.ReactNode | string
-  separatorLeftGap?: 40 | 24 | 16 // равен размеру картинки в before
+  separatorLeftGap?: 70 | 40 | 24 | 16 // равен размеру картинки в before
 }
 
 export const List = ({

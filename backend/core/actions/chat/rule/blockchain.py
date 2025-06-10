@@ -17,6 +17,7 @@ from core.dtos.chat.rules.nft import (
 from core.dtos.chat.rules.jetton import (
     CreateTelegramChatJettonRuleDTO,
     UpdateTelegramChatJettonRuleDTO,
+    JettonEligibilityRuleDTO,
 )
 from core.dtos.chat.rules.toncoin import (
     CreateTelegramChatToncoinRuleDTO,
@@ -290,7 +291,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         self.telegram_chat_jetton_service = TelegramChatJettonService(db_session)
         self.jetton_action = JettonAction(db_session)
 
-    def read(self, rule_id: int) -> ChatEligibilityRuleDTO:
+    def read(self, rule_id: int) -> JettonEligibilityRuleDTO:
         try:
             rule = self.telegram_chat_jetton_service.get(rule_id, chat_id=self.chat.id)
         except NoResultFound:
@@ -298,7 +299,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
                 detail="Rule not found",
                 status_code=HTTP_404_NOT_FOUND,
             )
-        return ChatEligibilityRuleDTO.from_jetton_rule(rule)
+        return JettonEligibilityRuleDTO.from_jetton_rule(rule)
 
     def check_duplicate(
         self,
@@ -340,7 +341,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         address_raw: str,
         category: CurrencyCategory | None,
         threshold: float | int,
-    ) -> ChatEligibilityRuleDTO:
+    ) -> JettonEligibilityRuleDTO:
         """
         Creates and associates a new chat-eligibility rule for a specific jetton, with
         options to set a category and a threshold. Ensures duplication prevention
@@ -374,7 +375,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
             )
         )
         logger.info(f"Chat {self.chat.id!r} linked to jetton {jetton_dto.address!r}")
-        return ChatEligibilityRuleDTO.from_jetton_rule(new_rule)
+        return JettonEligibilityRuleDTO.from_jetton_rule(new_rule)
 
     async def update(
         self,
@@ -383,7 +384,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         category: CurrencyCategory | None,
         threshold: int | float,
         is_enabled: bool,
-    ) -> ChatEligibilityRuleDTO:
+    ) -> JettonEligibilityRuleDTO:
         """
         Updates an existing chat jetton rule with specified parameters.
 
@@ -427,7 +428,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         logger.info(
             f"Updated chat jetton rule {rule_id!r} with address {jetton_dto.address!r}"
         )
-        return ChatEligibilityRuleDTO.from_jetton_rule(updated_rule)
+        return JettonEligibilityRuleDTO.from_jetton_rule(updated_rule)
 
     async def delete(self, rule_id: int) -> None:
         self.telegram_chat_jetton_service.delete(rule_id, chat_id=self.chat.id)

@@ -30,7 +30,7 @@ export const Premium = ({
       <Block margin="top" marginValue={24}>
         <List footer="We check for Telegram Premium only at the moment of joining the chat or channel">
           <ListItem
-            paddingY={6}
+            padding="6px 16px"
             text="Request Telegram Premium"
             after={
               <ListToggler

@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 POOL_TIMEOUT = 30
@@ -9,6 +10,9 @@ DEFAULT_WALLET_BALANCE = 0
 DEFAULT_WALLET_TRACK_EXPIRATION = 60 * 60 * 24 * 365 * 10  # 10 years
 
 ASYNC_TASK_REDIS_PREFIX = "atask"
+
+DEFAULT_CELERY_TASK_RETRY_DELAY = 60
+DEFAULT_CELERY_TASK_MAX_RETRIES = 5
 
 # Performance
 DEFAULT_BATCH_PROCESSING_SIZE = 5_000
@@ -57,3 +61,6 @@ PROMOTE_GIFT_COLLECTION_TEMPLATE = (
 )
 BUY_TONCOIN_URL = "https://t.me/wallet/start"
 BUY_PREMIUM_URL = "https://t.me/PremiumBot"
+
+RAW_ADDRESS_REGEX = re.compile(r"0:[0-9a-fA-F]{64}")
+USER_FRIENDLY_ADDRESS_REGEX = re.compile(r"(EQ|UQ)[a-zA-Z0-9\-\_]{46}")

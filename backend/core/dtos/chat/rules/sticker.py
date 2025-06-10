@@ -2,7 +2,6 @@ from typing import Any, Self
 
 from pydantic import BaseModel, computed_field
 
-from core.constants import PROMOTE_STICKER_COLLECTION_TEMPLATE
 from core.dtos.chat.rules import ChatEligibilityRuleDTO, EligibilityCheckType
 from core.dtos.chat.rules.internal import EligibilitySummaryStickerCollectionInternalDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
@@ -34,10 +33,11 @@ class StickerChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
 
     @computed_field
     def promote_url(self) -> str | None:
-        if self.collection:
-            return PROMOTE_STICKER_COLLECTION_TEMPLATE.format(
-                collection_id=self.collection.id
-            )
+        # FIXME: Turn it on when market is released
+        # if self.collection:
+        #     return PROMOTE_STICKER_COLLECTION_TEMPLATE.format(
+        #         collection_id=self.collection.id
+        #     )
 
         return None
 
@@ -52,7 +52,7 @@ class StickerChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
                 or (obj.collection.title if obj.collection else None)
             ),
             expected=obj.threshold,
-            photo_url=None,
+            photo_url=obj.collection.logo_url,
             blockchain_address=None,
             is_enabled=obj.is_enabled,
             collection=MinimalStickerCollectionDTO.from_orm(obj.collection)
@@ -68,15 +68,6 @@ class StickerChatEligibilitySummaryDTO(StickerChatEligibilityRuleDTO):
     actual: int | None = None
     is_eligible: bool = False
 
-    @computed_field
-    def promote_url(self) -> str | None:
-        if self.collection:
-            return PROMOTE_STICKER_COLLECTION_TEMPLATE.format(
-                collection_id=self.collection.id
-            )
-
-        return None
-
     @classmethod
     def from_internal_dto(
         cls, internal_dto: EligibilitySummaryStickerCollectionInternalDTO
@@ -87,7 +78,7 @@ class StickerChatEligibilitySummaryDTO(StickerChatEligibilityRuleDTO):
             category=internal_dto.category,
             title=internal_dto.title,
             expected=internal_dto.expected,
-            photo_url=None,
+            photo_url=internal_dto.character.logo_url,
             blockchain_address=internal_dto.address,
             is_enabled=internal_dto.is_enabled,
             actual=internal_dto.actual,
