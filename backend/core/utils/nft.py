@@ -2,7 +2,7 @@ import logging
 
 from core.models.rule import TelegramChatNFTCollection
 from core.models.blockchain import NftItem
-from core.utils.custom_rules.mapping import CATEGORY_TO_METHOD_MAPPING
+from core.utils.custom_rules.mapping import CATEGORY_TO_METHOD_BY_ASSET_MAPPING
 
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,9 @@ def find_relevant_nft_items(
     """
     # If both asset type and category are set - custom rules should be applied
     if rule.asset and rule.category:
-        custom_logic_method = CATEGORY_TO_METHOD_MAPPING.get(rule.category)
+        custom_logic_method = CATEGORY_TO_METHOD_BY_ASSET_MAPPING.get(
+            rule.asset, {}
+        ).get(rule.category)
         # If there is a custom logic method - use it to determine whether the valid rule is applied
         if custom_logic_method:
             return custom_logic_method(nft_items)

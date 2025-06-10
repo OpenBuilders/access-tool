@@ -24,7 +24,7 @@ class UserAction(BaseAction):
 
         :param user: The user entity for which the data should be indexed.
         """
-        logger.info(f"Indexing user {user.id!r} upon creation...")
+        logger.debug(f"Indexing user {user.id!r} upon creation...")
 
     def create(self, telegram_user: TelegramUserDTO) -> User:
         """
