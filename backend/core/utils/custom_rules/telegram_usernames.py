@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable
 
 from core.enums.nft import NftCollectionAsset
@@ -12,6 +13,9 @@ class TelegramUsername:
 
     def __len__(self):
         return len(self.username)
+
+
+logger = logging.getLogger(__name__)
 
 
 def handle_telegram_username_length_category(
@@ -35,15 +39,24 @@ def handle_telegram_username_length_category(
                 nft.collection_address
                 != NFT_ASSET_TO_ADDRESS_MAPPING[NftCollectionAsset.TELEGRAM_USERNAME]
             ):
+                logger.debug(
+                    f"Skipping NFT {nft.address} because it's not a Telegram username."
+                )
                 continue
 
             if not nft.blockchain_metadata.name:
+                logger.debug(
+                    f"Skipping NFT {nft.address} because it doesn't have a name in metadata."
+                )
                 continue
 
             telegram_username = TelegramUsername(nft.blockchain_metadata.name)
 
             if len(telegram_username) <= target_length:
+                logger.debug(f"Adding NFT {nft.address} to the valid list.")
                 valid_nfts.append(nft)
+
+            logger.debug(f"Skipping NFT {nft.address} because its name is too long.")
 
         return valid_nfts
 
