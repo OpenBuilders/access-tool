@@ -2,9 +2,13 @@ import { memo, useEffect, useRef } from 'react'
 
 interface TelegramBackButtonProps {
   onClick?: () => void
+  hidden?: boolean
 }
 
-const TelegramBackButtonMemo = ({ onClick }: TelegramBackButtonProps) => {
+const TelegramBackButtonMemo = ({
+  onClick,
+  hidden,
+}: TelegramBackButtonProps) => {
   const onClickRef = useRef(onClick)
 
   useEffect(() => {
@@ -13,7 +17,7 @@ const TelegramBackButtonMemo = ({ onClick }: TelegramBackButtonProps) => {
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp
-    if (!webApp || !onClickRef.current) return
+    if (!webApp || !onClickRef.current || hidden) return
 
     const handleBackButtonClick = () => {
       onClickRef.current?.()

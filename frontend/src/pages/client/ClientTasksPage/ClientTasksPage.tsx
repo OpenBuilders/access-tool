@@ -155,9 +155,7 @@ export const ClientTasksPage = () => {
 
   return (
     <PageLayout>
-      <TelegramBackButton
-        onClick={fromChat ? handleBackNavigation : undefined}
-      />
+      <TelegramBackButton hidden={!fromChat} onClick={handleBackNavigation} />
       <TelegramMainButton
         text={buttonText}
         isVisible={!!buttonText}
