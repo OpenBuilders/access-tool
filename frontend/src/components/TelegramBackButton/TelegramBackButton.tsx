@@ -28,7 +28,7 @@ const TelegramBackButtonMemo = ({ onClick }: TelegramBackButtonProps) => {
     }
   }, [])
 
-  return <button onClick={onClickRef.current}>Back</button>
+  return null
 }
 
 export const TelegramBackButton = memo(TelegramBackButtonMemo)

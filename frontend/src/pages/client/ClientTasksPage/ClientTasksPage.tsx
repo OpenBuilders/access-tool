@@ -82,12 +82,7 @@ export const ClientTasksPage = () => {
   }, [rules])
 
   const handleBackNavigation = () => {
-    if (fromChat) {
-      appNavigate({ path: ROUTES_NAME.CHAT, params: { chatSlug: fromChat } })
-      return
-    }
-
-    webApp.close()
+    appNavigate({ path: ROUTES_NAME.CHAT, params: { chatSlug: fromChat } })
   }
 
   const handleToAccessApp = () => {
@@ -161,7 +156,9 @@ export const ClientTasksPage = () => {
 
   return (
     <PageLayout>
-      <TelegramBackButton onClick={handleBackNavigation} />
+      <TelegramBackButton
+        onClick={fromChat ? handleBackNavigation : undefined}
+      />
       <TelegramMainButton
         text={buttonText}
         isVisible={!!buttonText}
