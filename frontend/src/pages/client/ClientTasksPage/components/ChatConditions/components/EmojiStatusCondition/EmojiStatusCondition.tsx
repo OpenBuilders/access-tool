@@ -1,4 +1,5 @@
-import { Icon, ListItem, Text, useToast } from '@components'
+import { ConditionIcon, ListItem, Text, useToast } from '@components'
+import { createConditionName } from '@utils'
 import { useEffect, useState } from 'react'
 
 import { LocalStorageService } from '@services'
@@ -60,7 +61,11 @@ export const EmojiStatusCondition = ({
   if (emojiStatusAdded) {
     return (
       <ListItem
-        before={<Icon name="check" size={24} />}
+        padding="4px 16px"
+        height="48px"
+        showCheck
+        isCompleted
+        before={<ConditionIcon condition={rule} />}
         text={<Text type="text">Emoji Status</Text>}
       />
     )
@@ -68,10 +73,14 @@ export const EmojiStatusCondition = ({
 
   return (
     <ListItem
+      padding="4px 16px"
+      height="48px"
+      showCheck
+      isCompleted
       chevron={!disabled}
       onClick={handleEmojiStatus}
-      before={<Icon name="cross" size={24} />}
-      text={<Text type="text">Emoji Status</Text>}
+      before={<ConditionIcon condition={rule} />}
+      text={<Text type="text">{createConditionName(rule)}</Text>}
     />
   )
 }

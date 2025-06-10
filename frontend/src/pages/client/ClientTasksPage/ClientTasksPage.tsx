@@ -32,8 +32,6 @@ export const ClientTasksPage = () => {
   const location = useLocation()
   const fromChat = location.state?.fromChat
 
-  console.log('fromChat', fromChat)
-
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
 
@@ -167,7 +165,9 @@ export const ClientTasksPage = () => {
         loading={isLoading || isChecking}
       />
       <ChatHeader />
-      <ChatConditions conditions={sortedConditions} />
+      <Block margin="bottom" marginValue={16}>
+        <ChatConditions conditions={sortedConditions} />
+      </Block>
       <Block margin="top" marginValue="auto">
         <Text align="center" type="caption" color="tertiary">
           Set up your own private access for your

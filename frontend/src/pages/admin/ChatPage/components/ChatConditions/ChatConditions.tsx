@@ -1,10 +1,12 @@
-import { Block, Icon, List, ListItem, Text } from '@components'
+import { Block, ConditionIcon, Icon, List, ListItem, Text } from '@components'
 import { useAppNavigation } from '@hooks'
 import { CONDITION_TYPES } from '@pages'
 import { ROUTES_NAME } from '@routes'
 import { createConditionDescription, createConditionName } from '@utils'
 
 import { useChat, Condition } from '@store'
+
+import styles from './ChatConditions.module.scss'
 
 export const ChatConditions = () => {
   const { appNavigate } = useAppNavigation()
@@ -34,12 +36,19 @@ export const ChatConditions = () => {
 
   return (
     <Block margin="top" marginValue={24}>
-      <List header="Who can Join" separatorLeftGap={16}>
+      <List header="Joining Requirements" separatorLeftGap={40}>
         {rules?.map((rule) => (
           <ListItem
-            key={rule.id}
+            padding="4px 16px"
+            height="48px"
+            before={<ConditionIcon condition={rule} />}
+            key={`${rule.id}-${rule.type}`}
             chevron
-            text={createConditionName(rule)}
+            text={
+              <Text type="text" color="primary">
+                {createConditionName(rule)}
+              </Text>
+            }
             description={
               <Text type="caption2" color="tertiary">
                 {createConditionDescription(rule)}
@@ -49,14 +58,19 @@ export const ChatConditions = () => {
           />
         ))}
         <ListItem
-          paddingY={6}
+          padding="4px 16px"
+          height="48px"
           text={
             <Text type="text" color="accent">
               Add Condition
             </Text>
           }
           onClick={createCondition}
-          before={<Icon name="plus" size={28} />}
+          before={
+            <div className={styles.iconContainer}>
+              <Icon name="plus" size={28} />
+            </div>
+          }
         />
       </List>
     </Block>

@@ -16,5 +16,16 @@ export type IconTypeName =
   | 'chevron'
   | 'eyeCrossed'
   | 'eye'
+  | 'connectWallet'
+  | 'toncoin'
+  | 'premium'
+  | 'whitelist'
+  | 'externalSource'
+  | 'emoji'
+  | 'jetton'
+  | 'nftCollection'
+  | 'stickers'
+  | 'gifts'
+  | 'checkUnable'
 
-export type IconSize = 112 | 100 | 28 | 24 | 20 | 16 | 12 | 7
+export type IconSize = 112 | 100 | 40 | 28 | 24 | 20 | 16 | 12 | 7
