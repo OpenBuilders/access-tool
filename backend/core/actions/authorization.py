@@ -20,8 +20,11 @@ from core.dtos.chat.rules.internal import (
     RulesEligibilityGroupSummaryInternalDTO,
     EligibilitySummaryGiftCollectionInternalDTO,
     EligibilitySummaryStickerCollectionInternalDTO,
+    EligibilitySummaryJettonInternalDTO,
+    EligibilitySummaryNftCollectionInternalDTO,
 )
 from core.dtos.gift.collection import GiftCollectionDTO
+from core.dtos.resource import JettonDTO, NftCollectionDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 from core.enums.nft import NftCollectionAsset
 from core.models import GiftUnique
@@ -395,7 +398,7 @@ class AuthorizationAction(BaseAction):
         # Check if the user has all required jetton balances
         items.extend(
             [
-                EligibilitySummaryInternalDTO(
+                EligibilitySummaryJettonInternalDTO(
                     id=rule.id,
                     type=EligibilityCheckType.JETTON,
                     category=rule.category,
@@ -412,6 +415,7 @@ class AuthorizationAction(BaseAction):
                         else 0
                     ),
                     is_enabled=rule.is_enabled,
+                    jetton=JettonDTO.from_orm(rule.jetton),
                 )
                 for rule in eligibility_rules.jettons
             ]
@@ -419,7 +423,7 @@ class AuthorizationAction(BaseAction):
         # Check if the user has all required NFT items
         items.extend(
             [
-                EligibilitySummaryInternalDTO(
+                EligibilitySummaryNftCollectionInternalDTO(
                     id=rule.id,
                     type=EligibilityCheckType.NFT_COLLECTION,
                     category=rule.category,
@@ -436,6 +440,7 @@ class AuthorizationAction(BaseAction):
                         )
                     ),
                     is_enabled=rule.is_enabled,
+                    collection=NftCollectionDTO.from_orm(rule.nft_collection),
                 )
                 for rule in eligibility_rules.nft_collections
             ]

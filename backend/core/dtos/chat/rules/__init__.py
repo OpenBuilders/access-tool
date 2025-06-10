@@ -90,19 +90,6 @@ class ChatEligibilityRuleDTO(BaseModel):
         )
 
     @classmethod
-    def from_jetton_rule(cls, jetton_rule: TelegramChatJetton) -> Self:
-        return cls(
-            id=jetton_rule.id,
-            type=EligibilityCheckType.JETTON,
-            title=jetton_rule.jetton.symbol,
-            expected=jetton_rule.threshold,
-            photo_url=jetton_rule.jetton.logo_path,
-            blockchain_address=jetton_rule.jetton.address,
-            is_enabled=jetton_rule.is_enabled,
-            category=jetton_rule.category,
-        )
-
-    @classmethod
     def from_whitelist_external_rule(
         cls, external_rule: TelegramChatWhitelistExternalSource
     ) -> Self:
