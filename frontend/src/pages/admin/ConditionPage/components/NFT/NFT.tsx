@@ -1,4 +1,13 @@
-import { AppSelect, Block, Image, List, ListInput, ListItem } from '@components'
+import {
+  AppSelect,
+  Block,
+  Image,
+  List,
+  ListInput,
+  ListItem,
+  Spinner,
+  useToast,
+} from '@components'
 import debounce from 'debounce'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -25,16 +34,26 @@ export const NFT = ({
     resetPrefetchedConditionDataAction,
   } = useConditionActions()
   const { prefetchedConditionData } = useCondition()
+  const [isPrefetching, setIsPrefetching] = useState(false)
+  const { showToast } = useToast()
 
   const [categories, setCategories] = useState<ConditionCategory[]>([])
 
   const prefetchNFTCollection = async (address: string) => {
     if (!conditionState?.type) return
+    setIsPrefetching(true)
     try {
       await prefetchConditionDataAction('nft_collection', address)
     } catch (error) {
       console.error(error)
       resetPrefetchedConditionDataAction()
+      showToast({
+        type: 'error',
+        message: 'Nothing found',
+        time: 1500,
+      })
+    } finally {
+      setIsPrefetching(false)
     }
   }
 
@@ -46,7 +65,7 @@ export const NFT = ({
       }
 
       prefetchNFTCollection(address)
-    }, 150),
+    }, 1000),
     []
   )
 
@@ -183,7 +202,10 @@ export const NFT = ({
         {renderAddressField && (
           <Block margin="top" marginValue={24}>
             <List footer="TON (The Open Network)">
-              <ListItem>
+              <ListItem
+                after={isPrefetching ? <Spinner size={16} /> : null}
+                disabled={isPrefetching}
+              >
                 <ListInput
                   placeholder="NFT Collection Address"
                   value={conditionState?.address || ''}
@@ -195,6 +217,7 @@ export const NFT = ({
               </ListItem>
               {prefetchedConditionData && (
                 <ListItem
+                  disabled={isPrefetching}
                   before={
                     <Image
                       src={prefetchedConditionData?.logoPath}

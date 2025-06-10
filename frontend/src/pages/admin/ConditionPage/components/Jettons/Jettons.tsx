@@ -5,7 +5,9 @@ import {
   List,
   ListInput,
   ListItem,
+  Spinner,
   Text,
+  useToast,
 } from '@components'
 import debounce from 'debounce'
 import { useCallback, useEffect, useState } from 'react'
@@ -33,17 +35,26 @@ export const Jettons = ({
     resetPrefetchedConditionDataAction,
   } = useConditionActions()
   const { prefetchedConditionData } = useCondition()
+  const [isPrefetching, setIsPrefetching] = useState(false)
+  const { showToast } = useToast()
 
   const [categories, setCategories] = useState<ConditionCategory[]>([])
 
   const prefetchJetton = async (address: string) => {
     if (!conditionState?.type) return
-
+    setIsPrefetching(true)
     try {
       await prefetchConditionDataAction('jetton', address)
     } catch (error) {
       console.error(error)
+      showToast({
+        type: 'error',
+        message: 'Nothing found',
+        time: 1500,
+      })
       resetPrefetchedConditionDataAction()
+    } finally {
+      setIsPrefetching(false)
     }
   }
 
@@ -55,9 +66,15 @@ export const Jettons = ({
       }
 
       prefetchJetton(address)
-    }, 150),
-    [conditionState?.address, conditionState?.blockchainAddress]
+    }, 1000),
+    []
   )
+
+  useEffect(() => {
+    if (conditionState?.address) {
+      debouncedPrefetchJetton(conditionState?.address)
+    }
+  }, [conditionState?.address])
 
   const fetchConditionCategories = async () => {
     try {
@@ -137,7 +154,10 @@ export const Jettons = ({
         </List>
         <Block margin="top" marginValue={24}>
           <List footer="TON (The Open Network)">
-            <ListItem>
+            <ListItem
+              after={isPrefetching ? <Spinner size={16} /> : null}
+              disabled={isPrefetching}
+            >
               <ListInput
                 placeholder="Jetton Address"
                 value={conditionState.address}
@@ -149,6 +169,7 @@ export const Jettons = ({
             </ListItem>
             {prefetchedConditionData && (
               <ListItem
+                disabled={isPrefetching}
                 before={
                   <Image
                     src={prefetchedConditionData?.logoPath}
