@@ -1,13 +1,12 @@
 import hashlib
 import hmac
 import json
-import re
+import logging
 from typing import Annotated
 from urllib.parse import unquote_plus
 
 from fastapi import HTTPException, Depends, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pytonapi.utils import userfriendly_to_raw, raw_to_userfriendly
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 from starlette.status import (
@@ -17,6 +16,7 @@ from starlette.status import (
 )
 
 from api.pos.auth import InitDataPO
+from api.pos.chat import validate_address
 from core.dtos.user import UserInitDataPO
 from api.services.authentication import AuthenticationService, UnauthorizedError
 from api.settings import api_settings
@@ -25,9 +25,7 @@ from core.services.db import DBService
 from core.services.user import UserService
 
 security = HTTPBearer(auto_error=False)
-
-RAW_ADDRESS_REGEX = re.compile(r"0:[0-9a-fA-F]{64}")
-USER_FRIENDLY_ADDRESS_REGEX = re.compile(r"(EQ|UQ)[a-zA-Z0-9\-\_]{46}")
+logger = logging.getLogger(__name__)
 
 
 def get_db_session():
@@ -103,25 +101,12 @@ def validate_admin_access(
 
 
 def get_address_raw(address: str) -> str:
-    if not address:
-        raise HTTPException(
-            detail="Address is required", status_code=HTTP_404_NOT_FOUND
-        )
+    try:
+        address_raw = validate_address(is_required=True)(address)
+    except ValueError as e:
+        raise HTTPException(detail=str(e), status_code=HTTP_404_NOT_FOUND) from e
 
-    if USER_FRIENDLY_ADDRESS_REGEX.match(address):
-        return userfriendly_to_raw(address)
-
-    elif RAW_ADDRESS_REGEX.match(address):
-        try:
-            # To validate the blockchain address
-            raw_to_userfriendly(address)
-            return address
-        except Exception:
-            pass
-
-    raise HTTPException(
-        detail=f"Invalid blockchain address: {address}", status_code=HTTP_404_NOT_FOUND
-    )
+    return address_raw
 
 
 def validate_api_token(
