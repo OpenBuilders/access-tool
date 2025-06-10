@@ -26,7 +26,7 @@ interface ChatActions {
     }>
     updateChatAction: (slug: string, data: Partial<ChatInstance>) => void
     fetchAdminUserChatsAction: () => Promise<AdminChat[]>
-    fetchUserChatAction: (slug: string) => void
+    fetchUserChatAction: (slug: string) => Promise<boolean>
     updateChatVisibilityAction: (
       slug: string,
       data: Partial<ChatInstance>
@@ -86,6 +86,8 @@ const useChatStore = create<ChatStore & ChatActions>((set) => ({
       }
 
       set({ chat: data?.chat, rules: data?.rules, chatWallet: data?.wallet })
+
+      return data.chat.isEligible
     },
     updateChatVisibilityAction: async (slug, values) => {
       const { data, ok, error } = await updateChatVisibilityAPI(slug, values)

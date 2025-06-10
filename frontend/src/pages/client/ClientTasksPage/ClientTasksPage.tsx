@@ -4,6 +4,7 @@ import {
   TelegramBackButton,
   TelegramMainButton,
   Text,
+  useToast,
 } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
@@ -45,11 +46,15 @@ export const ClientTasksPage = () => {
   const { chat, rules, chatWallet } = useChat()
   const { user } = useUser()
 
+  const { showToast } = useToast()
+
   const fetchUserChat = async () => {
     if (!clientChatSlug) return
 
     try {
-      await fetchUserChatAction(clientChatSlug)
+      const isEligible = await fetchUserChatAction(clientChatSlug)
+
+      return isEligible
     } catch (error) {
       console.error(error)
       notFound()
@@ -120,11 +125,22 @@ export const ClientTasksPage = () => {
 
     if (chatWallet || !needWalletConnection) {
       setIsChecking(true)
-      await fetchUserChat()
+      const isEligible = await fetchUserChat()
+
       setTimeout(() => {
         setIsChecking(false)
-        webApp?.HapticFeedback?.impactOccurred('soft')
+
+        if (!isEligible) {
+          showToast({
+            type: 'warning',
+            message: 'Complete all requirments to join',
+          })
+          webApp.HapticFeedback.notificationOccurred('error')
+        } else {
+          webApp?.HapticFeedback?.impactOccurred('soft')
+        }
       }, 400)
+
       return
     }
 
