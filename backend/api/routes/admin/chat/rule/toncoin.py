@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette.requests import Request
 
 from api.deps import get_db_session
-from api.pos.chat import ChatEligibilityRuleFDO, TelegramChatToncoinRuleCPO
+from api.pos.chat import TelegramChatToncoinRuleCPO, ToncoinEligibilityRuleFDO
 from core.actions.chat.rule.blockchain import TelegramChatToncoinAction
 
 
@@ -16,13 +16,13 @@ async def get_chat_toncoin_rule(
     slug: str,
     rule_id: int,
     db_session: Session = Depends(get_db_session),
-) -> ChatEligibilityRuleFDO:
+) -> ToncoinEligibilityRuleFDO:
     telegram_chat_toncoin_action = TelegramChatToncoinAction(
         db_session=db_session,
         requestor=request.state.user,
         chat_slug=slug,
     )
-    return ChatEligibilityRuleFDO.model_validate(
+    return ToncoinEligibilityRuleFDO.model_validate(
         telegram_chat_toncoin_action.read(rule_id=rule_id).model_dump()
     )
 
@@ -33,13 +33,13 @@ async def add_chat_toncoin_rule(
     slug: str,
     rule: TelegramChatToncoinRuleCPO,
     db_session: Session = Depends(get_db_session),
-) -> ChatEligibilityRuleFDO:
+) -> ToncoinEligibilityRuleFDO:
     telegram_chat_toncoin_action = TelegramChatToncoinAction(
         db_session=db_session,
         requestor=request.state.user,
         chat_slug=slug,
     )
-    return ChatEligibilityRuleFDO.model_validate(
+    return ToncoinEligibilityRuleFDO.model_validate(
         telegram_chat_toncoin_action.create(
             category=rule.category,
             threshold=rule.expected,
@@ -54,13 +54,13 @@ async def update_chat_toncoin_rule(
     rule_id: int,
     rule: TelegramChatToncoinRuleCPO,
     db_session: Session = Depends(get_db_session),
-) -> ChatEligibilityRuleFDO:
+) -> ToncoinEligibilityRuleFDO:
     telegram_chat_toncoin_action = TelegramChatToncoinAction(
         db_session=db_session,
         requestor=request.state.user,
         chat_slug=slug,
     )
-    return ChatEligibilityRuleFDO.model_validate(
+    return ToncoinEligibilityRuleFDO.model_validate(
         telegram_chat_toncoin_action.update(
             rule_id=rule_id,
             category=rule.category,
