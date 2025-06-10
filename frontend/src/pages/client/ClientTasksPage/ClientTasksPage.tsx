@@ -166,8 +166,6 @@ export const ClientTasksPage = () => {
     chat,
   })
 
-  console.log('fromChat', fromChat)
-
   return (
     <PageLayout>
       <TelegramBackButton
