@@ -488,7 +488,7 @@ class CommunityManagerChatAction(BaseAction):
 
         try:
             target_chat_user = self.telegram_chat_user_service.get(
-                chat_id=event.chat.id, user_id=target_user.id
+                chat_id=chat.id, user_id=target_user.id
             )
         except NoResultFound:
             logger.info(
