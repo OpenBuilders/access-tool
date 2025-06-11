@@ -3,7 +3,7 @@
 
 # Access – Community Tool
 
-![](.github/assets/access.mp4)
+![](.github/assets/access.gif)
 
 ## Summary
 
