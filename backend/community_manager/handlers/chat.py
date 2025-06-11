@@ -162,6 +162,12 @@ async def handle_chat_participant_update(
         )
 
         if not chat:
+            if not event.is_self:
+                logger.warning(
+                    f"Chat {chat_id!r} does not exist. Skipping event...",
+                    extra={"event": event},
+                )
+                return
             # Create a chat if it didn't exist before
             await telegram_chat_action.create(chat_id=chat_id, event=event)
 
