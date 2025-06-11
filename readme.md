@@ -1,7 +1,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-# Access – Community Tool
+# 🔐 Access – Community Tool
 
 ![](.github/assets/access.gif)
 
@@ -11,21 +11,23 @@ Access is a comprehensive community management tool designed for blockchain and 
 It provides a suite of features to help community managers 
 with managing access to their chats/channels based on the blockchain and other Telegram assets' data
 
+- Access bot: [@access_app_bot](https://t.me/access_app_bot)
+
 ### Key Features
 
 - **Wallet Indexing**: Index blockchain wallets associated with community members
-- **Transaction Lookup**: Track blockchain transactions for mentioned wallets
-- **Community Management**: Tools for managing community members and activities
-- **Scheduled Tasks**: Automated processes for regular community management activities
+- **Transaction Lookup**: Track blockchain transactions for mentioned wallets to keep balance up-to-date
+- **Sticker Integration**: Exclusive integration with [@sticker_bot](https://t.me/sticker_bot)
+- **Gifts Indexing**: Index both onchain and offchain gifts balance
+- **Community Management**: Tools for automatic managing community members 
 
 ### Technology Stack
 
 - **Backend**: Python with FastAPI, Celery for task processing, Golang for transaction tracking
 - **Frontend**: React with TypeScript, built with Vite
-- **Database**: MySQL
+- **Database**: PostgreSQL
 - **Caching & Message Queue**: Redis
 - **Containerization**: Docker and Docker Compose
-- **CI/CD**: GitHub Actions
 
 ## Installation
 
@@ -80,17 +82,18 @@ The project includes several make commands to simplify development and operation
 
 ## Contributing
 
-We welcome contributions to Access Community Tool! Here's how you can contribute:
+We welcome contributions to Access! Here's how you can contribute:
 
 ### Development Workflow
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feat/your-feature-name`
-3. Make your changes
-4. Run tests: `make test`
-5. Commit your changes: `git commit -m "Add some feature"`
-6. Push to the branch: `git push origin feat/your-feature-name`
-7. Submit a pull request
+3. Configure local environment `make setup-venv`
+4. Make your changes
+5. Run tests: `make test`
+6. Commit your changes: `git commit -m "Add some feature"`
+7. Push to the branch: `git push origin feat/your-feature-name`
+8. Submit a pull request
 
 ### Coding Standards
 
@@ -109,9 +112,9 @@ make test
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgements
 
-- The Gateway Community Tool is developed and maintained by independent developers and [Open Builders](https://github.com/openbuilders)
+- Access is developed and maintained by independent developers and [Open Builders](https://github.com/openbuilders)
 - Special thanks to all contributors who have helped shape this project
