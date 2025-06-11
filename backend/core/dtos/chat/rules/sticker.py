@@ -2,6 +2,7 @@ from typing import Any, Self
 
 from pydantic import BaseModel, computed_field
 
+from core.constants import PROMOTE_STICKER_COLLECTION_TEMPLATE
 from core.dtos.chat.rules import ChatEligibilityRuleDTO, EligibilityCheckType
 from core.dtos.chat.rules.internal import EligibilitySummaryStickerCollectionInternalDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
@@ -33,11 +34,10 @@ class StickerChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
 
     @computed_field
     def promote_url(self) -> str | None:
-        # FIXME: Turn it on when market is released
-        # if self.collection:
-        #     return PROMOTE_STICKER_COLLECTION_TEMPLATE.format(
-        #         collection_id=self.collection.id
-        #     )
+        if self.collection:
+            return PROMOTE_STICKER_COLLECTION_TEMPLATE.format(
+                collection_id=self.collection.id
+            )
 
         return None
 

@@ -2,7 +2,6 @@ from typing import Self
 
 from pydantic import BaseModel, model_validator, computed_field
 
-from core.constants import PROMOTE_GIFT_COLLECTION_TEMPLATE
 from core.dtos.chat.rules import ChatEligibilityRuleDTO, EligibilityCheckType
 from core.dtos.chat.rules.internal import EligibilitySummaryGiftCollectionInternalDTO
 from core.dtos.gift.collection import GiftCollectionDTO
@@ -68,10 +67,11 @@ class GiftChatEligibilitySummaryDTO(GiftChatEligibilityRuleDTO):
 
     @computed_field
     def promote_url(self) -> str | None:
-        if self.collection:
-            return PROMOTE_GIFT_COLLECTION_TEMPLATE.format(
-                collection_slug=self.collection.slug
-            )
+        # FIXME: Turn on when market is released
+        # if self.collection:
+        #     return PROMOTE_GIFT_COLLECTION_TEMPLATE.format(
+        #         collection_slug=self.collection.slug
+        #     )
 
         return None
 
