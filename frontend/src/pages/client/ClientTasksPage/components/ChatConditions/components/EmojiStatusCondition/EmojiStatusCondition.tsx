@@ -63,7 +63,6 @@ export const EmojiStatusCondition = ({
       <ListItem
         padding="4px 16px"
         height="48px"
-        showCheck
         isCompleted
         before={<ConditionIcon condition={rule} />}
         text={<Text type="text">Emoji Status</Text>}
@@ -75,8 +74,6 @@ export const EmojiStatusCondition = ({
     <ListItem
       padding="4px 16px"
       height="48px"
-      showCheck
-      isCompleted
       chevron={!disabled}
       onClick={handleEmojiStatus}
       before={<ConditionIcon condition={rule} />}

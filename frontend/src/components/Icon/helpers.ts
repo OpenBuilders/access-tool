@@ -21,6 +21,7 @@ import {
   stickers,
   gifts,
   checkUnable,
+  completed,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -70,5 +71,7 @@ export const getIcon = (name: IconTypeName) => {
       return gifts
     case 'checkUnable':
       return checkUnable
+    case 'completed':
+      return completed
   }
 }
