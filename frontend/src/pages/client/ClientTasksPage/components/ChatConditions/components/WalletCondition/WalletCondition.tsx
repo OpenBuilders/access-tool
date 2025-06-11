@@ -151,7 +151,7 @@ export const WalletCondition = () => {
     return (
       <ListItem
         padding="4px 16px"
-        height="48px"
+        height="50px"
         chevron
         onClick={handleWalletsList}
         before={<ConditionIcon walletCondition />}
@@ -177,7 +177,7 @@ export const WalletCondition = () => {
   return (
     <ListItem
       padding="4px 16px"
-      height="48px"
+      height="50px"
       chevron
       isCompleted
       onClick={navigateToConnectedWalletPage}

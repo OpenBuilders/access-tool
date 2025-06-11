@@ -58,11 +58,13 @@ export const EmojiStatusCondition = ({
     await webApp?.setEmojiStatus(rule?.emojiId)
   }
 
+  const conditionName = createConditionName(rule)
+
   if (emojiStatusAdded) {
     return (
       <ListItem
         padding="4px 16px"
-        height="48px"
+        height="50px"
         isCompleted
         before={<ConditionIcon condition={rule} />}
         text={<Text type="text">Emoji Status</Text>}
@@ -73,11 +75,11 @@ export const EmojiStatusCondition = ({
   return (
     <ListItem
       padding="4px 16px"
-      height="48px"
+      height="50px"
       chevron={!disabled}
       onClick={handleEmojiStatus}
       before={<ConditionIcon condition={rule} />}
-      text={<Text type="text">{createConditionName(rule)}</Text>}
+      text={<Text type="text">{conditionName}</Text>}
     />
   )
 }
