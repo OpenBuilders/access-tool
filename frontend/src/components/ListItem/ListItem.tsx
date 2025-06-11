@@ -16,7 +16,6 @@ interface ListItemProps {
   disabled?: boolean
   padding?: string
   height?: string
-  showCheck?: boolean
   isCompleted?: boolean
 }
 
@@ -31,7 +30,6 @@ export const ListItem = ({
   onClick,
   padding,
   height,
-  showCheck,
   isCompleted,
 }: ListItemProps) => {
   const { darkTheme } = useContext(ThemeContext)
@@ -57,9 +55,6 @@ export const ListItem = ({
       onClick={handleClick}
     >
       <div className={styles.left}>
-        {showCheck && (
-          <Icon name={isCompleted ? 'check' : 'checkUnable'} size={24} />
-        )}
         {before || null}
         <div className={styles.content}>
           {text && <div>{text}</div>}
@@ -69,11 +64,12 @@ export const ListItem = ({
       </div>
       <div className={styles.right}>
         {after || null}
-        {chevron && (
+        {chevron && !isCompleted && (
           <div className={cn(styles.chevron, isDarkTheme && styles.dark)}>
             <Icon name="chevron" />
           </div>
         )}
+        {isCompleted && <Icon name="completed" size={24} />}
       </div>
     </div>
   )

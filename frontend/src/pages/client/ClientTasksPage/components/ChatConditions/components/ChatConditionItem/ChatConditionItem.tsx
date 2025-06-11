@@ -29,7 +29,6 @@ export const ChatConditionItem = ({
     if (isEligible) {
       return (
         <ListItem
-          showCheck
           isCompleted
           text={<Text type="text">{createConditionName(condition)}</Text>}
           description={
@@ -46,8 +45,6 @@ export const ChatConditionItem = ({
         : "Sorry, you're not on the list. But you can complete the other requirements to access the chat if they are available."
       return (
         <ListItem
-          showCheck
-          isCompleted={false}
           text={<Text type="text">{createConditionName(condition)}</Text>}
           description={
             <Text type="caption2" color="tertiary">
@@ -70,7 +67,6 @@ export const ChatConditionItem = ({
       <ListItem
         padding="4px 16px"
         height="48px"
-        showCheck
         isCompleted
         before={<ConditionIcon condition={condition} />}
         text={<Text type="text">{createConditionName(condition)}</Text>}
@@ -90,8 +86,6 @@ export const ChatConditionItem = ({
       height="48px"
       chevron={!!promoteUrl && !disabled}
       onClick={handleOpenLink}
-      showCheck
-      isCompleted={false}
       before={<ConditionIcon condition={condition} />}
       disabled={disabled}
       text={<Text type="text">{createConditionName(condition)}</Text>}
