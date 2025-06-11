@@ -25,12 +25,15 @@ export const ChatConditionItem = ({
     goTo(condition.promoteUrl)
   }
 
+  const conditionName = createConditionName(condition)
+  const conditionDescription = createConditionDescription(condition)
+
   if (type === 'whitelist' || type === 'external_source') {
     if (isEligible) {
       return (
         <ListItem
           isCompleted
-          text={<Text type="text">{createConditionName(condition)}</Text>}
+          text={<Text type="text">{conditionName}</Text>}
           description={
             <Text type="caption2" color="tertiary">
               You're already on the list — you can access the chat without
@@ -45,7 +48,7 @@ export const ChatConditionItem = ({
         : "Sorry, you're not on the list. But you can complete the other requirements to access the chat if they are available."
       return (
         <ListItem
-          text={<Text type="text">{createConditionName(condition)}</Text>}
+          text={<Text type="text">{conditionName}</Text>}
           description={
             <Text type="caption2" color="tertiary">
               {text}
@@ -66,14 +69,14 @@ export const ChatConditionItem = ({
     return (
       <ListItem
         padding="4px 16px"
-        height="48px"
+        height={conditionDescription ? '60px' : '50px'}
         isCompleted
         before={<ConditionIcon condition={condition} />}
-        text={<Text type="text">{createConditionName(condition)}</Text>}
+        text={<Text type="text">{conditionName}</Text>}
         disabled={disabled}
         description={
           <Text type="caption2" color="tertiary">
-            {createConditionDescription(condition)}
+            {conditionDescription}
           </Text>
         }
       />
@@ -83,15 +86,15 @@ export const ChatConditionItem = ({
   return (
     <ListItem
       padding="4px 16px"
-      height="48px"
+      height={conditionDescription ? '60px' : '50px'}
       chevron={!!promoteUrl && !disabled}
       onClick={handleOpenLink}
       before={<ConditionIcon condition={condition} />}
       disabled={disabled}
-      text={<Text type="text">{createConditionName(condition)}</Text>}
+      text={<Text type="text">{conditionName}</Text>}
       description={
         <Text type="caption2" color="tertiary">
-          {createConditionDescription(condition)}
+          {conditionDescription}
         </Text>
       }
     />

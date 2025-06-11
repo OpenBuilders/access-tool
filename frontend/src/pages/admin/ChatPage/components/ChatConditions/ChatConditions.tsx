@@ -37,29 +37,34 @@ export const ChatConditions = () => {
   return (
     <Block margin="top" marginValue={24}>
       <List header="Joining Requirements" separatorLeftGap={40}>
-        {rules?.map((rule) => (
-          <ListItem
-            padding="4px 16px"
-            height="48px"
-            before={<ConditionIcon condition={rule} />}
-            key={`${rule.id}-${rule.type}`}
-            chevron
-            text={
-              <Text type="text" color="primary">
-                {createConditionName(rule)}
-              </Text>
-            }
-            description={
-              <Text type="caption2" color="tertiary">
-                {createConditionDescription(rule)}
-              </Text>
-            }
-            onClick={() => navigateToConditionPage(rule)}
-          />
-        ))}
+        {rules?.map((rule) => {
+          const conditionName = createConditionName(rule)
+          const conditionDescription = createConditionDescription(rule)
+
+          return (
+            <ListItem
+              padding="4px 16px"
+              height={conditionDescription ? '60px' : '50px'}
+              before={<ConditionIcon condition={rule} />}
+              key={`${rule.id}-${rule.type}`}
+              chevron
+              text={
+                <Text type="text" color="primary">
+                  {conditionName}
+                </Text>
+              }
+              description={
+                <Text type="caption2" color="tertiary">
+                  {conditionDescription}
+                </Text>
+              }
+              onClick={() => navigateToConditionPage(rule)}
+            />
+          )
+        })}
         <ListItem
           padding="4px 16px"
-          height="48px"
+          height="50px"
           text={
             <Text type="text" color="accent">
               Add Condition
