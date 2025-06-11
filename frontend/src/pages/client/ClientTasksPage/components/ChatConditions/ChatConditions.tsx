@@ -10,7 +10,7 @@ interface ChatConditionsProps {
   conditions: FormattedConditions
 }
 
-const SEPARATOR_LEFT_GAP = 70
+const SEPARATOR_LEFT_GAP = 40
 
 export const ChatConditions = ({ conditions }: ChatConditionsProps) => {
   const { chat } = useChat()
