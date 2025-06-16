@@ -25,7 +25,7 @@ __all__ = [
 
 async def handle_chat_action(event: events.ChatAction.Event):
     with DBService().db_session() as session:
-        logger.info(
+        logger.debug(
             f"Chat action: {event.chat_id=!r} {event.user_id=!r} {event.action_message=!r}",
             extra={"event": event},
         )
@@ -54,11 +54,11 @@ async def handle_chat_action(event: events.ChatAction.Event):
                 chat_id=event.chat_id, new_title=event.new_title
             )
 
-        # elif event.action_message:
-        #     # To avoid handling multiple events twice (users are added or removed and the action message is sent)
-        #     # The only message that should be handled is when bot is added to the chat
-        #     logger.debug(f"Chat action message {event!r} is not handled.")
-        #     return
+        elif event.action_message:
+            # To avoid handling events twice (users are added or removed and the action message is sent),
+            # The only message that should be handled is when a bot is added to the chat
+            logger.debug(f"Chat action message {event!r} is not handled.")
+            return
 
         elif event.user.bot and not event.user.is_self:
             logger.debug(f"Another bot user {event.user.id!r} is not handled.")
