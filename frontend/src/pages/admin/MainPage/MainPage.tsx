@@ -53,7 +53,7 @@ export const MainPage = () => {
   }
 
   const handleToProjectPage = () => {
-    goTo('https://github.com/OpenBuilders/gateway-tool')
+    goTo('https://github.com/OpenBuilders/access-tool')
   }
 
   if (isLoading) {

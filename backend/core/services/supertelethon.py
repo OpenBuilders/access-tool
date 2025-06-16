@@ -151,7 +151,7 @@ class TelethonService:
         invite_link = await self.client(
             ExportChatInviteRequest(
                 peer=chat,
-                title="Gateway invite link",
+                title="Access Bot invite link",
                 request_needed=True,
             )
         )

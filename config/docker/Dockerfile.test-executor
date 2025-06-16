@@ -1,5 +1,5 @@
 # Stage 1: Build the base image with the core package
-FROM python:3.11.6-slim AS gateway-base
+FROM python:3.11.6-slim AS access-base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -21,7 +21,7 @@ COPY backend/indexer ./indexer
 COPY backend/core ./core
 
 # Stage 2: Tests
-FROM gateway-base as tests-executor
+FROM access-base as tests-executor
 COPY backend/core/requirements-test.txt requirements-test.txt
 RUN pip install -r requirements-test.txt
 COPY backend/community_manager/requirements.txt requirements-community-manager.txt

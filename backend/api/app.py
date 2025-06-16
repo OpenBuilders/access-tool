@@ -56,9 +56,9 @@ def include_admin_routes(_app: FastAPI) -> None:
 def create_app() -> FastAPI:
     _app = FastAPI(
         root_path="/api",
-        title="Gateway",
-        summary="Your gate to the web3 world",
-        version="0.1.0",
+        title="Access",
+        summary="Your access to the web3 world",
+        version="1.0.0",
     )
     include_authenticated_routes(_app)
     include_non_authenticated_routes(_app)

@@ -1,5 +1,5 @@
 # Step 1: Build Vite app
-FROM node:23.11-alpine as builder
+FROM node:23.11-alpine AS builder
 
 WORKDIR /app
 COPY frontend/package.json frontend/yarn.lock ./

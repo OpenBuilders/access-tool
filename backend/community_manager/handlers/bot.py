@@ -10,7 +10,7 @@ What I can do:
 
 Built by independent developers for [Telegram Tools](https://tools.tg/).
 
-Open source for the community: [Github repository](https://github.com/OpenBuilders/gateway-tool)."""
+Open source for the community: [Github repository](https://github.com/OpenBuilders/access-tool)."""
 
 
 async def handle_start_message(event: events.NewMessage()) -> None:
