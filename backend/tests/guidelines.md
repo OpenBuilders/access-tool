@@ -1,7 +1,7 @@
 
-# Testing Guidelines for Gateway Tool Backend
+# Testing Guidelines for Access Tool Backend
 
-This document outlines the testing strategy for the Gateway Tool backend, including unit tests, functional tests, and integration with the MySQL database.
+This document outlines the testing strategy for the Access Tool backend, including unit tests, functional tests, and integration with the MySQL database.
 
 ## Table of Contents
 1. [Testing Framework](#testing-framework)
@@ -95,7 +95,7 @@ from core.db import Base
 @pytest.fixture(scope="session")
 def db_engine():
     # Use the MySQL Docker service
-    engine = create_engine("mysql+pymysql://root:password@localhost:3307/gateway_test")
+    engine = create_engine("mysql+pymysql://root:password@localhost:3307/access_test")
     yield engine
     engine.dispose()
 
@@ -341,4 +341,4 @@ def test_create_emoji_rule(db_session, mocker):
     assert data["is_enabled"] is True
 ```
 
-This testing structure provides a comprehensive approach to testing the backend components of the Gateway Tool project, ensuring code quality and reliability.
+This testing structure provides a comprehensive approach to testing the backend components of the Access Tool project, ensuring code quality and reliability.

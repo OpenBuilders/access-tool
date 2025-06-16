@@ -17,10 +17,10 @@ services:
       context: .
       dockerfile: ./config/docker/Dockerfile.test-executor
       target: tests-executor
-    image: gateway-tests
+    image: access-tests
     env_file:
       - ./config/env_template/.core.env.test
-    container_name: "gateway-tests"
+    container_name: "access-tests"
     volumes:
       - ./backend:/app
 
@@ -30,7 +30,7 @@ services:
       - "6380:6379"
     volumes:
       - volume-queue:/data
-    container_name: "gateway-redis"
+    container_name: "access-redis"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -47,7 +47,7 @@ services:
       - POSTGRES_USER=${SQL_USER}
       - POSTGRES_PASSWORD=${SQL_PASSWORD}
       - POSTGRES_DB=${SQL_DATABASE}
-    container_name: "gateway-postgres-test"
+    container_name: "access-postgres-test"
     networks:
       - internal
 

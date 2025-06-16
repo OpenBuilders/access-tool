@@ -17,12 +17,12 @@ services:
       context: .
       dockerfile: ./config/docker/Dockerfile.api
       target: api
-    image: gateway-api
+    image: access-api
     env_file:
       - ./config/env/.api.env
       - ./config/env/.core.env
       - ./config/env/.indexer.env
-    container_name: "gateway-api"
+    container_name: "access-api"
     ports:
       - "8000:8000"
     volumes:
@@ -46,12 +46,12 @@ services:
       - frontend
 
   frontend:
-    image: "gateway-frontend"
+    image: "access-frontend"
     pull_policy: never
     build:
       context: .
       dockerfile: ./config/docker/Dockerfile.frontend-dev
-    container_name: "gateway-frontend"
+    container_name: "access-frontend"
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/.env:/app/.env
