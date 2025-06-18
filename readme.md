@@ -39,8 +39,8 @@ To install and run the project, follow these steps:
    - Node.js and Yarn for frontend development (if needed)
 
 2. **Setup**:
-   - Clone the repository: `git clone https://github.com/openbuilders/gateway-tool.git`
-   - Navigate to the project directory: `cd gateway-tool`
+   - Clone the repository: `git clone https://github.com/openbuilders/access-tool.git`
+   - Navigate to the project directory: `cd access-tool`
    - Set up the Python virtual environment: `make setup-venv`
    - Configure environment variables (see Configuration section)
    - Build the Docker containers: `make build`

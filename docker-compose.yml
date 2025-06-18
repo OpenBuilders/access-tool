@@ -14,7 +14,7 @@ x-indexer:
   build:
     context: .
     dockerfile: config/docker/Dockerfile.indexer
-  image: gateway-indexer
+  image: access-indexer
   env_file:
     - ./config/env/.core.env
     - ./config/env/.indexer.env
@@ -81,7 +81,7 @@ services:
       "--loglevel=info"
     ]
     environment:
-      - WORKER_CONCURRENCY=2
+      - WORKER_CONCURRENCY=1
     volumes:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer
@@ -89,7 +89,7 @@ services:
 
   load-noticed-wallets:
     <<: *x-python-service
-    image: gateway-indexer
+    image: access-indexer
     env_file:
       - ./config/env/.core.env
       - ./config/env/.indexer.env
@@ -115,7 +115,7 @@ services:
     build:
       context: .
       dockerfile: ./config/docker/Dockerfile.community-manager
-    image: gateway-community-manager
+    image: access-community-manager
     env_file:
       - ./config/env/.core.env
       - ./config/env/.community-manager.env
@@ -135,7 +135,7 @@ services:
 
   community-manager:
     <<: *x-python-service
-    image: gateway-community-manager
+    image: access-community-manager
     env_file:
       - ./config/env/.core.env
       - ./config/env/.community-manager.env
@@ -152,7 +152,7 @@ services:
     build:
       context: .
       dockerfile: ./config/docker/Dockerfile.scheduler
-    image: gateway-scheduler
+    image: access-scheduler
     env_file:
       - ./config/env/.core.env
       - ./config/env/.community-manager.env
@@ -174,12 +174,12 @@ services:
     build:
       context: .
       dockerfile: ./config/docker/Dockerfile.api
-    image: gateway-api
+    image: access-api
     env_file:
       - ./config/env/.api.env
       - ./config/env/.core.env
       - ./config/env/.indexer.env
-    container_name: "gateway-api"
+    container_name: "access-api"
     ports:
       - "8000:8000"
     command: [
@@ -197,7 +197,7 @@ services:
       - "6380:6379"
     volumes:
       - volume-queue:/data
-    container_name: "gateway-redis"
+    container_name: "access-redis"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -216,18 +216,22 @@ services:
       - POSTGRES_DB=${SQL_DATABASE}
     volumes:
       - volume-data-postgres:/var/lib/postgresql/data/
-    container_name: "gateway-postgres"
+    container_name: "access-postgres"
     networks:
       - internal
 
   frontend:
-    image: ghcr.io/openbuilders/gateway-tool/gateway-tool-frontend:latest
-    pull_policy: always
-    container_name: "gateway-frontend"
-    ports:
-      - "3000:4173"
+    image: "access-frontend"
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./config/docker/Dockerfile.frontend
+    container_name: "access-frontend"
+    volumes:
+      - ./frontend/.env:/app/.env
     networks:
       - internal
+
 
 volumes:
   volume-data-postgres:
