@@ -33,7 +33,7 @@ def create_app() -> Celery:
                 },
                 "load-noticed-wallets": {
                     "task": "load-noticed-wallets",
-                    "schedule": 15,  # Every 15 seconds
+                    "schedule": crontab(minute="*/1"),  # Every minute
                     "options": {"queue": CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME},
                 },
                 "refresh-chats": {
