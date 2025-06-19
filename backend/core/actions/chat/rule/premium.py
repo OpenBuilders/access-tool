@@ -53,7 +53,7 @@ class TelegramChatPremiumAction(ManagedChatBaseAction):
         group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
         self.check_duplicates(chat_id=self.chat.id, group_id=group_id)
 
-        rule = self.service.create(CreateTelegramChatPremiumRuleDTO(chat_id=self.chat.id, is_enabled=True))
+        rule = self.service.create(CreateTelegramChatPremiumRuleDTO(chat_id=self.chat.id, group_id=group_id, is_enabled=True))
         logger.info(f"New Telegram Premium rule created for the chat {self.chat.id!r}.")
         return ChatEligibilityRuleDTO.from_premium_rule(rule)
 

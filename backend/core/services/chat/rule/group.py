@@ -1,5 +1,10 @@
+import logging
+
 from core.models.rule import TelegramChatRuleGroup
 from core.services.base import BaseService
+
+
+logger = logging.getLogger(__name__)
 
 
 class TelegramChatRuleGroupService(BaseService):
@@ -28,4 +33,5 @@ class TelegramChatRuleGroupService(BaseService):
         )
         self.db_session.add(new_group)
         self.db_session.commit()
+        logger.info(f"Created a new rule group for chat {chat_id!r}.")
         return new_group
