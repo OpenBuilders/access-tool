@@ -4,29 +4,29 @@ from typing import Any, Generic, TypeVar
 
 from sqlalchemy import desc
 
-from core.dtos.chat.rules.emoji import CreateTelegramChatEmojiRuleDTO, UpdateTelegramChatEmojiRuleDTO
-from core.dtos.chat.rules.gift import (
+from core.dtos.chat.rule.emoji import CreateTelegramChatEmojiRuleDTO, UpdateTelegramChatEmojiRuleDTO
+from core.dtos.chat.rule.gift import (
     CreateTelegramChatGiftCollectionRuleDTO,
     UpdateTelegramChatGiftCollectionRuleDTO,
 )
-from core.dtos.chat.rules.jetton import (
+from core.dtos.chat.rule.jetton import (
     CreateTelegramChatJettonRuleDTO,
     UpdateTelegramChatJettonRuleDTO,
 )
-from core.dtos.chat.rules.nft import (
+from core.dtos.chat.rule.nft import (
     CreateTelegramChatNFTCollectionRuleDTO,
     UpdateTelegramChatNFTCollectionRuleDTO,
 )
-from core.dtos.chat.rules.premium import CreateTelegramChatPremiumRuleDTO, UpdateTelegramChatPremiumRuleDTO
-from core.dtos.chat.rules.sticker import (
+from core.dtos.chat.rule.premium import CreateTelegramChatPremiumRuleDTO, UpdateTelegramChatPremiumRuleDTO
+from core.dtos.chat.rule.sticker import (
     CreateTelegramChatStickerCollectionRuleDTO,
     UpdateTelegramChatStickerCollectionRuleDTO,
 )
-from core.dtos.chat.rules.toncoin import (
+from core.dtos.chat.rule.toncoin import (
     CreateTelegramChatToncoinRuleDTO,
     UpdateTelegramChatToncoinRuleDTO,
 )
-from core.dtos.chat.rules.whitelist import (
+from core.dtos.chat.rule.whitelist import (
     CreateTelegramChatWhitelistExternalSourceDTO,
     UpdateTelegramChatWhitelistExternalSourceDTO,
     CreateTelegramChatWhitelistDTO,

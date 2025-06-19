@@ -3,13 +3,13 @@ from typing import Self
 from pydantic import BaseModel
 
 from core.dtos.chat import TelegramChatPovDTO
-from core.dtos.chat.rules import ChatEligibilityRuleDTO
-from core.dtos.chat.rules.emoji import EmojiChatEligibilitySummaryDTO
-from core.dtos.chat.rules.gift import GiftChatEligibilitySummaryDTO
-from core.dtos.chat.rules.internal import EligibilitySummaryInternalDTO
-from core.dtos.chat.rules.jetton import JettonEligibilitySummaryDTO
-from core.dtos.chat.rules.nft import NftRuleEligibilitySummaryDTO
-from core.dtos.chat.rules.sticker import StickerChatEligibilitySummaryDTO
+from core.dtos.chat.rule import ChatEligibilityRuleDTO
+from core.dtos.chat.rule.emoji import EmojiChatEligibilitySummaryDTO
+from core.dtos.chat.rule.gift import GiftChatEligibilitySummaryDTO
+from core.dtos.chat.rule.internal import EligibilitySummaryInternalDTO
+from core.dtos.chat.rule.jetton import JettonEligibilitySummaryDTO
+from core.dtos.chat.rule.nft import NftRuleEligibilitySummaryDTO
+from core.dtos.chat.rule.sticker import StickerChatEligibilitySummaryDTO
 
 
 class RuleEligibilitySummaryDTO(ChatEligibilityRuleDTO):

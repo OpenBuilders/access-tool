@@ -8,18 +8,18 @@ from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 from core.actions.chat.base import ManagedChatBaseAction
 from core.actions.jetton import JettonAction
 from core.actions.nft_collection import NftCollectionAction
-from core.dtos.chat.rules import ChatEligibilityRuleDTO
-from core.dtos.chat.rules.nft import (
+from core.dtos.chat.rule import ChatEligibilityRuleDTO
+from core.dtos.chat.rule.nft import (
     CreateTelegramChatNFTCollectionRuleDTO,
     NftEligibilityRuleDTO,
     UpdateTelegramChatNFTCollectionRuleDTO,
 )
-from core.dtos.chat.rules.jetton import (
+from core.dtos.chat.rule.jetton import (
     CreateTelegramChatJettonRuleDTO,
     UpdateTelegramChatJettonRuleDTO,
     JettonEligibilityRuleDTO,
 )
-from core.dtos.chat.rules.toncoin import (
+from core.dtos.chat.rule.toncoin import (
     CreateTelegramChatToncoinRuleDTO,
     UpdateTelegramChatToncoinRuleDTO,
 )
