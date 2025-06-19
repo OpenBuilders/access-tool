@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from core.actions.chat import ManagedChatBaseAction
-from core.dtos.chat.rules import ChatEligibilityRuleDTO
-from core.dtos.chat.rules.premium import CreateTelegramChatPremiumRuleDTO, UpdateTelegramChatPremiumRuleDTO
+from core.dtos.chat.rule import ChatEligibilityRuleDTO
+from core.dtos.chat.rule.premium import CreateTelegramChatPremiumRuleDTO, UpdateTelegramChatPremiumRuleDTO
 from core.models.user import User
 from core.services.chat.rule.premium import TelegramChatPremiumService
 
