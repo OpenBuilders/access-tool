@@ -17,6 +17,7 @@ class BaseTelegramChatJettonRuleDTO(BaseModel):
 
 class CreateTelegramChatJettonRuleDTO(BaseTelegramChatJettonRuleDTO):
     chat_id: int
+    group_id: int | None = None
 
 
 class UpdateTelegramChatJettonRuleDTO(BaseTelegramChatJettonRuleDTO):

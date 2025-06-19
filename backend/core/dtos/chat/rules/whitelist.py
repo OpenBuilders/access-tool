@@ -8,6 +8,39 @@ from core.dtos.chat.rules import EligibilityCheckType
 from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWhitelist
 
 
+class TelegramChatWhitelistExternalSourceDTO(BaseModel):
+    external_source_url: str
+    name: str
+    description: str | None
+    auth_key: str | None
+    auth_value: str | None
+    is_enabled: bool
+
+
+class CreateTelegramChatWhitelistExternalSourceDTO(TelegramChatWhitelistExternalSourceDTO):
+    chat_id: int
+    group_id: int | None = None
+
+
+class UpdateTelegramChatWhitelistExternalSourceDTO(TelegramChatWhitelistExternalSourceDTO):
+    ...
+
+
+class TelegramChatWhitelistDTO(BaseModel):
+    name: str
+    description: str | None
+    is_enabled: bool
+
+
+class CreateTelegramChatWhitelistDTO(TelegramChatWhitelistDTO):
+    chat_id: int
+    group_id: int | None = None
+
+
+class UpdateTelegramChatWhitelistDTO(TelegramChatWhitelistDTO):
+    ...
+
+
 class WhitelistRuleItemsDifferenceDTO(BaseModel):
     previous: list[int] | None
     current: list[int]
