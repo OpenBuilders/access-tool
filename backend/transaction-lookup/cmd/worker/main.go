@@ -31,7 +31,7 @@ func main() {
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
-		ReadTimeout: -1, // Disable read timeout for initial wallets load
+		// ReadTimeout: -1, // Disable read timeout for initial wallets load
 	})
 
 	log.Println("initializing new api client...")
