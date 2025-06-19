@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 
 from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
@@ -17,7 +18,7 @@ from core.dtos.chat import (
 from core.dtos.chat.rule import (
     TelegramChatWithRulesDTO,
     EligibilityCheckType,
-    ChatEligibilityRuleDTO,
+    ChatEligibilityRuleDTO, ChatEligibilityRuleGroupDTO,
 )
 from core.dtos.chat.rule.emoji import (
     EmojiChatEligibilitySummaryDTO,
@@ -38,7 +39,7 @@ from core.dtos.chat.rule.sticker import (
 )
 from core.dtos.chat.rule.summary import (
     RuleEligibilitySummaryDTO,
-    TelegramChatWithEligibilitySummaryDTO,
+    TelegramChatWithEligibilitySummaryDTO, TelegramChatGroupWithEligibilitySummaryDTO,
 )
 from core.exceptions.chat import (
     TelegramChatNotExists,
@@ -127,6 +128,7 @@ class TelegramChatAction(BaseAction):
                     members_count=0,
                 ),
                 rules=[],
+                groups=[],
                 wallet=None,
             )
 
@@ -150,6 +152,19 @@ class TelegramChatAction(BaseAction):
 
         members_count = self.telegram_chat_user_service.get_members_count(chat.id)
 
+        formatted_groups = [
+            TelegramChatGroupWithEligibilitySummaryDTO(
+                id=group.id,
+                items=[
+                    mapping.get(rule.type, RuleEligibilitySummaryDTO).from_internal_dto(
+                        rule
+                    )
+                    for rule in group.items
+                ]
+            )
+            for group in eligibility_summary.groups
+        ]
+
         return TelegramChatWithEligibilitySummaryDTO(
             chat=TelegramChatPovDTO.from_object(
                 chat,
@@ -158,12 +173,9 @@ class TelegramChatAction(BaseAction):
                 is_eligible=is_eligible,
                 members_count=members_count,
             ),
-            rules=[
-                mapping.get(rule.type, RuleEligibilitySummaryDTO).from_internal_dto(
-                    rule
-                )
-                for rule in eligibility_summary.items
-            ],
+            groups=formatted_groups,
+            rules=[item for group in formatted_groups for item in group.items],
+
             wallet=eligibility_summary.wallet,
         )
 
@@ -202,7 +214,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
 
     async def get_with_eligibility_rules(self) -> TelegramChatWithRulesDTO:
         """
-        This is administrative method to get chat with rules that includes disabled rules
+        This is an administrative method to get chat with rules that includes disabled rules
         :return: DTO with chat and rules
         """
         eligibility_rules = self.authorization_action.get_eligibility_rules(
@@ -211,52 +223,64 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
         )
         members_count = self.telegram_chat_user_service.get_members_count(self.chat.id)
 
+        rules = sorted(
+            [
+                *(
+                    ChatEligibilityRuleDTO.from_toncoin_rule(rule)
+                    for rule in eligibility_rules.toncoin
+                ),
+                *(
+                    JettonEligibilityRuleDTO.from_jetton_rule(rule)
+                    for rule in eligibility_rules.jettons
+                ),
+                *(
+                    NftEligibilityRuleDTO.from_nft_collection_rule(rule)
+                    for rule in eligibility_rules.nft_collections
+                ),
+                *(
+                    ChatEligibilityRuleDTO.from_whitelist_rule(rule)
+                    for rule in eligibility_rules.whitelist_sources
+                ),
+                *(
+                    ChatEligibilityRuleDTO.from_whitelist_external_rule(rule)
+                    for rule in eligibility_rules.whitelist_external_sources
+                ),
+                *(
+                    ChatEligibilityRuleDTO.from_premium_rule(rule)
+                    for rule in eligibility_rules.premium
+                ),
+                *(
+                    StickerChatEligibilityRuleDTO.from_orm(rule)
+                    for rule in eligibility_rules.stickers
+                ),
+                *(
+                    GiftChatEligibilityRuleDTO.from_orm(rule)
+                    for rule in eligibility_rules.gifts
+                ),
+                *(
+                    EmojiChatEligibilityRuleDTO.from_orm(rule)
+                    for rule in eligibility_rules.emoji
+                ),
+            ],
+            key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
+        )
+        items = defaultdict(list)
+        for rule in rules:
+            items[rule.group_id].append(rule)
+
         return TelegramChatWithRulesDTO(
             chat=TelegramChatDTO.from_object(
                 obj=self.chat,
                 members_count=members_count,
             ),
-            rules=sorted(
-                [
-                    *(
-                        ChatEligibilityRuleDTO.from_toncoin_rule(rule)
-                        for rule in eligibility_rules.toncoin
-                    ),
-                    *(
-                        JettonEligibilityRuleDTO.from_jetton_rule(rule)
-                        for rule in eligibility_rules.jettons
-                    ),
-                    *(
-                        NftEligibilityRuleDTO.from_nft_collection_rule(rule)
-                        for rule in eligibility_rules.nft_collections
-                    ),
-                    *(
-                        ChatEligibilityRuleDTO.from_whitelist_rule(rule)
-                        for rule in eligibility_rules.whitelist_sources
-                    ),
-                    *(
-                        ChatEligibilityRuleDTO.from_whitelist_external_rule(rule)
-                        for rule in eligibility_rules.whitelist_external_sources
-                    ),
-                    *(
-                        ChatEligibilityRuleDTO.from_premium_rule(rule)
-                        for rule in eligibility_rules.premium
-                    ),
-                    *(
-                        StickerChatEligibilityRuleDTO.from_orm(rule)
-                        for rule in eligibility_rules.stickers
-                    ),
-                    *(
-                        GiftChatEligibilityRuleDTO.from_orm(rule)
-                        for rule in eligibility_rules.gifts
-                    ),
-                    *(
-                        EmojiChatEligibilityRuleDTO.from_orm(rule)
-                        for rule in eligibility_rules.emoji
-                    ),
-                ],
-                key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
-            ),
+            groups=[
+                ChatEligibilityRuleGroupDTO(
+                    id=group_id,
+                    items=group_items,
+                )
+                for group_id, group_items in items.items()
+            ],
+            rules=rules,
         )
 
     async def enable(self) -> TelegramChat:

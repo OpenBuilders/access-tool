@@ -6,6 +6,7 @@ from core.constants import PROMOTE_STICKER_COLLECTION_TEMPLATE
 from core.dtos.chat.rule import ChatEligibilityRuleDTO, EligibilityCheckType
 from core.dtos.chat.rule.internal import EligibilitySummaryStickerCollectionInternalDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
+from core.models.rule import TelegramChatStickerCollection
 
 
 class BaseTelegramChatStickerCollectionRuleDTO(BaseModel):
@@ -43,9 +44,10 @@ class StickerChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
         return None
 
     @classmethod
-    def from_orm(cls, obj: Any) -> Self:
+    def from_orm(cls, obj: TelegramChatStickerCollection) -> Self:
         return cls(
             id=obj.id,
+            group_id=obj.group_id,
             type=EligibilityCheckType.STICKER_COLLECTION,
             title=(
                 obj.category
