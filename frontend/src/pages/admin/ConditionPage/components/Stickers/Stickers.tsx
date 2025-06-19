@@ -61,8 +61,7 @@ export const Stickers = ({
           (condition?.collection as StickersCollection)?.id ||
           stickersData[0].id,
         characterId:
-          (condition?.character as StickersCharacter)?.id ||
-          stickersData[0].characters[0].id,
+          (condition?.character as StickersCharacter)?.id || undefined,
         expected: condition?.expected || '',
       }
 
@@ -98,12 +97,9 @@ export const Stickers = ({
                 onChange={(value) => {
                   const collection = getCollectionData(stickersData, value)
                   setCurrentCollection(collection)
-                  setCurrentCharacter(collection?.characters[0] || null)
+                  setCurrentCharacter(null)
                   handleChangeCondition('collectionId', value)
-                  handleChangeCondition(
-                    'characterId',
-                    collection?.characters[0]?.id || null
-                  )
+                  handleChangeCondition('characterId', undefined)
                 }}
                 value={conditionState?.collectionId?.toString()}
                 options={stickersData.map((collection) => ({
@@ -138,6 +134,12 @@ export const Stickers = ({
             after={
               <AppSelect
                 onChange={(value) => {
+                  if (value === 'Any') {
+                    handleChangeCondition('characterId', null)
+                    setCurrentCharacter(null)
+                    return
+                  }
+
                   const character = getCharacterData(
                     stickersData,
                     conditionState?.collectionId || '',
@@ -147,14 +149,20 @@ export const Stickers = ({
                   handleChangeCondition('characterId', value)
                 }}
                 value={conditionState?.characterId?.toString()}
-                options={currentCollection?.characters?.map((character) => ({
-                  value: character.id.toString(),
-                  name: character.name,
-                }))}
+                options={[
+                  {
+                    value: 'Any',
+                    name: 'Any',
+                  },
+                  ...(currentCollection?.characters?.map((character) => ({
+                    value: character.id.toString(),
+                    name: character.name,
+                  })) || []),
+                ]}
               />
             }
           />
-          {currentCollection && (
+          {currentCollection && currentCharacter && (
             <ListItem
               before={
                 <Image
