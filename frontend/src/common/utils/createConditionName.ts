@@ -19,7 +19,7 @@ export const createConditionName = (condition: Condition) => {
   }
 
   if (type === 'sticker_collection') {
-    return `Hold ${condition.collection?.title} ${condition.character?.name} Stickers`
+    return `Hold ${condition.collection?.title} ${condition.character?.name ?? ''} Stickers`
   }
 
   if (type === 'premium') {

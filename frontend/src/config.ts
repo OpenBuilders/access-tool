@@ -10,7 +10,7 @@ interface Config {
 
 const devConfig: Config = {
   isDev: true,
-  apiHost: 'https://localhost/api',
+  apiHost: 'https://dev-api.access.tools.tg',
   botName: 'not_testing_with_bugs_guide_bot',
   botLink: 'https://t.me/not_testing_with_bugs_guide_bot',
   tonConnectManifestUrl: 'https://cdn.joincommunity.xyz/gateway/manifest.json',
