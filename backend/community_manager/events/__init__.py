@@ -11,6 +11,7 @@ from telethon.tl.types import (
     ChannelParticipantSelf,
     User as TelethonUser,
     ChannelParticipantCreator,
+    ChatInviteExported,
 )
 
 from core.constants import REQUIRED_ADMIN_PRIVILEGES, REQUIRED_BOT_PRIVILEGES
@@ -26,6 +27,8 @@ class ChatJoinRequestEventBuilder(EventBuilder):
         if isinstance(update, UpdateBotChatInviteRequester):
             return cls.Event(update=update)
 
+        return None
+
     class Event(EventCommon):
         def __init__(self, *, update: UpdateBotChatInviteRequester):
             super().__init__(chat_peer=update.peer)
@@ -39,7 +42,7 @@ class ChatJoinRequestEventBuilder(EventBuilder):
         @property
         def invited_by_current_user(self) -> bool:
             return (
-                self.original_update.invite
+                isinstance(self.original_update.invite, ChatInviteExported)
                 and self.original_update.invite.admin_id == self.client._self_id
             )
 
@@ -70,6 +73,8 @@ class ChatAdminChangeEventBuilder(EventBuilder):
         ):
             return cls.Event(update=update)
 
+        return None
+
     class Event(EventCommon):
         def __init__(self, *, update: UpdateChannelParticipant) -> None:
             super().__init__()
@@ -84,7 +89,7 @@ class ChatAdminChangeEventBuilder(EventBuilder):
                 isinstance(self.prev_participant, ChannelParticipantSelf)
                 # Demoted from admin to user
                 or isinstance(self.new_participant, ChannelParticipantSelf)
-                # Was admin already
+                # Was admin before
                 or (
                     isinstance(self.prev_participant, ChannelParticipantAdmin)
                     and self.prev_participant.is_self
