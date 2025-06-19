@@ -7,7 +7,10 @@ from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from core.actions.chat import ManagedChatBaseAction
 from core.dtos.chat.rule import ChatEligibilityRuleDTO
-from core.dtos.chat.rule.premium import CreateTelegramChatPremiumRuleDTO, UpdateTelegramChatPremiumRuleDTO
+from core.dtos.chat.rule.premium import (
+    CreateTelegramChatPremiumRuleDTO,
+    UpdateTelegramChatPremiumRuleDTO,
+)
 from core.models.user import User
 from core.services.chat.rule.premium import TelegramChatPremiumService
 
@@ -30,7 +33,9 @@ class TelegramChatPremiumAction(ManagedChatBaseAction):
             )
         return ChatEligibilityRuleDTO.from_premium_rule(rule)
 
-    def check_duplicates(self, chat_id: int, group_id: int, entity_id: int | None = None) -> None:
+    def check_duplicates(
+        self, chat_id: int, group_id: int, entity_id: int | None = None
+    ) -> None:
         """
         Checks for duplicate rules based on the provided chat ID, group ID, and
         optional entity ID. If a duplicate rule exists, raises an HTTPException.
@@ -53,7 +58,11 @@ class TelegramChatPremiumAction(ManagedChatBaseAction):
         group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
         self.check_duplicates(chat_id=self.chat.id, group_id=group_id)
 
-        rule = self.service.create(CreateTelegramChatPremiumRuleDTO(chat_id=self.chat.id, group_id=group_id, is_enabled=True))
+        rule = self.service.create(
+            CreateTelegramChatPremiumRuleDTO(
+                chat_id=self.chat.id, group_id=group_id, is_enabled=True
+            )
+        )
         logger.info(f"New Telegram Premium rule created for the chat {self.chat.id!r}.")
         return ChatEligibilityRuleDTO.from_premium_rule(rule)
 
@@ -66,7 +75,9 @@ class TelegramChatPremiumAction(ManagedChatBaseAction):
                 status_code=HTTP_404_NOT_FOUND,
             )
 
-        self.service.update(rule=rule, dto=UpdateTelegramChatPremiumRuleDTO(is_enabled=is_enabled))
+        self.service.update(
+            rule=rule, dto=UpdateTelegramChatPremiumRuleDTO(is_enabled=is_enabled)
+        )
         logger.info(
             f"Updated Telegram Premium rule {rule_id!r} for the chat {self.chat.id!r}."
         )

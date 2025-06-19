@@ -17,12 +17,16 @@ class TelegramChatWhitelistExternalSourceDTO(BaseModel):
     is_enabled: bool
 
 
-class CreateTelegramChatWhitelistExternalSourceDTO(TelegramChatWhitelistExternalSourceDTO):
+class CreateTelegramChatWhitelistExternalSourceDTO(
+    TelegramChatWhitelistExternalSourceDTO
+):
     chat_id: int
     group_id: int
 
 
-class UpdateTelegramChatWhitelistExternalSourceDTO(TelegramChatWhitelistExternalSourceDTO):
+class UpdateTelegramChatWhitelistExternalSourceDTO(
+    TelegramChatWhitelistExternalSourceDTO
+):
     ...
 
 

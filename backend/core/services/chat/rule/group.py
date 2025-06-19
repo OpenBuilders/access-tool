@@ -9,17 +9,24 @@ logger = logging.getLogger(__name__)
 
 class TelegramChatRuleGroupService(BaseService):
     def get(self, chat_id: int, group_id: int) -> TelegramChatRuleGroup:
-        return self.db_session.query(TelegramChatRuleGroup).filter(
-            TelegramChatRuleGroup.chat_id == chat_id,
-            TelegramChatRuleGroup.id == group_id,
-        ).one()
+        return (
+            self.db_session.query(TelegramChatRuleGroup)
+            .filter(
+                TelegramChatRuleGroup.chat_id == chat_id,
+                TelegramChatRuleGroup.id == group_id,
+            )
+            .one()
+        )
 
     def get_default_for_chat(self, chat_id: int) -> TelegramChatRuleGroup:
-        default_group = self.db_session.query(TelegramChatRuleGroup).filter(
-            TelegramChatRuleGroup.chat_id == chat_id,
-        ).order_by(
-            TelegramChatRuleGroup.order
-        ).first()
+        default_group = (
+            self.db_session.query(TelegramChatRuleGroup)
+            .filter(
+                TelegramChatRuleGroup.chat_id == chat_id,
+            )
+            .order_by(TelegramChatRuleGroup.order)
+            .first()
+        )
 
         if not default_group:
             raise ValueError(f"No default group found for chat {chat_id!r}.")
@@ -27,11 +34,13 @@ class TelegramChatRuleGroupService(BaseService):
         return default_group
 
     def create(self, chat_id: int) -> TelegramChatRuleGroup:
-        current_max_order = self.db_session.query(TelegramChatRuleGroup.order).filter(
-            TelegramChatRuleGroup.chat_id == chat_id
-        ).order_by(
-            TelegramChatRuleGroup.order.desc()
-        ).scalar() or 0
+        current_max_order = (
+            self.db_session.query(TelegramChatRuleGroup.order)
+            .filter(TelegramChatRuleGroup.chat_id == chat_id)
+            .order_by(TelegramChatRuleGroup.order.desc())
+            .scalar()
+            or 0
+        )
 
         new_group = TelegramChatRuleGroup(
             chat_id=chat_id,

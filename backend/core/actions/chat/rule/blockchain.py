@@ -502,10 +502,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
             group_id=group_id,
             category=category,
         )
-        if next(
-            filter(lambda rule: rule.id != entity_id, existing_rules),
-            None
-        ):
+        if next(filter(lambda rule: rule.id != entity_id, existing_rules), None):
             raise HTTPException(
                 detail="Rule of that type and category already exists for that chat. Please, modify it instead.",
                 status_code=HTTP_400_BAD_REQUEST,
