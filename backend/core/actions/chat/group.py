@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from core.actions.chat import ManagedChatBaseAction
@@ -20,4 +21,16 @@ class TelegramChatRuleGroupAction(ManagedChatBaseAction):
         return TelegramChatRuleGroupDTO.from_orm(group)
 
     def delete(self, group_id: int) -> None:
+        groups = self.service.get_all(chat_id=self.chat.id)
+        if group_id not in {group.id for group in groups}:
+            raise HTTPException(
+                detail="Group not found",
+                status_code=404,
+            )
+        elif len(groups) == 1:
+            raise HTTPException(
+                detail="Cannot delete the only group",
+                status_code=400,
+            )
+
         self.service.delete(chat_id=self.chat.id, group_id=group_id)
