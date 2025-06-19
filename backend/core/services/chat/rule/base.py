@@ -26,11 +26,13 @@ from core.dtos.chat.rules.toncoin import (
     CreateTelegramChatToncoinRuleDTO,
     UpdateTelegramChatToncoinRuleDTO,
 )
-from core.dtos.chat.rules.whitelist import CreateTelegramChatWhitelistExternalSourceDTO, \
-    UpdateTelegramChatWhitelistExternalSourceDTO
-from core.exceptions.rule import TelegramChatRuleGroupMismatch
+from core.dtos.chat.rules.whitelist import (
+    CreateTelegramChatWhitelistExternalSourceDTO,
+    UpdateTelegramChatWhitelistExternalSourceDTO,
+    CreateTelegramChatWhitelistDTO,
+    UpdateTelegramChatWhitelistDTO,
+)
 from core.models.rule import (
-    TelegramChatRuleGroup,
     TelegramChatRuleBase,
 )
 from core.services.base import BaseService
@@ -47,6 +49,7 @@ CreateTelegramChatRuleDTOType = (
     | CreateTelegramChatPremiumRuleDTO
     | CreateTelegramChatEmojiRuleDTO
     | CreateTelegramChatWhitelistExternalSourceDTO
+    | CreateTelegramChatWhitelistDTO
 )
 UpdateTelegramChatRuleDTOType = (
     UpdateTelegramChatJettonRuleDTO
@@ -57,6 +60,7 @@ UpdateTelegramChatRuleDTOType = (
     | UpdateTelegramChatPremiumRuleDTO
     | UpdateTelegramChatEmojiRuleDTO
     | UpdateTelegramChatWhitelistExternalSourceDTO
+    | UpdateTelegramChatWhitelistDTO
 )
 
 TelegramChatRuleT = TypeVar("TelegramChatRuleT", bound=TelegramChatRuleBase)
@@ -65,40 +69,8 @@ TelegramChatRuleT = TypeVar("TelegramChatRuleT", bound=TelegramChatRuleBase)
 class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
     model: TelegramChatRuleT
 
-    def get_default_chat_group(self, chat_id: int) -> TelegramChatRuleGroup:
-        default_group = (
-            self.db_session.query(TelegramChatRuleGroup)
-            .filter(
-                TelegramChatRuleGroup.chat_id == chat_id,
-            )
-            .order_by(TelegramChatRuleGroup.order)
-            .first()
-        )
-        if not default_group:
-            raise ValueError(f"No default group found for chat {chat_id!r}.")
-
-        return default_group  # type: ignore
-
-    def validate_chat_group(self, chat_id: int, group_id: int) -> None:
-        if not self.db_session.query(TelegramChatRuleGroup).filter(
-                TelegramChatRuleGroup.id == group_id,
-                TelegramChatRuleGroup.chat_id == chat_id,
-        ).one_or_none():
-            raise ValueError(f"Group {group_id!r} not found for chat {chat_id!r}.")
-
     def create(self, dto: CreateTelegramChatRuleDTOType) -> TelegramChatRuleT:
-        kwargs = dto.model_dump()
-        if not kwargs.get("group_id"):
-            group = self.get_default_chat_group(dto.chat_id)
-            kwargs["group_id"] = group.id
-        else:
-            try:
-                self.validate_chat_group(dto.chat_id, kwargs["group_id"])
-            except ValueError as e:
-                logger.error(e)
-                raise TelegramChatRuleGroupMismatch(str(e)) from e
-
-        new_rule = self.model(**kwargs)  # noqa
+        new_rule = self.model(**dto.model_dump())  # noqa
         self.db_session.add(new_rule)
         self.db_session.commit()
         logger.debug(f"Telegram Chat Rule {new_rule!r} created.")
@@ -137,7 +109,7 @@ class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
         rule: TelegramChatRuleT,
         dto: UpdateTelegramChatRuleDTOType,
     ) -> TelegramChatRuleT:
-        for key, value in dto.model_dump().items():
+        for key, value in dto.model_dump(exclude_none=True).items():
             setattr(rule, key, value)
         self.db_session.commit()
         logger.debug(f"{rule!r} updated.")

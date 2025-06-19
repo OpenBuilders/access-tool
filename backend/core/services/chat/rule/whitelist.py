@@ -19,12 +19,6 @@ class BaseTelegramChatExternalSourceService(
         self.db_session.commit()
         return rule
 
-    def delete(self, chat_id: int, rule_id: int) -> None:
-        self.db_session.query(self.model).filter(
-            self.model.chat_id == chat_id, self.model.id == rule_id
-        ).delete(synchronize_session="fetch")
-        self.db_session.commit()
-        logger.debug(f"Telegram Chat External Source {rule_id!r} deleted.")
 
 
 class TelegramChatExternalSourceService(

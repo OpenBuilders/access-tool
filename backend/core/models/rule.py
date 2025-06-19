@@ -38,7 +38,7 @@ class TelegramChatRuleBase(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     group_id: Mapped[int] = mapped_column(
-        ForeignKey("telegram_chat_task_group.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("telegram_chat_rule_group.id", ondelete="CASCADE"), nullable=False
     )
     chat_id: Mapped[int] = mapped_column(
         ForeignKey("telegram_chat.id", ondelete="CASCADE"), nullable=False
