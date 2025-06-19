@@ -13,6 +13,7 @@ class EligibilitySummaryInternalDTO(BaseModel):
     """
 
     id: int
+    group_id: int
     type: EligibilityCheckType
     title: str
     address_raw: str | None = None  # required for blockchain rules only
@@ -73,6 +74,7 @@ class RulesEligibilityGroupSummaryInternalDTO(BaseModel):
     provides utility methods to evaluate their collective eligibility state.
     """
 
+    id: int
     items: list[EligibilitySummaryInternalDTO]
 
     def __bool__(self):

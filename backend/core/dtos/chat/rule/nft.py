@@ -30,6 +30,7 @@ class NftEligibilityRuleDTO(ChatEligibilityRuleDTO):
     def from_nft_collection_rule(cls, nft_collection_rule: TelegramChatNFTCollection):
         return cls(
             id=nft_collection_rule.id,
+            group_id=nft_collection_rule.group_id,
             type=EligibilityCheckType.NFT_COLLECTION,
             title=nft_collection_rule.asset
             or (
