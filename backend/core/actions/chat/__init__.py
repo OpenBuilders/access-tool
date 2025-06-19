@@ -50,6 +50,7 @@ from core.models.chat import TelegramChat
 from core.models.user import User
 from core.services.cdn import CDNService
 from core.services.chat import TelegramChatService
+from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.user import TelegramChatUserService
 from core.services.supertelethon import TelethonService
 from core.settings import core_settings
@@ -64,6 +65,7 @@ class TelegramChatAction(BaseAction):
         super().__init__(db_session)
         self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
+        self.telegram_chat_rule_group_service = TelegramChatRuleGroupService(db_session)
         self.authorization_action = AuthorizationAction(
             db_session, telethon_client=telethon_client
         )
@@ -265,6 +267,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             ],
             key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
         )
+        groups = self.telegram_chat_rule_group_service.get_all(self.chat.id)
         items = defaultdict(list)
         for rule in rules:
             items[rule.group_id].append(rule)
@@ -276,10 +279,11 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             ),
             groups=[
                 ChatEligibilityRuleGroupDTO(
-                    id=group_id,
-                    items=group_items,
+                    id=group.id,
+                    items=items.get(group.id, []),
                 )
-                for group_id, group_items in items.items()
+                # Iterate over original groups to preserve groups ordering
+                for group in groups
             ],
             rules=rules,
         )
