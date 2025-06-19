@@ -7,6 +7,7 @@ from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from core.actions.chat import ManagedChatBaseAction
 from core.dtos.chat.rules import ChatEligibilityRuleDTO
+from core.dtos.chat.rules.premium import CreateTelegramChatPremiumRuleDTO, UpdateTelegramChatPremiumRuleDTO
 from core.models.user import User
 from core.services.chat.rule.premium import TelegramChatPremiumService
 
@@ -21,7 +22,7 @@ class TelegramChatPremiumAction(ManagedChatBaseAction):
 
     def read(self, rule_id: int) -> ChatEligibilityRuleDTO:
         try:
-            rule = self.service.get(chat_id=self.chat.id, rule_id=rule_id)
+            rule = self.service.get(chat_id=self.chat.id, id_=rule_id)
         except NoResultFound:
             raise HTTPException(
                 detail="Rule not found",
@@ -36,20 +37,20 @@ class TelegramChatPremiumAction(ManagedChatBaseAction):
                 status_code=HTTP_400_BAD_REQUEST,
             )
 
-        rule = self.service.create(chat_id=self.chat.id)
+        rule = self.service.create(CreateTelegramChatPremiumRuleDTO(chat_id=self.chat.id, is_enabled=True))
         logger.info(f"New Telegram Premium rule created for the chat {self.chat.id!r}.")
         return ChatEligibilityRuleDTO.from_premium_rule(rule)
 
     def update(self, rule_id: int, is_enabled: bool) -> ChatEligibilityRuleDTO:
         try:
-            rule = self.service.get(chat_id=self.chat.id, rule_id=rule_id)
+            rule = self.service.get(chat_id=self.chat.id, id_=rule_id)
         except NoResultFound:
             raise HTTPException(
                 detail="Rule not found",
                 status_code=HTTP_404_NOT_FOUND,
             )
 
-        self.service.update(rule=rule, is_enabled=is_enabled)
+        self.service.update(rule=rule, dto=UpdateTelegramChatPremiumRuleDTO(is_enabled=is_enabled))
         logger.info(
             f"Updated Telegram Premium rule {rule_id!r} for the chat {self.chat.id!r}."
         )

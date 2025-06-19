@@ -1,8 +1,24 @@
 from typing import Self
 
+from pydantic import BaseModel
+
 from core.dtos.chat.rules import ChatEligibilityRuleDTO, EligibilityCheckType
 from core.dtos.chat.rules.internal import EligibilitySummaryInternalDTO
 from core.models.rule import TelegramChatEmoji
+
+
+class TelegramChatEmojiRuleDTO(BaseModel):
+    emoji_id: str
+    is_enabled: bool
+
+
+class CreateTelegramChatEmojiRuleDTO(TelegramChatEmojiRuleDTO):
+    chat_id: int
+    group_id: int | None = None
+
+
+class UpdateTelegramChatEmojiRuleDTO(TelegramChatEmojiRuleDTO):
+    ...
 
 
 class EmojiChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
