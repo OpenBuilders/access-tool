@@ -4,3 +4,7 @@ class TelegramChatRuleExists(Exception):
 
 class TelegramChatRuleGroupMismatch(Exception):
     pass
+
+
+class TelegramChatRuleNotFound(Exception):
+    pass

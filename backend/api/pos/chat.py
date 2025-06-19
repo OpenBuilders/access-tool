@@ -133,6 +133,7 @@ class BaseTelegramChatQuantityRuleCPO(BaseFDO):
             description="Optional category of the rule, e.g. NFT collection category or amount of burned items",
         ),
     ]
+    group_id: int | None = None
     is_enabled: bool = True
 
 
@@ -250,6 +251,7 @@ class TelegramChatPremiumRuleCPO(BaseFDO):
 class TelegramChatEmojiRuleCPO(BaseFDO):
     is_enabled: bool
     emoji_id: str
+    group_id: int | None = None
 
 
 class ChatEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
@@ -386,6 +388,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
 class CreateWhitelistRuleBaseCPO(BaseFDO):
     name: Annotated[str, Field(min_length=1, max_length=255)]
     description: Annotated[str | None, Field(min_length=0, max_length=255)] = None
+    group_id: int | None = None
 
 
 class CreateWhitelistRuleCPO(CreateWhitelistRuleBaseCPO):

@@ -14,7 +14,7 @@ class TelegramChatEmojiRuleDTO(BaseModel):
 
 class CreateTelegramChatEmojiRuleDTO(TelegramChatEmojiRuleDTO):
     chat_id: int
-    group_id: int | None = None
+    group_id: int
 
 
 class UpdateTelegramChatEmojiRuleDTO(TelegramChatEmojiRuleDTO):
