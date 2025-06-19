@@ -20,8 +20,8 @@ if TYPE_CHECKING:
     from core.models.gift import GiftCollection
 
 
-class TelegramChatTaskGroup(Base):
-    __tablename__ = "telegram_chat_task_group"
+class TelegramChatRuleGroup(Base):
+    __tablename__ = "telegram_chat_rule_group"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     chat_id: Mapped[int] = mapped_column(

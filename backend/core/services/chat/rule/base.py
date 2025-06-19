@@ -30,7 +30,7 @@ from core.dtos.chat.rules.whitelist import CreateTelegramChatWhitelistExternalSo
     UpdateTelegramChatWhitelistExternalSourceDTO
 from core.exceptions.rule import TelegramChatRuleGroupMismatch
 from core.models.rule import (
-    TelegramChatTaskGroup,
+    TelegramChatRuleGroup,
     TelegramChatRuleBase,
 )
 from core.services.base import BaseService
@@ -65,13 +65,13 @@ TelegramChatRuleT = TypeVar("TelegramChatRuleT", bound=TelegramChatRuleBase)
 class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
     model: TelegramChatRuleT
 
-    def get_default_chat_group(self, chat_id: int) -> TelegramChatTaskGroup:
+    def get_default_chat_group(self, chat_id: int) -> TelegramChatRuleGroup:
         default_group = (
-            self.db_session.query(TelegramChatTaskGroup)
+            self.db_session.query(TelegramChatRuleGroup)
             .filter(
-                TelegramChatTaskGroup.chat_id == chat_id,
+                TelegramChatRuleGroup.chat_id == chat_id,
             )
-            .order_by(TelegramChatTaskGroup.order)
+            .order_by(TelegramChatRuleGroup.order)
             .first()
         )
         if not default_group:
@@ -80,9 +80,9 @@ class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
         return default_group  # type: ignore
 
     def validate_chat_group(self, chat_id: int, group_id: int) -> None:
-        if not self.db_session.query(TelegramChatTaskGroup).filter(
-            TelegramChatTaskGroup.id == group_id,
-            TelegramChatTaskGroup.chat_id == chat_id,
+        if not self.db_session.query(TelegramChatRuleGroup).filter(
+                TelegramChatRuleGroup.id == group_id,
+                TelegramChatRuleGroup.chat_id == chat_id,
         ).one_or_none():
             raise ValueError(f"Group {group_id!r} not found for chat {chat_id!r}.")
 
