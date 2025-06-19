@@ -9,7 +9,7 @@ from starlette.status import HTTP_404_NOT_FOUND
 from core.actions.authorization import AuthorizationAction
 from core.actions.base import BaseAction
 from core.actions.chat.base import ManagedChatBaseAction
-from core.dtos.chat.rules.whitelist import (
+from core.dtos.chat.rule.whitelist import (
     WhitelistRuleItemsDifferenceDTO,
     WhitelistRuleDTO,
     WhitelistRuleExternalDTO, CreateTelegramChatWhitelistExternalSourceDTO,

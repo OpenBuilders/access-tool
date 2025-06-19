@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from core.actions.chat import ManagedChatBaseAction
-from core.dtos.chat.rules.emoji import EmojiChatEligibilityRuleDTO, CreateTelegramChatEmojiRuleDTO, \
+from core.dtos.chat.rule.emoji import EmojiChatEligibilityRuleDTO, CreateTelegramChatEmojiRuleDTO, \
     UpdateTelegramChatEmojiRuleDTO
 from core.models.user import User
 from core.services.chat.rule.emoji import TelegramChatEmojiService

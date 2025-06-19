@@ -26,12 +26,26 @@ class TelegramChatRuleGroupService(BaseService):
 
         return default_group
 
-    def create(self, chat_id: int, order: int = 1) -> TelegramChatRuleGroup:
+    def create(self, chat_id: int) -> TelegramChatRuleGroup:
+        current_max_order = self.db_session.query(TelegramChatRuleGroup.order).filter(
+            TelegramChatRuleGroup.chat_id == chat_id
+        ).order_by(
+            TelegramChatRuleGroup.order.desc()
+        ).scalar() or 0
+
         new_group = TelegramChatRuleGroup(
             chat_id=chat_id,
-            order=order,
+            order=current_max_order + 1,
         )
         self.db_session.add(new_group)
         self.db_session.commit()
         logger.info(f"Created a new rule group for chat {chat_id!r}.")
         return new_group
+
+    def delete(self, chat_id: int, group_id: int) -> None:
+        self.db_session.query(TelegramChatRuleGroup).filter(
+            TelegramChatRuleGroup.chat_id == chat_id,
+            TelegramChatRuleGroup.id == group_id,
+        ).delete()
+        self.db_session.commit()
+        logger.info(f"Deleted rule group {group_id!r} for chat {chat_id!r}.")

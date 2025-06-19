@@ -10,11 +10,11 @@ from telethon.errors import (
 )
 
 from core.actions.base import BaseAction
-from core.dtos.chat.rules import (
+from core.dtos.chat.rule import (
     EligibilityCheckType,
     TelegramChatEligibilityRulesDTO,
 )
-from core.dtos.chat.rules.internal import (
+from core.dtos.chat.rule.internal import (
     EligibilitySummaryInternalDTO,
     RulesEligibilitySummaryInternalDTO,
     RulesEligibilityGroupSummaryInternalDTO,

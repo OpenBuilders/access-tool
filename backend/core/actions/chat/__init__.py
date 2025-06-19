@@ -14,29 +14,29 @@ from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
 )
-from core.dtos.chat.rules import (
+from core.dtos.chat.rule import (
     TelegramChatWithRulesDTO,
     EligibilityCheckType,
     ChatEligibilityRuleDTO,
 )
-from core.dtos.chat.rules.emoji import (
+from core.dtos.chat.rule.emoji import (
     EmojiChatEligibilitySummaryDTO,
     EmojiChatEligibilityRuleDTO,
 )
-from core.dtos.chat.rules.gift import (
+from core.dtos.chat.rule.gift import (
     GiftChatEligibilityRuleDTO,
     GiftChatEligibilitySummaryDTO,
 )
-from core.dtos.chat.rules.jetton import (
+from core.dtos.chat.rule.jetton import (
     JettonEligibilityRuleDTO,
     JettonEligibilitySummaryDTO,
 )
-from core.dtos.chat.rules.nft import NftEligibilityRuleDTO, NftRuleEligibilitySummaryDTO
-from core.dtos.chat.rules.sticker import (
+from core.dtos.chat.rule.nft import NftEligibilityRuleDTO, NftRuleEligibilitySummaryDTO
+from core.dtos.chat.rule.sticker import (
     StickerChatEligibilityRuleDTO,
     StickerChatEligibilitySummaryDTO,
 )
-from core.dtos.chat.rules.summary import (
+from core.dtos.chat.rule.summary import (
     RuleEligibilitySummaryDTO,
     TelegramChatWithEligibilitySummaryDTO,
 )

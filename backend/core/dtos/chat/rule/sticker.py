@@ -3,8 +3,8 @@ from typing import Any, Self
 from pydantic import BaseModel, computed_field
 
 from core.constants import PROMOTE_STICKER_COLLECTION_TEMPLATE
-from core.dtos.chat.rules import ChatEligibilityRuleDTO, EligibilityCheckType
-from core.dtos.chat.rules.internal import EligibilitySummaryStickerCollectionInternalDTO
+from core.dtos.chat.rule import ChatEligibilityRuleDTO, EligibilityCheckType
+from core.dtos.chat.rule.internal import EligibilitySummaryStickerCollectionInternalDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 
 
