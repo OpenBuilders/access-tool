@@ -29,7 +29,7 @@ func main() {
 		Password: cfg.RedisPass,
 		DB:       cfg.RedisDB,
 		TLSConfig: &tls.Config{
-			InsecureSkipVerify: false,
+			InsecureSkipVerify: true,
 		},
 		ReadTimeout: -1, // Disable read timeout for initial wallets load
 	})
