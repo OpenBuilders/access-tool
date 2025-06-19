@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from core.actions.chat import ManagedChatBaseAction
-from core.dtos.chat.rules.emoji import EmojiChatEligibilityRuleDTO
+from core.dtos.chat.rules.emoji import EmojiChatEligibilityRuleDTO, CreateTelegramChatEmojiRuleDTO, \
+    UpdateTelegramChatEmojiRuleDTO
 from core.models.user import User
 from core.services.chat.rule.emoji import TelegramChatEmojiService
 
@@ -21,7 +22,7 @@ class TelegramChatEmojiAction(ManagedChatBaseAction):
 
     def read(self, rule_id: int) -> EmojiChatEligibilityRuleDTO:
         try:
-            rule = self.service.get(chat_id=self.chat.id, rule_id=rule_id)
+            rule = self.service.get(chat_id=self.chat.id, id_=rule_id)
         except NoResultFound:
             raise HTTPException(
                 detail="Rule not found",
@@ -36,7 +37,7 @@ class TelegramChatEmojiAction(ManagedChatBaseAction):
                 status_code=HTTP_400_BAD_REQUEST,
             )
 
-        rule = self.service.create(chat_id=self.chat.id, emoji_id=emoji_id)
+        rule = self.service.create(CreateTelegramChatEmojiRuleDTO(chat_id=self.chat.id, emoji_id=emoji_id, is_enabled=True))
         logger.info(f"New Telegram Emoji rule created for the chat {self.chat.id!r}.")
         return EmojiChatEligibilityRuleDTO.from_orm(rule)
 
@@ -44,14 +45,14 @@ class TelegramChatEmojiAction(ManagedChatBaseAction):
         self, rule_id: int, emoji_id: str, is_enabled: bool
     ) -> EmojiChatEligibilityRuleDTO:
         try:
-            rule = self.service.get(chat_id=self.chat.id, rule_id=rule_id)
+            rule = self.service.get(chat_id=self.chat.id, id_=rule_id)
         except NoResultFound:
             raise HTTPException(
                 detail="Rule not found",
                 status_code=HTTP_404_NOT_FOUND,
             )
 
-        self.service.update(rule=rule, emoji_id=emoji_id, is_enabled=is_enabled)
+        self.service.update(rule=rule, dto=UpdateTelegramChatEmojiRuleDTO(emoji_id=emoji_id, is_enabled=is_enabled))
         logger.info(
             f"Updated Telegram Emoji rule {rule_id!r} for the chat {self.chat.id!r}."
         )

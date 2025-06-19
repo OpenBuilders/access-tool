@@ -20,6 +20,7 @@ class CreateTelegramChatStickerCollectionRuleDTO(
     BaseTelegramChatStickerCollectionRuleDTO
 ):
     chat_id: int
+    group_id: int | None = None
 
 
 class UpdateTelegramChatStickerCollectionRuleDTO(
