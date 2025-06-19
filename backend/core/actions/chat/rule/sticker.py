@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from core.actions.chat import ManagedChatBaseAction
-from core.dtos.chat.rules.sticker import (
+from core.dtos.chat.rule.sticker import (
     StickerChatEligibilityRuleDTO,
     CreateTelegramChatStickerCollectionRuleDTO,
     UpdateTelegramChatStickerCollectionRuleDTO,

@@ -187,10 +187,7 @@ class CommunityManagerChatAction(BaseAction):
                 entity=chat,
                 logo_path=logo_path,
             )
-            self.telegram_chat_rule_group_service.create(
-                chat_id=chat_id,
-                order=1  # Default ordering for the first group
-            )
+            self.telegram_chat_rule_group_service.create(chat_id=chat_id)
             return TelegramChatDTO.from_object(
                 obj=telegram_chat, insufficient_privileges=not sufficient_bot_privileges
             )
