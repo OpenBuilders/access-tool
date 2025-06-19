@@ -65,6 +65,7 @@ class NftRuleEligibilitySummaryDTO(NftEligibilityRuleDTO):
     ):
         return cls(
             id=internal_dto.id,
+            group_id=internal_dto.group_id,
             type=internal_dto.type,
             asset=internal_dto.asset,
             category=internal_dto.category,

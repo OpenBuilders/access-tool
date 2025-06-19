@@ -47,6 +47,7 @@ class EmojiChatEligibilitySummaryDTO(EmojiChatEligibilityRuleDTO):
     def from_internal_dto(cls, internal_dto: EligibilitySummaryInternalDTO):
         return cls(
             id=internal_dto.id,
+            group_id=internal_dto.group_id,
             type=internal_dto.type,
             title=internal_dto.title,
             emoji_id=internal_dto.title,
