@@ -19,7 +19,7 @@ class TelegramChatWhitelistExternalSourceDTO(BaseModel):
 
 class CreateTelegramChatWhitelistExternalSourceDTO(TelegramChatWhitelistExternalSourceDTO):
     chat_id: int
-    group_id: int | None = None
+    group_id: int
 
 
 class UpdateTelegramChatWhitelistExternalSourceDTO(TelegramChatWhitelistExternalSourceDTO):
@@ -34,7 +34,7 @@ class TelegramChatWhitelistDTO(BaseModel):
 
 class CreateTelegramChatWhitelistDTO(TelegramChatWhitelistDTO):
     chat_id: int
-    group_id: int | None = None
+    group_id: int
 
 
 class UpdateTelegramChatWhitelistDTO(TelegramChatWhitelistDTO):

@@ -7,7 +7,7 @@ class TelegramChatPremiumRule(BaseModel):
 
 class CreateTelegramChatPremiumRuleDTO(TelegramChatPremiumRule):
     chat_id: int
-    group_id: int | None = None
+    group_id: int
 
 
 class UpdateTelegramChatPremiumRuleDTO(TelegramChatPremiumRule):
