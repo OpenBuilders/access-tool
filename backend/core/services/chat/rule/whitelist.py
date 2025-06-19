@@ -11,14 +11,12 @@ class BaseTelegramChatExternalSourceService(
     BaseTelegramChatRuleService,
     Generic[TelegramChatRuleT],
 ):
-
     def set_content(
         self, rule: TelegramChatRuleT, content: list[int]
     ) -> TelegramChatRuleT:
         rule.content = content
         self.db_session.commit()
         return rule
-
 
 
 class TelegramChatExternalSourceService(
