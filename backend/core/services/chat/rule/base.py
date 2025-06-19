@@ -4,7 +4,10 @@ from typing import Any, Generic, TypeVar
 
 from sqlalchemy import desc
 
-from core.dtos.chat.rule.emoji import CreateTelegramChatEmojiRuleDTO, UpdateTelegramChatEmojiRuleDTO
+from core.dtos.chat.rule.emoji import (
+    CreateTelegramChatEmojiRuleDTO,
+    UpdateTelegramChatEmojiRuleDTO,
+)
 from core.dtos.chat.rule.gift import (
     CreateTelegramChatGiftCollectionRuleDTO,
     UpdateTelegramChatGiftCollectionRuleDTO,
@@ -17,7 +20,10 @@ from core.dtos.chat.rule.nft import (
     CreateTelegramChatNFTCollectionRuleDTO,
     UpdateTelegramChatNFTCollectionRuleDTO,
 )
-from core.dtos.chat.rule.premium import CreateTelegramChatPremiumRuleDTO, UpdateTelegramChatPremiumRuleDTO
+from core.dtos.chat.rule.premium import (
+    CreateTelegramChatPremiumRuleDTO,
+    UpdateTelegramChatPremiumRuleDTO,
+)
 from core.dtos.chat.rule.sticker import (
     CreateTelegramChatStickerCollectionRuleDTO,
     UpdateTelegramChatStickerCollectionRuleDTO,

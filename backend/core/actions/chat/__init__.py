@@ -18,7 +18,8 @@ from core.dtos.chat import (
 from core.dtos.chat.rule import (
     TelegramChatWithRulesDTO,
     EligibilityCheckType,
-    ChatEligibilityRuleDTO, ChatEligibilityRuleGroupDTO,
+    ChatEligibilityRuleDTO,
+    ChatEligibilityRuleGroupDTO,
 )
 from core.dtos.chat.rule.emoji import (
     EmojiChatEligibilitySummaryDTO,
@@ -39,7 +40,8 @@ from core.dtos.chat.rule.sticker import (
 )
 from core.dtos.chat.rule.summary import (
     RuleEligibilitySummaryDTO,
-    TelegramChatWithEligibilitySummaryDTO, TelegramChatGroupWithEligibilitySummaryDTO,
+    TelegramChatWithEligibilitySummaryDTO,
+    TelegramChatGroupWithEligibilitySummaryDTO,
 )
 from core.exceptions.chat import (
     TelegramChatNotExists,
@@ -160,7 +162,7 @@ class TelegramChatAction(BaseAction):
                         rule
                     )
                     for rule in group.items
-                ]
+                ],
             )
             for group in eligibility_summary.groups
         ]
@@ -175,7 +177,6 @@ class TelegramChatAction(BaseAction):
             ),
             groups=formatted_groups,
             rules=[item for group in formatted_groups for item in group.items],
-
             wallet=eligibility_summary.wallet,
         )
 

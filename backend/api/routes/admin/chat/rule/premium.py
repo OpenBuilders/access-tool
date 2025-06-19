@@ -58,7 +58,9 @@ async def add_premium_rule(
         chat_slug=slug,
         db_session=db_session,
     )
-    return ChatEligibilityRuleFDO.model_validate(action.create(group_id=group_id).model_dump())
+    return ChatEligibilityRuleFDO.model_validate(
+        action.create(group_id=group_id).model_dump()
+    )
 
 
 @manage_premium_rules_router.put(

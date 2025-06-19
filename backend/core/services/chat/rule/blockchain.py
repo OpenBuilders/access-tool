@@ -14,7 +14,9 @@ class TelegramChatJettonService(BaseTelegramChatRuleService[TelegramChatJetton])
     model = TelegramChatJetton
 
 
-class TelegramChatNFTCollectionService(BaseTelegramChatRuleService[TelegramChatNFTCollection]):
+class TelegramChatNFTCollectionService(
+    BaseTelegramChatRuleService[TelegramChatNFTCollection]
+):
     model = TelegramChatNFTCollection
 
 
