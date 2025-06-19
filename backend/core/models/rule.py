@@ -44,7 +44,9 @@ class TelegramChatRuleBase(Base):
         ForeignKey("telegram_chat.id", ondelete="CASCADE"), nullable=False
     )
     is_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    grants_write_access: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    grants_write_access: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

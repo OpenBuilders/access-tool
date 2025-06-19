@@ -12,8 +12,11 @@ from core.actions.chat.base import ManagedChatBaseAction
 from core.dtos.chat.rule.whitelist import (
     WhitelistRuleItemsDifferenceDTO,
     WhitelistRuleDTO,
-    WhitelistRuleExternalDTO, CreateTelegramChatWhitelistExternalSourceDTO,
-    UpdateTelegramChatWhitelistExternalSourceDTO, CreateTelegramChatWhitelistDTO, UpdateTelegramChatWhitelistDTO,
+    WhitelistRuleExternalDTO,
+    CreateTelegramChatWhitelistExternalSourceDTO,
+    UpdateTelegramChatWhitelistExternalSourceDTO,
+    CreateTelegramChatWhitelistDTO,
+    UpdateTelegramChatWhitelistDTO,
 )
 from core.exceptions.rule import TelegramChatRuleExists
 from core.models.rule import TelegramChatWhitelistExternalSource
@@ -226,10 +229,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         except IntegrityError as e:
             message = f"External source rule {rule_id!r} does not exist for chat {self.chat.id!r}. "
             logger.warning(message, exc_info=e)
-            raise HTTPException(
-                detail=message,
-                status_code=HTTP_404_NOT_FOUND
-            ) from e
+            raise HTTPException(detail=message, status_code=HTTP_404_NOT_FOUND) from e
 
         external_source = self.telegram_chat_external_source_service.update(
             rule=rule,
@@ -282,7 +282,9 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
         )
         return WhitelistRuleDTO.from_orm(whitelist)
 
-    def create(self, group_id: int | None, name: str, description: str | None = None) -> WhitelistRuleDTO:
+    def create(
+        self, group_id: int | None, name: str, description: str | None = None
+    ) -> WhitelistRuleDTO:
         group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
 
         whitelist = self.telegram_chat_whitelist_service.create(
@@ -305,12 +307,11 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
                 chat_id=self.chat.id, id_=rule_id
             )
         except IntegrityError as e:
-            message = f"Whitelist rule {rule_id!r} does not exist for chat {self.chat.id!r}. "
+            message = (
+                f"Whitelist rule {rule_id!r} does not exist for chat {self.chat.id!r}. "
+            )
             logger.warning(message, exc_info=e)
-            raise HTTPException(
-                detail=message,
-                status_code=HTTP_404_NOT_FOUND
-            ) from e
+            raise HTTPException(detail=message, status_code=HTTP_404_NOT_FOUND) from e
 
         whitelist = self.telegram_chat_whitelist_service.update(
             rule=rule,
@@ -318,7 +319,7 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
                 name=name,
                 description=description,
                 is_enabled=is_enabled,
-            )
+            ),
         )
         logger.info(f"Whitelist {rule_id!r} updated successfully")
         return WhitelistRuleDTO.from_orm(whitelist)

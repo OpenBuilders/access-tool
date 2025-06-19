@@ -75,10 +75,15 @@ class ManagedChatBaseAction(BaseAction):
                 )
                 return group_id
             except IntegrityError as e:
-                raise TelegramChatRuleNotFound(f"No group with ID {group_id!r} found for chat {chat_id!r}.") from e
+                raise TelegramChatRuleNotFound(
+                    f"No group with ID {group_id!r} found for chat {chat_id!r}."
+                ) from e
 
         try:
-            return self.telegram_chat_rule_group_service.get_default_for_chat(self.chat.id).id
+            return self.telegram_chat_rule_group_service.get_default_for_chat(
+                self.chat.id
+            ).id
         except ValueError:
-            raise TelegramChatRuleNotFound(f"No default group found for chat {chat_id!r}.")
-
+            raise TelegramChatRuleNotFound(
+                f"No default group found for chat {chat_id!r}."
+            )

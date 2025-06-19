@@ -1,6 +1,5 @@
 import logging
 import re
-from collections import defaultdict
 from collections.abc import Callable
 from typing import Annotated, Self
 
@@ -26,7 +25,8 @@ from core.dtos.chat.group import TelegramChatRuleGroupDTO
 from core.dtos.chat.rule import (
     EligibilityCheckType,
     ChatEligibilityRuleDTO,
-    TelegramChatWithRulesDTO, ChatEligibilityRuleGroupDTO,
+    TelegramChatWithRulesDTO,
+    ChatEligibilityRuleGroupDTO,
 )
 from core.dtos.chat.rule.emoji import (
     EmojiChatEligibilityRuleDTO,
@@ -345,9 +345,11 @@ class TelegramChatWithRulesFDO(BaseFDO):
             ChatEligibilityRuleGroupFDO(
                 id=group.id,
                 items=[
-                    mapping.get(rule.type, ChatEligibilityRuleFDO).model_validate(rule.model_dump())
+                    mapping.get(rule.type, ChatEligibilityRuleFDO).model_validate(
+                        rule.model_dump()
+                    )
                     for rule in group.items
-                ]
+                ],
             )
             for group in dto.groups
         ]
@@ -408,7 +410,7 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
                         rule.model_dump()
                     )
                     for rule in group.items
-                ]
+                ],
             )
             for group in dto.groups
         ]
