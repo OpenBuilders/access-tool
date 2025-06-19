@@ -18,9 +18,9 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
-def create_task_group_table() -> None:
+def create_rule_group_table() -> None:
     op.create_table(
-        'telegram_chat_task_group',
+        'telegram_chat_rule_group',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('chat_id', sa.BigInteger(), nullable=False),
         sa.Column('order', sa.Integer(), nullable=False),
@@ -30,51 +30,51 @@ def create_task_group_table() -> None:
     )
     
     
-def create_task_group_columns() -> None:
+def create_rule_group_columns() -> None:
     """
-    Create new columns with 0 as default value to avoid raising null constraint error.
+    Create new columns with 0 as the default value to avoid raising a null constraint error.
     The actual value will be set in the migration script.
     """
     op.add_column('telegram_chat_emoji', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    op.add_column('telegram_chat_emoji', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
+    op.add_column('telegram_chat_emoji', sa.Column('grants_write_access', sa.Boolean(), nullable=False, server_default='true'))
     op.add_column('telegram_chat_gift_collection', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
     op.add_column('telegram_chat_jetton', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
     op.add_column('telegram_chat_nft_collection', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
     op.add_column('telegram_chat_premium', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    op.add_column('telegram_chat_premium', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
+    op.add_column('telegram_chat_premium', sa.Column('grants_write_access', sa.Boolean(), nullable=False, server_default='true'))
     op.add_column('telegram_chat_sticker_collection', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
     op.add_column('telegram_chat_toncoin', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
     op.add_column('telegram_chat_whitelist', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    op.add_column('telegram_chat_whitelist', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
+    op.add_column('telegram_chat_whitelist', sa.Column('grants_write_access', sa.Boolean(), nullable=False, server_default='true'))
     op.add_column('telegram_chat_whitelist_external_source', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    op.add_column('telegram_chat_whitelist_external_source', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
+    op.add_column('telegram_chat_whitelist_external_source', sa.Column('grants_write_access', sa.Boolean(), nullable=False, server_default='true'))
     
     
-def create_task_group_records() -> dict[int, int]:
-    # Create default task groups for all `telegram_chat` entities
+def create_rule_group_records() -> dict[int, int]:
+    # Create default rule groups for all `telegram_chat` entities
     connection = op.get_bind()
 
     # Get all telegram chat IDs
-    telegram_chats = connection.execute(sa.text('SELECT id FROM telegram_chat')).fetchall()
+    telegram_chats = connection.execute(sa.text('SELECT id FROM telegram_chat')).scalars().fetchall()
 
     # Create mapping dictionary
     chat_group_mapping = {}
 
-    # Create task groups for each chat
+    # Create rule groups for each chat
     for chat in telegram_chats:
         result = connection.execute(
             sa.text(
-                'INSERT INTO telegram_chat_task_group (chat_id, "order") VALUES (:chat_id, :order) RETURNING id'
+                'INSERT INTO telegram_chat_rule_group (chat_id, "order") VALUES (:chat_id, :order) RETURNING id'
             ),
-            {"chat_id": chat[0], "order": 1}
+            {"chat_id": chat, "order": 1}
         )
         group_id = result.scalar()
-        chat_group_mapping[chat[0]] = group_id
+        chat_group_mapping[chat] = group_id
 
     return chat_group_mapping
 
 
-def set_proper_task_group_id_in_table(task_table_name: str, chat_id_group_id_mapping: dict[int, int]) -> None:
+def set_proper_rule_group_id_in_table(rule_table_name: str, chat_id_group_id_mapping: dict[int, int]) -> None:
     connection = op.get_bind()
     # Convert the mapping to a list of dictionaries
     params = [{"chat_id": chat_id, "group_id": group_id}
@@ -83,13 +83,13 @@ def set_proper_task_group_id_in_table(task_table_name: str, chat_id_group_id_map
     # Use executemany for better performance with many records
     connection.execute(
         sa.text(
-            f'UPDATE {task_table_name} SET group_id = :group_id WHERE chat_id = :chat_id'
+            f'UPDATE {rule_table_name} SET group_id = :group_id WHERE chat_id = :chat_id'
         ),
         params
     )
 
 
-def set_proper_task_group_id(chat_id_group_id_mapping: dict[int, int]) -> None:
+def set_proper_rule_group_id(chat_id_group_id_mapping: dict[int, int]) -> None:
     for table_name in [
         'telegram_chat_emoji',
         'telegram_chat_gift_collection',
@@ -101,51 +101,27 @@ def set_proper_task_group_id(chat_id_group_id_mapping: dict[int, int]) -> None:
         'telegram_chat_whitelist',
         'telegram_chat_whitelist_external_source',
     ]:
-        set_proper_task_group_id_in_table(table_name, chat_id_group_id_mapping)
+        set_proper_rule_group_id_in_table(table_name, chat_id_group_id_mapping)
 
 
 def create_foreign_keys() -> None:
-    op.create_foreign_key(None, 'telegram_chat_emoji', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_gift_collection', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_jetton', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_nft_collection', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_premium', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_sticker_collection', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_toncoin', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_whitelist', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key(None, 'telegram_chat_whitelist_external_source', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_emoji', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_gift_collection', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_jetton', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_nft_collection', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_premium', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_sticker_collection', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_toncoin', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_whitelist', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
+    op.create_foreign_key(None, 'telegram_chat_whitelist_external_source', 'telegram_chat_rule_group', ['group_id'], ['id'], ondelete='CASCADE')
 
 
 def upgrade() -> None:
-    create_task_group_table()
-    create_task_group_columns()
-    mapping = create_task_group_records()
-    set_proper_task_group_id(mapping)
+    create_rule_group_table()
+    create_rule_group_columns()
+    mapping = create_rule_group_records()
+    set_proper_rule_group_id(mapping)
     create_foreign_keys()
-
-    # op.add_column('telegram_chat_emoji', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.add_column('telegram_chat_emoji', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
-    # op.create_foreign_key(None, 'telegram_chat_emoji', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_gift_collection', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.create_foreign_key(None, 'telegram_chat_gift_collection', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_jetton', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.create_foreign_key(None, 'telegram_chat_jetton', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_nft_collection', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.create_foreign_key(None, 'telegram_chat_nft_collection', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_premium', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.add_column('telegram_chat_premium', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
-    # op.create_foreign_key(None, 'telegram_chat_premium', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_sticker_collection', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.create_foreign_key(None, 'telegram_chat_sticker_collection', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_toncoin', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.create_foreign_key(None, 'telegram_chat_toncoin', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_whitelist', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.add_column('telegram_chat_whitelist', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
-    # op.create_foreign_key(None, 'telegram_chat_whitelist', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-    # op.add_column('telegram_chat_whitelist_external_source', sa.Column('group_id', sa.Integer(), nullable=False, server_default='0'))
-    # op.add_column('telegram_chat_whitelist_external_source', sa.Column('grants_write_access', sa.Boolean(), nullable=False))
-    # op.create_foreign_key(None, 'telegram_chat_whitelist_external_source', 'telegram_chat_task_group', ['group_id'], ['id'], ondelete='CASCADE')
-
 
 
 def downgrade() -> None:
@@ -171,4 +147,4 @@ def downgrade() -> None:
     op.drop_constraint('telegram_chat_emoji_group_id_fkey', 'telegram_chat_emoji', type_='foreignkey')
     op.drop_column('telegram_chat_emoji', 'grants_write_access')
     op.drop_column('telegram_chat_emoji', 'group_id')
-    op.drop_table('telegram_chat_task_group')
+    op.drop_table('telegram_chat_rule_group')
