@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.requests import Request
+from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from api.deps import get_db_session
+from api.pos.base import BaseExceptionFDO
 from api.pos.chat import TelegramChatRuleGroupFDO
 from core.actions.chat.group import TelegramChatRuleGroupAction
 
@@ -22,7 +24,21 @@ async def create_group(
     return TelegramChatRuleGroupFDO.model_validate(result.model_dump())
 
 
-@manage_rule_group_router.delete("/{group_id}")
+@manage_rule_group_router.delete(
+    "/{group_id}",
+    description="Delete a rule group for the chat",
+    responses={
+        HTTP_200_OK: {"model": None, "description": "Rule Group Deleted Successfully"},
+        HTTP_400_BAD_REQUEST: {
+            "model": BaseExceptionFDO,
+            "description": "An attempt to remove the only group",
+        },
+        HTTP_404_NOT_FOUND: {
+            "model": BaseExceptionFDO,
+            "description": "Rule Group Not Found",
+        },
+    },
+)
 async def delete_group(
     request: Request,
     slug: str,
