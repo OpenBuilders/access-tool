@@ -18,6 +18,16 @@ class TelegramChatRuleGroupService(BaseService):
             .one()
         )
 
+    def get_all(self, chat_id: int) -> list[TelegramChatRuleGroup]:
+        return (
+            self.db_session.query(TelegramChatRuleGroup)
+            .filter(
+                TelegramChatRuleGroup.chat_id == chat_id,
+            )
+            .order_by(TelegramChatRuleGroup.order)
+            .all()
+        )
+
     def get_default_for_chat(self, chat_id: int) -> TelegramChatRuleGroup:
         default_group = (
             self.db_session.query(TelegramChatRuleGroup)
