@@ -28,10 +28,8 @@ func main() {
 		Username: cfg.RedisUser,
 		Password: cfg.RedisPass,
 		DB:       cfg.RedisDB,
-		TLSConfig: &tls.Config{
-			InsecureSkipVerify: true,
-		},
-		// ReadTimeout: -1, // Disable read timeout for initial wallets load
+		TLSConfig: nil,
+		ReadTimeout: -1, // Disable read timeout for initial wallets load
 	})
 
 	log.Println("initializing new api client...")
