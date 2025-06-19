@@ -30,12 +30,28 @@ class TelegramChatPremiumAction(ManagedChatBaseAction):
             )
         return ChatEligibilityRuleDTO.from_premium_rule(rule)
 
-    def create(self) -> ChatEligibilityRuleDTO:
-        if self.service.exists(chat_id=self.chat.id):
+    def check_duplicates(self, chat_id: int, group_id: int, entity_id: int | None = None) -> None:
+        """
+        Checks for duplicate rules based on the provided chat ID, group ID, and
+        optional entity ID. If a duplicate rule exists, raises an HTTPException.
+
+        :param chat_id: The ID of the chat.
+        :param group_id: The ID of the group.
+        :param entity_id: Optional ID of the entity to exclude from duplicate
+                          checking.
+        :raises HTTPException: If a rule with the provided group already exists
+                               for the given chat.
+        """
+        existing_rules = self.service.find(chat_id=chat_id, group_id=group_id)
+        if next(filter(lambda rule: rule.id != entity_id, existing_rules), None):
             raise HTTPException(
-                detail="Telegram Premium rule already exists for that chat. Please, modify it instead.",
+                detail="Rule with provided group already exists for that chat. Please, modify it instead.",
                 status_code=HTTP_400_BAD_REQUEST,
             )
+
+    def create(self, group_id: int | None) -> ChatEligibilityRuleDTO:
+        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        self.check_duplicates(chat_id=self.chat.id, group_id=group_id)
 
         rule = self.service.create(CreateTelegramChatPremiumRuleDTO(chat_id=self.chat.id, is_enabled=True))
         logger.info(f"New Telegram Premium rule created for the chat {self.chat.id!r}.")

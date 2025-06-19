@@ -16,7 +16,7 @@ class BaseTelegramChatNFTCollectionRuleDTO(BaseModel):
 
 class CreateTelegramChatNFTCollectionRuleDTO(BaseTelegramChatNFTCollectionRuleDTO):
     chat_id: int
-    group_id: int | None = None
+    group_id: int
 
 
 class UpdateTelegramChatNFTCollectionRuleDTO(BaseTelegramChatNFTCollectionRuleDTO):

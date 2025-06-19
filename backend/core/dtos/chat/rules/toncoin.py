@@ -11,7 +11,7 @@ class BaseTelegramChatToncoinRuleDTO(BaseModel):
 
 class CreateTelegramChatToncoinRuleDTO(BaseTelegramChatToncoinRuleDTO):
     chat_id: int
-    group_id: int | None = None
+    group_id: int
 
 
 class UpdateTelegramChatToncoinRuleDTO(BaseTelegramChatToncoinRuleDTO):

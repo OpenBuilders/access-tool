@@ -135,6 +135,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
 
     async def create(
         self,
+        group_id: int | None,
         external_source_url: str,
         name: str,
         description: str | None,
@@ -145,6 +146,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         Creates a new external source for a chat and validates it. If validation fails, rolls
         back the database transaction.
 
+        :param group_id: The identifier of the group to which the external source belongs.
         :param external_source_url: The URL of the external source to be added.
         :param name: The name of the external source.
         :param description: An optional description of the external source.
@@ -154,10 +156,13 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
 
         :raises TelegramChatInvalidExternalSourceError: If the external source is invalid.
         """
+        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+
         try:
             external_source = self.telegram_chat_external_source_service.create(
                 CreateTelegramChatWhitelistExternalSourceDTO(
                     chat_id=self.chat.id,
+                    group_id=group_id,
                     external_source_url=external_source_url,
                     name=name,
                     description=description,
@@ -277,9 +282,12 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
         )
         return WhitelistRuleDTO.from_orm(whitelist)
 
-    def create(self, name: str, description: str | None = None) -> WhitelistRuleDTO:
+    def create(self, group_id: int | None, name: str, description: str | None = None) -> WhitelistRuleDTO:
+        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+
         whitelist = self.telegram_chat_whitelist_service.create(
             CreateTelegramChatWhitelistDTO(
+                group_id=group_id,
                 name=name,
                 description=description,
                 is_enabled=True,
