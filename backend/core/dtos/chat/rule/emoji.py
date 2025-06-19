@@ -28,6 +28,7 @@ class EmojiChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
     def from_orm(cls, obj: TelegramChatEmoji) -> Self:
         return cls(
             id=obj.id,
+            group_id=obj.group_id,
             type=EligibilityCheckType.EMOJI,
             title=obj.emoji_id,
             expected=1,

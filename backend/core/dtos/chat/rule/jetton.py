@@ -29,6 +29,7 @@ class JettonEligibilityRuleDTO(ChatEligibilityRuleDTO):
     def from_jetton_rule(cls, jetton_rule: TelegramChatJetton) -> Self:
         return cls(
             id=jetton_rule.id,
+            group_id=jetton_rule.group_id,
             type=EligibilityCheckType.JETTON,
             title=jetton_rule.jetton.symbol,
             expected=jetton_rule.threshold,

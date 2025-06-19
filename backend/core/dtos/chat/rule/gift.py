@@ -46,6 +46,7 @@ class GiftChatEligibilityRuleDTO(ChatEligibilityRuleDTO):
     def from_orm(cls, obj: TelegramChatGiftCollection) -> Self:
         return cls(
             id=obj.id,
+            group_id=obj.group_id,
             type=EligibilityCheckType.GIFT_COLLECTION,
             title=obj.collection.title if obj.collection else obj.category,
             expected=obj.threshold,
