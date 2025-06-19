@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"log"
 	"os"
 	"os/signal"
@@ -28,9 +27,7 @@ func main() {
 		Username: cfg.RedisUser,
 		Password: cfg.RedisPass,
 		DB:       cfg.RedisDB,
-		TLSConfig: &tls.Config{
-			InsecureSkipVerify: false,
-		},
+		TLSConfig: nil,
 		ReadTimeout: -1, // Disable read timeout for initial wallets load
 	})
 
