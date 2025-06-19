@@ -29,6 +29,7 @@ class BaseTelegramChatGiftCollectionRuleDTO(BaseModel):
 
 class CreateTelegramChatGiftCollectionRuleDTO(BaseTelegramChatGiftCollectionRuleDTO):
     chat_id: int
+    group_id: int | None = None
 
 
 class UpdateTelegramChatGiftCollectionRuleDTO(BaseTelegramChatGiftCollectionRuleDTO):
