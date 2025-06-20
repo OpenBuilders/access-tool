@@ -41,6 +41,11 @@ def create_app() -> Celery:
                     "schedule": crontab(hour="0"),  # Every day at midnight
                     "options": {"queue": CELERY_SYSTEM_QUEUE_NAME},
                 },
+                "refresh-metrics": {
+                    "task": "refresh-metrics",
+                    "schedule": crontab(minute="*/5"),
+                    "options": {"queue": CELERY_SYSTEM_QUEUE_NAME},
+                },
                 "fetch-sticker-collections": {
                     "task": "fetch-sticker-collections",
                     "schedule": crontab(minute="*/10"),  # Every 10 minutes

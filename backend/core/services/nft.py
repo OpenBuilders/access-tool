@@ -86,6 +86,9 @@ class NftCollectionService(BaseService):
             desc(NFTCollection.is_enabled), NFTCollection.created_at
         ).all()
 
+    def count(self) -> int:
+        return self.db_session.query(NFTCollection).count()
+
 
 class NftItemService(BaseService):
     def _create(self, nft_item: TONNftItem) -> NftItem:
@@ -146,3 +149,6 @@ class NftItemService(BaseService):
             created_or_updated_nfts.append(self.create_or_update(nft_item))
         self.db_session.commit()
         return created_or_updated_nfts
+
+    def count(self) -> int:
+        return self.db_session.query(NftItem).count()

@@ -5,7 +5,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from core.models import TelegramChatUserWallet
-from core.models.chat import TelegramChatUser
+from core.models.chat import TelegramChatUser, TelegramChat
 from core.services.base import BaseService
 from core.services.chat import logger
 
@@ -263,3 +263,17 @@ class TelegramChatUserService(BaseService):
         ).delete(synchronize_session="fetch")
         self.db_session.commit()
         logger.debug(f"Telegram Chat Users {user_ids!r} in chat {chat_id!r} deleted.")
+
+    def count(self, managed_only: bool = False) -> int:
+        query = self.db_session.query(TelegramChatUser)
+        if managed_only:
+            query = query.join(
+                TelegramChat, TelegramChatUser.chat_id == TelegramChat.id
+            )
+            query = query.filter(
+                or_(
+                    TelegramChatUser.is_managed.is_(True),
+                    TelegramChat.is_full_control.is_(True),
+                )
+            )
+        return query.count()
