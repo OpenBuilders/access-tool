@@ -115,7 +115,7 @@ class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
         rule: TelegramChatRuleT,
         dto: UpdateTelegramChatRuleDTOType,
     ) -> TelegramChatRuleT:
-        for key, value in dto.model_dump(exclude_none=True).items():
+        for key, value in dto.model_dump(exclude_unset=True).items():
             setattr(rule, key, value)
         self.db_session.commit()
         logger.debug(f"{rule!r} updated.")
