@@ -27,6 +27,10 @@ class TelegramChatRuleGroup(Base):
     chat_id: Mapped[int] = mapped_column(
         ForeignKey("telegram_chat.id", ondelete="CASCADE"), nullable=False
     )
+    chat = relationship(
+        "TelegramChat",
+        backref="rule_groups",
+    )
     order: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -195,6 +199,14 @@ class TelegramChatStickerCollection(TelegramChatThresholdRuleBase):
         ForeignKey("sticker_character.id", ondelete="CASCADE"),
         nullable=True,
         doc="Character ID that will be used to check eligibility for the collection.",
+    )
+    group = relationship(
+        "TelegramChatRuleGroup",
+        backref="sticker_collection_rules",
+    )
+    chat = relationship(
+        "TelegramChat",
+        backref="sticker_collection_rules",
     )
     character = relationship(
         "StickerCharacter",
