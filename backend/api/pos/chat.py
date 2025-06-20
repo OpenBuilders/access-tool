@@ -219,7 +219,7 @@ class TelegramChatNFTCollectionRuleCPO(BaseTelegramChatBlockchainResourceRuleCPO
 
 class TelegramChatStickerRuleCPO(BaseTelegramChatQuantityRuleCPO):
     collection_id: int | None
-    character_id: int | None
+    character_id: int | None = None
 
     @model_validator(mode="after")
     def validate_category_or_collection(self) -> Self:
@@ -231,9 +231,9 @@ class TelegramChatStickerRuleCPO(BaseTelegramChatQuantityRuleCPO):
 
 class TelegramChatGiftRuleCPO(BaseTelegramChatQuantityRuleCPO):
     collection_slug: str | None
-    model: str | None
-    backdrop: str | None
-    pattern: str | None
+    model: str | None = None
+    backdrop: str | None = None
+    pattern: str | None = None
 
     @model_validator(mode="after")
     def validate_category_or_collection(self) -> Self:
