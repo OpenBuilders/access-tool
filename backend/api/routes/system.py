@@ -12,7 +12,7 @@ from core.actions.system import SystemAction
 from core.utils.task import wait_for_task
 
 system_router = APIRouter(prefix="/system", tags=["System"])
-system_non_authenticated_router = APIRouter(prefix="/system", tags=["System", "Test"])
+system_non_authenticated_router = APIRouter(prefix="/system", tags=["System"])
 
 
 @system_router.get(
@@ -41,6 +41,7 @@ async def get_task_status_status(
 @system_non_authenticated_router.get(
     "/test-get-random-users-list",
     description="Test dynamic whitelist endpoint. Should not be used in the production",
+    tags=["Test"],
 )
 async def get_random_users_list() -> WhitelistRuleUsersFDO:
     return WhitelistRuleUsersFDO(

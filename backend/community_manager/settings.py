@@ -22,5 +22,7 @@ class CommunityManagerSettings(CoreSettings):
     enable_manager: bool
     items_per_task: int = 100
 
+    base_api_url: str
+
 
 community_manager_settings = CommunityManagerSettings()

@@ -228,3 +228,6 @@ class TelegramChatService(BaseService):
         self.db_session.commit()
         logger.debug(f"Telegram Chat {chat.title!r} disabled.")
         return chat
+
+    def count(self) -> int:
+        return self.db_session.query(TelegramChat).count()

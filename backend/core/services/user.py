@@ -64,3 +64,6 @@ class UserService(BaseService):
         self.db_session.add(user)
         self.db_session.commit()
         return user
+
+    def count(self) -> int:
+        return self.db_session.query(User).count()

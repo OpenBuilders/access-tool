@@ -69,3 +69,6 @@ class JettonService(BaseService):
             query = query.order_by(desc(Jetton.is_enabled), Jetton.created_at)
 
         return query.all()
+
+    def count(self) -> int:
+        return self.db_session.query(Jetton).count()

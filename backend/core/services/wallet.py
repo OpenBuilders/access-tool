@@ -115,6 +115,9 @@ class WalletService(BaseService):
             UserWallet.address == address_raw,
         ).update({"balance": balance})
 
+    def count(self) -> int:
+        return self.db_session.query(UserWallet).count()
+
 
 class TelegramChatUserWalletService(BaseService):
     def has_wallet_connected(self, user_id: int, chat_id: int) -> bool:
@@ -268,3 +271,6 @@ class JettonWalletService(BaseService):
             owner_address,
         )
         return jetton_wallets
+
+    def count(self) -> int:
+        return self.db_session.query(JettonWallet).count()
