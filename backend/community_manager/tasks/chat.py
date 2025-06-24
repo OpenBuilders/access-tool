@@ -24,10 +24,10 @@ async def run_sanity_checks() -> None:
     """
     Separate function to ensure that the telethon client is initiated in the same event loop
     """
-    client = init_client()
+    service = init_client()
     with DBService().db_session() as db_session:
         action = CommunityManagerTaskChatAction(db_session)
-        await action.sanity_chat_checks(client)
+        await action.sanity_chat_checks(service.client)
         logger.info("Chat sanity checks completed.")
 
 
