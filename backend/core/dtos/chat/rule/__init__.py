@@ -1,5 +1,4 @@
 import dataclasses
-import enum
 from typing import Self
 
 from pydantic import BaseModel, computed_field
@@ -11,6 +10,7 @@ from core.constants import (
     BUY_TONCOIN_URL,
 )
 from core.dtos.chat import TelegramChatDTO
+from core.enums.rule import EligibilityCheckType
 from core.models.rule import (
     TelegramChatJetton,
     TelegramChatNFTCollection,
@@ -22,18 +22,6 @@ from core.models.rule import (
     TelegramChatGiftCollection,
 )
 from core.models.rule import TelegramChatToncoin
-
-
-class EligibilityCheckType(enum.Enum):
-    TONCOIN = "toncoin"
-    JETTON = "jetton"
-    NFT_COLLECTION = "nft_collection"
-    EXTERNAL_SOURCE = "external_source"
-    WHITELIST = "whitelist"
-    PREMIUM = "premium"
-    STICKER_COLLECTION = "sticker_collection"
-    EMOJI = "emoji"
-    GIFT_COLLECTION = "gift_collection"
 
 
 @dataclasses.dataclass
