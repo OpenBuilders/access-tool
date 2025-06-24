@@ -214,7 +214,8 @@ from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 
 from core.actions.chat.rule.emoji import TelegramChatEmojiAction
-from core.dtos.chat.rule import ChatEligibilityRuleDTO, EligibilityCheckType
+from core.dtos.chat.rule import ChatEligibilityRuleDTO
+from core.enums.rule import EligibilityCheckType
 from core.models.rule import TelegramChatEmoji
 from tests.factories.user import UserFactory
 from tests.factories.chat import telegram_chat_factory_builder

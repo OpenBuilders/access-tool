@@ -23,11 +23,11 @@ from core.dtos.chat import (
 )
 from core.dtos.chat.group import TelegramChatRuleGroupDTO
 from core.dtos.chat.rule import (
-    EligibilityCheckType,
     ChatEligibilityRuleDTO,
     TelegramChatWithRulesDTO,
     ChatEligibilityRuleGroupDTO,
 )
+from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.emoji import (
     EmojiChatEligibilityRuleDTO,
     EmojiChatEligibilitySummaryDTO,

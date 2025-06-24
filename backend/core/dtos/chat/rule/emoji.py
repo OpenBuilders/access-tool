@@ -2,7 +2,8 @@ from typing import Self
 
 from pydantic import BaseModel
 
-from core.dtos.chat.rule import ChatEligibilityRuleDTO, EligibilityCheckType
+from core.dtos.chat.rule import ChatEligibilityRuleDTO
+from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.internal import EligibilitySummaryInternalDTO
 from core.models.rule import TelegramChatEmoji
 

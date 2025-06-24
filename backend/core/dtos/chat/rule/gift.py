@@ -2,7 +2,8 @@ from typing import Self
 
 from pydantic import BaseModel, model_validator, computed_field
 
-from core.dtos.chat.rule import ChatEligibilityRuleDTO, EligibilityCheckType
+from core.dtos.chat.rule import ChatEligibilityRuleDTO
+from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.internal import EligibilitySummaryGiftCollectionInternalDTO
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.models.rule import TelegramChatGiftCollection

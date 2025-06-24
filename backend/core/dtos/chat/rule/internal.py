@@ -1,6 +1,6 @@
 from pydantic import BaseModel, computed_field
 
-from core.dtos.chat.rule import EligibilityCheckType
+from core.enums.rule import EligibilityCheckType
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.dtos.resource import NftCollectionDTO, JettonDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
