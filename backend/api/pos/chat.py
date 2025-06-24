@@ -26,6 +26,7 @@ from core.dtos.chat.rule import (
     ChatEligibilityRuleDTO,
     TelegramChatWithRulesDTO,
     ChatEligibilityRuleGroupDTO,
+    UpdateRuleGroupDTO,
 )
 from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.emoji import (
@@ -469,4 +470,8 @@ class WhitelistRuleUsersFDO(WhitelistRuleCPO):
 
 
 class TelegramChatRuleGroupFDO(TelegramChatRuleGroupDTO, BaseFDO):
+    ...
+
+
+class UpdateRuleGroupCPO(UpdateRuleGroupDTO, BaseFDO):
     ...
