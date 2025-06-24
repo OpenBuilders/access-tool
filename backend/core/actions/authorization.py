@@ -27,6 +27,7 @@ from core.dtos.gift.collection import GiftCollectionDTO
 from core.dtos.resource import JettonDTO, NftCollectionDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 from core.enums.nft import NftCollectionAsset
+from core.exceptions.telethon import MissingChatEntityError, MissingUserEntityError
 from core.models import GiftUnique
 from core.models.blockchain import NftItem
 from core.models.chat import (
@@ -629,6 +630,17 @@ class AuthorizationAction(BaseAction):
             return
 
         for member in ineligible_members:
-            await self.kick_chat_member(member)
+            try:
+                await self.kick_chat_member(member)
+            except MissingChatEntityError as e:
+                logger.error(
+                    f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as chat entity is missing",
+                    exc_info=e,
+                )
+            except MissingUserEntityError as e:
+                logger.error(
+                    f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as user entity is missing",
+                    exc_info=e,
+                )
         else:
             logger.info("No ineligible chat members found")

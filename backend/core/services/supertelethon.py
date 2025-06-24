@@ -34,6 +34,7 @@ from telethon.tl.types import (
 from telethon.tl.types.payments import SavedStarGifts
 
 from core.constants import DEFAULT_TELEGRAM_BATCH_PROCESSING_SIZE
+from core.exceptions.telethon import MissingChatEntityError, MissingUserEntityError
 from core.settings import core_settings
 
 logger = logging.getLogger(__name__)
@@ -133,13 +134,19 @@ class TelethonService:
         await self.client.disconnect()
 
     async def get_chat(self, entity: int | str) -> ChatPeerType:
-        return await self.client.get_entity(entity)
+        try:
+            return await self.client.get_entity(entity)
+        except ValueError as e:
+            raise MissingChatEntityError(str(e)) from e
 
     async def get_me(self) -> UserPeerType:
         return await self.client.get_me()
 
     async def get_user(self, telegram_user_id: int) -> UserPeerType:
-        return await self.client.get_entity(telegram_user_id)
+        try:
+            return await self.client.get_entity(telegram_user_id)
+        except ValueError as e:
+            raise MissingUserEntityError(str(e)) from e
 
     async def get_participants(
         self, chat_id: int
@@ -258,7 +265,7 @@ class TelethonService:
         chat = await self.get_chat(chat_id)
         user = await self.get_user(telegram_user_id)
         await self.client.kick_participant(chat, user)
-        logger.debug(f"User {user.id!r} was kicked from the chat {chat.id!r}.")
+        logger.debug(f"User {telegram_user_id!r} was kicked from the chat {chat_id!r}.")
 
     async def approve_chat_join_request(
         self, chat_id: int, telegram_user_id: int

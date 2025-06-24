@@ -1,0 +1,6 @@
+class MissingChatEntityError(ValueError):
+    ...
+
+
+class MissingUserEntityError(ValueError):
+    ...
