@@ -18,6 +18,7 @@ from core.db import Base
 
 if TYPE_CHECKING:
     from core.models.gift import GiftCollection
+    from core.models.chat import TelegramChat
 
 
 class TelegramChatRuleGroup(Base):
@@ -59,6 +60,15 @@ class TelegramChatRuleBase(Base):
 class TelegramChatPremium(TelegramChatRuleBase):
     __tablename__ = "telegram_chat_premium"
 
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="premium_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="premium_rules",
+    )
+
     __table_args__ = (
         UniqueConstraint("chat_id", name="uix_chat_premium_chat_id_unique"),
     )
@@ -68,6 +78,15 @@ class TelegramChatEmoji(TelegramChatRuleBase):
     __tablename__ = "telegram_chat_emoji"
 
     emoji_id = mapped_column(String(255), nullable=False)
+
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="emoji_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="emoji_rules",
+    )
     __table_args__ = (
         UniqueConstraint("chat_id", name="uix_chat_emoji_chat_id_unique"),
     )
@@ -89,6 +108,15 @@ class TelegramChatThresholdRuleBase(TelegramChatRuleBase):
 class TelegramChatToncoin(TelegramChatThresholdRuleBase):
     __tablename__ = "telegram_chat_toncoin"
 
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="toncoin_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="toncoin_rules",
+    )
+
 
 class TelegramChatJetton(TelegramChatThresholdRuleBase):
     __tablename__ = "telegram_chat_jetton"
@@ -100,6 +128,15 @@ class TelegramChatJetton(TelegramChatThresholdRuleBase):
         "Jetton",
         back_populates="telegram_chat_jettons",
         lazy="joined",
+    )
+
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="jetton_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="jetton_rules",
     )
 
     def __repr__(self):
@@ -123,6 +160,15 @@ class TelegramChatNFTCollection(TelegramChatThresholdRuleBase):
         "NFTCollection",
         back_populates="telegram_chat_nft_collections",
         lazy="joined",
+    )
+
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="nft_collection_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="nft_collection_rules",
     )
 
     def __repr__(self):
@@ -162,6 +208,15 @@ class TelegramChatWhitelistExternalSource(TelegramChatWhitelistBase):
         doc="Header value that will be used for authentication",
     )
 
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="external_source_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="external_source_rules",
+    )
+
     __table_args__ = (
         UniqueConstraint(
             "chat_id", "name", name="uix_chat_external_source_chat_name_unique"
@@ -174,6 +229,15 @@ class TelegramChatWhitelistExternalSource(TelegramChatWhitelistBase):
 
 class TelegramChatWhitelist(TelegramChatWhitelistBase):
     __tablename__ = "telegram_chat_whitelist"
+
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="whitelist_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="whitelist_rules",
+    )
 
     def __repr__(self):
         return f"<TelegramChatWhitelist({self.chat_id=}, {self.name=})>"
@@ -241,4 +305,13 @@ class TelegramChatGiftCollection(TelegramChatThresholdRuleBase):
         String(255),
         nullable=True,
         doc="Pattern that will be used to check eligibility for the collection.",
+    )
+
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
+        "TelegramChatRuleGroup",
+        backref="gift_collection_rules",
+    )
+    chat: Mapped["TelegramChat"] = relationship(
+        "TelegramChat",
+        backref="gift_collection_rules",
     )

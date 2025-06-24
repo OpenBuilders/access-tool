@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Self
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, computed_field, Field
 
 from core.constants import (
     PROMOTE_JETTON_TEMPLATE,
@@ -130,3 +130,12 @@ class TelegramChatWithRulesDTO(BaseModel):
     chat: TelegramChatDTO
     groups: list[ChatEligibilityRuleGroupDTO]
     rules: list[ChatEligibilityRuleDTO]
+
+
+class UpdateRuleGroupDTO(BaseModel):
+    rule_id: int
+    group_id: int
+    type: EligibilityCheckType
+    order: int | None = Field(
+        None, description="Temporary does nothing, future-proof for reordering tasks"
+    )
