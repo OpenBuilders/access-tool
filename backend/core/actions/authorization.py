@@ -642,6 +642,8 @@ class AuthorizationAction(BaseAction):
             logger.info("No ineligible chat members found")
             return
 
+        logger.info(f"Found {len(ineligible_members)} ineligible chat members")
+
         for member in ineligible_members:
             try:
                 await self.kick_chat_member(member)
@@ -655,5 +657,3 @@ class AuthorizationAction(BaseAction):
                     f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as user entity is missing",
                     exc_info=e,
                 )
-        else:
-            logger.info("No ineligible chat members found")
