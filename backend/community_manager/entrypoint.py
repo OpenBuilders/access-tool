@@ -21,7 +21,7 @@ from community_manager.events import (
 logger = logging.getLogger(__name__)
 
 
-def init_client():
+def init_client() -> TelethonService:
     # This session is not thread-safe and cannot be used by multiple clients at the same time.
     session = SQLiteSession(str(community_manager_settings.telegram_session_path))
     client = TelegramClient(
@@ -35,7 +35,7 @@ def init_client():
     return service
 
 
-def add_event_handlers(service: TelethonService):
+def add_event_handlers(service: TelethonService) -> TelethonService:
     service.client.add_event_handler(
         handle_start_message,
         # Handle start command in private chats only
@@ -50,7 +50,7 @@ def add_event_handlers(service: TelethonService):
     return service
 
 
-def main():
+def main() -> None:
     logger.info("Community Manager started.")
     telethon_service = init_client()
     telethon_service = add_event_handlers(telethon_service)
