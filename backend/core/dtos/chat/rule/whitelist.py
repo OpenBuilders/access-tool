@@ -4,7 +4,7 @@ from typing import Self
 
 from pydantic import BaseModel
 
-from core.dtos.chat.rule import EligibilityCheckType
+from core.enums.rule import EligibilityCheckType
 from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWhitelist
 
 

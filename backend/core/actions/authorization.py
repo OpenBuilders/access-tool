@@ -11,9 +11,9 @@ from telethon.errors import (
 
 from core.actions.base import BaseAction
 from core.dtos.chat.rule import (
-    EligibilityCheckType,
     TelegramChatEligibilityRulesDTO,
 )
+from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.internal import (
     EligibilitySummaryInternalDTO,
     RulesEligibilitySummaryInternalDTO,

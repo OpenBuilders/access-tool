@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
-from core.dtos.chat.rule import EligibilityCheckType, ChatEligibilityRuleDTO
+from core.dtos.chat.rule import ChatEligibilityRuleDTO
+from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.internal import EligibilitySummaryNftCollectionInternalDTO
 from core.models.rule import TelegramChatNFTCollection
 from core.enums.nft import NftCollectionAsset, NftCollectionCategoryType
