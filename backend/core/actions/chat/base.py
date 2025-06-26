@@ -105,12 +105,13 @@ class ManagedChatBaseAction(BaseAction):
             to be removed.
         """
         try:
-            self.telegram_chat_rule_group_service.delete(
+            group_removed = self.telegram_chat_rule_group_service.delete(
                 chat_id=self.chat.id, group_id=group_id
             )
-            logger.info(
-                f"Deleted rule group {group_id!r} for chat {self.chat.id!r} as it had no rules left."
-            )
+            if group_removed:
+                logger.info(
+                    f"Deleted rule group {group_id!r} for chat {self.chat.id!r} as it had no rules left."
+                )
         except IntegrityError:
             logger.debug(f"Group {group_id!r} is not empty")
 

@@ -62,10 +62,21 @@ class TelegramChatRuleGroupService(BaseService):
         logger.info(f"Created a new rule group for chat {chat_id!r}.")
         return new_group
 
-    def delete(self, chat_id: int, group_id: int) -> None:
-        self.db_session.query(TelegramChatRuleGroup).filter(
-            TelegramChatRuleGroup.chat_id == chat_id,
-            TelegramChatRuleGroup.id == group_id,
-        ).delete()
+    def delete(self, chat_id: int, group_id: int) -> bool:
+        row_count = (
+            self.db_session.query(TelegramChatRuleGroup)
+            .filter(
+                TelegramChatRuleGroup.chat_id == chat_id,
+                TelegramChatRuleGroup.id == group_id,
+            )
+            .delete()
+        )
         self.db_session.commit()
-        logger.info(f"Deleted rule group {group_id!r} for chat {chat_id!r}.")
+        if row_count:
+            logger.info(f"Deleted rule group {group_id!r} for chat {chat_id!r}.")
+        else:
+            logger.debug(
+                f"No rule group found for chat {chat_id!r} with id {group_id!r}."
+            )
+
+        return row_count > 0
