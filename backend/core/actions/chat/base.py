@@ -117,6 +117,7 @@ class ManagedChatBaseAction(BaseAction):
                     f"Group {group_id!r} was not deleted as it was not found."
                 )
         except IntegrityError:
+            self.db_session.rollback()
             logger.debug(f"Group {group_id!r} is not empty")
 
         return None
