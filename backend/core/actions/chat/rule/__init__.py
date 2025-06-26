@@ -91,18 +91,31 @@ class RuleAction(ManagedChatBaseAction):
             return None
 
         try:
-            existing_item.group_id = item.group_id
-            self.db_session.commit()
-            logger.info(
-                f"Moved rule {item.rule_id!r} of type {item.type!r} for chat {self.chat.id!r} to group {item.group_id!r}."
+            new_group = self.telegram_chat_rule_group_service.get(
+                chat_id=self.chat.id, group_id=item.group_id
             )
-        except IntegrityError:
+        except NoResultFound:
             logger.error(
                 f"No rule group found for group ID {item.group_id!r} in chat {self.chat.id!r}."
             )
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,
                 detail=f"No rule group found for group ID {item.group_id!r} in chat {self.chat.id!r}.",
+            )
+
+        try:
+            existing_item.group_id = new_group.id
+            self.db_session.commit()
+            logger.info(
+                f"Moved rule {item.rule_id!r} of type {item.type!r} for chat {self.chat.id!r} to group {new_group.id!r}."
+            )
+        except IntegrityError:
+            logger.error(
+                f"No rule group found for group ID {new_group.id!r} in chat {self.chat.id!r}."
+            )
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=f"No rule group found for group ID {new_group.id!r} in chat {self.chat.id!r}.",
             )
 
         self.remove_group_if_empty(group_id=previous_group_id)
