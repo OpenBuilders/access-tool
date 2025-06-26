@@ -112,6 +112,10 @@ class ManagedChatBaseAction(BaseAction):
                 logger.info(
                     f"Deleted rule group {group_id!r} for chat {self.chat.id!r} as it had no rules left."
                 )
+            else:
+                logger.warning(
+                    f"Group {group_id!r} was not deleted as it was not found."
+                )
         except IntegrityError:
             logger.debug(f"Group {group_id!r} is not empty")
 

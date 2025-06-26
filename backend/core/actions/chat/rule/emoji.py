@@ -114,7 +114,15 @@ class TelegramChatEmojiAction(ManagedChatBaseAction):
         return EmojiChatEligibilityRuleDTO.from_orm(rule)
 
     def delete(self, rule_id: int) -> None:
+        try:
+            group_id = self.service.get(chat_id=self.chat.id, id_=rule_id).group_id
+        except NoResultFound:
+            raise HTTPException(
+                detail="Rule not found",
+                status_code=HTTP_404_NOT_FOUND,
+            )
         self.service.delete(chat_id=self.chat.id, rule_id=rule_id)
         logger.info(
             f"Deleted Telegram Emoji rule {rule_id!r} for the chat {self.chat.id!r}."
         )
+        self.remove_group_if_empty(group_id)
