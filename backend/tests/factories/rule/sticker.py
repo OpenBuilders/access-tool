@@ -13,7 +13,7 @@ class TelegramChatStickerCollectionFactory(
     class Meta:
         abstract = False
         model = TelegramChatStickerCollection
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
 
     collection_id = factory.SelfAttribute("collection.id")
     collection = factory.SubFactory("tests.factories.sticker.StickerCollectionFactory")
