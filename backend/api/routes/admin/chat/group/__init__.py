@@ -11,7 +11,11 @@ from core.actions.chat.group import TelegramChatRuleGroupAction
 manage_rule_group_router = APIRouter(prefix="/groups", tags=["Chat Rules Group"])
 
 
-@manage_rule_group_router.post("/")
+@manage_rule_group_router.post(
+    "/",
+    deprecated=True,
+    description="Don't use direct group creation endpoint, use create task with an empty group instead.",
+)
 async def create_group(
     request: Request,
     slug: str,
@@ -26,7 +30,8 @@ async def create_group(
 
 @manage_rule_group_router.delete(
     "/{group_id}",
-    description="Delete a rule group for the chat",
+    deprecated=True,
+    description="Delete a rule group for the chat. Don't delete group manually, use delete/move task endpoint instead.",
     responses={
         HTTP_200_OK: {"model": None, "description": "Rule Group Deleted Successfully"},
         HTTP_400_BAD_REQUEST: {
