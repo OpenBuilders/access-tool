@@ -58,10 +58,10 @@ let config
 
 switch (import.meta.env.MODE) {
   case 'production':
-    config = new Config(devConfigBase)
+    config = new Config(prodConfigBase)
     break
   default:
-    config = new Config(prodConfigBase)
+    config = new Config(devConfigBase)
 }
 
 export default config as Config
