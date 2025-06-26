@@ -48,6 +48,7 @@ class TelegramChatRuleGroupService(BaseService):
             self.db_session.query(TelegramChatRuleGroup.order)
             .filter(TelegramChatRuleGroup.chat_id == chat_id)
             .order_by(TelegramChatRuleGroup.order.desc())
+            .limit(1)
             .scalar()
             or 0
         )

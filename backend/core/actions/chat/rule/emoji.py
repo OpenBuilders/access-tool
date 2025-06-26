@@ -68,7 +68,7 @@ class TelegramChatEmojiAction(ManagedChatBaseAction):
                 status_code=HTTP_400_BAD_REQUEST,
             )
 
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
         self.check_duplicates(
             chat_id=self.chat.id, group_id=group_id, emoji_id=emoji_id
         )

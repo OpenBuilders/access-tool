@@ -108,7 +108,7 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         category: None,
         threshold: int,
     ) -> GiftChatEligibilityRuleDTO:
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         self.check_duplicates(
             chat_id=self.chat.id,

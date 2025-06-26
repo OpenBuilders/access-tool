@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import HTTPException
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, IntegrityError
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from core.actions.chat import ManagedChatBaseAction
@@ -82,14 +82,29 @@ class RuleAction(ManagedChatBaseAction):
                 detail=f"Rule {item.rule_id!r} of type {item.type.value!r} not found in chat {self.chat.id!r}.",
             )
 
-        if existing_item.group_id == item.group_id:
+        previous_group_id = existing_item.group_id
+
+        if previous_group_id == item.group_id:
             logger.debug(
                 f"Rule {item.rule_id!r} of type {item.type!r} already in group {item.group_id!r}."
             )
-            return
+            return None
 
-        existing_item.group_id = item.group_id
-        self.db_session.commit()
-        logger.info(
-            f"Moved rule {item.rule_id!r} of type {item.type!r} for chat {self.chat.id!r} to group {item.group_id!r}."
-        )
+        try:
+            existing_item.group_id = item.group_id
+            self.db_session.commit()
+            logger.info(
+                f"Moved rule {item.rule_id!r} of type {item.type!r} for chat {self.chat.id!r} to group {item.group_id!r}."
+            )
+        except IntegrityError:
+            logger.error(
+                f"No rule group found for group ID {item.group_id!r} in chat {self.chat.id!r}."
+            )
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=f"No rule group found for group ID {item.group_id!r} in chat {self.chat.id!r}.",
+            )
+
+        self.remove_group_if_empty(group_id=previous_group_id)
+
+        return None
