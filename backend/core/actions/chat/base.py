@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import HTTPException
-from sqlalchemy.exc import NoResultFound, IntegrityError
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
@@ -68,22 +68,29 @@ class ManagedChatBaseAction(BaseAction):
         return self._chat
 
     def resolve_group_id(self, chat_id: int, group_id: int | None) -> int:
+        """
+        Resolves the group ID for a given chat ID. If the `group_id` is provided and
+        exists for the given `chat_id`, it is returned.
+        If the `group_id` is not provided or does not exist, a new group is created for the chat,
+        and its ID is returned.
+
+        :param chat_id: Unique identifier for the chat.
+        :param group_id: Unique identifier for the group, or None if a new group
+            is to be created.
+        :return: Resolved or newly created group ID.
+        :raises TelegramChatRuleNotFound: If the specified `group_id` does not
+            exist for the given `chat_id`.
+        """
         if group_id is not None:
             try:
                 self.telegram_chat_rule_group_service.get(
                     chat_id=chat_id, group_id=group_id
                 )
                 return group_id
-            except IntegrityError as e:
+            except NoResultFound as e:
                 raise TelegramChatRuleNotFound(
                     f"No group with ID {group_id!r} found for chat {chat_id!r}."
                 ) from e
 
-        try:
-            return self.telegram_chat_rule_group_service.get_default_for_chat(
-                self.chat.id
-            ).id
-        except ValueError:
-            raise TelegramChatRuleNotFound(
-                f"No default group found for chat {chat_id!r}."
-            )
+        new_group = self.telegram_chat_rule_group_service.create(chat_id=chat_id)
+        return new_group.id
