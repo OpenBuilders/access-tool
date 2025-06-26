@@ -42,7 +42,7 @@ export const ChatHeader = () => {
     if (!chat?.slug) return
     webApp.HapticFeedback.impactOccurred('soft')
 
-    const url = `${config.botLink}?startapp=ch_${chat?.slug}`
+    const url = `${config.miniAppLink}?startapp=ch_${chat?.slug}`
 
     if (isMobile) {
       webApp.openTelegramLink(
@@ -55,7 +55,7 @@ export const ChatHeader = () => {
 
   const handleCopyLink = () => {
     if (!chat?.slug) return
-    const url = `${config.botLink}?startapp=ch_${chat?.slug}`
+    const url = `${config.miniAppLink}?startapp=ch_${chat?.slug}`
     webApp.HapticFeedback.impactOccurred('soft')
     copy(url, 'Link copied!')
   }
