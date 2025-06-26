@@ -172,7 +172,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
             NFT collection.
         """
         address = self._resolve_collection_address(address_raw, asset, category)
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         if not address:
             logger.error(
@@ -288,8 +288,18 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
         return NftEligibilityRuleDTO.from_nft_collection_rule(rule)
 
     async def delete(self, rule_id: int) -> None:
+        try:
+            group_id = self.telegram_chat_nft_collection_service.get(
+                rule_id, chat_id=self.chat.id
+            ).group_id
+        except NoResultFound:
+            raise HTTPException(
+                detail="Rule not found",
+                status_code=HTTP_404_NOT_FOUND,
+            )
         self.telegram_chat_nft_collection_service.delete(rule_id, chat_id=self.chat.id)
         logger.info(f"Deleted chat nft collection rule {rule_id!r}")
+        self.remove_group_if_empty(group_id=group_id)
 
 
 class TelegramChatJettonAction(ManagedChatBaseAction):
@@ -378,7 +388,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
                 status_code=HTTP_400_BAD_REQUEST,
             )
 
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         self.check_duplicate(
             chat_id=self.chat.id,
@@ -458,8 +468,18 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         return JettonEligibilityRuleDTO.from_jetton_rule(updated_rule)
 
     async def delete(self, rule_id: int) -> None:
+        try:
+            group_id = self.telegram_chat_jetton_service.get(
+                rule_id, chat_id=self.chat.id
+            ).group_id
+        except NoResultFound:
+            raise HTTPException(
+                detail="Rule not found",
+                status_code=HTTP_404_NOT_FOUND,
+            )
         self.telegram_chat_jetton_service.delete(rule_id, chat_id=self.chat.id)
         logger.info(f"Deleted chat jetton rule {rule_id!r}")
+        self.remove_group_if_empty(group_id=group_id)
 
 
 class TelegramChatToncoinAction(ManagedChatBaseAction):
@@ -531,7 +551,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
                  TON rule.
         :raises HTTPException: If a duplicate rule of the specified type and category is found.
         """
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
         self.check_duplicate(chat_id=self.chat.id, group_id=group_id, category=category)
         new_rule = self.telegram_chat_toncoin_service.create(
             CreateTelegramChatToncoinRuleDTO(
@@ -591,5 +611,16 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
         return ChatEligibilityRuleDTO.from_toncoin_rule(updated_rule)
 
     def delete(self, rule_id: int) -> None:
+        try:
+            group_id = self.telegram_chat_toncoin_service.get(
+                rule_id, chat_id=self.chat.id
+            ).group_id
+        except NoResultFound:
+            raise HTTPException(
+                detail="Rule not found",
+                status_code=HTTP_404_NOT_FOUND,
+            )
         self.telegram_chat_toncoin_service.delete(rule_id, chat_id=self.chat.id)
         logger.info(f"Deleted chat TON rule {rule_id!r}")
+
+        self.remove_group_if_empty(group_id=group_id)

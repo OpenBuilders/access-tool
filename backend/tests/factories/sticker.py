@@ -7,7 +7,7 @@ from core.models.sticker import StickerCollection, StickerCharacter
 class StickerCollectionFactory(SQLAlchemyModelFactory):
     class Meta:
         model = StickerCollection
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
 
     id = factory.Sequence(lambda n: n + 1)
     title = factory.Faker(provider="pystr")
@@ -18,7 +18,7 @@ class StickerCollectionFactory(SQLAlchemyModelFactory):
 class StickerCharacterFactory(SQLAlchemyModelFactory):
     class Meta:
         model = StickerCharacter
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
 
     id = factory.Sequence(lambda n: n + 1)
     external_id = factory.Sequence(lambda n: n + 1)

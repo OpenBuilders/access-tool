@@ -6,4 +6,4 @@ class TelegramChatPremiumFactory(TelegramChatRuleBaseFactory):
     class Meta:
         abstract = False
         model = TelegramChatPremium
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"

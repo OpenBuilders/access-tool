@@ -108,7 +108,7 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         category: None,
         threshold: int,
     ) -> GiftChatEligibilityRuleDTO:
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         self.check_duplicates(
             chat_id=self.chat.id,
@@ -179,6 +179,10 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         return GiftChatEligibilityRuleDTO.from_orm(updated_rule)
 
     async def delete(self, rule_id: int) -> None:
+        try:
+            group_id = self.service.get(id_=rule_id, chat_id=self.chat.id).group_id
+        except NoResultFound:
+            raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Rule not found")
         self.service.delete(
             rule_id=rule_id,
             chat_id=self.chat.id,
@@ -186,3 +190,4 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         logger.info(
             f"Deleted Telegram Chat Gift Collection rule {rule_id!r} for the chat {self.chat.id!r}."
         )
+        self.remove_group_if_empty(group_id)

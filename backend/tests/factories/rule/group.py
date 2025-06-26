@@ -7,7 +7,7 @@ from core.models.rule import TelegramChatRuleGroup
 class TelegramChatRuleGroupFactory(SQLAlchemyModelFactory):
     class Meta:
         model = TelegramChatRuleGroup
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
 
     id = factory.Sequence(lambda n: n + 1)
     chat_id = factory.SelfAttribute("chat.id")

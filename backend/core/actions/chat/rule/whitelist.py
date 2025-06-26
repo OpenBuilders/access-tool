@@ -2,7 +2,7 @@ import logging
 
 from fastapi import HTTPException
 from httpx import HTTPError
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND
 
@@ -159,7 +159,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
 
         :raises TelegramChatInvalidExternalSourceError: If the external source is invalid.
         """
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         try:
             external_source = self.telegram_chat_external_source_service.create(
@@ -261,10 +261,18 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         return WhitelistRuleExternalDTO.from_orm(external_source)
 
     async def delete(self, rule_id: int) -> None:
+        try:
+            group_id = self.telegram_chat_external_source_service.get(
+                chat_id=self.chat.id, id_=rule_id
+            ).group_id
+        except NoResultFound:
+            message = f"External source rule {rule_id!r} does not exist for chat {self.chat.id!r}. "
+            raise HTTPException(detail=message, status_code=HTTP_404_NOT_FOUND)
         self.telegram_chat_external_source_service.delete(
             chat_id=self.chat.id, rule_id=rule_id
         )
         logger.info(f"External source {rule_id!r} deleted successfully")
+        self.remove_group_if_empty(group_id=group_id)
 
 
 class TelegramChatWhitelistAction(ManagedChatBaseAction):
@@ -285,7 +293,7 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
     def create(
         self, group_id: int | None, name: str, description: str | None = None
     ) -> WhitelistRuleDTO:
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         whitelist = self.telegram_chat_whitelist_service.create(
             CreateTelegramChatWhitelistDTO(
@@ -369,8 +377,18 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
         return WhitelistRuleDTO.from_orm(whitelist)
 
     async def delete(self, rule_id: int) -> None:
+        try:
+            group_id = self.telegram_chat_whitelist_service.get(
+                chat_id=self.chat.id, id_=rule_id
+            ).group_id
+        except NoResultFound:
+            message = (
+                f"Whitelist rule {rule_id!r} does not exist for chat {self.chat.id!r}. "
+            )
+            raise HTTPException(detail=message, status_code=HTTP_404_NOT_FOUND)
         self.telegram_chat_whitelist_service.delete(
             chat_id=self.chat.id,
             rule_id=rule_id,
         )
         logger.info(f"Whitelist {rule_id!r} deleted successfully")
+        self.remove_group_if_empty(group_id=group_id)

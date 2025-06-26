@@ -132,7 +132,7 @@ from core.models.user import User
 class UserFactory(SQLAlchemyModelFactory):
     class Meta:
         model = User
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
     
     id = factory.Sequence(lambda n: n)
     username = factory.Sequence(lambda n: f"user{n}")
@@ -151,7 +151,7 @@ from core.models.chat import TelegramChat
 class TelegramChatFactory(SQLAlchemyModelFactory):
     class Meta:
         model = TelegramChat
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
     
     id = factory.Sequence(lambda n: n)
     title = factory.Sequence(lambda n: f"Chat {n}")

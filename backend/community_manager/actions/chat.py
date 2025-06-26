@@ -36,7 +36,6 @@ from core.models.chat import TelegramChat
 from core.services.cdn import CDNService
 from core.services.chat import TelegramChatService
 from core.services.chat.rule.gift import TelegramChatGiftCollectionService
-from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.rule.sticker import TelegramChatStickerCollectionService
 from core.services.chat.user import TelegramChatUserService
 from core.services.superredis import RedisService
@@ -53,7 +52,6 @@ class CommunityManagerChatAction(BaseAction):
         super().__init__(db_session)
         self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
-        self.telegram_chat_rule_group_service = TelegramChatRuleGroupService(db_session)
         self.redis_service = RedisService()
         self.cdn_service = CDNService()
         self.authorization_action = AuthorizationAction(
@@ -189,7 +187,6 @@ class CommunityManagerChatAction(BaseAction):
                 entity=chat,
                 logo_path=logo_path,
             )
-            self.telegram_chat_rule_group_service.create(chat_id=chat_id)
             return TelegramChatDTO.from_object(
                 obj=telegram_chat, insufficient_privileges=not sufficient_bot_privileges
             )
