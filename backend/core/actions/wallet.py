@@ -87,11 +87,16 @@ class WalletAction(BaseAction):
                 wallet_address=wallet_details.wallet_address,
             )
 
-        self._set_wallet(
-            user_id=user_id,
-            chat_id=chat.id,
-            wallet_address=wallet_details.wallet_address,
-        )
+        same_wallet_connected = False
+        try:
+            self._set_wallet(
+                user_id=user_id,
+                chat_id=chat.id,
+                wallet_address=wallet_details.wallet_address,
+            )
+        except UserWalletConnectedError:
+            # Allow reconnecting already connected wallet and trigger indexing
+            same_wallet_connected = True
 
         if not connected_wallet:
             # Add wallet to tracking if it was not connected before
@@ -109,11 +114,12 @@ class WalletAction(BaseAction):
             queue=CELERY_WALLET_FETCH_QUEUE_NAME,
         )
 
-        await self.on_wallet_reconnect(
-            chat=chat,
-            user_id=user_id,
-            is_disconnecting=False,
-        )
+        if not same_wallet_connected:
+            await self.on_wallet_reconnect(
+                chat=chat,
+                user_id=user_id,
+                is_disconnecting=False,
+            )
 
         logger.info(
             f"User {user_id!r} linked wallet {wallet_details.wallet_address!r} to the chat {chat.id!r}"
