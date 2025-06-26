@@ -75,8 +75,8 @@ async def test_move_rule__pass(
         )
     )
 
-    updated_rule = db_session.query(model).all()
-    for rule in updated_rule:
+    updated_rules = db_session.query(model).all()
+    for rule in updated_rules:
         assert rule.group_id == (
             another_group.id if rule.id == target_rule.id else initial_group.id
         ), "The rule should be moved to the new group."

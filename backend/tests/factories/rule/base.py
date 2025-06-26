@@ -6,7 +6,7 @@ from tests.factories.base import BaseSQLAlchemyModelFactory
 class TelegramChatRuleBaseFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         abstract = True
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
 
     id = factory.Sequence(lambda n: n + 1)
     group_id = factory.SelfAttribute("group.id")
@@ -23,6 +23,6 @@ class TelegramChatRuleBaseFactory(BaseSQLAlchemyModelFactory):
 class TelegramChatThresholdRuleMixin(BaseSQLAlchemyModelFactory):
     class Meta:
         abstract = True
-        sqlalchemy_session_persistence = "commit"
+        sqlalchemy_session_persistence = "flush"
 
     threshold = 1
