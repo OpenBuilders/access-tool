@@ -172,7 +172,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
             NFT collection.
         """
         address = self._resolve_collection_address(address_raw, asset, category)
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         if not address:
             logger.error(
@@ -378,7 +378,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
                 status_code=HTTP_400_BAD_REQUEST,
             )
 
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         self.check_duplicate(
             chat_id=self.chat.id,
@@ -531,7 +531,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
                  TON rule.
         :raises HTTPException: If a duplicate rule of the specified type and category is found.
         """
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
         self.check_duplicate(chat_id=self.chat.id, group_id=group_id, category=category)
         new_rule = self.telegram_chat_toncoin_service.create(
             CreateTelegramChatToncoinRuleDTO(

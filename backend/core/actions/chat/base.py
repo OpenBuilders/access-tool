@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import HTTPException
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
@@ -67,14 +67,13 @@ class ManagedChatBaseAction(BaseAction):
     def chat(self) -> TelegramChat:
         return self._chat
 
-    def resolve_group_id(self, chat_id: int, group_id: int | None) -> int:
+    def resolve_group_id(self, group_id: int | None) -> int:
         """
         Resolves the group ID for a given chat ID. If the `group_id` is provided and
         exists for the given `chat_id`, it is returned.
         If the `group_id` is not provided or does not exist, a new group is created for the chat,
         and its ID is returned.
 
-        :param chat_id: Unique identifier for the chat.
         :param group_id: Unique identifier for the group, or None if a new group
             is to be created.
         :return: Resolved or newly created group ID.
@@ -84,13 +83,35 @@ class ManagedChatBaseAction(BaseAction):
         if group_id is not None:
             try:
                 self.telegram_chat_rule_group_service.get(
-                    chat_id=chat_id, group_id=group_id
+                    chat_id=self.chat.id, group_id=group_id
                 )
                 return group_id
             except NoResultFound as e:
                 raise TelegramChatRuleNotFound(
-                    f"No group with ID {group_id!r} found for chat {chat_id!r}."
+                    f"No group with ID {group_id!r} found for chat {self.chat.id!r}."
                 ) from e
 
-        new_group = self.telegram_chat_rule_group_service.create(chat_id=chat_id)
+        new_group = self.telegram_chat_rule_group_service.create(chat_id=self.chat.id)
         return new_group.id
+
+    def remove_group_if_empty(self, group_id: int) -> None:
+        """
+        Removes a group by its ID if the group is empty. If the group contains any
+        data or associations, it will not be removed, and a debug message logs
+        this condition. This function performs a deletion operation and handles
+        database integrity exceptions.
+
+        :param group_id: An integer representing the unique identifier of the group
+            to be removed.
+        """
+        try:
+            self.telegram_chat_rule_group_service.delete(
+                chat_id=self.chat.id, group_id=group_id
+            )
+            logger.info(
+                f"Deleted rule group {group_id!r} for chat {self.chat.id!r} as it had no rules left."
+            )
+        except IntegrityError:
+            logger.debug(f"Group {group_id!r} is not empty")
+
+        return None

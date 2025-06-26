@@ -159,7 +159,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
 
         :raises TelegramChatInvalidExternalSourceError: If the external source is invalid.
         """
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         try:
             external_source = self.telegram_chat_external_source_service.create(
@@ -285,7 +285,7 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
     def create(
         self, group_id: int | None, name: str, description: str | None = None
     ) -> WhitelistRuleDTO:
-        group_id = self.resolve_group_id(chat_id=self.chat.id, group_id=group_id)
+        group_id = self.resolve_group_id(group_id=group_id)
 
         whitelist = self.telegram_chat_whitelist_service.create(
             CreateTelegramChatWhitelistDTO(

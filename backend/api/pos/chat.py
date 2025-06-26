@@ -21,7 +21,6 @@ from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
 )
-from core.dtos.chat.group import TelegramChatRuleGroupDTO
 from core.dtos.chat.rule import (
     ChatEligibilityRuleDTO,
     TelegramChatWithRulesDTO,
@@ -115,10 +114,6 @@ def validate_address(is_required: bool) -> Callable[[str | None], str | None]:
     return _inner
 
 
-class AddChatCPO(BaseFDO):
-    chat_identifier: Annotated[str | int, AfterValidator(validate_chat_identifier)]
-
-
 class EditChatCPO(BaseFDO):
     description: str | None
 
@@ -136,7 +131,10 @@ class BaseTelegramChatQuantityRuleCPO(BaseFDO):
             description="Optional category of the rule, e.g. NFT collection category or amount of burned items",
         ),
     ]
-    group_id: int | None = None
+    group_id: int | None = Field(
+        None,
+        description="Optional group ID in which rule will be added. If no provided, the new group will be created",
+    )
     is_enabled: bool = True
 
 
@@ -254,7 +252,10 @@ class TelegramChatPremiumRuleCPO(BaseFDO):
 class TelegramChatEmojiRuleCPO(BaseFDO):
     is_enabled: bool
     emoji_id: str
-    group_id: int | None = None
+    group_id: int | None = Field(
+        None,
+        description="Optional group ID in which rule will be added. If no provided, the new group will be created",
+    )
 
 
 class ChatEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
@@ -427,7 +428,10 @@ class TelegramChatWithEligibilitySummaryFDO(BaseFDO):
 class CreateWhitelistRuleBaseCPO(BaseFDO):
     name: Annotated[str, Field(min_length=1, max_length=255)]
     description: Annotated[str | None, Field(min_length=0, max_length=255)] = None
-    group_id: int | None = None
+    group_id: int | None = Field(
+        None,
+        description="Optional group ID in which rule will be added. If no provided, the new group will be created",
+    )
 
 
 class CreateWhitelistRuleCPO(CreateWhitelistRuleBaseCPO):
@@ -466,10 +470,6 @@ class WhitelistRuleExternalFDO(BaseFDO, WhitelistRuleExternalDTO):
 
 
 class WhitelistRuleUsersFDO(WhitelistRuleCPO):
-    ...
-
-
-class TelegramChatRuleGroupFDO(TelegramChatRuleGroupDTO, BaseFDO):
     ...
 
 
