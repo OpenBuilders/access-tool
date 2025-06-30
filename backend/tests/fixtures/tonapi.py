@@ -2,6 +2,8 @@ import pytest
 from pytonapi.schema._address import Address
 from pytonapi.schema.jettons import JettonInfo, JettonMetadata, JettonVerificationType
 
+from core.dtos.resource import JettonDTO
+
 
 @pytest.fixture()
 def dummy_jetton_address() -> Address:
@@ -19,4 +21,11 @@ def dummy_jetton_info(dummy_jetton_address: Address) -> JettonInfo:
         ),
         verification=JettonVerificationType.none,
         holders_count=1,
+    )
+
+
+@pytest.fixture
+def dummy_jetton_dto(dummy_jetton_info: JettonInfo) -> JettonDTO:
+    return JettonDTO.from_info(
+        dummy_jetton_info,
     )

@@ -64,6 +64,28 @@ async def fetch_nft_collection_details(
         )
 
 
+@admin_resource_router.put("/refresh/jettons/{address}")
+async def refresh_jetton_details(
+    address_raw: Annotated[str, Depends(get_address_raw)],
+    db_session: Session = Depends(get_db_session),
+) -> JettonFDO:
+    jetton_action = JettonAction(db_session)
+    # Don't handle ExternalResourceNotFound as if it exists in the database – it should be in the blockchain
+    jetton_data = await jetton_action.refresh(address_raw=address_raw)
+    return JettonFDO.model_validate(jetton_data.model_dump())
+
+
+@admin_resource_router.put("/refresh/nft-collections/{address}")
+async def refresh_nft_collection_details(
+    address_raw: Annotated[str, Depends(get_address_raw)],
+    db_session: Session = Depends(get_db_session),
+) -> NftCollectionFDO:
+    nft_collection_action = NftCollectionAction(db_session)
+    # Don't handle ExternalResourceNotFound as if it exists in the database – it should be in the blockchain
+    nft_collection_dto = await nft_collection_action.refresh(address_raw=address_raw)
+    return NftCollectionFDO.model_validate(nft_collection_dto.model_dump())
+
+
 @admin_resource_router.get("/categories/nft-collections")
 async def get_nft_collection_categories() -> list[CategoriesFDO]:
     return [
