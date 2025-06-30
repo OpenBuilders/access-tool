@@ -158,6 +158,15 @@ class VersionedFile:
         return instance
 
     def _format_file_name(self) -> str:
+        """
+        Returns the full formatted name of the file, including base name and extension only
+        """
+        return f"{self.base_name}{self._extension}"
+
+    def _resolve_file_name(self) -> str:
+        """
+        Resolves the file name based on the version.
+        """
         return f"{self.base_name}{self._extension}?v={self._version}"
 
     def _parse_file_name(self) -> tuple[str, int | None, str]:
@@ -174,7 +183,17 @@ class VersionedFile:
 
     @property
     def full_name(self) -> str:
+        """
+        Returns the full formatted name of the file, including base name and extension.
+        """
         return self._format_file_name()
+
+    @property
+    def resolved_full_name(self) -> str:
+        """
+        Returns the full formatted name of the file, including base name, version, and extension.
+        """
+        return self._resolve_file_name()
 
     @property
     def base_name(self) -> str:

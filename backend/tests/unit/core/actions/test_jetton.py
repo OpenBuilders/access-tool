@@ -299,7 +299,7 @@ async def test_refresh__increments_file_version__pass(
     jetton_dto = JettonDTO.from_orm(jetton)
     new_version = logo_path_obj.get_next_version()
     logo_path_obj._version = new_version
-    jetton_dto.logo_path = logo_path_obj.full_name
+    jetton_dto.logo_path = logo_path_obj.resolved_full_name
     jetton_action._get_blockchain_info = mocker.AsyncMock(return_value=jetton_dto)
     await jetton_action.refresh(jetton.address)
 

@@ -161,13 +161,14 @@ class NftCollectionAction(BaseAction):
                 # Make sure the cursor is set at the beginning to avoid empty files
                 tmp_file.seek(0)
                 if file_extension:
-                    logo_path = VersionedFile(
+                    versioned_file = VersionedFile(
                         base_name=address_raw,
                         version=version,
                         extension=file_extension,
-                    ).full_name
+                    )
+                    logo_path = versioned_file.resolved_full_name
                     await self.cdn_service.upload_file(
-                        file_path=tmp_file.name, object_name=logo_path
+                        file_path=tmp_file.name, object_name=versioned_file.full_name
                     )
 
         dto = NftCollectionDTO.from_info(nft_collection_data, logo_path)

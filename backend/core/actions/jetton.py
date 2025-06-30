@@ -155,17 +155,19 @@ class JettonAction(BaseAction):
                     jetton_logo,
                     target_location=tmp_file,
                 )
-                # Make sure the cursor is set at the beginning to avoid empty files
-                tmp_file.seek(0)
-                logo_path = VersionedFile(
-                    base_name=address_raw,
-                    version=version,
-                    extension=file_extension,
-                ).full_name
+
                 if file_extension:
+                    # Make sure the cursor is set at the beginning to avoid empty files
+                    tmp_file.seek(0)
+                    versioned_file = VersionedFile(
+                        base_name=address_raw,
+                        version=version,
+                        extension=file_extension,
+                    )
+                    logo_path = versioned_file.resolved_full_name
                     await self.cdn_service.upload_file(
                         file_path=tmp_file.name,
-                        object_name=logo_path,
+                        object_name=versioned_file.full_name,
                     )
 
         dto = JettonDTO.from_info(jetton_info, logo_path)
