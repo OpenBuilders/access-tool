@@ -58,11 +58,23 @@ def test_versioned_file__increment_version__pass(
 
 
 @pytest.mark.parametrize(
-    ("base_name", "extension", "version", "expected_filename"),
+    (
+        "base_name",
+        "extension",
+        "version",
+        "expected_filename",
+        "expected_resolved_filename",
+    ),
     [
-        ("test", ".txt", None, f"test.txt?v={DEFAULT_INCREMENTED_FILE_VERSION}"),
-        ("test", ".txt", 1, "test.txt?v=1"),
-        ("test", ".png", 123, "test.png?v=123"),
+        (
+            "test",
+            ".txt",
+            None,
+            "test.txt",
+            f"test.txt?v={DEFAULT_INCREMENTED_FILE_VERSION}",
+        ),
+        ("test", ".txt", 1, "test.txt", "test.txt?v=1"),
+        ("test", ".png", 123, "test.png", "test.png?v=123"),
     ],
 )
 def test_versioned_file__to_filename__pass(
@@ -70,6 +82,8 @@ def test_versioned_file__to_filename__pass(
     extension: str,
     version: int | None,
     expected_filename: str,
+    expected_resolved_filename: str,
 ) -> None:
     result = VersionedFile(base_name, extension, version)
     assert result.full_name == expected_filename
+    assert result.resolved_full_name == expected_resolved_filename
