@@ -9,11 +9,15 @@ from starlette.status import HTTP_404_NOT_FOUND
 
 from core.dtos.resource import NftCollectionDTO
 from core.actions.base import BaseAction
-from core.constants import DEFAULT_EXPIRY_TIMEOUT_MINUTES
+from core.constants import (
+    DEFAULT_EXPIRY_TIMEOUT_MINUTES,
+    DEFAULT_FILE_VERSION,
+    DEFAULT_INCREMENTED_FILE_VERSION,
+)
 from core.services.cdn import CDNService
 from core.services.nft import NftCollectionService
 from core.services.superredis import RedisService
-from core.utils.file import pick_best_preview, download_media
+from core.utils.file import pick_best_preview, download_media, VersionedFile
 from indexer.indexers.tonapi import TonApiService
 
 logger = logging.getLogger(__name__)
@@ -39,7 +43,9 @@ class NftCollectionAction(BaseAction):
             logger.info(
                 f"NFT collection {address_raw!r} not found in the database. Prefetching..."
             )
-            dto = await self.get_cached_blockchain_info(address_raw)
+            dto = await self.get_cached_blockchain_info(
+                address_raw, version=DEFAULT_FILE_VERSION
+            )
             return dto
 
     async def refresh(self, address_raw: str) -> NftCollectionDTO:
@@ -83,7 +89,12 @@ class NftCollectionAction(BaseAction):
 
         logger.info(f"Refreshing nft collection info for {address_raw!r}...")
 
-        dto = await self._get_blockchain_info(address_raw)
+        version = DEFAULT_INCREMENTED_FILE_VERSION
+        if nft_collection.logo_path:
+            previous_logo_path = VersionedFile.from_filename(nft_collection.logo_path)
+            version = previous_logo_path.get_next_version()
+
+        dto = await self._get_blockchain_info(address_raw, version=version)
         blockchain_metadata = (
             await self.blockchain_service.parse_nft_collection_metadata(address_raw)
         )
@@ -97,7 +108,9 @@ class NftCollectionAction(BaseAction):
     def _get_resource_cache_key(address_raw: str) -> str:
         return f"nft-collection:{address_raw}"
 
-    async def get_cached_blockchain_info(self, address_raw: str) -> NftCollectionDTO:
+    async def get_cached_blockchain_info(
+        self, address_raw: str, version: int
+    ) -> NftCollectionDTO:
         """
         Fetches and caches blockchain information for a given address.
 
@@ -109,6 +122,7 @@ class NftCollectionAction(BaseAction):
 
         :param address_raw: The raw address string for which to fetch blockchain
             information.
+        :param version: An integer representing an incremented version of the logo file.
         :return: An instance of NftCollectionDTO containing information related to
             the NFT collection associated with the given address.
         """
@@ -118,16 +132,21 @@ class NftCollectionAction(BaseAction):
             dto = NftCollectionDTO.model_validate_json(cached_value)
         else:
             logger.info("Fetching nft collection info for %s from the API", address_raw)
-            dto = await self._get_blockchain_info(address_raw=address_raw)
+            dto = await self._get_blockchain_info(
+                address_raw=address_raw, version=version
+            )
         return dto
 
-    async def _get_blockchain_info(self, address_raw: str) -> NftCollectionDTO:
+    async def _get_blockchain_info(
+        self, address_raw: str, version: int
+    ) -> NftCollectionDTO:
         """
         Fetches blockchain information for a given address, including NFT collection details
         and optionally a download URL for a logo if available.
         If URL is available, it tries to download the logo and upload it to CDN.
 
         :param address_raw: The raw address string to retrieve blockchain data for.
+        :param version: An integer representing an incremented version of the logo file.
         :return: A tuple containing the NFT collection data and an optional path to the logo file.
         """
         nft_collection_data = await self.blockchain_service.get_nft_collection_info(
@@ -139,8 +158,14 @@ class NftCollectionAction(BaseAction):
             download_url = best_preview.url
             with NamedTemporaryFile(mode="w+b", delete=True) as tmp_file:
                 file_extension = download_media(download_url, tmp_file)
+                # Make sure the cursor is set at the beginning to avoid empty files
+                tmp_file.seek(0)
                 if file_extension:
-                    logo_path = f"{address_raw}.{file_extension}"
+                    logo_path = VersionedFile(
+                        base_name=address_raw,
+                        version=version,
+                        extension=file_extension,
+                    ).full_name
                     await self.cdn_service.upload_file(
                         file_path=tmp_file.name, object_name=logo_path
                     )
@@ -182,7 +207,9 @@ class NftCollectionAction(BaseAction):
         :return: An instance of NftCollectionDTO containing the created NFT
             collection's data.
         """
-        dto = await self.get_cached_blockchain_info(address_raw)
+        dto = await self.get_cached_blockchain_info(
+            address_raw, version=DEFAULT_FILE_VERSION
+        )
         blockchain_metadata = (
             await self.blockchain_service.parse_nft_collection_metadata(address_raw)
         )

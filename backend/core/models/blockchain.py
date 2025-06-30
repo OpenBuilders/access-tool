@@ -19,7 +19,7 @@ class Jetton(Base):
     description = mapped_column(TEXT, nullable=True)
     symbol = mapped_column(String(255), nullable=False)
     total_supply = mapped_column(BigInteger, nullable=False)
-    logo_path = mapped_column(String(290), nullable=True)
+    logo_path: Mapped[str | None] = mapped_column(String(290), nullable=True)
     is_enabled = mapped_column(Boolean, nullable=False, default=True)
     created_at = mapped_column(DateTime(timezone=True), server_default=func.now())
 
