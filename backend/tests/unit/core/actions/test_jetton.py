@@ -30,7 +30,7 @@ async def test__prefetch_existing_jetton__pass(db_session: Session) -> None:
 
 @pytest.mark.asyncio
 async def test__prefetch_missing_jetton_no_cache__pass(
-    db_session: Session, mocker: MockerFixture, dummy_jetton_info: JettonInfo
+    db_session: Session, mocker: MockerFixture, dummy_jetton_dto: JettonDTO
 ) -> None:
     """Test `prefetch` fetches blockchain info when Jetton doesn't exist in DB."""
     # Arrange
@@ -39,48 +39,43 @@ async def test__prefetch_missing_jetton_no_cache__pass(
     jetton_action.redis_service = create_autospec(RedisService, instance=True)
     jetton_action.redis_service.get.return_value = None
 
-    jetton_action._get_blockchain_info = mocker.AsyncMock(
-        return_value=(dummy_jetton_info, None)
-    )
+    jetton_action._get_blockchain_info = mocker.AsyncMock(return_value=dummy_jetton_dto)
 
     # Act
-    result = await jetton_action.prefetch(
-        address_raw=dummy_jetton_info.metadata.address.to_raw()
-    )
+    result = await jetton_action.prefetch(address_raw=dummy_jetton_dto.address)
 
     # Assert
     assert isinstance(result, JettonDTO)
-    assert result.address == dummy_jetton_info.metadata.address.to_raw()
-    assert result.name == dummy_jetton_info.metadata.name
-    assert result.symbol == dummy_jetton_info.metadata.symbol
+    assert result.address == dummy_jetton_dto.address
+    assert result.name == dummy_jetton_dto.name
+    assert result.symbol == dummy_jetton_dto.symbol
     assert result.is_enabled is True
     jetton_action._get_blockchain_info.assert_called_once_with(
-        address_raw=dummy_jetton_info.metadata.address.to_raw()
+        address_raw=dummy_jetton_dto.address
     )
-    jetton_action.redis_service.set.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test__prefetch_missing_jetton_with_cache__pass(
     db_session: Session,
-    dummy_jetton_info: JettonInfo,
+    dummy_jetton_dto: JettonDTO,
 ) -> None:
     """Test `get_cached_blockchain_info` retrieves data from cache."""
     # Arrange
-    cached_data = JettonDTO.from_info(dummy_jetton_info).model_dump_json()
+    cached_data = dummy_jetton_dto.model_dump_json()
 
     jetton_action = JettonAction(db_session)
     jetton_action.redis_service = create_autospec(RedisService, instance=True)
     jetton_action.redis_service.get.return_value = cached_data
 
     # Act
-    result = await jetton_action.prefetch(dummy_jetton_info.metadata.address.to_raw())
+    result = await jetton_action.prefetch(dummy_jetton_dto.address)
 
     # Assert
     assert isinstance(result, JettonDTO)
-    assert result.address == dummy_jetton_info.metadata.address.to_raw()
+    assert result.address == dummy_jetton_dto.address
     jetton_action.redis_service.get.assert_called_once_with(
-        f"jetton:{dummy_jetton_info.metadata.address.to_raw()}"
+        f"jetton:{dummy_jetton_dto.address}"
     )
     jetton_action.redis_service.set.assert_not_called()
 
@@ -204,3 +199,58 @@ async def test_get_or_create_create_new_jetton(
     assert db_record.symbol == new_jetton.symbol
     assert db_record.name == new_jetton.name
     assert db_record.is_enabled is True, "Jetton is not enabled by default"
+
+
+@pytest.mark.asyncio
+async def test_refresh__pass(
+    db_session: Session,
+    mocker: MockerFixture,
+) -> None:
+    jetton = JettonFactory.create()
+
+    jetton_dto = JettonDTO.from_orm(jetton)
+    jetton_dto.name = "New Jetton Name"
+
+    jetton_record = db_session.query(Jetton).one()
+    assert jetton_record.name != jetton_dto.name, "Jetton name should not match"
+
+    jetton_action = JettonAction(db_session)
+    jetton_action.redis_service = create_autospec(RedisService, instance=True)
+    jetton_action.redis_service.get.return_value = None
+
+    jetton_action._get_blockchain_info = mocker.AsyncMock(return_value=jetton_dto)
+    await jetton_action.refresh(jetton.address)
+
+    jetton_action._get_blockchain_info.assert_called_once()
+
+    updated_jetton_record = db_session.query(Jetton).one()
+    assert updated_jetton_record.name == jetton_dto.name
+
+
+@pytest.mark.asyncio
+async def test_refresh__cache_hit__pass(
+    db_session: Session, mocker: MockerFixture
+) -> None:
+    jetton = JettonFactory.create()
+
+    jetton_dto = JettonDTO.from_orm(jetton)
+    jetton_dto.name = "New Jetton Name"
+
+    jetton_record = db_session.query(Jetton).one()
+    assert jetton_record.name != jetton_dto.name, "Jetton name should not match"
+
+    jetton_action = JettonAction(db_session)
+    jetton_action.redis_service = create_autospec(RedisService, instance=True)
+    jetton_action.redis_service.get.return_value = jetton_dto.model_dump_json()
+
+    jetton_action._get_blockchain_info = mocker.AsyncMock(return_value=jetton_dto)
+
+    await jetton_action.refresh(jetton.address)
+
+    jetton_action.redis_service.get.assert_not_called()
+    jetton_action.redis_service.set.assert_called_once_with(
+        f"refresh_details_{jetton.address}", "1", ex=3600, nx=True
+    )
+
+    updated_jetton_record = db_session.query(Jetton).one()
+    assert updated_jetton_record.name == jetton_dto.name
