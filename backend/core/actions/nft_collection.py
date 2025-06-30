@@ -3,9 +3,9 @@ import logging
 from tempfile import NamedTemporaryFile
 
 from fastapi import HTTPException
-from pytonapi.schema.nft import NftCollection
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_404_NOT_FOUND
 
 from core.dtos.resource import NftCollectionDTO
 from core.actions.base import BaseAction
@@ -42,6 +42,57 @@ class NftCollectionAction(BaseAction):
             dto = await self.get_cached_blockchain_info(address_raw)
             return dto
 
+    async def refresh(self, address_raw: str) -> NftCollectionDTO:
+        """
+        Refresh and update the data of an NFT collection based on its blockchain
+        information and metadata.
+
+        This asynchronous function retrieves blockchain metadata for an NFT
+        collection using the provided address, updates the corresponding collection
+        data in the database, and returns the updated data as a DTO (Data Transfer
+        Object).
+        If the collection is not found in the database, it raises an HTTPException.
+
+        :param address_raw: Unique identifier for the NFT collection, provided as a
+            raw address.
+        :return: Updated NFT collection data encapsulated in a DTO (Data Transfer
+            Object).
+        :raises HTTPException: If the NFT collection corresponding to the address_raw
+            is not found in the database.
+        """
+
+        if not self.redis_service.set(
+            f"refresh_details_{address_raw}", "1", ex=3600, nx=True
+        ):
+            logger.warning(
+                f"Refresh details for {address_raw} was triggered already. Please wait for an hour to do it again."
+            )
+            raise HTTPException(
+                status_code=409,
+                detail=f"Refresh details for {address_raw} was triggered already. Please wait for an hour to do it again.",
+            )
+
+        try:
+            nft_collection = self.nft_collection_service.get(address_raw)
+        except NoResultFound:
+            logger.error(f"NFT collection {address_raw!r} not found in the database.")
+            raise HTTPException(
+                status_code=HTTP_404_NOT_FOUND,
+                detail=f"NFT collection {address_raw!r} not found in the database.",
+            )
+
+        logger.info(f"Refreshing nft collection info for {address_raw!r}...")
+
+        dto = await self._get_blockchain_info(address_raw)
+        blockchain_metadata = (
+            await self.blockchain_service.parse_nft_collection_metadata(address_raw)
+        )
+        dto.blockchain_metadata = blockchain_metadata
+        update_item = self.nft_collection_service.update(
+            nft_collection=nft_collection, dto=dto
+        )
+        return NftCollectionDTO.from_orm(update_item)
+
     @staticmethod
     def _get_resource_cache_key(address_raw: str) -> str:
         return f"nft-collection:{address_raw}"
@@ -67,21 +118,10 @@ class NftCollectionAction(BaseAction):
             dto = NftCollectionDTO.model_validate_json(cached_value)
         else:
             logger.info("Fetching nft collection info for %s from the API", address_raw)
-            jetton_info, logo_path = await self._get_blockchain_info(
-                address_raw=address_raw
-            )
-            dto = NftCollectionDTO.from_info(jetton_info, logo_path)
-            logger.info("Caching nft collection info for %s", address_raw)
-            self.redis_service.set(
-                self._get_resource_cache_key(address_raw),
-                dto.model_dump_json(),
-                ex=DEFAULT_EXPIRY_TIMEOUT_MINUTES * 60,
-            )
+            dto = await self._get_blockchain_info(address_raw=address_raw)
         return dto
 
-    async def _get_blockchain_info(
-        self, address_raw: str
-    ) -> tuple[NftCollection, str | None]:
+    async def _get_blockchain_info(self, address_raw: str) -> NftCollectionDTO:
         """
         Fetches blockchain information for a given address, including NFT collection details
         and optionally a download URL for a logo if available.
@@ -105,7 +145,15 @@ class NftCollectionAction(BaseAction):
                         file_path=tmp_file.name, object_name=logo_path
                     )
 
-        return nft_collection_data, logo_path
+        dto = NftCollectionDTO.from_info(nft_collection_data, logo_path)
+        logger.info("Caching nft collection info for %s", address_raw)
+        self.redis_service.set(
+            self._get_resource_cache_key(address_raw),
+            dto.model_dump_json(),
+            ex=DEFAULT_EXPIRY_TIMEOUT_MINUTES * 60,
+        )
+
+        return dto
 
     def get_all(self, whitelisted_only: bool) -> list[NftCollectionDTO]:
         nft_collections = self.nft_collection_service.get_all(
