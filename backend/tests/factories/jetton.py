@@ -14,5 +14,5 @@ class JettonFactory(SQLAlchemyModelFactory):
     description = factory.Faker("text")
     symbol = factory.Faker("cryptocurrency_code")
     total_supply = factory.Faker("pyint")
-    logo_path = factory.Faker("image_url")
+    logo_path = factory.Faker("file_name", category="image", extension="png")
     is_enabled = True

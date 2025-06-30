@@ -1,9 +1,14 @@
+import logging
+import os
 from collections.abc import Callable
 from pathlib import Path
 
 import aioboto3
 
 from core.settings import core_settings
+
+
+logger = logging.getLogger(__name__)
 
 
 class CDNService:
@@ -20,6 +25,9 @@ class CDNService:
         object_name: str,
         callback: Callable[[None], None] | None = None,
     ) -> None:
+        logger.info(
+            f"Uploading file {file_path} to CDN as {object_name}... Size: {os.path.getsize(file_path)}"
+        )
         async with self.session.client(
             "s3",
             endpoint_url=core_settings.cdn_endpoint,
@@ -30,3 +38,4 @@ class CDNService:
                 Key=object_name,
                 Callback=callback,
             )
+        logger.info(f"File {file_path} uploaded to CDN as {object_name}.")

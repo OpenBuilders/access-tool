@@ -7,9 +7,11 @@ from pytonapi.schema.jettons import JettonInfo
 from sqlalchemy.orm import Session
 
 from core.actions.jetton import JettonAction
+from core.constants import DEFAULT_FILE_VERSION, DEFAULT_INCREMENTED_FILE_VERSION
 from core.dtos.resource import JettonDTO
 from core.models.blockchain import Jetton
 from core.services.superredis import RedisService
+from core.utils.file import VersionedFile
 from tests.factories import JettonFactory
 
 
@@ -51,7 +53,7 @@ async def test__prefetch_missing_jetton_no_cache__pass(
     assert result.symbol == dummy_jetton_dto.symbol
     assert result.is_enabled is True
     jetton_action._get_blockchain_info.assert_called_once_with(
-        address_raw=dummy_jetton_dto.address
+        address_raw=dummy_jetton_dto.address, version=DEFAULT_FILE_VERSION
     )
 
 
@@ -102,7 +104,8 @@ async def test__create_jetton__pass(
     assert isinstance(result, JettonDTO)
     assert result.address == dummy_jetton_info.metadata.address.to_raw()
     jetton_action.get_cached_blockchain_info.assert_called_once_with(
-        dummy_jetton_info.metadata.address.to_raw()
+        dummy_jetton_info.metadata.address.to_raw(),
+        version=DEFAULT_FILE_VERSION,
     )
 
     # Ensure DB record is created
@@ -192,7 +195,9 @@ async def test_get_or_create_create_new_jetton(
 
     # Assert
     assert result == new_jetton
-    jetton_action.get_cached_blockchain_info.assert_called_once_with(new_jetton.address)
+    jetton_action.get_cached_blockchain_info.assert_called_once_with(
+        new_jetton.address, version=DEFAULT_FILE_VERSION
+    )
 
     db_record = db_session.query(Jetton).one()
     assert db_record.address == new_jetton.address
@@ -221,7 +226,10 @@ async def test_refresh__pass(
     jetton_action._get_blockchain_info = mocker.AsyncMock(return_value=jetton_dto)
     await jetton_action.refresh(jetton.address)
 
-    jetton_action._get_blockchain_info.assert_called_once()
+    jetton_action._get_blockchain_info.assert_called_once_with(
+        jetton.address,
+        version=DEFAULT_INCREMENTED_FILE_VERSION,
+    )
 
     updated_jetton_record = db_session.query(Jetton).one()
     assert updated_jetton_record.name == jetton_dto.name
@@ -251,6 +259,58 @@ async def test_refresh__cache_hit__pass(
     jetton_action.redis_service.set.assert_called_once_with(
         f"refresh_details_{jetton.address}", "1", ex=3600, nx=True
     )
+    jetton_action._get_blockchain_info.assert_called_once_with(
+        jetton.address,
+        version=DEFAULT_INCREMENTED_FILE_VERSION,
+    )
 
     updated_jetton_record = db_session.query(Jetton).one()
     assert updated_jetton_record.name == jetton_dto.name
+
+
+@pytest.mark.parametrize(
+    ("previous_logo_path", "expected_logo_path"),
+    (
+        ("fren.png", "fren.png?v=2"),
+        ("fren.png?v=1", "fren.png?v=2"),
+        ("fren.png?v=2", "fren.png?v=3"),
+    ),
+)
+@pytest.mark.asyncio
+async def test_refresh__increments_file_version__pass(
+    db_session: Session,
+    mocker: MockerFixture,
+    previous_logo_path: str,
+    expected_logo_path: str,
+) -> None:
+    jetton = JettonFactory.create(logo_path=previous_logo_path)
+
+    jetton_record = db_session.query(Jetton).one()
+    assert isinstance(jetton_record.logo_path, str)
+    assert (
+        jetton_record.logo_path == previous_logo_path
+    ), "Jetton logo path should match"
+
+    jetton_action = JettonAction(db_session)
+    jetton_action.redis_service = create_autospec(RedisService, instance=True)
+    jetton_action.redis_service.get.return_value = None
+
+    logo_path_obj = VersionedFile.from_filename(previous_logo_path)
+    jetton_dto = JettonDTO.from_orm(jetton)
+    new_version = logo_path_obj.get_next_version()
+    logo_path_obj._version = new_version
+    jetton_dto.logo_path = logo_path_obj.full_name
+    jetton_action._get_blockchain_info = mocker.AsyncMock(return_value=jetton_dto)
+    await jetton_action.refresh(jetton.address)
+
+    jetton_action._get_blockchain_info.assert_called_once_with(
+        jetton.address,
+        version=new_version,
+    )
+
+    updated_jetton_record = db_session.query(Jetton).one()
+    assert isinstance(updated_jetton_record.logo_path, str)
+    new_path = VersionedFile.from_filename(updated_jetton_record.logo_path)
+    assert new_path.base_name == logo_path_obj.base_name
+    assert new_path.version == logo_path_obj.version
+    assert new_path.extension == logo_path_obj.extension
