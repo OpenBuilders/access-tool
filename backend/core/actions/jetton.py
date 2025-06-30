@@ -1,6 +1,7 @@
 import logging
 from tempfile import NamedTemporaryFile
 
+from fastapi import HTTPException
 from pytonapi.schema.jettons import JettonInfo
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -38,6 +39,45 @@ class JettonAction(BaseAction):
             dto = await self.get_cached_blockchain_info(address_raw)
             return dto
 
+    async def refresh(self, address_raw: str) -> JettonDTO:
+        """
+        Refreshes and updates the jetton details for a given address. Retrieves
+        the current information from the blockchain for the specified address
+        and updates the relevant jetton entry in the database. If the jetton
+        does not exist in the database, raises an HTTP 404 exception.
+
+        :param address_raw: The raw address of the jetton to refresh.
+        :raises HTTPException: If the specified jetton address is not found
+                               in the database.
+        :return: The updated Jetton details as a data transfer object.
+        :raises HTTPException: If the specified jetton address is not found in the database.
+        """
+        if not self.redis_service.set(
+            f"refresh_details_{address_raw}", "1", ex=3600, nx=True
+        ):
+            logger.warning(
+                f"Refresh details for {address_raw} was triggered already. Please wait for an hour to do it again."
+            )
+            raise HTTPException(
+                status_code=409,
+                detail=f"Refresh details for {address_raw} was triggered already. Please wait for an hour to do it again.",
+            )
+
+        try:
+            jetton = self.jetton_service.get(address_raw)
+        except NoResultFound:
+            logger.error(f"Jetton {address_raw!r} not found in the database.")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Jetton {address_raw!r} not found in the database.",
+            )
+
+        logger.info(f"Refreshing jetton info for {address_raw!r}...")
+
+        dto = await self._get_blockchain_info(address_raw)
+        jetton = self.jetton_service.update(jetton=jetton, dto=dto)
+        return JettonDTO.from_orm(jetton)
+
     @staticmethod
     def _get_resource_cache_key(address_raw: str) -> str:
         return f"jetton:{address_raw}"
@@ -64,21 +104,10 @@ class JettonAction(BaseAction):
             dto = JettonDTO.model_validate_json(cached_value)
         else:
             logger.info("Fetching jetton info for %s from the API", address_raw)
-            jetton_info, logo_path = await self._get_blockchain_info(
-                address_raw=address_raw
-            )
-            dto = JettonDTO.from_info(jetton_info, logo_path)
-            logger.info("Caching jetton info for %s", address_raw)
-            self.redis_service.set(
-                self._get_resource_cache_key(address_raw),
-                dto.model_dump_json(),
-                ex=DEFAULT_EXPIRY_TIMEOUT_MINUTES * 60,
-            )
+            dto = await self._get_blockchain_info(address_raw=address_raw)
         return dto
 
-    async def _get_blockchain_info(
-        self, address_raw: str
-    ) -> tuple[JettonInfo, str | None]:
+    async def _get_blockchain_info(self, address_raw: str) -> JettonDTO:
         """
         Retrieve jetton information and handle logo upload.
 
@@ -114,7 +143,15 @@ class JettonAction(BaseAction):
                         file_path=tmp_file.name, object_name=logo_path
                     )
 
-        return jetton_info, logo_path
+        dto = JettonDTO.from_info(jetton_info, logo_path)
+        logger.info("Caching jetton info for %s", address_raw)
+        self.redis_service.set(
+            self._get_resource_cache_key(address_raw),
+            dto.model_dump_json(),
+            ex=DEFAULT_EXPIRY_TIMEOUT_MINUTES * 60,
+        )
+
+        return dto
 
     async def create(self, address_raw: str) -> JettonDTO:
         dto = await self.get_cached_blockchain_info(address_raw)
