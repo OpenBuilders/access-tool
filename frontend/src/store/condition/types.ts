@@ -44,6 +44,7 @@ export interface Condition {
   backdrop?: string | null
   pattern?: string | null
   slug?: string | null
+  groupId: number
 }
 
 export interface PrefetchedConditionData {

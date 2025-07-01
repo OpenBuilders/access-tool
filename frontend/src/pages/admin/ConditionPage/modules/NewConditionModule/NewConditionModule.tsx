@@ -10,7 +10,7 @@ import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
 import { removeEmptyFields } from '@utils'
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import { Condition, ConditionType, useConditionActions } from '@store'
 
@@ -28,6 +28,10 @@ export const NewConditionModule = () => {
 
   const chatSlugParam = params.chatSlug || ''
   const conditionTypeParam = params.conditionType || ''
+
+  const location = useLocation()
+  const groupId = location.state?.groupId
+  console.log('🚀 ~ NewConditionModule ~ groupId:', groupId)
 
   const [conditionState, setConditionState] = useState<Partial<Condition>>({
     type: 'jetton',
@@ -63,6 +67,7 @@ export const NewConditionModule = () => {
     setConditionState((prev) => ({
       ...prev,
       [key]: value,
+      groupId,
     }))
   }
 

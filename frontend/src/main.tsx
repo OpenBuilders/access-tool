@@ -7,13 +7,13 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <ToastProvider>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
-      </ToastProvider>
-    </BrowserRouter>
-  </StrictMode>
+  // <StrictMode>
+  <BrowserRouter>
+    <ToastProvider>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </ToastProvider>
+  </BrowserRouter>
+  // </StrictMode>
 )
