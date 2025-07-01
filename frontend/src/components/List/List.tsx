@@ -35,7 +35,7 @@ export const List = ({
             </Text>
           </Block>
           {action && (
-            <Block margin="right" marginValue={16}>
+            <Block margin="right" marginValue={16} defaultWidth>
               {action}
             </Block>
           )}

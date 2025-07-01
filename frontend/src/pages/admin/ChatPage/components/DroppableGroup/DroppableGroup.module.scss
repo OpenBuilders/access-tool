@@ -1,0 +1,12 @@
+.droppableGroup {
+  transition: all 0.2s ease;
+  width: 100%;
+
+  &.isOver {
+    background-color: rgba(var(--color-accent-rgb), 0.05);
+    border-radius: 8px;
+    border: 2px dashed var(--color-accent);
+  }
+
+  transition: all 0.2s ease;
+}

@@ -5,6 +5,7 @@ import styles from './Block.module.scss'
 interface BlockProps {
   children: React.ReactNode
   margin?: 'top' | 'bottom' | 'left' | 'right'
+  defaultWidth?: boolean
   marginValue?:
     | 0
     | 2
@@ -60,6 +61,7 @@ export const Block = ({
   paddingValue,
   onClick,
   fadeIn = true,
+  defaultWidth = false,
 }: BlockProps) => {
   const marginStyle = {
     marginTop: margin === 'top' ? marginValue : 0,
@@ -85,7 +87,8 @@ export const Block = ({
         gap && styles[`gap-${gap}`],
         justify && styles[justify],
         align && styles[align],
-        fadeIn && styles.fadeIn
+        fadeIn && styles.fadeIn,
+        defaultWidth && styles.defaultWidth
       )}
     >
       {children}
