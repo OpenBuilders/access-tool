@@ -10,7 +10,6 @@ import {
 import {
   DndContext,
   DragEndEvent,
-  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
@@ -23,7 +22,6 @@ import {
 import {
   SortableContext,
   verticalListSortingStrategy,
-  arrayMove,
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 import { useAppNavigation } from '@hooks'
@@ -37,6 +35,8 @@ import { useChat, Condition, useChatActions, ConditionType } from '@store'
 import { DraggableCondition } from '../DraggableCondition'
 import { DroppableGroup } from '../DroppableGroup'
 import styles from './ChatConditions.module.scss'
+
+const webApp = window.Telegram.WebApp
 
 export const ChatConditions = () => {
   const { appNavigate } = useAppNavigation()
@@ -66,16 +66,15 @@ export const ChatConditions = () => {
         order: order,
         chatSlug: chat?.slug || '',
       })
+      webApp.HapticFeedback.impactOccurred('soft')
     } catch (error) {
-      console.log(error)
+      console.error(error)
       showToast({
         message: 'Failed to move condition',
         type: 'error',
       })
     } finally {
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 3000)
+      setIsLoading(false)
     }
   }
 
@@ -129,30 +128,11 @@ export const ChatConditions = () => {
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
-  }
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event
-
-    if (!over) return
-
-    const activeId = active.id as string
-    const overId = over.id as string
-
-    // Если перетаскиваем условие в другую группу
-    if (activeId.startsWith('condition-') && overId.startsWith('group-')) {
-      const conditionId = parseInt(activeId.replace('condition-', ''))
-      const targetGroupId = parseInt(overId.replace('group-', ''))
-
-      // Здесь можно добавить логику перемещения условия между группами
-      console.log('fdsfsdf')
-      console.log(`Moving condition ${conditionId} to group ${targetGroupId}`)
-    }
+    webApp.HapticFeedback.impactOccurred('light')
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-
     setActiveId(null)
 
     if (!over) return
@@ -160,57 +140,14 @@ export const ChatConditions = () => {
     const activeId = active.id as string
     const overId = over.id as string
 
-    // Если перетаскиваем условие в пределах одной группы
-    if (activeId.startsWith('condition-') && overId.startsWith('condition-')) {
-      const activeConditionId = parseInt(activeId.replace('condition-', ''))
-      const overConditionId = parseInt(overId.replace('condition-', ''))
-
-      // Найти группы, содержащие эти условия
-      const activeGroupIndex = localGroups.findIndex((group) =>
-        group.items.some((item) => item.id === activeConditionId)
-      )
-      const overGroupIndex = localGroups.findIndex((group) =>
-        group.items.some((item) => item.id === overConditionId)
-      )
-
-      if (activeGroupIndex === overGroupIndex && activeGroupIndex !== -1) {
-        const group = localGroups[activeGroupIndex]
-        const oldIndex = group.items.findIndex(
-          (item) => item.id === activeConditionId
-        )
-        const newIndex = group.items.findIndex(
-          (item) => item.id === overConditionId
-        )
-
-        if (oldIndex !== newIndex) {
-          const newGroups = [...localGroups]
-          newGroups[activeGroupIndex] = {
-            ...group,
-            items: arrayMove(group.items, oldIndex, newIndex),
-          }
-          const groupsWithItems = newGroups.filter(
-            (group) => group.items.length > 0
-          )
-          setLocalGroups(groupsWithItems)
-
-          const condition = newGroups[activeGroupIndex].items[newIndex]
-
-          moveChatCondition(condition, group.id, newIndex)
-        }
-      }
-    }
-
-    // Если перетаскиваем условие в другую группу
+    // только между группами, добавляем в конец
     if (activeId.startsWith('condition-') && overId.startsWith('group-')) {
       const activeConditionId = parseInt(activeId.replace('condition-', ''))
       const targetGroupId = parseInt(overId.replace('group-', ''))
 
-      // Найти исходную группу
       const sourceGroupIndex = localGroups.findIndex((group) =>
         group.items.some((item) => item.id === activeConditionId)
       )
-
-      // Найти целевую группу
       const targetGroupIndex = localGroups.findIndex(
         (group) => group.id === targetGroupId
       )
@@ -223,44 +160,34 @@ export const ChatConditions = () => {
         const sourceGroup = localGroups[sourceGroupIndex]
         const targetGroup = localGroups[targetGroupIndex]
 
-        // Найти условие в исходной группе
         const conditionIndex = sourceGroup.items.findIndex(
           (item) => item.id === activeConditionId
         )
-        const condition = sourceGroup.items[conditionIndex]
+        const [condition] = sourceGroup.items.splice(conditionIndex, 1)
 
-        if (conditionIndex !== -1) {
-          const newGroups = [...localGroups]
-
-          // Удалить условие из исходной группы
-          newGroups[sourceGroupIndex] = {
-            ...sourceGroup,
-            items: sourceGroup.items.filter(
-              (item) => item.id !== activeConditionId
-            ),
-          }
-
-          // Добавить условие в целевую группу
-          newGroups[targetGroupIndex] = {
-            ...targetGroup,
-            items: [...targetGroup.items, condition],
-          }
-
-          const groupsWithItems = newGroups.filter(
-            (group) => group.items.length > 0
-          )
-
-          setLocalGroups(groupsWithItems)
-
-          moveChatCondition(condition, targetGroupId, conditionIndex)
+        const newGroups = [...localGroups]
+        newGroups[sourceGroupIndex] = {
+          ...sourceGroup,
+          items: sourceGroup.items,
         }
+        newGroups[targetGroupIndex] = {
+          ...targetGroup,
+          items: [...targetGroup.items, condition],
+        }
+
+        const groupsWithItems = newGroups.filter(
+          (group) => group.items.length > 0
+        )
+
+        setLocalGroups(groupsWithItems)
+
+        moveChatCondition(condition, targetGroupId, targetGroup.items.length)
       }
     }
   }
 
   const noRules = !rules || rules.length === 0
 
-  // Получить активное условие для DragOverlay
   const activeCondition = activeId?.startsWith('condition-')
     ? localGroups
         .flatMap((group) => group.items)
@@ -272,19 +199,15 @@ export const ChatConditions = () => {
       sensors={sensors}
       collisionDetection={rectIntersection}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       {localGroups?.map((group, index) => {
         const groupTitle = index === 0 ? 'Complete Tasks' : 'Or Complete'
         return (
           <SortableContext
-            items={localGroups.flatMap((group) =>
-              group.items.map((item) => `condition-${item.id}`)
-            )}
             key={group.id}
+            items={group.items.map((item) => `condition-${item.id}`)}
             strategy={verticalListSortingStrategy}
-            disabled={isLoading}
           >
             <DroppableGroup
               id={group.id}
@@ -297,13 +220,13 @@ export const ChatConditions = () => {
                   key={`condition-${rule.id}`}
                   rule={rule}
                   onNavigate={navigateToConditionPage}
+                  activeId={activeId}
                 />
               ))}
             </DroppableGroup>
           </SortableContext>
         )
       })}
-
       <DragOverlay>
         {activeCondition ? (
           <div className={styles.dragOverlay}>
@@ -326,7 +249,6 @@ export const ChatConditions = () => {
           </div>
         ) : null}
       </DragOverlay>
-
       <Block margin="top" marginValue={24}>
         <List separatorLeftGap={40}>
           <ListItem

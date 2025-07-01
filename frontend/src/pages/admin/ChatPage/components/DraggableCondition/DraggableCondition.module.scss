@@ -1,6 +1,7 @@
 .draggableCondition {
   cursor: grab;
   transition: all 0.2s ease;
+  touch-action: none;
 
   > div {
     border-radius: 0;
@@ -18,5 +19,8 @@
 
 .dragging {
   opacity: 0.5;
-  transform: rotate(2deg);
+}
+
+.noPointerEvents {
+  pointer-events: none;
 }

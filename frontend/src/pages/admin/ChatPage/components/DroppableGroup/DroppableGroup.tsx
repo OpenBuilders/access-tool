@@ -28,7 +28,7 @@ export const DroppableGroup = ({
         [styles.isOver]: isOver,
       })}
     >
-      <Block margin="top" marginValue={24}>
+      <Block>
         <List
           header={groupTitle}
           separatorLeftGap={40}

@@ -31,7 +31,6 @@ export const NewConditionModule = () => {
 
   const location = useLocation()
   const groupId = location.state?.groupId
-  console.log('🚀 ~ NewConditionModule ~ groupId:', groupId)
 
   const [conditionState, setConditionState] = useState<Partial<Condition>>({
     type: 'jetton',
