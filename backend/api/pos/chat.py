@@ -245,7 +245,11 @@ class TelegramChatGiftRuleCPO(BaseTelegramChatQuantityRuleCPO):
         return self
 
 
-class TelegramChatPremiumRuleCPO(BaseFDO):
+class CreateTelegramChatPremiumRuleCPO(BaseFDO):
+    group_id: int | None = None
+
+
+class UpdateTelegramChatPremiumRuleCPO(BaseFDO):
     is_enabled: bool
 
 
