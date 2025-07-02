@@ -5,7 +5,11 @@ from starlette.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUE
 
 from api.deps import get_db_session
 from api.pos.base import BaseExceptionFDO
-from api.pos.chat import ChatEligibilityRuleFDO, TelegramChatPremiumRuleCPO
+from api.pos.chat import (
+    ChatEligibilityRuleFDO,
+    UpdateTelegramChatPremiumRuleCPO,
+    CreateTelegramChatPremiumRuleCPO,
+)
 from core.actions.chat.rule.premium import TelegramChatPremiumAction
 
 manage_premium_rules_router = APIRouter(prefix="/premium")
@@ -50,7 +54,7 @@ async def get_premium_rule(
 async def add_premium_rule(
     request: Request,
     slug: str,
-    group_id: int | None = None,
+    rule: CreateTelegramChatPremiumRuleCPO,
     db_session: Session = Depends(get_db_session),
 ) -> ChatEligibilityRuleFDO:
     action = TelegramChatPremiumAction(
@@ -59,7 +63,7 @@ async def add_premium_rule(
         db_session=db_session,
     )
     return ChatEligibilityRuleFDO.model_validate(
-        action.create(group_id=group_id).model_dump()
+        action.create(group_id=rule.group_id).model_dump()
     )
 
 
@@ -72,12 +76,14 @@ async def add_premium_rule(
             "model": BaseExceptionFDO,
         },
     },
+    deprecated=True,
+    summary="[DEPRECATED] Update Telegram Premium Rule",
 )
 async def update_premium_rule(
     request: Request,
     slug: str,
     rule_id: int,
-    rule: TelegramChatPremiumRuleCPO,
+    rule: UpdateTelegramChatPremiumRuleCPO,
     db_session: Session = Depends(get_db_session),
 ) -> ChatEligibilityRuleFDO:
     action = TelegramChatPremiumAction(
