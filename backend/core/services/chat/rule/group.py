@@ -58,7 +58,8 @@ class TelegramChatRuleGroupService(BaseService):
             order=current_max_order + 1,
         )
         self.db_session.add(new_group)
-        self.db_session.commit()
+        # Don't commit here to rollback in case it'll fail on later stage
+        self.db_session.flush()
         logger.info(f"Created a new rule group for chat {chat_id!r}.")
         return new_group
 

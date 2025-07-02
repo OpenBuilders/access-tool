@@ -70,7 +70,7 @@ class TelegramChatPremium(TelegramChatRuleBase):
     )
 
     __table_args__ = (
-        UniqueConstraint("chat_id", name="uix_chat_premium_chat_id_unique"),
+        UniqueConstraint("group_id", name="uix_chat_premium_group_id_unique"),
     )
 
 
@@ -88,7 +88,7 @@ class TelegramChatEmoji(TelegramChatRuleBase):
         backref="emoji_rules",
     )
     __table_args__ = (
-        UniqueConstraint("chat_id", name="uix_chat_emoji_chat_id_unique"),
+        UniqueConstraint("group_id", name="uix_chat_emoji_group_id_unique"),
     )
 
 
@@ -219,7 +219,7 @@ class TelegramChatWhitelistExternalSource(TelegramChatWhitelistBase):
 
     __table_args__ = (
         UniqueConstraint(
-            "chat_id", "name", name="uix_chat_external_source_chat_name_unique"
+            "group_id", "name", name="uix_chat_external_source_chat_group_unique"
         ),
     )
 
@@ -243,7 +243,9 @@ class TelegramChatWhitelist(TelegramChatWhitelistBase):
         return f"<TelegramChatWhitelist({self.chat_id=}, {self.name=})>"
 
     __table_args__ = (
-        UniqueConstraint("chat_id", "name", name="uix_chat_whitelist_chat_name_unique"),
+        UniqueConstraint(
+            "group_id", "name", name="uix_chat_whitelist_group_name_unique"
+        ),
     )
 
 
