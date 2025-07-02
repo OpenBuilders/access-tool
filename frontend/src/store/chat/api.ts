@@ -1,5 +1,6 @@
 import { ApiService, ApiServiceResponse } from '@services'
 
+import { ConditionType } from '../condition/types'
 import { AdminChat, Chat, ChatInstance } from './types'
 
 export const fetchChatAPI = async (
@@ -54,4 +55,30 @@ export const updateChatVisibilityAPI = async (
   })
 
   return response
+}
+
+export const moveChatConditionApi = async ({
+  ruleId,
+  groupId,
+  type,
+  order,
+  chatSlug,
+}: {
+  ruleId: number
+  groupId: number
+  type: ConditionType
+  order: number
+  chatSlug: string
+}): Promise<{ status: string; message: string }> => {
+  const response = await ApiService.put<{ status: string; message: string }>({
+    endpoint: `/admin/chats/${chatSlug}/rules/move`,
+    data: {
+      ruleId,
+      groupId,
+      type,
+      order,
+    },
+  })
+
+  return response.data || { status: '', message: '' }
 }

@@ -1,18 +1,13 @@
-import { ConditionIcon, ListItem, Text, useToast } from '@components'
+import { Block, Text, useToast } from '@components'
 import { useAppNavigation } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { useTonConnectUI } from '@tonconnect/ui-react'
+import { toUserFriendlyAddress, useTonConnectUI } from '@tonconnect/ui-react'
+import { collapseAddress } from '@utils'
 import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  useChat,
-  useChatActions,
-  useUser,
-  useUserActions,
-  WalletData,
-} from '@store'
+import { useChat, useChatActions, useUserActions, WalletData } from '@store'
 
 export const WalletCondition = () => {
   const { appNavigate } = useAppNavigation()
@@ -21,8 +16,6 @@ export const WalletCondition = () => {
   const chatSlugParam = params.clientChatSlug || ''
 
   const { showToast } = useToast()
-
-  const { user } = useUser()
 
   const { chatWallet } = useChat()
   const { fetchUserChatAction } = useChatActions()
@@ -135,33 +128,8 @@ export const WalletCondition = () => {
     }
   }, [connectWalletQuery])
 
-  const handleWalletsList = () => {
-    if (user?.wallets.length) {
-      appNavigate({
-        path: ROUTES_NAME.CLIENT_WALLETS_LIST,
-        params: { clientChatSlug: chatSlugParam },
-      })
-      return
-    }
-
-    handleOpenWalletConnect()
-  }
-
   if (!chatWallet) {
-    return (
-      <ListItem
-        padding="4px 16px"
-        height="50px"
-        chevron
-        onClick={handleWalletsList}
-        before={<ConditionIcon walletCondition />}
-        text={
-          <Text type="text" color="primary">
-            Connect Wallet
-          </Text>
-        }
-      />
-    )
+    return null
   }
 
   const navigateToConnectedWalletPage = () => {
@@ -171,22 +139,29 @@ export const WalletCondition = () => {
     })
   }
 
-  // const userFriendlyAddress = toUserFriendlyAddress(chatWallet)
-  // const collapsedAddress = collapseAddress(userFriendlyAddress, 2)
+  const userFriendlyAddress = toUserFriendlyAddress(chatWallet)
+  const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
 
   return (
-    <ListItem
-      padding="4px 16px"
-      height="50px"
-      chevron
-      isCompleted
-      onClick={navigateToConnectedWalletPage}
-      before={<ConditionIcon walletCondition />}
-      text={
-        <Text type="text" color="primary">
-          Connect Wallet
-        </Text>
-      }
-    />
+    <Block
+      row
+      gap={4}
+      margin="top"
+      marginValue={24}
+      align="center"
+      justify="center"
+    >
+      <Text type="caption" color="tertiary" align="center">
+        Connected Wallet: {collapsedAddress}.
+      </Text>
+      <Text
+        type="caption"
+        color="danger"
+        align="center"
+        onClick={navigateToConnectedWalletPage}
+      >
+        Reconnect
+      </Text>
+    </Block>
   )
 }

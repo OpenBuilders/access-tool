@@ -1,0 +1,26 @@
+.draggableCondition {
+  cursor: grab;
+  transition: all 0.2s ease;
+  touch-action: none;
+
+  > div {
+    border-radius: 0;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.dragging {
+  opacity: 0.5;
+}
+
+.noPointerEvents {
+  pointer-events: none;
+}

@@ -1,8 +1,6 @@
 import { LocalStorageService } from '@services'
 import { ChatInstance, Condition } from '@store'
 
-import { FormattedConditions } from './types'
-
 export const checkWalletRequirements = (rules: Condition[] | null) => {
   if (!rules) return false
   return rules.some(
@@ -57,50 +55,4 @@ export const createButtonText = ({
   }
 
   return ''
-}
-
-export const formatConditions = (conditions: Condition[] | null) => {
-  const result: FormattedConditions = {
-    whitelist: [],
-    orRequired: [],
-    available: [],
-    notNeeded: [],
-  }
-
-  if (!conditions) {
-    return result
-  }
-
-  const whitelistCondition = conditions.find(
-    (condition) => condition.type === 'whitelist'
-  )
-
-  const externalSourceCondition = conditions.find(
-    (condition) => condition.type === 'external_source'
-  )
-
-  if (whitelistCondition || externalSourceCondition) {
-    const formattedConditions = conditions
-      .filter((condition) => condition.type !== 'whitelist')
-      .filter((condition) => condition.type !== 'external_source')
-
-    if (whitelistCondition) {
-      result.whitelist.push(whitelistCondition)
-    }
-
-    if (externalSourceCondition) {
-      result.whitelist.push(externalSourceCondition)
-    }
-
-    if (whitelistCondition?.isEligible || externalSourceCondition?.isEligible) {
-      result.notNeeded.push(...formattedConditions)
-    } else {
-      result.orRequired.push(...formattedConditions)
-    }
-
-    return result
-  }
-
-  result.available = conditions
-  return result
 }
