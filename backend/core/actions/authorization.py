@@ -567,7 +567,9 @@ class AuthorizationAction(BaseAction):
                     items=group_items,
                     id=group_id,
                 )
-                for group_id, group_items in groups.items()
+                # Order by ID as this is the default ordering used on other screens
+                #  (it's the order in which groups were created)
+                for group_id, group_items in sorted(groups.items(), key=lambda x: x[0])
             ],
             wallet=user_wallet.address if user_wallet else None,
         )
