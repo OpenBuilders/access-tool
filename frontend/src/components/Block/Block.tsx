@@ -85,8 +85,8 @@ export const Block = ({
         fixed && styles[fixed],
         row && styles.row,
         gap && styles[`gap-${gap}`],
-        justify && styles[justify],
-        align && styles[align],
+        justify && styles[`justify-${justify}`],
+        align && styles[`align-${align}`],
         fadeIn && styles.fadeIn,
         defaultWidth && styles.defaultWidth
       )}
