@@ -187,6 +187,7 @@ export const ChatConditions = () => {
   }
 
   const noRules = !rules || rules.length === 0
+  const needDragIcon = rules && rules.length > 1
 
   const activeCondition = activeId?.startsWith('condition-')
     ? localGroups
@@ -221,6 +222,7 @@ export const ChatConditions = () => {
                   rule={rule}
                   onNavigate={navigateToConditionPage}
                   activeId={activeId}
+                  canDrag={!!needDragIcon}
                 />
               ))}
             </DroppableGroup>

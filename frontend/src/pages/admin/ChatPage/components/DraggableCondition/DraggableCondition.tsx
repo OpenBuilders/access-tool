@@ -7,15 +7,19 @@ import { Condition } from '@store'
 
 import styles from './DraggableCondition.module.scss'
 
+interface DraggableConditionProps {
+  rule: Condition
+  onNavigate: (rule: Condition) => void
+  activeId: string | null
+  canDrag: boolean
+}
+
 export const DraggableCondition = ({
   rule,
   onNavigate,
   activeId,
-}: {
-  rule: Condition
-  onNavigate: (rule: Condition) => void
-  activeId: string | null
-}) => {
+  canDrag,
+}: DraggableConditionProps) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `condition-${rule.id}`,
   })
@@ -48,6 +52,7 @@ export const DraggableCondition = ({
             {conditionDescription}
           </Text>
         }
+        canDrag={canDrag}
         onClick={() => onNavigate(rule)}
       />
     </div>
