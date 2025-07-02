@@ -140,7 +140,7 @@ export const WalletCondition = () => {
   }
 
   const userFriendlyAddress = toUserFriendlyAddress(chatWallet)
-  const collapsedAddress = collapseAddress(userFriendlyAddress, 5)
+  const collapsedAddress = collapseAddress(userFriendlyAddress, 4)
 
   return (
     <Block
