@@ -10,12 +10,14 @@ export const DroppableGroup = ({
   groupTitle,
   onCreateCondition,
   isLoading,
+  canDrag,
 }: {
   children: React.ReactNode
   id: number
   groupTitle: string
   onCreateCondition: (groupId?: number) => void
   isLoading: boolean
+  canDrag: boolean
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: `group-${id}`,
@@ -25,7 +27,7 @@ export const DroppableGroup = ({
     <div
       ref={setNodeRef}
       className={cn(styles.droppableGroup, {
-        [styles.isOver]: isOver,
+        [styles.isOver]: isOver && canDrag,
       })}
     >
       <Block>

@@ -120,7 +120,10 @@ export const ChatConditions = () => {
     })
   }
 
+  const canDrag = localGroups && localGroups.length > 1
+
   const handleDragStart = (event: DragStartEvent) => {
+    if (!canDrag) return
     setActiveId(event.active.id as string)
     webApp.HapticFeedback.impactOccurred('light')
   }
@@ -181,7 +184,6 @@ export const ChatConditions = () => {
   }
 
   const noRules = !rules || rules.length === 0
-  const needDragIcon = rules && rules.length > 1
 
   const activeCondition = activeId?.startsWith('condition-')
     ? localGroups
@@ -209,6 +211,7 @@ export const ChatConditions = () => {
               groupTitle={groupTitle}
               onCreateCondition={createCondition}
               isLoading={isLoading}
+              canDrag={!!canDrag}
             >
               {group?.items?.map((rule) => (
                 <DraggableCondition
@@ -216,7 +219,7 @@ export const ChatConditions = () => {
                   rule={rule}
                   onNavigate={navigateToConditionPage}
                   activeId={activeId}
-                  canDrag={!!needDragIcon}
+                  canDrag={!!canDrag}
                 />
               ))}
             </DroppableGroup>
