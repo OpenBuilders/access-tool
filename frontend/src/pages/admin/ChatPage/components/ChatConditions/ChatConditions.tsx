@@ -12,7 +12,7 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  PointerSensor,
+  // PointerSensor,
   useSensor,
   useSensors,
   KeyboardSensor,
@@ -85,11 +85,11 @@ export const ChatConditions = () => {
   }, [groups])
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
+    // useSensor(PointerSensor, {
+    //   activationConstraint: {
+    //     distance: 8,
+    //   },
+    // }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
