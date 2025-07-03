@@ -50,13 +50,11 @@ export const DraggableCondition = ({
             {conditionDescription}
           </Text>
         }
-        after={
-          canDrag && (
-            <div className={styles.dragIcon} {...attributes} {...listeners}>
-              <span />
-            </div>
-          )
-        }
+        canDrag={canDrag}
+        dragOptions={{
+          listeners,
+          attributes,
+        }}
         onClick={() => onNavigate(rule)}
       />
     </div>
