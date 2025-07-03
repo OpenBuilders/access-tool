@@ -33,7 +33,7 @@ export const DraggableCondition = ({
       {...attributes}
       {...listeners}
       className={cn(styles.draggableCondition, {
-        [styles.dragging]: isDragging,
+        [styles.dragging]: isDragging && canDrag,
         [styles.noPointerEvents]: activeId,
       })}
     >
