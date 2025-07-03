@@ -17,7 +17,6 @@ interface ListItemProps {
   padding?: string
   height?: string
   isCompleted?: boolean
-  canDrag?: boolean
 }
 
 export const ListItem = ({
@@ -32,7 +31,6 @@ export const ListItem = ({
   padding,
   height,
   isCompleted,
-  canDrag,
 }: ListItemProps) => {
   const { darkTheme } = useContext(ThemeContext)
   const handleClick = () => {
@@ -69,11 +67,6 @@ export const ListItem = ({
         {chevron && !isCompleted && (
           <div className={cn(styles.chevron, isDarkTheme && styles.dark)}>
             <Icon name="chevron" />
-          </div>
-        )}
-        {canDrag && (
-          <div className={styles.dragIcon}>
-            <span />
           </div>
         )}
         {isCompleted && <Icon name="completed" size={24} />}

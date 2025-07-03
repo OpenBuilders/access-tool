@@ -30,8 +30,6 @@ export const DraggableCondition = ({
   return (
     <div
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
       className={cn(styles.draggableCondition, {
         [styles.dragging]: isDragging,
         [styles.noPointerEvents]: activeId,
@@ -52,7 +50,13 @@ export const DraggableCondition = ({
             {conditionDescription}
           </Text>
         }
-        canDrag={canDrag}
+        after={
+          canDrag && (
+            <div className={styles.dragIcon} {...attributes} {...listeners}>
+              <span />
+            </div>
+          )
+        }
         onClick={() => onNavigate(rule)}
       />
     </div>
