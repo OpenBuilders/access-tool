@@ -1,4 +1,6 @@
 import { ThemeContext } from '@context'
+import { DraggableAttributes } from '@dnd-kit/core'
+import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities'
 import cn from 'classnames'
 import { useContext } from 'react'
 
@@ -17,6 +19,11 @@ interface ListItemProps {
   padding?: string
   height?: string
   isCompleted?: boolean
+  canDrag?: boolean
+  dragOptions?: {
+    listeners?: SyntheticListenerMap
+    attributes?: DraggableAttributes
+  }
 }
 
 export const ListItem = ({
@@ -31,6 +38,8 @@ export const ListItem = ({
   padding,
   height,
   isCompleted,
+  canDrag,
+  dragOptions,
 }: ListItemProps) => {
   const { darkTheme } = useContext(ThemeContext)
   const handleClick = () => {
@@ -62,11 +71,20 @@ export const ListItem = ({
           {children && children}
         </div>
       </div>
-      <div className={styles.right}>
+      <div
+        className={styles.right}
+        {...dragOptions?.attributes}
+        {...dragOptions?.listeners}
+      >
         {after || null}
         {chevron && !isCompleted && (
           <div className={cn(styles.chevron, isDarkTheme && styles.dark)}>
             <Icon name="chevron" />
+          </div>
+        )}
+        {canDrag && (
+          <div className={styles.dragIcon}>
+            <span />
           </div>
         )}
         {isCompleted && <Icon name="completed" size={24} />}
