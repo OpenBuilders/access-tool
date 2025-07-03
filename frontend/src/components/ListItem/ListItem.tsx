@@ -83,7 +83,7 @@ export const ListItem = ({
           </div>
         )}
         {canDrag && (
-          <div className={styles.dragIcon}>
+          <div className={styles.dragIcon} style={{ touchAction: 'none' }}>
             <span />
           </div>
         )}
