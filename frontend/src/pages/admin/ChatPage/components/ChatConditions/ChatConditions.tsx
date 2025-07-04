@@ -16,8 +16,8 @@ import {
   useSensors,
   KeyboardSensor,
   TouchSensor,
+  rectIntersection,
   PointerSensor,
-  closestCenter,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -43,6 +43,9 @@ export const ChatConditions = () => {
   const { chat, rules, groups } = useChat()
 
   const [activeId, setActiveId] = useState<string | null>(null)
+
+  // Определяем тип устройства
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
   const [localGroups, setLocalGroups] = useState(groups || [])
 
@@ -88,18 +91,20 @@ export const ChatConditions = () => {
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 300,
-        tolerance: 5,
-      },
-    }),
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 300,
-        tolerance: 5,
-      },
-    })
+    // Используем только один сенсор в зависимости от типа устройства
+    isTouchDevice
+      ? useSensor(TouchSensor, {
+          activationConstraint: {
+            delay: 300,
+            tolerance: 5,
+          },
+        })
+      : useSensor(PointerSensor, {
+          activationConstraint: {
+            delay: 300,
+            tolerance: 5,
+          },
+        })
   )
 
   const createCondition = async (groupId?: number) => {
@@ -207,7 +212,7 @@ export const ChatConditions = () => {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={rectIntersection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
