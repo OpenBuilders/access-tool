@@ -16,7 +16,7 @@ import {
   useSensors,
   KeyboardSensor,
   TouchSensor,
-  PointerSensor,
+  // PointerSensor,
   closestCenter,
 } from '@dnd-kit/core'
 import {
@@ -85,18 +85,18 @@ export const ChatConditions = () => {
   }, [groups])
 
   const sensors = useSensors(
+    // useSensor(PointerSensor, {
+    //   activationConstraint: {
+    //     distance: 8,
+    //   },
+    // }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,
-        tolerance: 8,
+        delay: 300,
+        tolerance: 5,
       },
     })
   )
