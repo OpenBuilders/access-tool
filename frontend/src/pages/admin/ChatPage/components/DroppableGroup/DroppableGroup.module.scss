@@ -4,12 +4,6 @@
   margin-top: 24px;
   min-height: 60px !important;
   z-index: 10;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
 
   &.isOver {
     transform: scale(1.02);
