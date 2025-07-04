@@ -1,6 +1,12 @@
 .draggableCondition {
   cursor: grab;
   transition: all 0.2s ease;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 
   > div {
     border-radius: 0;
