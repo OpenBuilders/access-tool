@@ -36,6 +36,12 @@ export const DraggableCondition = ({
         [styles.dragging]: isDragging && canDrag,
         [styles.noPointerEvents]: activeId,
       })}
+      style={{
+        touchAction: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitTapHighlightColor: 'transparent',
+      }}
     >
       <ListItem
         padding="4px 16px"

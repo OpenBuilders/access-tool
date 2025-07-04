@@ -16,7 +16,8 @@ import {
   useSensors,
   KeyboardSensor,
   TouchSensor,
-  rectIntersection,
+  PointerSensor,
+  closestCenter,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -87,10 +88,15 @@ export const ChatConditions = () => {
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 300,
-        tolerance: 5,
+        delay: 100,
+        tolerance: 8,
       },
     })
   )
@@ -126,6 +132,11 @@ export const ChatConditions = () => {
     if (!canDrag) return
     setActiveId(event.active.id as string)
     webApp.HapticFeedback.impactOccurred('light')
+
+    // Предотвращаем стандартное поведение браузера в Safari
+    if (event.active) {
+      event.active.data.current?.preventDefault?.()
+    }
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -200,9 +211,13 @@ export const ChatConditions = () => {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={rectIntersection}
+      collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragMove={(event) => {
+        event.active.data.current?.preventDefault?.()
+      }}
+      modifiers={[]}
     >
       {localGroups?.map((group, index) => {
         const groupTitle = index === 0 ? 'Complete Tasks' : 'Or Complete'
