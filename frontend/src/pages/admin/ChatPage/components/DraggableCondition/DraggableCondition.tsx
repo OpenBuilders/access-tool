@@ -21,7 +21,7 @@ export const DraggableCondition = ({
   canDrag,
 }: DraggableConditionProps) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `condition-${rule.id}`,
+    id: `condition-${rule.id}-${rule.type}`,
   })
 
   const conditionName = createConditionName(rule)
