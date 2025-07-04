@@ -139,11 +139,16 @@ export const ChatConditions = () => {
 
     // только между группами, добавляем в конец
     if (activeId.startsWith('condition-') && overId.startsWith('group-')) {
-      const activeConditionId = parseInt(activeId.replace('condition-', ''))
+      const activeIdParts = activeId.replace('condition-', '').split('-')
+      const activeConditionId = parseInt(activeIdParts[0])
+      const activeConditionType = activeIdParts[1]
       const targetGroupId = parseInt(overId.replace('group-', ''))
 
       const sourceGroupIndex = localGroups.findIndex((group) =>
-        group.items.some((item) => item.id === activeConditionId)
+        group.items.some(
+          (item) =>
+            item.id === activeConditionId && item.type === activeConditionType
+        )
       )
       const targetGroupIndex = localGroups.findIndex(
         (group) => group.id === targetGroupId
@@ -158,7 +163,8 @@ export const ChatConditions = () => {
         const targetGroup = localGroups[targetGroupIndex]
 
         const conditionIndex = sourceGroup.items.findIndex(
-          (item) => item.id === activeConditionId
+          (item) =>
+            item.id === activeConditionId && item.type === activeConditionType
         )
         const [condition] = sourceGroup.items.splice(conditionIndex, 1)
 
@@ -188,7 +194,7 @@ export const ChatConditions = () => {
   const activeCondition = activeId?.startsWith('condition-')
     ? localGroups
         .flatMap((group) => group.items)
-        .find((item) => `condition-${item.id}` === activeId)
+        .find((item) => `condition-${item.id}-${item.type}` === activeId)
     : null
 
   return (
@@ -203,7 +209,9 @@ export const ChatConditions = () => {
         return (
           <SortableContext
             key={group.id}
-            items={group.items.map((item) => `condition-${item.id}`)}
+            items={group.items.map(
+              (item) => `condition-${item.id}-${item.type}`
+            )}
             strategy={verticalListSortingStrategy}
           >
             <DroppableGroup
@@ -215,7 +223,7 @@ export const ChatConditions = () => {
             >
               {group?.items?.map((rule) => (
                 <DraggableCondition
-                  key={`condition-${rule.id}`}
+                  key={`condition-${rule.id}-${rule.type}`}
                   rule={rule}
                   onNavigate={navigateToConditionPage}
                   activeId={activeId}
