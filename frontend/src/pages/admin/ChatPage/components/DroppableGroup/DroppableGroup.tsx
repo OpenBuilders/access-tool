@@ -29,12 +29,6 @@ export const DroppableGroup = ({
       className={cn(styles.droppableGroup, {
         [styles.isOver]: isOver && canDrag,
       })}
-      style={{
-        touchAction: 'none',
-        WebkitUserSelect: 'none',
-        WebkitTouchCallout: 'none',
-        WebkitTapHighlightColor: 'transparent',
-      }}
     >
       <Block>
         <List
