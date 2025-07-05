@@ -11,7 +11,7 @@ interface AppNavigation {
   path: string
   params?: AppNavigateParams
   queryParams?: Record<string, string>
-  state?: Record<string, string | boolean | number>
+  state?: Record<string, string | boolean | number | null>
 }
 
 export const useAppNavigation = () => {

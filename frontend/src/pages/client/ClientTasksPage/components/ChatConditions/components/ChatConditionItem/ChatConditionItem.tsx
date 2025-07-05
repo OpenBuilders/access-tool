@@ -34,6 +34,7 @@ export const ChatConditionItem = ({
         <ListItem
           isCompleted
           text={<Text type="text">{conditionName}</Text>}
+          before={<ConditionIcon condition={condition} />}
           description={
             <Text type="caption2" color="tertiary">
               You're already on the list — you can access the chat without
@@ -48,6 +49,7 @@ export const ChatConditionItem = ({
         : "Sorry, you're not on the list. But you can complete the other requirements to access the chat if they are available."
       return (
         <ListItem
+          before={<ConditionIcon condition={condition} />}
           text={<Text type="text">{conditionName}</Text>}
           description={
             <Text type="caption2" color="tertiary">

@@ -1,9 +1,15 @@
 import { Condition } from '../condition'
 
+export interface ChatGroup {
+  id: number
+  items: Condition[]
+}
+
 export interface Chat {
   chat: ChatInstance
   rules: Condition[]
   wallet?: string
+  groups: ChatGroup[]
 }
 
 export interface ChatInstance {

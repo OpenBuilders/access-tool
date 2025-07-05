@@ -18,12 +18,7 @@ import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { Skeleton } from './Skeleton'
 import { ChatConditions, ChatHeader } from './components'
-import {
-  checkWalletRequirements,
-  createButtonText,
-  formatConditions,
-} from './helpers'
-import { FormattedConditions } from './types'
+import { checkWalletRequirements, createButtonText } from './helpers'
 
 const webApp = window.Telegram.WebApp
 
@@ -37,13 +32,11 @@ export const ClientTasksPage = () => {
   const { toggleIsLoadingAction } = useAppActions()
 
   const [isChecking, setIsChecking] = useState(false)
-  const [sortedConditions, setSortedConditions] =
-    useState<FormattedConditions | null>(null)
 
   const { appNavigate } = useAppNavigation()
 
   const { fetchUserChatAction } = useChatActions()
-  const { chat, rules, chatWallet } = useChat()
+  const { chat, rules, chatWallet, groups } = useChat()
   const { user } = useUser()
 
   const { showToast } = useToast()
@@ -78,12 +71,6 @@ export const ClientTasksPage = () => {
     }
   }, [chat])
 
-  useEffect(() => {
-    if (!rules) return
-    const sortedConditions = formatConditions(rules)
-    setSortedConditions(sortedConditions)
-  }, [rules])
-
   const handleBackNavigation = () => {
     appNavigate({ path: ROUTES_NAME.CHAT, params: { chatSlug: fromChat } })
   }
@@ -92,7 +79,7 @@ export const ClientTasksPage = () => {
     goTo(config.botLink)
   }
 
-  if (isLoading || !chat || !rules || !sortedConditions) {
+  if (isLoading || !chat || !rules || !groups) {
     return (
       <PageLayout>
         <Skeleton />
@@ -180,7 +167,7 @@ export const ClientTasksPage = () => {
       />
       <ChatHeader />
       <Block margin="bottom" marginValue={16}>
-        <ChatConditions conditions={sortedConditions} />
+        <ChatConditions />
       </Block>
       <Block margin="top" marginValue="auto">
         <Text align="center" type="caption" color="tertiary">

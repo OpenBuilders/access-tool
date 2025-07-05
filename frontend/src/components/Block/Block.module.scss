@@ -4,6 +4,11 @@
   width: 100%;
 }
 
+.defaultWidth {
+  width: auto;
+  white-space: nowrap;
+}
+
 .bottom {
   position: fixed;
   left: 0;
