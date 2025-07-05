@@ -13,7 +13,6 @@ import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
 import config from '@config'
-import { LocalStorageService } from '@services'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
 
 import { Skeleton } from './Skeleton'
@@ -87,20 +86,59 @@ export const ClientTasksPage = () => {
     )
   }
 
+  const handleCheckComplitions = async () => {
+    setIsChecking(true)
+    const isEligible = await fetchUserChat()
+
+    setTimeout(() => {
+      setIsChecking(false)
+
+      if (!isEligible) {
+        showToast({
+          type: 'warning',
+          message: 'Complete all requirments to join',
+        })
+        webApp.HapticFeedback.notificationOccurred('error')
+      } else {
+        webApp?.HapticFeedback?.impactOccurred('soft')
+      }
+    }, 400)
+  }
+
   // const hideButton = !sortedConditions?.whitelist?.[0]?.isEligible
 
   const buttonAction = async () => {
     const needWalletConnection = checkWalletRequirements(rules)
-    const emojiCondition = rules.find((rule) => rule.type === 'emoji')
-    const whitelistCondition = rules.find((rule) => rule.type === 'whitelist')
-    if (emojiCondition && !whitelistCondition) {
-      const checkEmojiStatusCompleted = LocalStorageService.getItem(
-        `emojiStatusCompleted_${chat?.slug}_${emojiCondition.id}`
-      )
-      if (!checkEmojiStatusCompleted) {
-        return
-      }
-    }
+    // const groupWithEmoji = groups.find((list) =>
+    //   list.items.find((item) => item.type === 'emoji')
+    // )
+    // const groupsWithoutEmoji = groups.filter(
+    //   (g) => g?.id !== groupWithEmoji?.id
+    // )
+
+    // const otherGroupsCompleted = groupsWithoutEmoji.every((g) =>
+    //   g?.items.every((item) => item.isEligible)
+    // )
+
+    // if (groupWithEmoji?.items?.length && !otherGroupsCompleted) {
+    //   const allGroupConditionsCompleted = groupWithEmoji.items.every(
+    //     (item) => item.isEligible
+    //   )
+
+    //   const emojiCondition = groupWithEmoji.items.find(
+    //     (item) => item.type === 'emoji'
+    //   )
+
+    //   if (allGroupConditionsCompleted && emojiCondition) {
+    //     const checkEmojiStatusCompleted = LocalStorageService.getItem(
+    //       `emojiStatusCompleted_${chat?.slug}_${emojiCondition.id}`
+    //     )
+    //     if (!checkEmojiStatusCompleted) {
+    //       handleCheckComplitions()
+    //       return
+    //     }
+    //   }
+    // }
 
     if (chat.isEligible) {
       appNavigate({
@@ -111,23 +149,7 @@ export const ClientTasksPage = () => {
     }
 
     if (chatWallet || !needWalletConnection) {
-      setIsChecking(true)
-      const isEligible = await fetchUserChat()
-
-      setTimeout(() => {
-        setIsChecking(false)
-
-        if (!isEligible) {
-          showToast({
-            type: 'warning',
-            message: 'Complete all requirments to join',
-          })
-          webApp.HapticFeedback.notificationOccurred('error')
-        } else {
-          webApp?.HapticFeedback?.impactOccurred('soft')
-        }
-      }, 400)
-
+      handleCheckComplitions()
       return
     }
 
