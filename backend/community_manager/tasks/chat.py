@@ -1,5 +1,4 @@
-import asyncio
-
+from asgiref.sync import async_to_sync
 from celery.utils.log import get_task_logger
 
 from community_manager.actions.chat import (
@@ -41,7 +40,16 @@ def check_chat_members() -> None:
         logger.warning("Community manager is disabled.")
         return
 
-    asyncio.run(run_sanity_checks())
+    async_to_sync(run_sanity_checks)()
+    logger.info("Chat members checked.")
+
+
+async def refresh_chat_external_sources_async() -> None:
+    with DBService().db_session() as db_session:
+        action = TelegramChatWhitelistExternalSourceContentAction(db_session)
+        # Celery tasks are not async, so we need to run the async function in a blocking way
+        await action.refresh_enabled()
+        logger.info("Chat external sources refreshed.")
 
 
 @app.task(
@@ -55,11 +63,8 @@ def refresh_chat_external_sources() -> None:
         logger.warning("Community manager is disabled.")
         return
 
-    with DBService().db_session() as db_session:
-        action = TelegramChatWhitelistExternalSourceContentAction(db_session)
-        # Celery tasks are not async, so we need to run the async function in a blocking way
-        asyncio.run(action.refresh_enabled())
-        logger.info("Chat external sources refreshed.")
+    async_to_sync(refresh_chat_external_sources_async)()
+    logger.info("Chat external sources refreshed.")
 
 
 async def refresh_all_chats_async() -> None:
@@ -69,6 +74,7 @@ async def refresh_all_chats_async() -> None:
     with DBService().db_session() as db_session:
         action = CommunityManagerChatAction(db_session)
         await action.refresh_all()
+        logger.info("Chats refreshed successfully..")
 
 
 @app.task(
@@ -81,5 +87,5 @@ def refresh_chats() -> None:
         logger.warning("Community manager is disabled.")
         return
 
-    asyncio.run(refresh_all_chats_async())
+    async_to_sync(refresh_all_chats_async)()
     logger.info("Chats refreshed.")
