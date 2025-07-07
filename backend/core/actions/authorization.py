@@ -634,6 +634,8 @@ class AuthorizationAction(BaseAction):
                 f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r}",
                 exc_info=e,
             )
+        finally:
+            await self.telethon_service.stop()
 
     async def kick_ineligible_chat_members(
         self,
