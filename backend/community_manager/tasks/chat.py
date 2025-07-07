@@ -27,7 +27,7 @@ async def run_sanity_checks() -> None:
     with DBService().db_session() as db_session:
         action = CommunityManagerTaskChatAction(db_session)
         await action.sanity_chat_checks(service.client)
-        logger.info("Chat sanity checks completed.")
+    logger.info("Chat sanity checks completed.")
 
 
 @app.task(
