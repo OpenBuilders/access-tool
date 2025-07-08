@@ -1,3 +1,10 @@
+# ruff: noqa: E402
+from gevent import monkey
+
+print("Monkey patching entrypoint for gevent worker")
+monkey.patch_all()
+
+
 import logging
 import threading
 
