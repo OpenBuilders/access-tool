@@ -16,3 +16,5 @@ sentry-sdk[fastapi]==2.24.1
 aioboto3==14.1.0
 cryptography==44.0.2
 asgiref==3.9.0
+gevent==25.5.1
+asgiref==3.9.0
