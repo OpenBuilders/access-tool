@@ -41,6 +41,7 @@ services:
       "-A",
       "indexer.celery_app:app",
       "worker",
+      "--pool=gevent",
       "-Q",
       "wallet-fetch-queue",
       "--loglevel=info"
@@ -58,6 +59,7 @@ services:
       "-A",
       "indexer.celery_app:app",
       "worker",
+      "--pool=gevent",
       "-Q",
       "sticker-fetch-queue",
       "--loglevel=info"
@@ -76,6 +78,7 @@ services:
       "-A",
       "indexer.celery_app:app",
       "worker",
+      "--pool=gevent",
       "-Q",
       "gift-fetch-queue",
       "--loglevel=info"
@@ -99,6 +102,7 @@ services:
       "-A",
       "indexer.celery_app:app",
       "worker",
+      "--pool=gevent",
       "-Q",
       "noticed-wallets-upload-queue",
       "--loglevel=info"
@@ -124,6 +128,7 @@ services:
       "-A",
       "community_manager.celery_app:app",
       "worker",
+      "--pool=gevent",
       "-Q",
       "system-queue",
       "--loglevel=info"
