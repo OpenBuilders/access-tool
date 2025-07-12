@@ -33,7 +33,9 @@ async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
     """
     with DBService().db_session() as db_session:
         gift_collection_service = GiftCollectionService(db_session)
-        collections = gift_collection_service.get_all()
+        collections = gift_collection_service.get_all(
+            slugs=indexer_settings.whitelisted_gift_collections,
+        )
 
         collections_dtos = [GiftCollectionDTO.from_orm(c) for c in collections]
         with SessionLockManager(
