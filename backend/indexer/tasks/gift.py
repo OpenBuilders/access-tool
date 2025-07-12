@@ -35,38 +35,29 @@ async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
         gift_collection_service = GiftCollectionService(db_session)
         collections = gift_collection_service.get_all()
 
-        missing_collections = set(indexer_settings.whitelisted_gift_collections) - set(
-            c.slug for c in collections
-        )
-        created_collections = []
-        if missing_collections:
-            with SessionLockManager(
-                indexer_settings.telegram_indexer_session_path
-            ) as session_path:
-                collection_action = IndexerGiftCollectionAction(
-                    db_session, session_path=session_path
-                )
-                logger.warning(
-                    f"Missing whitelisted gift collections: {missing_collections}. Indexing them now."
-                )
-                try:
-                    for slug in missing_collections:
-                        try:
-                            new_collection = await collection_action.index(slug)
-                            created_collections.append(new_collection)
-                            logger.info(
-                                f"Whitelisted gift collection {slug!r} indexed successfully."
-                            )
-                        except GiftCollectionNotExistsError as e:
-                            logger.error(f"Failed to index gift collection {slug}: {e}")
-                except PhoneNumberBannedError as e:
-                    # Rename session to mark as dirty
-                    session_path.rename(f"{session_path}-dirty")
-                    raise e
+        collections_dtos = [GiftCollectionDTO.from_orm(c) for c in collections]
+        with SessionLockManager(
+            indexer_settings.telegram_indexer_session_path
+        ) as session_path:
+            collection_action = IndexerGiftCollectionAction(
+                db_session, session_path=session_path
+            )
+            try:
+                for slug in indexer_settings.whitelisted_gift_collections:
+                    try:
+                        new_collection = await collection_action.index(slug)
+                        collections_dtos.append(new_collection)
+                        logger.info(
+                            f"Whitelisted gift collection {slug!r} indexed successfully."
+                        )
+                    except GiftCollectionNotExistsError as e:
+                        logger.error(f"Failed to index gift collection {slug!r}: {e}")
+            except PhoneNumberBannedError as e:
+                # Rename session to mark as dirty
+                session_path.rename(f"{session_path}-dirty")
+                raise e
 
-        return [
-            GiftCollectionDTO.from_orm(c) for c in collections
-        ] + created_collections
+        return collections_dtos
 
 
 async def index_gift_collection_ownerships(slug: str) -> None:
