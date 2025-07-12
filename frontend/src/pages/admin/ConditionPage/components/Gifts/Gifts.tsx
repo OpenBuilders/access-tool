@@ -128,7 +128,6 @@ export const Gifts = ({
                   } else {
                     handleChangeCondition('model', value)
                   }
-                  handleChangeCondition('model', value)
                 }}
                 value={conditionState?.model}
                 options={[
