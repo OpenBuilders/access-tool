@@ -9,6 +9,7 @@ from telethon.errors import (
     PeerIdInvalidError,
     HideRequesterMissingError,
     RPCError,
+    UserIsBlockedError,
 )
 from telethon.utils import get_peer_id
 
@@ -647,6 +648,14 @@ class CommunityManagerChatAction(BaseAction):
                 except PeerIdInvalidError as e:
                     logger.warning(
                         f"Can't send confirmation message to user {telegram_user_id=!r}: {e.message}"
+                    )
+                except UserIsBlockedError as e:
+                    logger.warning(
+                        f"User {telegram_user_id=!r} blocked the bot: {e.message}"
+                    )
+                except RPCError as e:
+                    logger.exception(
+                        f"Error while sending message to user {telegram_user_id=!r}: {e}"
                     )
             self.telegram_chat_user_service.create_or_update(
                 chat_id=chat_id,

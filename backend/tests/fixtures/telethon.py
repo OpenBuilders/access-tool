@@ -1,3 +1,4 @@
+import random
 from unittest.mock import MagicMock, create_autospec, Mock
 
 import pytest
@@ -5,6 +6,16 @@ from telethon import TelegramClient
 from telethon.tl.types import User as TelethonUser, Chat
 
 from core.constants import REQUIRED_BOT_PRIVILEGES
+
+
+@pytest.fixture()
+def telegram_chat_id() -> int:
+    return 1234567890
+
+
+@pytest.fixture()
+def telegram_user_id() -> int:
+    return 2345678901
 
 
 @pytest.fixture()
@@ -17,11 +28,11 @@ def mocked_telethon_client() -> MagicMock:
 
 
 @pytest.fixture()
-def mocked_telethon_user() -> MagicMock:
+def mocked_telethon_user(telegram_user_id: int) -> MagicMock:
     return create_autospec(
         TelethonUser,
         instance=True,
-        id=1234,
+        id=telegram_user_id,
         username="test_user",
         first_name="Test",
         last_name="User",
@@ -33,10 +44,10 @@ def mocked_telethon_user() -> MagicMock:
 
 
 @pytest.fixture()
-def mocked_telethon_chat() -> MagicMock:
+def mocked_telethon_chat(telegram_chat_id: int) -> MagicMock:
     return create_autospec(
         Chat,
-        id=1234,
+        id=telegram_chat_id,
         title="Test chat",
         username=None,
         forum=False,
@@ -52,3 +63,13 @@ def mocked_telethon_chat_sufficient_rights(
         **{right: True for right in REQUIRED_BOT_PRIVILEGES}
     )
     return mocked_telethon_chat
+
+
+@pytest.fixture()
+def telegram_chat_participants(telegram_user_id: int) -> list[TelethonUser]:
+    participants_ids = [
+        telegram_user_id,
+        *(random.randint(10000, 10000000) for _ in range(10)),
+    ]
+    random.shuffle(participants_ids)
+    return [create_autospec(TelethonUser, id=i) for i in participants_ids]
