@@ -607,10 +607,17 @@ class AuthorizationAction(BaseAction):
                 telegram_user_id=chat_member.user.telegram_id,
             )
             if chat_member.user.allows_write_to_pm:
-                await self.telethon_service.send_message(
-                    chat_id=chat_member.user.telegram_id,
-                    message=f"You were kicked out of the **{chat_member.chat.title}**.",
-                )
+                try:
+                    await self.telethon_service.send_message(
+                        chat_id=chat_member.user.telegram_id,
+                        message=f"You were kicked out of the **{chat_member.chat.title}**.",
+                    )
+                except RPCError as e:
+                    logger.error(
+                        f"Failed to send message to user {chat_member.user.telegram_id!r} "
+                        f"while kicking them from chat {chat_member.chat_id!r}",
+                        exc_info=e,
+                    )
             self.telegram_chat_user_service.delete(
                 chat_id=chat_member.chat_id, user_id=chat_member.user.id
             )
