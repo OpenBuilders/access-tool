@@ -8,7 +8,7 @@ from core.constants import (
     CELERY_GIFT_FETCH_QUEUE_NAME,
     DEFAULT_CELERY_TASK_RETRY_DELAY,
     DEFAULT_CELERY_TASK_MAX_RETRIES,
-    DEFAULT_BATCH_PROCESSING_SIZE,
+    DEFAULT_TELEGRAM_TASK_BATCH_PROCESSING_SIZE,
 )
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.exceptions.gift import GiftCollectionNotExistsError
@@ -146,13 +146,18 @@ def fetch_gift_ownership_details():
     """
     collections = asyncio.run(index_whitelisted_gift_collections())
     for collection in collections:
-        for i in range(1, collection.upgraded_count, DEFAULT_BATCH_PROCESSING_SIZE):
+        for i in range(
+            1, collection.upgraded_count, DEFAULT_TELEGRAM_TASK_BATCH_PROCESSING_SIZE
+        ):
             app.send_task(
                 "fetch-gift-collection-ownership-details",
                 args=(
                     collection.slug,
                     i,
-                    min(i + DEFAULT_BATCH_PROCESSING_SIZE, collection.upgraded_count),
+                    min(
+                        i + DEFAULT_TELEGRAM_TASK_BATCH_PROCESSING_SIZE,
+                        collection.upgraded_count,
+                    ),
                 ),
                 queue=CELERY_GIFT_FETCH_QUEUE_NAME,
             )
