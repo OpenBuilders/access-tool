@@ -133,6 +133,13 @@ class TelegramGiftsCategory(enum.StrEnum):
     MAD_PUMPKINS = "Mad Pumpkins"
     LOVE_CANDLES = "Love Candles"
     SNOW_MITTENS = "Snow Mittens"
+    HEART_LOCKETS = "Heart Lockets"
+    SNOOP_DOGGS = "Snoop Doggs"
+    SNOOP_CIGARS = "Snoop Cigars"
+    LOW_RIDERS = "Low Riders"
+    WESTSIDE_SIGNS = "Westside Signs"
+    CUPID_CHARMS = "Cupid Charms"
+    WHIP_CUPCAKES = "Whip Cupcakes"
 
 
 NftCollectionCategoryType = (
