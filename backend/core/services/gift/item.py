@@ -14,13 +14,21 @@ class GiftUniqueService(BaseService):
         return self.db_session.query(GiftUnique).filter(GiftUnique.slug == slug).one()
 
     def get_all(
-        self, collection_slug: str | None = None, telegram_user_id: int | None = None
+        self,
+        collection_slug: str | None = None,
+        telegram_user_id: int | None = None,
+        number_ge: int | None = None,
+        number_le: int | None = None,
     ) -> list[GiftUnique]:
         query = self.db_session.query(GiftUnique)
         if collection_slug:
             query = query.filter(GiftUnique.collection_slug == collection_slug)
         if telegram_user_id:
             query = query.filter(GiftUnique.telegram_owner_id == telegram_user_id)
+        if number_ge:
+            query = query.filter(GiftUnique.number >= number_ge)
+        if number_le:
+            query = query.filter(GiftUnique.number <= number_le)
 
         return query.order_by(GiftUnique.number).all()
 

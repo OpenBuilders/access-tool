@@ -60,16 +60,17 @@ class IndexerGiftUniqueAction(BaseAction):
 
         existing_items = {
             item.slug: item
-            for item in self.service.get_all(collection_slug=collection.slug)
+            for item in self.service.get_all(
+                collection_slug=collection.slug,
+                number_ge=start,
+                number_le=stop,
+            )
         }
         logger.info(
-            f"Found existing {len(existing_items)} unique items for collection {collection.slug!r}."
+            f"Found existing {len(existing_items)} unique items "
+            f"for collection {collection.slug!r} and starting from index {start} to {stop}..."
         )
         targeted_telegram_owner_ids = set()
-
-        logger.info(
-            f"Indexing {collection.upgraded_count} unique items for collection {collection.slug!r}..."
-        )
 
         # Iterate over batches and process items
         async for batch in self.indexer.index_collection_items(
