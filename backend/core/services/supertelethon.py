@@ -262,8 +262,46 @@ class TelethonService:
         )
 
     async def kick_chat_member(self, chat_id: int, telegram_user_id: int) -> None:
+        """
+        Kicks a member from a chat asynchronously.
+
+        This function attempts to retrieve the chat and the specified user associated with
+        the provided IDs.
+
+        If the user is not immediately found (e.g., the user is not found in the Telethon session),
+        the function indexes all chat members to determine if the user exists in the chat.
+        When the user is found, they are removed from the chat.
+        This operation ensures that all users in the chat are indexed and stored in the session
+        even if the user is detected partway through indexing.
+
+        :param chat_id: Unique identifier of the chat from which the user should be removed.
+        :param telegram_user_id: Unique identifier of the Telegram user to be removed.
+        :return: This function does not return any value.
+        :raises MissingUserEntityError: Raised if the user cannot be found in the specified chat.
+        """
         chat = await self.get_chat(chat_id)
-        user = await self.get_user(telegram_user_id)
+        try:
+            user = await self.get_user(telegram_user_id)
+        except MissingUserEntityError:
+            logger.warning(
+                f"Can't find user {telegram_user_id!r} in chat {chat_id!r}. "
+                f"Indexing chat members to see if user exists in the chat"
+            )
+            user = None
+            async for _user in self.get_participants(chat_id):
+                if _user.id == telegram_user_id:
+                    logger.info(
+                        f"Found user {telegram_user_id!r} in the list of chat participants for {chat_id!r} "
+                    )
+                    user = _user
+                    # We don't want to break here
+                    # to ensure all users from the chat are indexed and stored in the session
+
+            if not user:
+                raise MissingUserEntityError(
+                    f"Can't find user {telegram_user_id!r} in chat {chat_id!r}"
+                )
+
         await self.client.kick_participant(chat, user)
         logger.debug(f"User {telegram_user_id!r} was kicked from the chat {chat_id!r}.")
 

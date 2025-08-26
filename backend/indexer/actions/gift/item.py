@@ -33,37 +33,50 @@ class IndexerGiftUniqueAction(BaseAction):
         for collection in self.collection_service.get_all(
             slugs=indexer_settings.whitelisted_gift_collections
         ):
-            yield await self._index(collection)
+            yield await self._index(collection, start=1, stop=collection.upgraded_count)
         logger.info("Finished indexing all unique items.")
 
-    async def _index(self, collection: GiftCollection) -> set[int]:
+    async def _index(
+        self, collection: GiftCollection, start: int | None, stop: int | None
+    ) -> set[int]:
         """
         Indexes and processes a collection of unique items while managing creation,
         updates, and targeted owners.
         This function interacts with a database to synchronize the collection data
         and updates Redis caching as necessary.
 
+
         :param collection: The gift collection object to be indexed.
+        :param start: The starting index for the indexing process. Defaults to 1.
+        :param stop: The ending index for the indexing process. Defaults to the number of upgraded items.
         :return: A set of Telegram owner IDs that require targeted actions due to
                  ownership changes or updates.
         """
+        if start is None:
+            start = 1
+
+        if stop is None:
+            stop = collection.upgraded_count
+
         existing_items = {
             item.slug: item
-            for item in self.service.get_all(collection_slug=collection.slug)
+            for item in self.service.get_all(
+                collection_slug=collection.slug,
+                number_ge=start,
+                number_le=stop,
+            )
         }
         logger.info(
-            f"Found existing {len(existing_items)} unique items for collection {collection.slug!r}."
+            f"Found existing {len(existing_items)} unique items "
+            f"for collection {collection.slug!r} and starting from index {start} to {stop}..."
         )
         targeted_telegram_owner_ids = set()
 
-        logger.info(
-            f"Indexing {collection.upgraded_count} unique items for collection {collection.slug!r}..."
-        )
-
         # Iterate over batches and process items
-        async for batch in self.indexer.index_collection(
+        async for batch in self.indexer.index_collection_items(
             collection_slug=collection.slug,
-            upgraded_count=collection.upgraded_count,
+            start=start,
+            stop=stop,
         ):
             to_create = []
             to_update = []
@@ -127,15 +140,19 @@ class IndexerGiftUniqueAction(BaseAction):
 
         return targeted_telegram_owner_ids
 
-    async def index(self, slug: str) -> set[int]:
+    async def index(
+        self, slug: str, start: int | None = None, stop: int | None = None
+    ) -> set[int]:
         """
         Processes a collection of items by indexing, updating, or creating unique records. It also
         tracks and returns Telegram IDs of previous owners of updated items for further actions.
 
         :param slug: A unique identifier for the collection being processed.
+        :param start: The starting index for the indexing process. Defaults to 1.
+        :param stop: The ending index for the indexing process. Defaults to the number of upgraded items.
 
         :return: A set of Telegram IDs corresponding to previous owners of the updated
                  items who need further actions.
         """
         collection = self.collection_service.get(slug)
-        return await self._index(collection)
+        return await self._index(collection, start=start, stop=stop)

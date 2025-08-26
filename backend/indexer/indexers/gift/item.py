@@ -14,8 +14,8 @@ class GiftUniqueIndexer:
     def __init__(self, session_path: Path) -> None:
         self.telethon_service = TelethonService(session_path=session_path)
 
-    async def index_collection(
-        self, collection_slug: str, upgraded_count: int
+    async def index_collection_items(
+        self, collection_slug: str, start: int, stop: int
     ) -> AsyncGenerator[list[GiftUniqueDTO], None]:
         """
         Indexes all gifts from a specific collection using the telethon service. This process
@@ -23,19 +23,18 @@ class GiftUniqueIndexer:
         GiftUniqueDTO objects, and yielding them in batches of a defined size.
 
         :param collection_slug: The unique identifier of the collection to be indexed.
-        :param upgraded_count: The total number of gifts to be indexed from the collection.
+        :param start: The first index of the gifts to be indexed from the collection.
+        :param stop: The total number of gifts to be indexed from the collection.
         :return: An asynchronous generator yielding lists of GiftUniqueDTO objects.
         """
         await self.telethon_service.start()
         entities = []
-        for num in range(
-            1, upgraded_count + 1, indexer_settings.telegram_batch_request_size
-        ):
+        for num in range(start, stop + 1, indexer_settings.telegram_batch_request_size):
             gifts = await self.telethon_service.index_gifts_batch(
                 slugs=[
                     f"{collection_slug}-{gift_id}"
                     for i in range(indexer_settings.telegram_batch_request_size)
-                    if (gift_id := num + i) <= upgraded_count
+                    if (gift_id := num + i) <= stop
                 ]
             )
 

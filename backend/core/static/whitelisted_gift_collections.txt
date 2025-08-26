@@ -15,3 +15,8 @@ AstralShard
 VintageCigar
 ElectricSkull
 SignetRing
+LowRider
+WestsideSign
+CupidCharm
+HeartLocket
+SnoopDogg

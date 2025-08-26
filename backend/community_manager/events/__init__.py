@@ -48,9 +48,18 @@ class ChatJoinRequestEventBuilder(EventBuilder):
 
         @property
         def invite_link(self) -> str | None:
-            if self.original_update.invite:
+            # In some cases (to be investigated), the `link` attribute could be missing on ChatInvitePublicJoinRequests
+            # In this case no invite link should be returned
+            # E.g. it could happen if the chat is public and members should be approved
+            # More details: https://t.me/TelethonChat/680081
+            if isinstance(self.original_update.invite, ChatInviteExported) and hasattr(
+                self.original_update.invite, "link"
+            ):
                 return self.original_update.invite.link
 
+            logger.warning(
+                "Invite link is missing on the update: %s", self.original_update.invite
+            )
             return None
 
 
@@ -156,7 +165,10 @@ class ChatAdminChangeEventBuilder(EventBuilder):
 
         @property
         def sufficient_bot_privileges(self) -> bool:
-            if not self.new_participant.is_self:
+            if not isinstance(self.new_participant, ChannelParticipantSelf) and not (
+                isinstance(self.new_participant, ChannelParticipantAdmin)
+                and self.new_participant.is_self
+            ):
                 raise ValueError("The event is not related to the bot user.")
 
             if not isinstance(self.new_participant, ChannelParticipantAdmin):
