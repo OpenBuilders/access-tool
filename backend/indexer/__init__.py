@@ -1,4 +1,4 @@
-from gevent import monkey
+# from gevent import monkey
 
-print("Monkey patching for gevent worker")
-monkey.patch_all()
+# print("Monkey patching for gevent worker")
+# monkey.patch_all()
