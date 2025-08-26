@@ -62,7 +62,9 @@ export const ClientJoinPage = () => {
 
   const handleJoinGroup = () => {
     navigateToChat()
-    webApp.close()
+    setTimeout(() => {
+      webApp.close()
+    }, 1500)
   }
 
   return (
