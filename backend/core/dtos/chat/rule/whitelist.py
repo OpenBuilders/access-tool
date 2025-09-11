@@ -9,7 +9,7 @@ from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWh
 
 
 class TelegramChatWhitelistExternalSourceDTO(BaseModel):
-    external_source_url: str
+    url: str
     name: str
     description: str | None
     auth_key: str | None

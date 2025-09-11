@@ -139,7 +139,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
     async def create(
         self,
         group_id: int | None,
-        external_source_url: str,
+        url: str,
         name: str,
         description: str | None,
         auth_key: str | None,
@@ -150,7 +150,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         back the database transaction.
 
         :param group_id: The identifier of the group to which the external source belongs.
-        :param external_source_url: The URL of the external source to be added.
+        :param url: The URL of the external source to be added.
         :param name: The name of the external source.
         :param description: An optional description of the external source.
         :param auth_key: An authentication key for the external source.
@@ -166,7 +166,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
                 CreateTelegramChatWhitelistExternalSourceDTO(
                     chat_id=self.chat.id,
                     group_id=group_id,
-                    external_source_url=external_source_url,
+                    url=url,
                     name=name,
                     description=description,
                     auth_key=auth_key,
@@ -175,7 +175,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
                 ),
             )
         except IntegrityError as e:
-            message = f"External source rule already exists for chat {self.chat.id!r} with url {external_source_url!r}. "
+            message = f"External source rule already exists for chat {self.chat.id!r} with url {url!r}. "
             logger.warning(message, exc_info=e)
             raise TelegramChatRuleExists(message) from e
         try:
@@ -196,7 +196,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
     async def update(
         self,
         rule_id: int,
-        external_source_url: str,
+        url: str,
         name: str,
         description: str | None,
         auth_key: str | None,
@@ -210,7 +210,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         transaction if an error occurs during the validation of the source.
 
         :param rule_id: The unique identifier of the rule being updated.
-        :param external_source_url: The URL of the external source to be updated.
+        :param url: The URL of the external source to be updated.
         :param name: The name of the external source being updated.
         :param description: An optional description of the external source.
         :param auth_key: An authentication key for the external source.
@@ -234,7 +234,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         external_source = self.telegram_chat_external_source_service.update(
             rule=rule,
             dto=UpdateTelegramChatWhitelistExternalSourceDTO(
-                external_source_url=external_source_url,
+                url=url,
                 name=name,
                 description=description,
                 auth_key=auth_key,

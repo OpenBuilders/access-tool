@@ -125,7 +125,7 @@ async def add_chat_whitelist_external_source_rule(
             group_id=rule.group_id,
             name=rule.name,
             description=rule.description,
-            external_source_url=str(rule.url),
+            url=str(rule.url),
             auth_key=rule.auth_key,
             auth_value=rule.auth_value,
         )
@@ -182,7 +182,7 @@ async def update_chat_whitelist_external_source_rule(
             rule_id=rule_id,
             name=rule.name,
             description=rule.description,
-            external_source_url=str(rule.url),
+            url=str(rule.url),
             auth_key=rule.auth_key,
             auth_value=rule.auth_value,
             is_enabled=rule.is_enabled,
