@@ -78,7 +78,7 @@ class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
     def create(self, dto: CreateTelegramChatRuleDTOType) -> TelegramChatRuleT:
         new_rule = self.model(**dto.model_dump())  # noqa
         self.db_session.add(new_rule)
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat Rule {new_rule!r} created.")
         return new_rule
 
