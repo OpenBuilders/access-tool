@@ -83,8 +83,13 @@ class JettonAction(BaseAction):
 
         version = DEFAULT_INCREMENTED_FILE_VERSION
         if jetton.logo_path:
-            previous_logo_path = VersionedFile.from_filename(jetton.logo_path)
-            version = previous_logo_path.get_next_version()
+            try:
+                previous_logo_path = VersionedFile.from_filename(jetton.logo_path)
+                version = previous_logo_path.get_next_version()
+            except ValueError:
+                logger.exception(
+                    f"Can't parse current logo path {jetton.logo_path!r} to get next version."
+                )
 
         dto = await self._get_blockchain_info(address_raw, version=version)
         jetton = self.jetton_service.update(jetton=jetton, dto=dto)
