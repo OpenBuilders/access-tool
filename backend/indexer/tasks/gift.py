@@ -107,7 +107,11 @@ async def index_gift_collection_ownerships(
     name="fetch-gift-collection-ownership-details",
     queue=CELERY_GIFT_FETCH_QUEUE_NAME,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
-    autoretry_for=(SessionUnavailableError, PhoneNumberBannedError),
+    autoretry_for=(
+        SessionUnavailableError,
+        PhoneNumberBannedError,
+        AuthKeyDuplicatedError,
+    ),
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
     ignore_result=True,
 )
