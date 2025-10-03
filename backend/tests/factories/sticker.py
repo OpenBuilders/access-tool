@@ -1,10 +1,10 @@
 import factory
-from factory.alchemy import SQLAlchemyModelFactory
 
 from core.models.sticker import StickerCollection, StickerCharacter
+from tests.factories.base import BaseSQLAlchemyModelFactory
 
 
-class StickerCollectionFactory(SQLAlchemyModelFactory):
+class StickerCollectionFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = StickerCollection
         sqlalchemy_session_persistence = "flush"
@@ -15,7 +15,7 @@ class StickerCollectionFactory(SQLAlchemyModelFactory):
     logo_url = factory.Faker(provider="url")
 
 
-class StickerCharacterFactory(SQLAlchemyModelFactory):
+class StickerCharacterFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = StickerCharacter
         sqlalchemy_session_persistence = "flush"

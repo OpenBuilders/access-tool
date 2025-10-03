@@ -62,13 +62,12 @@ async def update_chat_whitelist_rule(
         requestor=request.state.user,
         chat_slug=slug,
     )
-    action.update(
+    result = action.update(
         rule_id=rule_id,
         name=rule.name,
         description=rule.description,
         is_enabled=rule.is_enabled,
     )
-    result = await action.set_content(rule_id=rule_id, content=rule.users)
     return WhitelistRuleFDO.model_validate(result.model_dump())
 
 

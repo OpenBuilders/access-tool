@@ -8,9 +8,6 @@ from community_manager.actions.chat import (
 from community_manager.celery_app import app
 from community_manager.entrypoint import init_client
 from community_manager.settings import community_manager_settings
-from core.actions.chat.rule.whitelist import (
-    TelegramChatWhitelistExternalSourceContentAction,
-)
 from core.constants import (
     CELERY_SYSTEM_QUEUE_NAME,
 )
@@ -46,10 +43,9 @@ def check_chat_members() -> None:
 
 async def refresh_chat_external_sources_async() -> None:
     with DBService().db_session() as db_session:
-        action = TelegramChatWhitelistExternalSourceContentAction(db_session)
-        # Celery tasks are not async, so we need to run the async function in a blocking way
-        await action.refresh_enabled()
-        logger.info("Chat external sources refreshed.")
+        telethon_service = init_client()
+        action = CommunityManagerTaskChatAction(db_session)
+        await action.refresh_enabled(telethon_client=telethon_service.client)
 
 
 @app.task(
@@ -89,3 +85,31 @@ def refresh_chats() -> None:
 
     async_to_sync(refresh_all_chats_async)()
     logger.info("Chats refreshed.")
+
+
+async def async_disable_chat(chat_id: int) -> None:
+    with DBService().db_session() as db_session:
+        action = CommunityManagerChatAction(db_session)
+        await action.disable(chat_id)
+
+
+@app.task(
+    name="disable-chat",
+    queue=CELERY_SYSTEM_QUEUE_NAME,
+)
+def disable_chat(chat_id: int) -> None:
+    async_to_sync(async_disable_chat)(chat_id)
+
+
+async def async_enable_chat(chat_id: int) -> None:
+    with DBService().db_session() as db_session:
+        action = CommunityManagerChatAction(db_session)
+        await action.enable(chat_id)
+
+
+@app.task(
+    name="enable-chat",
+    queue=CELERY_SYSTEM_QUEUE_NAME,
+)
+def enable_chat(chat_id: int) -> None:
+    async_to_sync(async_enable_chat)(chat_id)

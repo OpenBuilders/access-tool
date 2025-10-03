@@ -42,14 +42,16 @@ async def test_move_rule__pass(
     model: type[TelegramChatStickerCollection],
     rule_type: EligibilityCheckType,
 ) -> None:
-    initial_group = TelegramChatRuleGroupFactory.create()
+    initial_group = TelegramChatRuleGroupFactory.with_session(db_session).create()
     rules = factory_cls.with_session(db_session).create_batch(
         size=3, group=initial_group, chat=initial_group.chat
     )
     target_rule = rules[0]
 
-    requestor = UserFactory.create()
-    another_group = TelegramChatRuleGroupFactory.create(chat=initial_group.chat)
+    requestor = UserFactory.with_session(db_session).create()
+    another_group = TelegramChatRuleGroupFactory.with_session(db_session).create(
+        chat=initial_group.chat
+    )
 
     assert initial_group.id != another_group.id, "Groups should be different."
 
@@ -102,13 +104,17 @@ async def test_move_rule__last_rule__group_removed(
     model: type[TelegramChatStickerCollection],
     rule_type: EligibilityCheckType,
 ) -> None:
-    initial_group = TelegramChatRuleGroupFactory.create()
-    rule = factory_cls.with_session(db_session).create(
-        group=initial_group, chat=initial_group.chat
+    initial_group = TelegramChatRuleGroupFactory.with_session(db_session).create()
+    rule = (
+        factory_cls.with_session(db_session)
+        .with_session(db_session)
+        .create(group=initial_group, chat=initial_group.chat)
     )
 
-    requestor = UserFactory.create()
-    another_group = TelegramChatRuleGroupFactory.create(chat=initial_group.chat)
+    requestor = UserFactory.with_session(db_session).create()
+    another_group = TelegramChatRuleGroupFactory.with_session(db_session).create(
+        chat=initial_group.chat
+    )
 
     assert initial_group.id != another_group.id, "Groups should be different."
 
@@ -161,13 +167,13 @@ async def test_move_rule__another_chat__fails(
     model: type[TelegramChatStickerCollection],
     rule_type: EligibilityCheckType,
 ) -> None:
-    initial_group = TelegramChatRuleGroupFactory.create()
+    initial_group = TelegramChatRuleGroupFactory.with_session(db_session).create()
     rule = factory_cls.with_session(db_session).create(
         group=initial_group, chat=initial_group.chat
     )
 
-    another_group = TelegramChatRuleGroupFactory.create()
-    requestor = UserFactory.create()
+    another_group = TelegramChatRuleGroupFactory.with_session(db_session).create()
+    requestor = UserFactory.with_session(db_session).create()
 
     action = mocked_managed_chat_action_factory(
         action_cls=RuleAction,
@@ -193,11 +199,11 @@ async def test_move_rule__group_not_found__fails(
     db_session: Session,
     mocked_managed_chat_action_factory: ChatManageActionFactory,
 ) -> None:
-    initial_group = TelegramChatRuleGroupFactory.create()
+    initial_group = TelegramChatRuleGroupFactory.with_session(db_session).create()
     rule = TelegramChatStickerCollectionFactory.with_session(db_session).create(
         group=initial_group, chat=initial_group.chat
     )
-    requestor = UserFactory.create()
+    requestor = UserFactory.with_session(db_session).create()
 
     action = mocked_managed_chat_action_factory(
         action_cls=RuleAction,
