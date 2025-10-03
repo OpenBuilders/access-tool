@@ -1,16 +1,16 @@
 import logging
 from collections import defaultdict
 
+from celery.result import AsyncResult
 from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_502_BAD_GATEWAY, HTTP_409_CONFLICT
-from telethon import TelegramClient
-from telethon.errors import ChatAdminRequiredError, RPCError
+from starlette.status import HTTP_502_BAD_GATEWAY
 
 from core.actions.authorization import AuthorizationAction
 from core.actions.base import BaseAction
 from core.actions.chat.base import ManagedChatBaseAction
+from core.constants import CELERY_SYSTEM_QUEUE_NAME
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
@@ -20,7 +20,6 @@ from core.dtos.chat.rule import (
     ChatEligibilityRuleDTO,
     ChatEligibilityRuleGroupDTO,
 )
-from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.emoji import (
     EmojiChatEligibilitySummaryDTO,
     EmojiChatEligibilityRuleDTO,
@@ -43,6 +42,7 @@ from core.dtos.chat.rule.summary import (
     TelegramChatWithEligibilitySummaryDTO,
     TelegramChatGroupWithEligibilitySummaryDTO,
 )
+from core.enums.rule import EligibilityCheckType
 from core.exceptions.chat import (
     TelegramChatNotExists,
 )
@@ -52,26 +52,18 @@ from core.services.cdn import CDNService
 from core.services.chat import TelegramChatService
 from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.user import TelegramChatUserService
-from core.services.supertelethon import TelethonService
-from core.settings import core_settings
+from core.utils.task import wait_for_task, sender
 
 logger = logging.getLogger(__name__)
 
 
 class TelegramChatAction(BaseAction):
-    def __init__(
-        self, db_session: Session, telethon_client: TelegramClient | None = None
-    ):
+    def __init__(self, db_session: Session):
         super().__init__(db_session)
         self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
         self.telegram_chat_rule_group_service = TelegramChatRuleGroupService(db_session)
-        self.authorization_action = AuthorizationAction(
-            db_session, telethon_client=telethon_client
-        )
-        self.telethon_service = TelethonService(
-            client=telethon_client, bot_token=core_settings.telegram_bot_token
-        )
+        self.authorization_action = AuthorizationAction(db_session)
         self.cdn_service = CDNService()
 
     def get_all(self, requestor: User) -> list[TelegramChatDTO]:
@@ -311,32 +303,18 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             )
             return self.chat
 
-        await self.telethon_service.start()
-        try:
-            peer = await self.telethon_service.get_chat(entity=self.chat.id)
-            invite_link = await self.telethon_service.get_invite_link(chat=peer)
-            await self.telethon_service.stop()
-            chat = self.telegram_chat_service.refresh_invite_link(
-                chat_id=self.chat.id, invite_link=invite_link.link
-            )
-            logger.info(
-                f"Updated invite link of chat {chat.id!r} to {invite_link.link!r} and enabled it."
-            )
-        except ChatAdminRequiredError:
-            await self.telethon_service.stop()
-            logger.warning(f"Insufficient privileges to enable chat {self.chat.id!r}")
-            raise HTTPException(
-                status_code=HTTP_409_CONFLICT,
-                detail=f"Insufficient privileges to enable chat {self.chat.id!r}",
-            )
-        except RPCError:
-            logger.exception(f"Failed to enable chat {self.chat.id!r}")
+        async_task_id: AsyncResult = sender.send_task(
+            "enable-chat",
+            args=(self.chat.id,),
+            queue=CELERY_SYSTEM_QUEUE_NAME,
+        )
+        if not await wait_for_task(task_result=async_task_id):
             raise HTTPException(
                 status_code=HTTP_502_BAD_GATEWAY,
-                detail=f"Failed to enable chat {self.chat.id!r}",
+                detail="Something went wrong while enabling the chat. Please, try again later.",
             )
-
-        return chat
+        self.db_session.refresh(self.chat)
+        return self.chat
 
     async def disable(self) -> TelegramChat:
         """
@@ -355,29 +333,24 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
         :raises HTTPException: If an RPC-related error occurs while disabling the chat.
         :return: The updated chat object with its state disabled.
         """
-        await self.telethon_service.start()
-        try:
-            await self.telethon_service.revoke_chat_invite(
-                chat_id=self.chat.id, link=self.chat.invite_link
+        if not self.chat.is_enabled:
+            logger.debug(
+                f"Chat {self.chat.id!r} is already disabled. Skipping disable operation..."
             )
-            await self.telethon_service.stop()
-            chat = self.telegram_chat_service.disable(self.chat)
-            logger.info(f"Removed invite link of chat {chat.id!r} and disabled it.")
-        except ChatAdminRequiredError:
-            await self.telethon_service.stop()
-            logger.warning(f"Insufficient privileges to disable chat {self.chat.id!r}")
-            raise HTTPException(
-                status_code=HTTP_409_CONFLICT,
-                detail=f"Insufficient privileges to disable chat {self.chat.id!r}",
-            )
-        except RPCError:
-            logger.exception(f"Failed to disable chat {self.chat.id!r}")
+            return self.chat
+
+        async_task_id: AsyncResult = sender.send_task(
+            "disable-chat",
+            args=(self.chat.id,),
+            queue=CELERY_SYSTEM_QUEUE_NAME,
+        )
+        if not await wait_for_task(task_result=async_task_id):
             raise HTTPException(
                 status_code=HTTP_502_BAD_GATEWAY,
-                detail=f"Failed to disable chat {self.chat.id!r}",
+                detail="Something went wrong while disabling the chat. Please, try again later.",
             )
-
-        return chat
+        self.db_session.refresh(self.chat)
+        return self.chat
 
     async def update_visibility(self, is_enabled: bool) -> TelegramChatDTO:
         if is_enabled:

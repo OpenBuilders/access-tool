@@ -1,8 +1,5 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
-from fastapi.params import Query
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
@@ -137,41 +134,3 @@ async def set_user_wallet(
         # No need to refresh wallet details if it is already a tracked wallet
         task_id=None,
     )
-
-
-@user_router.delete(
-    "/wallet",
-    name="Disconnect user wallet from the chat",
-    description="Disconnect wallet from the chat.",
-    tags=["Wallet"],
-    responses={
-        HTTP_200_OK: {"model": UserFDO},
-        HTTP_400_BAD_REQUEST: {
-            "description": "Chat not found",
-            "model": BaseExceptionFDO,
-        },
-    },
-)
-async def disconnect_wallet(
-    request: Request,
-    chat_slug: Annotated[
-        str,
-        Query(
-            ...,
-            alias="chatSlug",
-            description="Chat slug for which wallet will be disconnected",
-        ),
-    ],
-    db_session: Session = Depends(get_db_session),
-) -> UserFDO:
-    wallet_action = WalletAction(db_session)
-    try:
-        await wallet_action.disconnect_wallet(
-            user_id=request.state.user.id, chat_slug=chat_slug
-        )
-    except TelegramChatNotExists:
-        raise HTTPException(
-            detail="Chat not found",
-            status_code=HTTP_400_BAD_REQUEST,
-        )
-    return UserFDO.from_orm(request.state.user)

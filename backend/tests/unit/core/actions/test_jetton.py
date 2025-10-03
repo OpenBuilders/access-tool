@@ -19,7 +19,7 @@ from tests.factories import JettonFactory
 async def test__prefetch_existing_jetton__pass(db_session: Session) -> None:
     """Test `prefetch` successfully returns existing Jetton from database."""
     # Arrange
-    existing_jetton = JettonFactory()
+    existing_jetton = JettonFactory.with_session(db_session).create()
 
     # Act
     jetton_action = JettonAction(db_session)
@@ -135,7 +135,7 @@ async def test__update_jetton_status__pass(
 ) -> None:
     """Test `update` modifies the status of an existing Jetton."""
     # Arrange
-    updated_jetton = JettonFactory(
+    updated_jetton = JettonFactory.with_session(db_session).create(
         address=dummy_jetton_address.to_raw(),
         is_enabled=initial_is_enabled,
     )
@@ -161,7 +161,7 @@ async def test__update_jetton_status__pass(
 async def test__get_or_create_existing_jetton__pass(db_session: Session) -> None:
     """Test `get_or_create` returns an existing Jetton from the database."""
     # Arrange
-    jetton = JettonFactory()
+    jetton = JettonFactory.with_session(db_session).create()
     jetton_action = JettonAction(db_session)
 
     # Act
@@ -211,7 +211,7 @@ async def test_refresh__pass(
     db_session: Session,
     mocker: MockerFixture,
 ) -> None:
-    jetton = JettonFactory.create()
+    jetton = JettonFactory.with_session(db_session).create()
 
     jetton_dto = JettonDTO.from_orm(jetton)
     jetton_dto.name = "New Jetton Name"
@@ -239,7 +239,7 @@ async def test_refresh__pass(
 async def test_refresh__cache_hit__pass(
     db_session: Session, mocker: MockerFixture
 ) -> None:
-    jetton = JettonFactory.create()
+    jetton = JettonFactory.with_session(db_session).create()
 
     jetton_dto = JettonDTO.from_orm(jetton)
     jetton_dto.name = "New Jetton Name"
@@ -283,7 +283,7 @@ async def test_refresh__increments_file_version__pass(
     previous_logo_path: str,
     expected_logo_path: str,
 ) -> None:
-    jetton = JettonFactory.create(logo_path=previous_logo_path)
+    jetton = JettonFactory.with_session(db_session).create(logo_path=previous_logo_path)
 
     jetton_record = db_session.query(Jetton).one()
     assert isinstance(jetton_record.logo_path, str)

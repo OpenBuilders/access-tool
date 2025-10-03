@@ -1,16 +1,12 @@
 import logging
 
 from fastapi import HTTPException
-from httpx import HTTPError
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND
 
-from core.actions.authorization import AuthorizationAction
-from core.actions.base import BaseAction
 from core.actions.chat.base import ManagedChatBaseAction
 from core.dtos.chat.rule.whitelist import (
-    WhitelistRuleItemsDifferenceDTO,
     WhitelistRuleDTO,
     WhitelistRuleExternalDTO,
     CreateTelegramChatWhitelistExternalSourceDTO,
@@ -19,103 +15,14 @@ from core.dtos.chat.rule.whitelist import (
     UpdateTelegramChatWhitelistDTO,
 )
 from core.exceptions.rule import TelegramChatRuleExists
-from core.models.rule import TelegramChatWhitelistExternalSource
+from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWhitelist
 from core.models.user import User
 from core.services.chat.rule.whitelist import (
     TelegramChatExternalSourceService,
     TelegramChatWhitelistService,
 )
-from core.services.chat.user import TelegramChatUserService
-from core.utils.external_source import fetch_dynamic_allowed_members
-from core.exceptions.chat import (
-    TelegramChatInvalidExternalSourceError,
-)
 
 logger = logging.getLogger(__name__)
-
-
-class TelegramChatWhitelistExternalSourceContentAction(BaseAction):
-    def __init__(self, db_session: Session) -> None:
-        super().__init__(db_session)
-        self.telegram_chat_external_source_service = TelegramChatExternalSourceService(
-            db_session
-        )
-        self.telegram_chat_user_service = TelegramChatUserService(db_session)
-
-    def _set_content(
-        self, rule: TelegramChatWhitelistExternalSource, content: list[int]
-    ) -> WhitelistRuleExternalDTO:
-        external_source = self.telegram_chat_external_source_service.set_content(
-            rule=rule, content=content
-        )
-        logger.info(f"External source {rule.id!r} updated successfully")
-        return WhitelistRuleExternalDTO.from_orm(external_source)
-
-    async def refresh_external_source(
-        self,
-        source: TelegramChatWhitelistExternalSource,
-        raise_for_error: bool = False,
-    ) -> None:
-        """
-        Refreshes an external source for a Telegram chat dynamic list.
-
-        This method fetches the dynamic list members from a given external source URL,
-        updates the internal data store to reflect the changes in the list, and
-        handles the removal of chat members who are no longer eligible. It supports
-        raising exceptions for errors encountered during the process, as controlled by
-        the `raise_for_error` parameter.
-
-        :param source: The external source from which the dynamic list of members should be
-            fetched. Represents the source URL and its current content.
-        :param raise_for_error: A boolean flag to indicate whether exceptions should be
-            raised when errors occur during the fetch operation. Defaults to False.
-        :return: This asynchronous method does not return a value.
-
-        :raises TelegramChatInvalidExternalSourceError: If the external source is invalid.
-        """
-        try:
-            result = await fetch_dynamic_allowed_members(
-                source.url,
-                auth_key=source.auth_key,
-                auth_value=source.auth_value,
-            )
-        except HTTPError as e:
-            logger.warning(f"Failed to fetch external source {source.url!r}: {e}")
-            if raise_for_error:
-                raise
-            return
-        except TelegramChatInvalidExternalSourceError as e:
-            logger.warning(f"Invalid external source {source.url!r}: {e}")
-            if raise_for_error:
-                raise
-            return
-        except Exception as e:
-            logger.exception(f"Failed to fetch external source {source.url!r}: {e}")
-            if raise_for_error:
-                raise
-            return
-
-        difference = WhitelistRuleItemsDifferenceDTO(
-            previous=source.content,
-            current=result.users,
-        )
-
-        self._set_content(rule=source, content=result.users)
-
-        chat_members = self.telegram_chat_user_service.get_all(
-            user_ids=difference.removed
-        )
-        authorization_action = AuthorizationAction(self.db_session)
-        await authorization_action.kick_ineligible_chat_members(
-            chat_members=chat_members
-        )
-
-        logger.info(f"Refreshed external source {source.url!r} successfully")
-
-    async def refresh_enabled(self, raise_for_error: bool = False) -> None:
-        sources = self.telegram_chat_external_source_service.get_all(enabled_only=True)
-        for source in sources:
-            await self.refresh_external_source(source, raise_for_error=raise_for_error)
 
 
 class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
@@ -126,9 +33,15 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         self.telegram_chat_external_source_service = TelegramChatExternalSourceService(
             db_session
         )
-        self.content_action = TelegramChatWhitelistExternalSourceContentAction(
-            db_session
+
+    def set_content(
+        self, rule: TelegramChatWhitelistExternalSource, content: list[int]
+    ) -> WhitelistRuleExternalDTO:
+        external_source = self.telegram_chat_external_source_service.set_content(
+            rule=rule, content=content
         )
+        logger.info(f"External source {rule.id!r} updated successfully")
+        return WhitelistRuleExternalDTO.from_orm(external_source)
 
     def get(self, rule_id: int) -> WhitelistRuleExternalDTO:
         external_source = self.telegram_chat_external_source_service.get(
@@ -179,7 +92,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
             logger.warning(message, exc_info=e)
             raise TelegramChatRuleExists(message) from e
         try:
-            await self.content_action.refresh_external_source(
+            result = await self.telegram_chat_external_source_service.validate_external_source(
                 source=external_source, raise_for_error=True
             )
         except Exception as e:
@@ -188,6 +101,9 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
             )
             self.db_session.rollback()
             raise e
+
+        # We could safely set the content, and no action will be required, since it's a creation action
+        self.set_content(rule=external_source, content=result.current)
 
         logger.info(f"External source {external_source.id!r} created successfully")
         # No need for a manual commit, as it's already done in the service during set_content
@@ -245,8 +161,10 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         if is_enabled:
             # No need for a manual commit, as it's already done in the service during set_content
             try:
-                await self.content_action.refresh_external_source(
-                    source=external_source, raise_for_error=True
+                await (
+                    self.telegram_chat_external_source_service.validate_external_source(
+                        source=external_source, raise_for_error=True
+                    )
                 )
             except Exception as e:
                 logger.warning(
@@ -257,6 +175,9 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         else:
             self.db_session.commit()
 
+        # Update should be handled by an async task to ensure that it'll kick all ineligible users.
+        # There COULD be a slight delay, but external sources are updated every 10 minutes,
+        # so the delay should not take more than 10 minutes
         logger.info(f"External source {rule_id!r} updated successfully")
         return WhitelistRuleExternalDTO.from_orm(external_source)
 
@@ -334,44 +255,41 @@ class TelegramChatWhitelistAction(ManagedChatBaseAction):
 
     async def set_content(self, rule_id: int, content: list[int]) -> WhitelistRuleDTO:
         """
-        Sets the content of a whitelist rule for a specified chat and handles any actions
-        related to changes in the list that may impact chat members.
+        Updates the content of a whitelist rule in a Telegram chat. This method checks if the
+        content has already been set. If the content exists, it raises an exception, as modifying
+        existing whitelist content is not allowed. The update of content is to be managed by
+        an asynchronous task to ensure proper handling of ineligible users.
 
-        This method allows modifying the content of the specified whitelist rule using the
-        provided list of integers. It validates the changes, updates the rule, computes the
-        difference before and after the update, and performs necessary actions on members
-        who no longer meet the eligibility criteria due to the changes. Finally, it logs the
-        success of the operation and returns an updated representation of the whitelist rule.
+        .. note::
+           There could be a slight delay in processing the asynchronous task, but it is expected
+           not to exceed 10 minutes as the external sources are refreshed every 10 minutes.
 
-        :param rule_id: An integer identifying the rule to be updated within the whitelist
-            associated with the specified chat. Determines which rule should have its
-            content modified.
-        :param content: A list of integers representing the new content to be associated
-            with the specified whitelist rule. Applies the changes to this content while
-            analyzing the difference from the existing data.
-        :return: An instance of `WhitelistRuleDTO`, which is a data transfer object that
-            encapsulates the updated state of the whitelist rule after the operation
-            has been successfully executed.
+        :param rule_id: The identifier of the whitelist rule to be updated.
+        :param content: The list of integers representing the new content to be set in the whitelist.
+        :return: A data transfer object (DTO) representing the updated whitelist rule.
         """
-        rule = self.telegram_chat_whitelist_service.get(
+        rule: TelegramChatWhitelist = self.telegram_chat_whitelist_service.get(
             chat_id=self.chat.id, id_=rule_id
         )
         whitelist = self.telegram_chat_whitelist_service.set_content(
             rule=rule, content=content
         )
-        difference = WhitelistRuleItemsDifferenceDTO(
-            previous=rule.content,
-            current=content,
-        )
-
-        if difference.removed:
-            chat_members = self.telegram_chat_user_service.get_all(
-                user_ids=difference.removed
-            )
-            authorization_action = AuthorizationAction(self.db_session)
-            await authorization_action.kick_ineligible_chat_members(
-                chat_members=chat_members
-            )
+        # FIXME: Move this to the community-manager-tasks worker to avoid calling Telegram synchronously
+        #  It'll probably require new queue of users to be added so that hardcoded whitelists
+        #  could also be refreshed, and non-eligible users could be kicked
+        # difference = WhitelistRuleItemsDifferenceDTO(
+        #     previous=rule.content,
+        #     current=content,
+        # )
+        #
+        # if difference.removed:
+        #     chat_members = self.telegram_chat_user_service.get_all(
+        #         user_ids=difference.removed
+        #     )
+        #     authorization_action = AuthorizationAction(self.db_session)
+        #     await authorization_action.kick_ineligible_chat_members(
+        #         chat_members=chat_members
+        #     )
 
         logger.info(f"Whitelist {rule_id!r} updated successfully")
         return WhitelistRuleDTO.from_orm(whitelist)

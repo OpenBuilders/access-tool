@@ -1,10 +1,10 @@
 import factory
-from factory.alchemy import SQLAlchemyModelFactory
 
 from core.models.chat import TelegramChat, TelegramChatUser
+from tests.factories.base import BaseSQLAlchemyModelFactory
 
 
-class TelegramChatFactory(SQLAlchemyModelFactory):
+class TelegramChatFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = TelegramChat
         sqlalchemy_session_persistence = "flush"
@@ -22,7 +22,7 @@ class TelegramChatFactory(SQLAlchemyModelFactory):
     invite_link = factory.Sequence(lambda n: f"https://t.me/+{n}")
 
 
-class TelegramChatUserFactory(SQLAlchemyModelFactory):
+class TelegramChatUserFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = TelegramChatUser
         sqlalchemy_session_persistence = "flush"

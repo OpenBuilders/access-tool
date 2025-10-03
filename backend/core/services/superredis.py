@@ -73,6 +73,9 @@ class RedisService:
         """
         self.client.sadd(name, *values)
 
+    def add_to_list(self, name: str, *values: str) -> None:
+        self.client.lpush(name, *values)
+
     def delete_from_set(self, name: str, *values: str) -> None:
         """
         Delete a value from a set

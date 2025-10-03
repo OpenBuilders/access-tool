@@ -15,22 +15,24 @@ from core.models.user import User
 from tests.factories import TelegramChatUserFactory, TelegramChatFactory, UserFactory
 
 
-def test_get_all_success(
-    db_session: Session, mocked_telethon_client: MagicMock
-) -> None:
+def test_get_all_success(db_session: Session) -> None:
     """Test successful retrieval of all chats managed by a user using real database objects."""
     # Arrange - Create real objects in the database using factories
-    user = UserFactory.create(is_admin=True)
+    user = UserFactory.with_session(db_session).create(is_admin=True)
 
     # Create multiple chats
-    chat1, chat2, chat3 = TelegramChatFactory.create_batch(3)
+    chat1, chat2, chat3 = TelegramChatFactory.with_session(db_session).create_batch(3)
 
-    TelegramChatUserFactory.create(chat=chat1, user=user, is_admin=True)
-    TelegramChatUserFactory.create(chat=chat2, user=user, is_admin=True)
-    TelegramChatUserFactory.create(chat=chat3, user=user)
+    TelegramChatUserFactory.with_session(db_session).create(
+        chat=chat1, user=user, is_admin=True
+    )
+    TelegramChatUserFactory.with_session(db_session).create(
+        chat=chat2, user=user, is_admin=True
+    )
+    TelegramChatUserFactory.with_session(db_session).create(chat=chat3, user=user)
 
     # Act
-    action = TelegramChatAction(db_session, telethon_client=mocked_telethon_client)
+    action = TelegramChatAction(db_session)
     result = action.get_all(user)
 
     # Assert
@@ -88,7 +90,7 @@ async def test_load_participants(
     mocker: MockerFixture,
 ) -> None:
     # Arrange: Create a chat in the database
-    chat = TelegramChatFactory()
+    chat = TelegramChatFactory.with_session(db_session).create()
 
     mocked_telethon_client.iter_participants = mocker.Mock(
         return_value=AsyncIterator([mocked_telethon_user])

@@ -3,17 +3,11 @@ from collections import defaultdict
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from telethon import TelegramClient
-from telethon.errors import (
-    UserAdminInvalidError,
-    RPCError,
-)
 
 from core.actions.base import BaseAction
 from core.dtos.chat.rule import (
     TelegramChatEligibilityRulesDTO,
 )
-from core.enums.rule import EligibilityCheckType
 from core.dtos.chat.rule.internal import (
     EligibilitySummaryInternalDTO,
     RulesEligibilitySummaryInternalDTO,
@@ -27,8 +21,8 @@ from core.dtos.gift.collection import GiftCollectionDTO
 from core.dtos.resource import JettonDTO, NftCollectionDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 from core.enums.nft import NftCollectionAsset
-from core.exceptions.telethon import MissingChatEntityError, MissingUserEntityError
-from core.models import GiftUnique
+from core.enums.rule import EligibilityCheckType
+from core.models.gift import GiftUnique
 from core.models.blockchain import NftItem
 from core.models.chat import (
     TelegramChatUser,
@@ -37,7 +31,6 @@ from core.models.rule import TelegramChatWhitelistExternalSource, TelegramChatWh
 from core.models.sticker import StickerItem
 from core.models.user import User
 from core.models.wallet import JettonWallet, UserWallet
-from core.services.chat import TelegramChatService
 from core.services.chat.rule.blockchain import (
     TelegramChatJettonService,
     TelegramChatNFTCollectionService,
@@ -55,9 +48,7 @@ from core.services.chat.user import TelegramChatUserService
 from core.services.gift.item import GiftUniqueService
 from core.services.nft import NftItemService
 from core.services.sticker.item import StickerItemService
-from core.services.supertelethon import TelethonService
 from core.services.wallet import JettonWalletService, TelegramChatUserWalletService
-from core.settings import core_settings
 from core.utils.gift import find_relevant_gift_items
 from core.utils.nft import find_relevant_nft_items
 from core.utils.sticker import find_relevant_sticker_items
@@ -72,9 +63,7 @@ class AuthorizationAction(BaseAction):
     This is the only low-level action that could be used in the high-level actions
     """
 
-    def __init__(
-        self, db_session: Session, telethon_client: TelegramClient | None = None
-    ) -> None:
+    def __init__(self, db_session: Session) -> None:
         super().__init__(db_session)
         self.jetton_wallet_service = JettonWalletService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
@@ -99,9 +88,6 @@ class AuthorizationAction(BaseAction):
         self.telegram_chat_emoji_service = TelegramChatEmojiService(db_session)
         self.telegram_chat_gift_collection_service = TelegramChatGiftCollectionService(
             db_session
-        )
-        self.telethon_service = TelethonService(
-            client=telethon_client, bot_token=core_settings.telegram_bot_token
         )
 
     def is_user_eligible_chat_member(
@@ -585,86 +571,3 @@ class AuthorizationAction(BaseAction):
         :return: True if user is whitelisted
         """
         return user.telegram_id in rule.content
-
-    async def kick_chat_member(self, chat_member: TelegramChatUser) -> None:
-        if not chat_member.is_managed:
-            logger.warning(
-                f"Attempt to kick non-managed chat member {chat_member.chat_id=} and {chat_member.user_id=}. Skipping."
-            )
-            return
-
-        if chat_member.chat.insufficient_privileges:
-            logger.warning(
-                f"Attempt to kick chat member {chat_member.chat_id=} and {chat_member.user_id=} "
-                f"failed as bot was lacking privileges to manage the chat. Skipping."
-            )
-            return
-
-        await self.telethon_service.start()
-        try:
-            await self.telethon_service.kick_chat_member(
-                chat_id=chat_member.chat_id,
-                telegram_user_id=chat_member.user.telegram_id,
-            )
-            if chat_member.user.allows_write_to_pm:
-                try:
-                    await self.telethon_service.send_message(
-                        chat_id=chat_member.user.telegram_id,
-                        message=f"You were kicked out of the **{chat_member.chat.title}**.",
-                    )
-                except RPCError as e:
-                    logger.error(
-                        f"Failed to send message to user {chat_member.user.telegram_id!r} "
-                        f"while kicking them from chat {chat_member.chat_id!r}",
-                        exc_info=e,
-                    )
-            self.telegram_chat_user_service.delete(
-                chat_id=chat_member.chat_id, user_id=chat_member.user.id
-            )
-            logger.info(
-                f"User {chat_member.user.telegram_id!r} was kicked from chat {chat_member.chat_id!r}"
-            )
-        except UserAdminInvalidError as e:
-            logger.warning(
-                f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r} as bot user lacks admin privileges",
-                exc_info=e,
-            )
-            telegram_chat_service = TelegramChatService(self.db_session)
-            telegram_chat_service.set_insufficient_privileges(
-                chat_id=chat_member.chat_id, value=True
-            )
-            logger.info(
-                f"Set insufficient privileges flag for chat {chat_member.chat_id!r}."
-            )
-        except RPCError as e:
-            logger.error(
-                f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r}",
-                exc_info=e,
-            )
-        finally:
-            await self.telethon_service.stop()
-
-    async def kick_ineligible_chat_members(
-        self,
-        chat_members: list[TelegramChatUser],
-    ) -> None:
-        ineligible_members = self.get_ineligible_chat_members(chat_members=chat_members)
-        if not ineligible_members:
-            logger.info("No ineligible chat members found")
-            return
-
-        logger.info(f"Found {len(ineligible_members)} ineligible chat members")
-
-        for member in ineligible_members:
-            try:
-                await self.kick_chat_member(member)
-            except MissingChatEntityError as e:
-                logger.error(
-                    f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as chat entity is missing",
-                    exc_info=e,
-                )
-            except MissingUserEntityError as e:
-                logger.error(
-                    f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as user entity is missing",
-                    exc_info=e,
-                )

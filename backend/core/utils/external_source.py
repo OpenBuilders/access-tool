@@ -44,7 +44,11 @@ async def fetch_dynamic_allowed_members(
         timeout=timeout, follow_redirects=True, verify=ssl_context
     ) as client:
         response = await client.get(url, headers=headers)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        logger.exception(f"Failed to fetch allowed members from {url}.")
+        raise TelegramChatInvalidExternalSourceError(str(e)) from e
     try:
         validated_response = WhitelistRuleCPO.model_validate(
             response.json(), strict=True

@@ -1,10 +1,10 @@
 import factory
-from factory.alchemy import SQLAlchemyModelFactory
 
 from core.models.user import User
+from tests.factories.base import BaseSQLAlchemyModelFactory
 
 
-class UserFactory(SQLAlchemyModelFactory):
+class UserFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = User
         sqlalchemy_session_persistence = "flush"
