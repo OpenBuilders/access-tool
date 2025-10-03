@@ -112,3 +112,6 @@ class GiftUniqueService(BaseService):
         self.db_session.commit()
 
         return unique
+
+    def count(self) -> int:
+        return self.db_session.query(GiftUnique).count()

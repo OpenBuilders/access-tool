@@ -18,6 +18,7 @@ from core.models.rule import (  # noqa
     TelegramChatPremium,
     TelegramChatGiftCollection,
 )
+from core.models.stats import Stats  # noqa
 from core.models.sticker import StickerCollection, StickerCharacter, StickerItem  # noqa
 from core.models.user import User  # noqa
 from core.models.wallet import UserWallet, JettonWallet, TelegramChatUserWallet  # noqa

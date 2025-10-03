@@ -14,14 +14,7 @@ logger = get_task_logger(__name__)
 @app.task(name="refresh-metrics", queue=CELERY_SYSTEM_QUEUE_NAME, ignore_result=True)
 def refresh_metrics() -> None:
     with httpx.Client() as client:
-        for route in (
-            "stats/users",
-            "stats/chats",
-            "stats/members",
-            "stats/nft-collections",
-            "stats/jettons",
-            "stats/wallets",
-        ):
+        for route in ("stats",):
             logger.info(f"Checking {route}")
             target_url = urljoin(community_manager_settings.base_api_url, route)
             client.get(target_url)
