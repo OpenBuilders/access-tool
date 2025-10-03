@@ -1,6 +1,8 @@
+from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
+import respx
 from sqlalchemy.orm import Session
 
 from core.actions.chat.rule.whitelist import TelegramChatWhitelistExternalSourceAction
@@ -9,6 +11,7 @@ from core.dtos.chat.rule.whitelist import (
     TelegramChatWhitelistExternalSourceDTO,
     WhitelistRuleItemsDifferenceDTO,
 )
+from core.exceptions.chat import TelegramChatInvalidExternalSourceError
 from core.models.rule import TelegramChatWhitelistExternalSource
 from tests.factories import TelegramChatFactory, UserFactory
 from tests.factories.rule.external_source import (
@@ -65,6 +68,56 @@ async def test_create_external_source_rule__pass(
     assert existing_rule.description == input_dto.description
     assert existing_rule.is_enabled == input_dto.is_enabled
     assert existing_rule.content == new_content
+
+
+@pytest.mark.asyncio
+@respx.mock
+@pytest.mark.parametrize(
+    ("status_code", "response"),
+    [
+        (404, {"error": "Not Found"}),
+        (500, {"error": "Internal Server Error"}),
+        (200, {"status": "ok"}),
+        (200, {"users": ["asdv"]}),
+    ],
+)
+async def test_create_external_source_rule__fails_validation__doesnt_create(
+    db_session: Session,
+    mocked_managed_chat_action_factory: ChatManageActionFactory,
+    status_code: int,
+    response: dict[str, Any],
+):
+    chat = TelegramChatFactory.with_session(db_session).create()
+    group = TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
+
+    requestor = UserFactory.with_session(db_session).create()
+    action = mocked_managed_chat_action_factory(
+        action_cls=TelegramChatWhitelistExternalSourceAction,
+        db_session=db_session,
+        chat_slug=chat.slug,
+        requestor=requestor,
+    )
+
+    input_dto = TelegramChatWhitelistExternalSourceDTO(
+        url="https://notco.in/metadata",
+        name="New External Source",
+        description="Some description",
+        auth_key="Some auth key",
+        auth_value="Some value",
+        is_enabled=True,
+    )
+
+    respx.get("https://notco.in/metadata").respond(
+        status_code=status_code,
+        json=response,
+    )
+    with pytest.raises(TelegramChatInvalidExternalSourceError):
+        await action.create(
+            group_id=group.id, **input_dto.model_dump(exclude={"is_enabled"})
+        )
+    assert (
+        db_session.query(TelegramChatWhitelistExternalSource).first() is None
+    ), "The rule should not be created."
 
 
 @pytest.mark.asyncio

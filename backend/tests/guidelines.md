@@ -219,7 +219,7 @@ from core.enums.rule import EligibilityCheckType
 from core.models.rule import TelegramChatEmoji
 from tests.factories.user import UserFactory
 from tests.factories.chat import telegram_chat_factory_builder
-from tests.factories.rule import TelegramChatEmojiFactory
+from tests.factories.rule.emoji import TelegramChatEmojiRuleFactory
 
 
 class TestTelegramChatEmojiAction:
@@ -227,7 +227,7 @@ class TestTelegramChatEmojiAction:
         # Arrange
         user = UserFactory(db_session=db_session, is_admin=True)
         chat = telegram_chat_factory_builder(db_session=db_session)
-        rule = TelegramChatEmojiFactory(db_session=db_session, chat_id=chat.id)
+        rule = TelegramChatEmojiRuleFactory(db_session=db_session, chat_id=chat.id)
 
         # Mock the chat user service to return True for is_chat_admin
         mocker.patch(

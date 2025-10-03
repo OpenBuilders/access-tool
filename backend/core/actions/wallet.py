@@ -8,6 +8,7 @@ from core.actions.base import BaseAction
 from core.constants import (
     DEFAULT_WALLET_TRACK_EXPIRATION,
     CELERY_WALLET_FETCH_QUEUE_NAME,
+    UPDATED_WALLETS_SET_NAME,
 )
 from core.dtos.wallet import WalletDetailsWithProofDTO
 from core.exceptions.chat import TelegramChatNotExists
@@ -121,17 +122,14 @@ class WalletAction(BaseAction):
                 queue=CELERY_WALLET_FETCH_QUEUE_NAME,
             )
         else:
+            # Since we're skipping the initial indexing,
+            # we have to check if the user is already a participant and is still eligible
+            redis_service.add_to_set(
+                UPDATED_WALLETS_SET_NAME, wallet_details.wallet_address
+            )
             logger.warning(
                 f"Wallet {wallet_details.wallet_address!r} was already indexed over this minute. Skipping initial indexing."
             )
-
-        # No need to check user eligibility here since fetch-wallet-details will queue it anyway
-        # if not same_wallet_connected:
-        #     await self.on_wallet_reconnect(
-        #         chat=chat,
-        #         user_id=user_id,
-        #         wallet_address=wallet_details.wallet_address,
-        #     )
 
         logger.info(
             f"User {user_id!r} linked wallet {wallet_details.wallet_address!r} to the chat {chat.id!r}"
