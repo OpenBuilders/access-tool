@@ -1,7 +1,7 @@
 import asyncio
 
 from celery.utils.log import get_task_logger
-from telethon.errors import PhoneNumberBannedError
+from telethon.errors import PhoneNumberBannedError, AuthKeyDuplicatedError
 
 from core.constants import (
     UPDATED_GIFT_USER_IDS,
@@ -89,7 +89,7 @@ async def index_gift_collection_ownerships(
                 logger.info(
                     f"Indexed {len(batch_telegram_ids)} unique gift actions for collection {slug!r}."
                 )
-            except PhoneNumberBannedError as e:
+            except (PhoneNumberBannedError, AuthKeyDuplicatedError) as e:
                 # Rename session to mark as dirty
                 session_path.rename(f"{session_path}-dirty")
                 raise e
