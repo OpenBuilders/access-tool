@@ -24,8 +24,10 @@ class ChatJoinRequestEventBuilder(EventBuilder):
     def build(
         cls, update: TLObject, others: Any = None, self_id: int | None = None
     ) -> Optional["Event"]:
+        logger.debug("Building event for update: %s", update)
         if isinstance(update, UpdateBotChatInviteRequester):
             return cls.Event(update=update)
+        logger.debug("Update is not a chat join request: %s", update)
 
         return None
 

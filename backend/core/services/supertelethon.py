@@ -77,7 +77,7 @@ class TelethonService:
         self.client = client
         self.bot_token = bot_token
 
-    async def start(self) -> None:
+    async def start(self, receive_updates: bool = False) -> None:
         """
         Initiates the connection process for the Telethon client.
 
@@ -86,11 +86,15 @@ class TelethonService:
         will either start a bot session or a user session. Logs information about
         the initiation process.
 
+        :param receive_updates: Whether to receive updates from Telegram.
+
         :raises Exception: May propagate exceptions raised during the connection
             initiation process.
         """
         if self.client.is_connected():
             return
+
+        await self.client.set_receive_updates(receive_updates=receive_updates)
 
         logger.info("Initiating Telethon connection.")
         if self.bot_token:

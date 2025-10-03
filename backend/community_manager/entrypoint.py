@@ -18,6 +18,7 @@ from community_manager.events import (
     ChatAdminChangeEventBuilder,
 )
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -63,6 +64,7 @@ def main() -> None:
     health_thread.start()
 
     telethon_service.start_sync()
+    telethon_service.client.loop.run_until_complete(telethon_service.client.catch_up())
     telethon_service.client.run_until_disconnected()
 
 
