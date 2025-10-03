@@ -1,7 +1,7 @@
 import asyncio
 
 from celery.utils.log import get_task_logger
-from telethon.errors import PhoneNumberBannedError
+from telethon.errors import PhoneNumberBannedError, AuthKeyDuplicatedError
 
 from core.constants import (
     UPDATED_GIFT_USER_IDS,
@@ -55,7 +55,7 @@ async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
                         )
                     except GiftCollectionNotExistsError as e:
                         logger.error(f"Failed to index gift collection {slug!r}: {e}")
-            except PhoneNumberBannedError as e:
+            except (PhoneNumberBannedError, AuthKeyDuplicatedError) as e:
                 # Rename session to mark as dirty
                 session_path.rename(f"{session_path}-dirty")
                 raise e
@@ -89,7 +89,7 @@ async def index_gift_collection_ownerships(
                 logger.info(
                     f"Indexed {len(batch_telegram_ids)} unique gift actions for collection {slug!r}."
                 )
-            except PhoneNumberBannedError as e:
+            except (PhoneNumberBannedError, AuthKeyDuplicatedError) as e:
                 # Rename session to mark as dirty
                 session_path.rename(f"{session_path}-dirty")
                 raise e
@@ -107,7 +107,11 @@ async def index_gift_collection_ownerships(
     name="fetch-gift-collection-ownership-details",
     queue=CELERY_GIFT_FETCH_QUEUE_NAME,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
-    autoretry_for=(SessionUnavailableError, PhoneNumberBannedError),
+    autoretry_for=(
+        SessionUnavailableError,
+        PhoneNumberBannedError,
+        AuthKeyDuplicatedError,
+    ),
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
     ignore_result=True,
 )
@@ -124,7 +128,11 @@ def fetch_gift_collection_ownership_details(
     name="fetch-gift-ownership-details",
     queue=CELERY_GIFT_FETCH_QUEUE_NAME,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
-    autoretry_for=(SessionUnavailableError, PhoneNumberBannedError),
+    autoretry_for=(
+        SessionUnavailableError,
+        PhoneNumberBannedError,
+        AuthKeyDuplicatedError,
+    ),
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
     ignore_result=True,
 )
