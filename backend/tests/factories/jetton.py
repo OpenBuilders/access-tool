@@ -1,10 +1,10 @@
 import factory
-from factory.alchemy import SQLAlchemyModelFactory
 
 from core.models.blockchain import Jetton
+from tests.factories.base import BaseSQLAlchemyModelFactory
 
 
-class JettonFactory(SQLAlchemyModelFactory):
+class JettonFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = Jetton
         sqlalchemy_session_persistence = "flush"

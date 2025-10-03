@@ -16,13 +16,15 @@ async def test_create_sticker_rule__pass(
     db_session: Session,
     mocked_managed_chat_action_factory: ChatManageActionFactory,
 ):
-    sticker_collection = StickerCollectionFactory.create()
-    sticker_character = StickerCharacterFactory.create(collection=sticker_collection)
+    sticker_collection = StickerCollectionFactory.with_session(db_session).create()
+    sticker_character = StickerCharacterFactory.with_session(db_session).create(
+        collection=sticker_collection
+    )
 
-    chat = TelegramChatFactory.create()
-    group = TelegramChatRuleGroupFactory.create(chat=chat)
+    chat = TelegramChatFactory.with_session(db_session).create()
+    group = TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
 
-    requestor = UserFactory.create()
+    requestor = UserFactory.with_session(db_session).create()
 
     action = mocked_managed_chat_action_factory(
         action_cls=TelegramChatStickerCollectionAction,
@@ -54,12 +56,14 @@ async def test_create_sticker_rule__empty_group__group_created(
     db_session: Session,
     mocked_managed_chat_action_factory: ChatManageActionFactory,
 ) -> None:
-    sticker_collection = StickerCollectionFactory.create()
-    sticker_character = StickerCharacterFactory.create(collection=sticker_collection)
+    sticker_collection = StickerCollectionFactory.with_session(db_session).create()
+    sticker_character = StickerCharacterFactory.with_session(db_session).create(
+        collection=sticker_collection
+    )
 
-    chat = TelegramChatFactory.create()
+    chat = TelegramChatFactory.with_session(db_session).create()
 
-    requestor = UserFactory.create()
+    requestor = UserFactory.with_session(db_session).create()
 
     action = mocked_managed_chat_action_factory(
         action_cls=TelegramChatStickerCollectionAction,
@@ -97,12 +101,14 @@ async def test_update_sticker_rule__pass(
         TelegramChatStickerCollectionFactory.with_session(db_session).create()
     )
 
-    another_sticker_collection = StickerCollectionFactory.create()
-    another_sticker_character = StickerCharacterFactory.create(
+    another_sticker_collection = StickerCollectionFactory.with_session(
+        db_session
+    ).create()
+    another_sticker_character = StickerCharacterFactory.with_session(db_session).create(
         collection=another_sticker_collection
     )
 
-    requestor = UserFactory.create()
+    requestor = UserFactory.with_session(db_session).create()
 
     action = mocked_managed_chat_action_factory(
         action_cls=TelegramChatStickerCollectionAction,
@@ -150,8 +156,10 @@ async def test_update_sticker_rule__set_character_null__pass(
         TelegramChatStickerCollectionFactory.with_session(db_session).create()
     )
 
-    requestor = UserFactory.create()
-    another_sticker_collection = StickerCollectionFactory.create()
+    requestor = UserFactory.with_session(db_session).create()
+    another_sticker_collection = StickerCollectionFactory.with_session(
+        db_session
+    ).create()
 
     action = mocked_managed_chat_action_factory(
         action_cls=TelegramChatStickerCollectionAction,
@@ -193,13 +201,13 @@ async def test_delete_sticker_rule__pass(
     db_session: Session,
     mocked_managed_chat_action_factory: ChatManageActionFactory,
 ) -> None:
-    group = TelegramChatRuleGroupFactory.create()
+    group = TelegramChatRuleGroupFactory.with_session(db_session).create()
     telegram_chat_sticker_collection_rule = (
         TelegramChatStickerCollectionFactory.with_session(db_session).create(
             group=group, chat=group.chat
         )
     )
-    requestor = UserFactory.create()
+    requestor = UserFactory.with_session(db_session).create()
     action = mocked_managed_chat_action_factory(
         action_cls=TelegramChatStickerCollectionAction,
         db_session=db_session,

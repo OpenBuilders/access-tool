@@ -10,4 +10,5 @@ class TelegramChatWhitelistExternalSourceFactory(TelegramChatRuleBaseFactory):
         model = TelegramChatWhitelistExternalSource
         sqlalchemy_session_persistence = "flush"
 
-    url = factory.Faker("url", min_chars=10, max_chars=2000)
+    url = factory.Faker("url")
+    name = factory.Faker("pystr")

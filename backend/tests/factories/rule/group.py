@@ -1,10 +1,10 @@
 import factory
-from factory.alchemy import SQLAlchemyModelFactory
 
 from core.models.rule import TelegramChatRuleGroup
+from tests.factories.base import BaseSQLAlchemyModelFactory
 
 
-class TelegramChatRuleGroupFactory(SQLAlchemyModelFactory):
+class TelegramChatRuleGroupFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = TelegramChatRuleGroup
         sqlalchemy_session_persistence = "flush"

@@ -1,5 +1,17 @@
 import asyncio
+
+from celery import Celery
 from celery.result import AsyncResult
+
+from core.settings import core_settings
+
+sender = Celery("task-sender")
+sender.conf.update(
+    {
+        "broker_url": core_settings.broker_url,
+        "result_backend": core_settings.broker_url,
+    }
+)
 
 
 async def wait_for_task(
