@@ -114,6 +114,9 @@ class SessionLockManager:
     def __enter__(self) -> Path:
         active_managers.add(self)
         target_session_file = None
+        for session_file in self.session_dir_path.glob("*.session-dirty"):
+            logger.warning(f"- DIRTY SESSION, please review: {session_file.name!r}")
+
         for session_file in self.session_dir_path.glob("*.session"):
             if not self.acquire_lock(session_file):
                 continue
