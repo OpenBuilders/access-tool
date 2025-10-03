@@ -1,6 +1,5 @@
 import sentry_sdk
 from fastapi import FastAPI, APIRouter, Depends
-from prometheus_client import make_asgi_app
 from starlette.middleware.cors import CORSMiddleware
 
 from api.deps import validate_access_token, validate_api_token
@@ -10,18 +9,20 @@ from api.routes.auth import auth_router
 from api.routes.chat import chat_router
 from api.routes.gift import gift_router
 from api.routes.jetton import jetton_router
-from api.routes.prometheus import stats_router
+from api.routes.stats import stats_router
 from api.routes.system import system_router, system_non_authenticated_router
 from api.routes.user import user_router
 from api.settings import api_settings
 
-sentry_sdk.init(
-    dsn=api_settings.sentry_dns,
-    # Add data like request headers and IP for users,
-    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
-    send_default_pii=True,
-    environment=api_settings.env,
-)
+
+if api_settings.sentry_dns:
+    sentry_sdk.init(
+        dsn=api_settings.sentry_dns,
+        # Add data like request headers and IP for users,
+        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+        send_default_pii=True,
+        environment=api_settings.env,
+    )
 
 
 def include_authenticated_routes(_app: FastAPI) -> None:
@@ -47,11 +48,6 @@ def include_token_authenticated_routes(_app: FastAPI) -> None:
     _app.include_router(token_authenticated_router)
 
 
-def mount_prometheus_app(_app: FastAPI) -> None:
-    metrics_app = make_asgi_app()
-    _app.mount("/metrics", metrics_app)
-
-
 def include_admin_routes(_app: FastAPI) -> None:
     admin_router = APIRouter(
         prefix="/admin", dependencies=[Depends(validate_access_token)]
@@ -66,16 +62,15 @@ def create_app() -> FastAPI:
         root_path="/api",
         title="Access",
         summary="Your access to the web3 world",
-        version="1.1.0",
+        version="1.2.0",
     )
     include_authenticated_routes(_app)
     include_non_authenticated_routes(_app)
     include_admin_routes(_app)
     include_token_authenticated_routes(_app)
-    # mount_prometheus_app(_app)
     _app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Adjust this to your needs
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Authorization"],

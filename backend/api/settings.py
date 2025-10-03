@@ -11,7 +11,7 @@ class ApiSettings(CoreSettings):
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     jwt_expiry: int = 3600
-    sentry_dns: str
+    sentry_dns: str | None = Field(None)
 
     allowed_api_tokens_raw: str | None = Field(
         None, validation_alias="ALLOWED_API_TOKENS"
