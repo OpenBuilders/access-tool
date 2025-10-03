@@ -684,7 +684,11 @@ class CommunityManagerChatAction(BaseAction):
             )
 
     async def enable(self, chat_id: int) -> TelegramChat:
-        """ """
+        """
+        This method will enable the chat by setting the invite link and updating status in the DB
+
+        :param chat_id: The unique identifier of the Telegram chat to enable.
+        """
         chat = self.telegram_chat_service.get(chat_id)
         if chat.is_enabled:
             logger.debug(
@@ -715,9 +719,8 @@ class CommunityManagerChatAction(BaseAction):
 
     async def disable(self, chat_id: int) -> TelegramChat:
         """
-
-        :param chat_id:
-        :return:
+        This method will disable the chat by setting the invite link and updating status in the DB
+        :param chat_id: The unique identifier of the Telegram chat to disable.
         """
         chat = self.telegram_chat_service.get(chat_id)
         await self.telethon_service.start()
