@@ -43,7 +43,7 @@ def create_app() -> Celery:
                 },
                 "refresh-metrics": {
                     "task": "refresh-metrics",
-                    "schedule": crontab(minute="*/5"),
+                    "schedule": crontab(hour="*/6"),
                     "options": {"queue": CELERY_SYSTEM_QUEUE_NAME},
                 },
                 "fetch-sticker-collections": {

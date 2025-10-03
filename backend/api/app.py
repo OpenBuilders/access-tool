@@ -72,7 +72,7 @@ def create_app() -> FastAPI:
     include_non_authenticated_routes(_app)
     include_admin_routes(_app)
     include_token_authenticated_routes(_app)
-    mount_prometheus_app(_app)
+    # mount_prometheus_app(_app)
     _app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # Adjust this to your needs
