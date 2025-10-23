@@ -14,6 +14,7 @@ from core.constants import CELERY_SYSTEM_QUEUE_NAME
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
+    PaginatedTelegramChatsPreviewDTO,
 )
 from core.dtos.chat.rule import (
     TelegramChatWithRulesDTO,
@@ -42,6 +43,11 @@ from core.dtos.chat.rule.summary import (
     TelegramChatWithEligibilitySummaryDTO,
     TelegramChatGroupWithEligibilitySummaryDTO,
 )
+from core.dtos.pagination import (
+    PaginationMetadataDTO,
+    OrderingRuleDTO,
+    PaginatedResultDTO,
+)
 from core.enums.rule import EligibilityCheckType
 from core.exceptions.chat import (
     TelegramChatNotExists,
@@ -49,7 +55,7 @@ from core.exceptions.chat import (
 from core.models.chat import TelegramChat
 from core.models.user import User
 from core.services.cdn import CDNService
-from core.services.chat import TelegramChatService
+from core.services.chat import TelegramChatService, CustomOrderingRulesEnum
 from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.user import TelegramChatUserService
 from core.utils.task import wait_for_task, sender
@@ -66,7 +72,33 @@ class TelegramChatAction(BaseAction):
         self.authorization_action = AuthorizationAction(db_session)
         self.cdn_service = CDNService()
 
-    def get_all(self, requestor: User) -> list[TelegramChatDTO]:
+    def get_all(
+        self,
+        pagination_params: PaginationMetadataDTO,
+        sorting_params: OrderingRuleDTO | None,
+    ) -> PaginatedTelegramChatsPreviewDTO:
+        chats = self.telegram_chat_service.get_all_paginated(
+            # TODO: Add filtering by free text/attributes
+            filters={},
+            offset=pagination_params.offset,
+            limit=pagination_params.limit,
+            include_total_count=pagination_params.include_total_count,
+            order_by=[sorting_params]
+            if sorting_params
+            else [OrderingRuleDTO(field=CustomOrderingRulesEnum.USERS_COUNT)],
+        )
+
+        return PaginatedTelegramChatsPreviewDTO(
+            items=[
+                TelegramChatDTO.from_object(chat, members_count=members_count)
+                for chat, members_count in chats.items
+            ],
+            total_count=chats.total_count
+            if isinstance(chats, PaginatedResultDTO)
+            else None,
+        )
+
+    def get_all_managed(self, requestor: User) -> list[TelegramChatDTO]:
         """
         Retrieves all Telegram chats managed by the given user.
 
@@ -259,7 +291,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             ],
             key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
         )
-        groups = self.telegram_chat_rule_group_service.get_all(self.chat.id)
+        groups = self.telegram_chat_rule_group_service.get_all_managed(self.chat.id)
         items = defaultdict(list)
         for rule in rules:
             items[rule.group_id].append(rule)
