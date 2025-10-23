@@ -2,16 +2,21 @@ from typing import Self, Any
 
 from pydantic import BaseModel
 
+from core.dtos.pagination import PaginatedResultDTO
 
-class BaseTelegramChatDTO(BaseModel):
+
+class TelegramChatPreviewDTO(BaseModel):
     id: int
-    username: str | None
     title: str
     description: str | None
     slug: str
     is_forum: bool
     logo_path: str | None
     members_count: int | None
+
+
+class BaseTelegramChatDTO(TelegramChatPreviewDTO):
+    username: str | None
     is_enabled: bool
     join_url: str | None = None
 
@@ -118,3 +123,7 @@ class TelegramChatPovDTO(BaseTelegramChatDTO):
                 is_eligible=False,
                 join_url=None,
             )
+
+
+class PaginatedTelegramChatsPreviewDTO(PaginatedResultDTO[TelegramChatPreviewDTO]):
+    ...

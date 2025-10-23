@@ -1,11 +1,21 @@
 import logging
 import random
+from enum import StrEnum
 from string import ascii_lowercase
+from typing import Any, Iterable
 
 from slugify import slugify
+from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Query
 from telethon.tl.types import Channel
 
+from core.db import Base
+from core.dtos.pagination import (
+    PaginatedResultWithoutCountDTO,
+    PaginatedResultDTO,
+    OrderingRuleDTO,
+)
 from core.models.chat import TelegramChat, TelegramChatUser
 
 from core.services.base import BaseService
@@ -15,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_SLUG_SUFFIX_LENGTH = 6
 MAX_SLUG_SUFFIX_ATTEMPTS = 5
+
+
+class CustomOrderingRulesEnum(StrEnum):
+    USERS_COUNT = "users-count"
 
 
 class TelegramChatService(BaseService):
@@ -125,6 +139,131 @@ class TelegramChatService(BaseService):
             .order_by(TelegramChat.id)
             .all()
         )
+
+    @staticmethod
+    def _get_sorting_params(
+        order_by: Iterable[OrderingRuleDTO], model_class: type[Base]
+    ) -> list[Any]:
+        result = []
+        for rule in order_by:
+            if rule.field not in model_class.__table__.columns:
+                raise ValueError(f"Invalid field {rule!r} for sorting.")
+
+            order_by_field = getattr(model_class, rule.field)
+            if not rule.is_ascending:
+                order_by_field = order_by_field.desc()
+
+            result.append(order_by_field)
+
+        return result
+
+    @staticmethod
+    def _custom_ordering_rules(
+        query: Query, order_by: list[OrderingRuleDTO]
+    ) -> tuple[Query, list[OrderingRuleDTO]]:
+        """
+        Applies custom ordering rules on the provided query based on the specified
+        ordering criteria.
+
+        :param query: The SQLAlchemy Query object to which the custom ordering rules
+            will be applied.
+        :param order_by: A list of OrderingRuleDTO objects representing the ordering
+            criteria.
+            Each rule specifies a field to order by and whether it should be
+            sorted in ascending or descending order.
+        :return: A tuple where the first element is the updated Query object with the
+            custom ordering applied, and the second element is the modified list of
+            ordering rules after processing.
+        """
+        for rule in order_by:
+            match rule.field:
+                case CustomOrderingRulesEnum.USERS_COUNT:
+                    ordering_rule = func.count(TelegramChatUser.user_id)
+                    if not rule.is_ascending:
+                        ordering_rule = ordering_rule.desc()
+                    query = query.order_by(ordering_rule)
+                    order_by.remove(rule)
+                case _:
+                    continue
+
+        return query, order_by
+
+    def get_all_paginated(
+        self,
+        filters: dict[str, str | int | bool],
+        offset: int,
+        limit: int,
+        include_total_count: bool = False,
+        order_by: list[OrderingRuleDTO] | None = None,
+    ) -> PaginatedResultDTO | PaginatedResultWithoutCountDTO:
+        """
+        Retrieves a paginated list of TelegramChat records based on the provided filters,
+        offset, limit, and order conditions.
+
+        The method supports filtering the records using the `filters` parameter, which
+        is a dictionary of column-value pairs. It also allows for pagination by specifying
+        the `offset` and `limit` arguments. Additionally, you can specify the ordering
+        of results by passing a tuple of column names via the `order_by` parameter.
+
+        By enabling the `include_total_count` option, the method returns the total count
+        of records matching the filters, alongside the retrieved results.
+
+        :param filters: Dictionary of column-value pairs to filter the TelegramChat records.
+            Example: {"column_name": "value", "another_column": 5}.
+        :param offset: Integer specifying the number of records to skip before starting to
+            return results.
+        :param limit: Integer specifying the maximum number of records to retrieve.
+        :param include_total_count: Boolean flag indicating whether to include the total
+            count of filtered records in the result. Default is False.
+        :param order_by: Optional tuple of strings specifying the columns to sort the results by.
+            Example: ["column_name", "-another_column"] where "-" indicates descending order.
+
+        :return: Instance of PaginatedResultDTO if `include_total_count` is True, containing
+            both the retrieved results and the total count. If `include_total_count` is False,
+            an instance of PaginatedResultWithoutCountDTO is returned containing only the results.
+        """
+        query = self.db_session.query(
+            TelegramChat, func.count(TelegramChatUser.user_id).label("members_count")
+        )
+        query = query.outerjoin(
+            TelegramChatUser, TelegramChatUser.chat_id == TelegramChat.id
+        )
+
+        query = query.filter(
+            # Ensure chat is not hidden
+            TelegramChat.is_enabled.is_(True),
+            # Ensure all sufficient privileges are granted
+            TelegramChat.insufficient_privileges.is_(False),
+        )
+        query = query.filter_by(**filters)
+
+        # First, apply any custom rules provided
+        query, order_by = self._custom_ordering_rules(query, order_by)
+
+        # Then go to the default attribute-based rules
+        # The default ordering is required to make ordering stable
+        order_by_items = (TelegramChat.id,)
+        if order_by:
+            # Apply other rules first
+            order_by_items = (
+                *self._get_sorting_params(order_by, model_class=TelegramChat),
+                *order_by_items,
+            )
+
+        query = query.order_by(*order_by_items)
+        query = query.group_by(TelegramChat.id)
+
+        total_count: int | None = None
+        if include_total_count:
+            total_count = query.count()
+
+        query = query.offset(offset).limit(limit)
+        items = query.all()
+
+        if include_total_count:
+            return PaginatedResultDTO(items=items, total_count=total_count)
+        else:
+            return PaginatedResultWithoutCountDTO(items=items)
 
     def get_all(
         self,

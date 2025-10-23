@@ -15,11 +15,13 @@ from pytonapi.utils import raw_to_userfriendly, userfriendly_to_raw
 from api.pos.base import BaseFDO
 from api.pos.fields import AmountFacadeField, CDNImageField, AmountInputField
 from api.pos.gift import GiftCollectionFDO
+from api.pos.pagination import PaginationMetadataFDO
 from api.pos.sticker import MinimalStickerCharacterFDO, MinimalStickerCollectionFDO
 from core.constants import USER_FRIENDLY_ADDRESS_REGEX, RAW_ADDRESS_REGEX
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
+    TelegramChatPreviewDTO,
 )
 from core.dtos.chat.rule import (
     ChatEligibilityRuleDTO,
@@ -69,8 +71,16 @@ CHAT_INPUT_REGEX = re.compile(
 )
 
 
+class TelegramChatPreviewFDO(BaseFDO, TelegramChatPreviewDTO):
+    ...
+
+
 class TelegramChatFDO(BaseFDO, TelegramChatDTO):
     logo_path: CDNImageField
+
+
+class PaginatedTelegramChatsFDO(PaginationMetadataFDO):
+    items: list[TelegramChatPreviewFDO]
 
 
 class TelegramChatPovFDO(BaseFDO, TelegramChatPovDTO):

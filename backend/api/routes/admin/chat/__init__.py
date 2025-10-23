@@ -25,5 +25,5 @@ async def get_chats(
     db_session: Session = Depends(get_db_session),
 ) -> list[TelegramChatFDO]:
     action = TelegramChatAction(db_session)
-    chats = action.get_all(requestor=request.state.user)
+    chats = action.get_all_managed(requestor=request.state.user)
     return [TelegramChatFDO.model_validate(chat.model_dump()) for chat in chats]
