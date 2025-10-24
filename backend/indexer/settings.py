@@ -26,6 +26,8 @@ class IndexerSettings(CoreSettings):
 
     telegram_indexer_session_path: Path | None = None
 
+    getgems_api_key: str | None = None
+
     @field_validator("telegram_indexer_session_path", mode="before")
     def validate_and_transform_path(cls, value: str | Path | None) -> Path | None:
         # It could be `None` if the configuration is loaded in another module (e.g. core, api, etc.)
