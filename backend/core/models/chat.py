@@ -9,9 +9,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import mapped_column, relationship
 
 from core.db import Base
+from core.models.mixin import PricedEntityMixin
 
 
-class TelegramChat(Base):
+class TelegramChat(PricedEntityMixin):
     __tablename__ = "telegram_chat"
 
     id = mapped_column(BigInteger, primary_key=True)

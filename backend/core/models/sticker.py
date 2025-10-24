@@ -2,9 +2,10 @@ from sqlalchemy import String, Integer, ForeignKey, UniqueConstraint, BigInteger
 from sqlalchemy.orm import mapped_column, relationship
 
 from core.db import Base
+from core.models.mixin import PricedEntityMixin
 
 
-class StickerCollection(Base):
+class StickerCollection(PricedEntityMixin):
     __tablename__ = "sticker_collection"
 
     id = mapped_column(Integer, primary_key=True)
@@ -13,7 +14,7 @@ class StickerCollection(Base):
     logo_url = mapped_column(String(255), nullable=True)
 
 
-class StickerCharacter(Base):
+class StickerCharacter(PricedEntityMixin):
     __tablename__ = "sticker_character"
 
     id = mapped_column(Integer, primary_key=True, autoincrement=True)
