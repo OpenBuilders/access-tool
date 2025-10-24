@@ -9,9 +9,10 @@ from core.models.fields import (
     NftItemMetadataField,
     NftCollectionMetadataField,
 )
+from core.models.mixin import PricedEntityMixin
 
 
-class Jetton(Base):
+class Jetton(PricedEntityMixin):
     __tablename__ = "jetton"
 
     address = mapped_column(BlockchainAddressRawField, primary_key=True)
@@ -32,7 +33,7 @@ class Jetton(Base):
         return f"<Jetton(address={self.address}, name={self.name})>"
 
 
-class NFTCollection(Base):
+class NFTCollection(PricedEntityMixin):
     __tablename__ = "nft_collection"
 
     address = mapped_column(BlockchainAddressRawField, primary_key=True)

@@ -4,9 +4,10 @@ from sqlalchemy import Integer, String, DateTime, ForeignKey, BigInteger
 from sqlalchemy.orm import mapped_column
 
 from core.db import Base
+from core.models.mixin import PricedEntityMixin
 
 
-class GiftCollection(Base):
+class GiftCollection(PricedEntityMixin):
     __tablename__ = "gift_collection"
 
     slug = mapped_column(String(255), primary_key=True)
