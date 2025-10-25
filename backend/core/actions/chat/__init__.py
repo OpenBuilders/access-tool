@@ -291,7 +291,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             ],
             key=lambda rule: (not rule.is_enabled, rule.type.value, rule.title),
         )
-        groups = self.telegram_chat_rule_group_service.get_all_managed(self.chat.id)
+        groups = self.telegram_chat_rule_group_service.get_all(self.chat.id)
         items = defaultdict(list)
         for rule in rules:
             items[rule.group_id].append(rule)
