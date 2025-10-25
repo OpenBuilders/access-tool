@@ -87,12 +87,17 @@ class TonPriceManager:
         self.redis_service = RedisService()
 
     def get_ton_price(self) -> float | None:
-        raw_value = self.redis_service.get(TON_PRICE_CACHE_KEY)
-        if raw_value is None:
-            logger.warning("TON price is not cached yet.")
-            return None
+        try:
+            # Handle Redis service unavailability gracefully
+            raw_value = self.redis_service.get(TON_PRICE_CACHE_KEY)
+            if raw_value is None:
+                logger.warning("TON price is not cached yet.")
+                return None
 
-        return float(raw_value)
+            return float(raw_value)
+        except Exception as e:
+            logger.error("Failed to get TON price: %s", e)
+            return None
 
     def set_ton_price(self, price: float) -> None:
         self.redis_service.set(TON_PRICE_CACHE_KEY, str(price))

@@ -96,16 +96,22 @@ def calculate_floor_price(eligibility_rules: TelegramChatEligibilityRulesDTO) ->
         for rule in rules:
             grouped_rules[rule.group_id].append(rule)
 
-    floor_price = min(
-        *filter(
+    ton_price = toncoin_price_manager.get_ton_price()
+
+    valid_groups_prices = list(
+        filter(
             None,
             (
-                calculate_group_floor_price(
-                    items, ton_price=toncoin_price_manager.get_ton_price()
-                )
+                calculate_group_floor_price(items, ton_price=ton_price)
                 for items in grouped_rules.values()
             ),
-        ),
+        )
     )
+
+    if not valid_groups_prices:
+        logger.debug("No valid groups prices found.")
+        return 0.0
+
+    floor_price = min(valid_groups_prices)
     logger.debug(f"Calculated floor price: {floor_price}")
     return floor_price
