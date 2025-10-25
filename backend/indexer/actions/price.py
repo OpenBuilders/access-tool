@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from core.services.jetton import JettonService
 from core.services.nft import NftCollectionService
 from core.services.sticker.character import StickerCharacterService
+from core.services.sticker.collection import StickerCollectionService
 from core.services.ton import TonPriceManager
 from indexer.dtos.dyor import VerificationStatus, DyorJettonInfoResponse
 from indexer.dtos.getgems import GetGemsNftCollectionFloorResponse
@@ -180,6 +181,9 @@ class StickerdomPriceIndexerAction(PriceIndexerAction):
         super().__init__(db_session=db_session)
         self.indexer = StickerToolsIndexer()
         self.sticker_character_service = StickerCharacterService(db_session=db_session)
+        self.sticker_collection_service = StickerCollectionService(
+            db_session=db_session
+        )
 
     async def refresh_stickerdom_price(self) -> None:
         try:
@@ -191,6 +195,7 @@ class StickerdomPriceIndexerAction(PriceIndexerAction):
 
         update_batch: dict[tuple[int, int], float] = {}
         for collection in stats.collections.values():
+            collection_prices = []
             for character in collection.characters.values():
                 logger.info(
                     f"Got new price for {collection.name=!r} {character.name=!r}: {character.current.price.floor.usd}"
@@ -199,9 +204,19 @@ class StickerdomPriceIndexerAction(PriceIndexerAction):
                     (collection.id, character.id)
                 ] = character.current.price.floor.usd
 
+                collection_prices.append(character.current.price.floor.usd)
+
                 if len(update_batch) >= PRICE_BATCH_UPDATE_SIZE:
                     self.sticker_character_service.batch_update_prices(update_batch)
                     update_batch = {}
+
+            collection_floor_price: float = min(collection_prices)
+            self.sticker_collection_service.update_price(
+                collection_id=collection.id, price=collection_floor_price
+            )
+            logger.info(
+                f"Updated price for {collection.name=!r}: {collection_floor_price=}"
+            )
 
         self.sticker_character_service.batch_update_prices(update_batch)
         self.db_session.commit()
