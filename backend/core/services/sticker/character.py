@@ -1,5 +1,12 @@
-from core.models import StickerCharacter
+import logging
+
+from sqlalchemy import or_, and_
+
+from core.models.sticker import StickerCharacter
 from core.services.base import BaseService
+
+
+logger = logging.getLogger(__name__)
 
 
 class StickerCharacterService(BaseService):
@@ -69,3 +76,64 @@ class StickerCharacterService(BaseService):
         character.logo_url = logo_url
         self.db_session.commit()
         return character
+
+    def map_external_ids_to_internal_ids(
+        self, external_ids: list[tuple[int, int]]
+    ) -> dict[tuple[int, int], int]:
+        """
+        Maps a list of external ID tuples to their corresponding internal IDs by querying the database.
+        This function retrieves the internal IDs for the provided external IDs and their respective collection IDs.
+        If some external IDs are not found in the database, a warning will be logged.
+
+        :param external_ids: A list of tuples where each tuple contains a
+            collection ID (int) and external ID (int).
+        :return: A dictionary mapping tuples of collection ID and external ID to
+            their corresponding internal ID.
+        """
+        internal_ids_mapping_raw = (
+            self.db_session.query(
+                StickerCharacter.id,
+                StickerCharacter.external_id,
+                StickerCharacter.collection_id,
+            )
+            .filter(
+                or_(
+                    *(
+                        and_(
+                            StickerCharacter.collection_id == collection_id,
+                            StickerCharacter.external_id == external_id,
+                        )
+                        for collection_id, external_id in external_ids
+                    )
+                )
+            )
+            .all()
+        )
+        if len(internal_ids_mapping_raw) != len(external_ids):
+            logger.warning(
+                f"Not all sticker characters were found in the database: {len(external_ids) - len(internal_ids_mapping_raw)} missing"
+            )
+        internal_ids_mapping = {
+            (
+                internal_ids_mapping_raw_item.collection_id,
+                internal_ids_mapping_raw_item.external_id,
+            ): internal_ids_mapping_raw_item.id
+            for internal_ids_mapping_raw_item in internal_ids_mapping_raw
+        }
+        return internal_ids_mapping
+
+    def batch_update_prices(self, prices: dict[tuple[int, int], float]) -> None:
+        internal_ids_mapping = self.map_external_ids_to_internal_ids(
+            list(prices.keys())
+        )
+        self.db_session.bulk_update_mappings(
+            StickerCharacter,
+            [
+                {"id": internal_ids_mapping[key], "price": price}
+                for key, price in prices.items()
+                # Ignore sticker characters which are not (yet) indexed
+                if key in internal_ids_mapping
+            ],
+        )
+        self.db_session.flush()
+        logger.info(f"Updated {len(prices)} sticker characters prices successfully")
