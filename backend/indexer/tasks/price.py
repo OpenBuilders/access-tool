@@ -9,6 +9,7 @@ from indexer.actions.price import (
     JettonPriceIndexerAction,
     TonPriceIndexerAction,
     NftCollectionPriceIndexerAction,
+    StickerdomPriceIndexerAction,
 )
 from indexer.celery_app import app
 
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 async def refresh_toncoin_price():
     with DBService().db_session() as db_session:
         action = TonPriceIndexerAction(db_session=db_session)
+        logger.info("Started TON prices refreshing action")
         await action.refresh_toncoin_price()
         logger.info("Successfully completed TON prices refreshing action")
 
@@ -25,6 +27,7 @@ async def refresh_toncoin_price():
 async def refresh_jettons_price():
     with DBService().db_session() as db_session:
         action = JettonPriceIndexerAction(db_session=db_session)
+        logger.info("Started jetton prices refreshing action")
         await action.refresh_jettons_price()
         logger.info("Successfully completed jetton prices refreshing action")
 
@@ -32,7 +35,17 @@ async def refresh_jettons_price():
 async def refresh_nft_collection_price():
     with DBService().db_session() as db_session:
         action = NftCollectionPriceIndexerAction(db_session)
+        logger.info("Started NFT collection prices refreshing action")
         await action.refresh_nft_collections_price()
+        logger.info("Successfully completed NFT collection prices refreshing action")
+
+
+async def refresh_stickers_price():
+    with DBService().db_session() as db_session:
+        action = StickerdomPriceIndexerAction(db_session)
+        logger.info("Started stickers prices refreshing action")
+        await action.refresh_stickerdom_price()
+        logger.info("Successfully completed stickers prices refreshing action")
 
 
 async def refresh_all_prices():
@@ -46,7 +59,11 @@ async def refresh_all_prices():
     # since GetGems only returns it in TON
     await refresh_toncoin_price()
     # Parallel these actions since they are using different services to speed them up
-    await asyncio.gather(refresh_jettons_price(), refresh_nft_collection_price())
+    await asyncio.gather(
+        refresh_jettons_price(),
+        refresh_nft_collection_price(),
+        refresh_stickers_price(),
+    )
 
 
 @app.task(

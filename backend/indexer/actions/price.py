@@ -4,11 +4,13 @@ from sqlalchemy.orm import Session
 
 from core.services.jetton import JettonService
 from core.services.nft import NftCollectionService
+from core.services.sticker.character import StickerCharacterService
 from core.services.ton import TonPriceManager
 from indexer.dtos.dyor import VerificationStatus, DyorJettonInfoResponse
 from indexer.dtos.getgems import GetGemsNftCollectionFloorResponse
 from indexer.indexers.dyor import DyorIndexer
 from indexer.indexers.getgems import GetGemsIndexer
+from indexer.indexers.sticker_tools import StickerToolsIndexer
 from indexer.indexers.ton import TonPriceIndexer
 
 VALID_VERIFICATION_STATUSES = (
@@ -18,7 +20,7 @@ VALID_VERIFICATION_STATUSES = (
 )
 MINIMUM_HOLDERS_COUNT_THRESHOLD = 50
 MINIMUM_VOLUME_THRESHOLD = 1000
-JETTONS_BATCH_UPDATE_SIZE = 20
+PRICE_BATCH_UPDATE_SIZE = 20
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +102,7 @@ class JettonPriceIndexerAction(PriceIndexerAction):
             )
             update_batch[jetton.address] = jetton_info.details.price_usd.value
 
-            if len(update_batch) >= JETTONS_BATCH_UPDATE_SIZE:
+            if len(update_batch) >= PRICE_BATCH_UPDATE_SIZE:
                 self.jetton_service.batch_update_prices(update_batch)
                 update_batch = {}
 
@@ -164,10 +166,43 @@ class NftCollectionPriceIndexerAction(PriceIndexerAction):
             logger.info(f"Got new price for {nft_collection.name=!r}: {price_usd}")
             update_batch[nft_collection.address] = price_usd
 
-            if len(update_batch) >= JETTONS_BATCH_UPDATE_SIZE:
+            if len(update_batch) >= PRICE_BATCH_UPDATE_SIZE:
                 self.nft_collection_service.batch_update_prices(update_batch)
                 update_batch = {}
 
         self.nft_collection_service.batch_update_prices(update_batch)
         self.db_session.commit()
         logger.info("Successfully refreshed NFT collections prices")
+
+
+class StickerdomPriceIndexerAction(PriceIndexerAction):
+    def __init__(self, db_session: Session) -> None:
+        super().__init__(db_session=db_session)
+        self.indexer = StickerToolsIndexer()
+        self.sticker_character_service = StickerCharacterService(db_session=db_session)
+
+    async def refresh_stickerdom_price(self) -> None:
+        try:
+            stats = await self.indexer.get_stats()
+            logger.info("Successfully fetch stickers stats.")
+        except Exception as e:
+            logger.exception(f"Error occurred while refreshing stickers prices: {e}")
+            return
+
+        update_batch: dict[tuple[int, int], float] = {}
+        for collection in stats.collections.values():
+            for character in collection.characters.values():
+                logger.info(
+                    f"Got new price for {collection.name=!r} {character.name=!r}: {character.current.price.floor.usd}"
+                )
+                update_batch[
+                    (collection.id, character.id)
+                ] = character.current.price.floor.usd
+
+                if len(update_batch) >= PRICE_BATCH_UPDATE_SIZE:
+                    self.sticker_character_service.batch_update_prices(update_batch)
+                    update_batch = {}
+
+        self.sticker_character_service.batch_update_prices(update_batch)
+        self.db_session.commit()
+        logger.info("Successfully refreshed stickers prices")
