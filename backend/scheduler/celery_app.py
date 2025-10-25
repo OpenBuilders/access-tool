@@ -6,6 +6,7 @@ from core.constants import (
     CELERY_SYSTEM_QUEUE_NAME,
     CELERY_STICKER_FETCH_QUEUE_NAME,
     CELERY_GIFT_FETCH_QUEUE_NAME,
+    CELERY_INDEX_PRICES_QUEUE_NAME,
 )
 from core.settings import core_settings
 
@@ -55,6 +56,12 @@ def create_app() -> Celery:
                     "task": "fetch-gift-ownership-details",
                     "schedule": crontab(hour="*/1", minute="0"),  # Every hour
                     "options": {"queue": CELERY_GIFT_FETCH_QUEUE_NAME},
+                },
+                "refresh-prices": {
+                    "task": "refresh-prices",
+                    # TODO - change to once an hour after release
+                    "schedule": 120,
+                    "options": {"queue": CELERY_INDEX_PRICES_QUEUE_NAME},
                 },
             },
             "beat_schedule_filename": core_settings.beat_schedule_filename,
