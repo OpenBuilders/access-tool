@@ -31,7 +31,7 @@ class GetGemsIndexer:
                 params=params,
             )
             logger.info(
-                f"Received response from GetGems: {response.status_code} – {response.text[:50]}..."
+                f"Received response from GetGems: {response.status_code} – {response.text[:50]!r}..."
             )
             response.raise_for_status()
             return response
@@ -39,6 +39,26 @@ class GetGemsIndexer:
     async def get_collection_basic_info(
         self, address: str
     ) -> GetGemsNftCollectionFloorResponse:
+        """
+        Fetches basic information about an NFT collection given its address.
+
+        This asynchronous method retrieves data from the specified endpoint, validates
+        the response, and returns parsed NFT collection information.
+        An exception is raised if the operation is unsuccessful.
+
+        :param address: The unique address identifier of the NFT collection to query.
+        :return: Parsed details about the NFT collection.
+        :raises Exception: If the response indicates a failure in retrieving the
+            collection's information.
+        """
         path = f"v1/collection/basic-info/{address}"
         response = await self._request(path)
-        return GetGemsNftCollectionFloorResponse.model_validate(response.json())
+        nft_collection_info = GetGemsNftCollectionFloorResponse.model_validate(
+            response.json()
+        )
+        if not nft_collection_info.success:
+            raise Exception(
+                f"Failed to get collection info for {address=!r}: {nft_collection_info}"
+            )
+
+        return nft_collection_info
