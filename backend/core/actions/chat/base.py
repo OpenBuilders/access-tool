@@ -5,6 +5,7 @@ from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
+from core.actions.authorization import AuthorizationAction
 from core.actions.base import BaseAction
 from core.exceptions.rule import TelegramChatRuleNotFound
 from core.models.user import User
@@ -12,7 +13,7 @@ from core.models.chat import TelegramChat
 from core.services.chat import TelegramChatService
 from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.user import TelegramChatUserService
-
+from core.utils.price import calculate_floor_price
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ class ManagedChatBaseAction(BaseAction):
         self, db_session: Session, requestor: User, chat_slug: str, **kwargs
     ) -> None:
         super().__init__(db_session)
+        self.authorization_action = AuthorizationAction(db_session)
         self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
         self.telegram_chat_rule_group_service = TelegramChatRuleGroupService(db_session)
@@ -121,3 +123,17 @@ class ManagedChatBaseAction(BaseAction):
             logger.debug(f"Group {group_id!r} is not empty")
 
         return None
+
+    def refresh_chat_floor_price(self) -> None:
+        eligibility_rules = self.authorization_action.get_eligibility_rules(
+            chat_id=self.chat.id,
+            enabled_only=True,
+        )
+        new_chat_floor = calculate_floor_price(eligibility_rules)
+        self.telegram_chat_service.update_price(
+            chat=self.chat,
+            price=new_chat_floor,
+        )
+        logger.info(
+            f"Updated floor price for chat {self.chat.id!r} to {new_chat_floor=!r}"
+        )

@@ -206,6 +206,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
         logger.info(
             f"Chat {self.chat.id!r} linked to NFT collection {address!r} and asset {asset!r}"
         )
+        self.refresh_chat_floor_price()
         return NftEligibilityRuleDTO.from_nft_collection_rule(new_rule)
 
     async def update(
@@ -285,6 +286,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
         logger.info(
             f"Updated chat nft collection rule {rule_id!r} with address {address!r} and asset {asset!r}"
         )
+        self.refresh_chat_floor_price()
         return NftEligibilityRuleDTO.from_nft_collection_rule(rule)
 
     async def delete(self, rule_id: int) -> None:
@@ -299,6 +301,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
             )
         self.telegram_chat_nft_collection_service.delete(rule_id, chat_id=self.chat.id)
         logger.info(f"Deleted chat nft collection rule {rule_id!r}")
+        self.refresh_chat_floor_price()
         self.remove_group_if_empty(group_id=group_id)
 
 
@@ -408,6 +411,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
             )
         )
         logger.info(f"Chat {self.chat.id!r} linked to jetton {jetton_dto.address!r}")
+        self.refresh_chat_floor_price()
         return JettonEligibilityRuleDTO.from_jetton_rule(new_rule)
 
     async def update(
@@ -465,6 +469,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         logger.info(
             f"Updated chat jetton rule {rule_id!r} with address {jetton_dto.address!r}"
         )
+        self.refresh_chat_floor_price()
         return JettonEligibilityRuleDTO.from_jetton_rule(updated_rule)
 
     async def delete(self, rule_id: int) -> None:
@@ -479,6 +484,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
             )
         self.telegram_chat_jetton_service.delete(rule_id, chat_id=self.chat.id)
         logger.info(f"Deleted chat jetton rule {rule_id!r}")
+        self.refresh_chat_floor_price()
         self.remove_group_if_empty(group_id=group_id)
 
 
@@ -563,6 +569,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
             )
         )
         logger.info(f"Chat {self.chat.id!r} linked to a new TON rule")
+        self.refresh_chat_floor_price()
         return ChatEligibilityRuleDTO.from_toncoin_rule(new_rule)
 
     def update(
@@ -608,6 +615,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
             ),
         )
         logger.info(f"Updated chat jetton rule {rule_id!r} for TON")
+        self.refresh_chat_floor_price()
         return ChatEligibilityRuleDTO.from_toncoin_rule(updated_rule)
 
     def delete(self, rule_id: int) -> None:
@@ -623,4 +631,5 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
         self.telegram_chat_toncoin_service.delete(rule_id, chat_id=self.chat.id)
         logger.info(f"Deleted chat TON rule {rule_id!r}")
 
+        self.refresh_chat_floor_price()
         self.remove_group_if_empty(group_id=group_id)

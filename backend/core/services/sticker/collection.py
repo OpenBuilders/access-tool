@@ -66,3 +66,9 @@ class StickerCollectionService(BaseService):
         self.db_session.query(StickerCollection).filter(
             StickerCollection.id == collection_id
         ).delete(synchronize_session="fetch")
+
+    def update_price(self, collection_id: int, price: float) -> None:
+        self.db_session.query(StickerCollection).filter(
+            StickerCollection.id == collection_id
+        ).update({"price": price})
+        self.db_session.flush()
