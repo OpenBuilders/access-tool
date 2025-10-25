@@ -89,6 +89,14 @@ class NftCollectionService(BaseService):
     def count(self) -> int:
         return self.db_session.query(NFTCollection).count()
 
+    def batch_update_prices(self, prices: dict[str, float]) -> None:
+        self.db_session.bulk_update_mappings(
+            NFTCollection,
+            [{"address": address, "price": price} for address, price in prices.items()],
+        )
+        self.db_session.flush()
+        logger.info(f"Updated {len(prices)} nft collections' prices successfully")
+
 
 class NftItemService(BaseService):
     def _create(self, nft_item: TONNftItem) -> NftItem:
