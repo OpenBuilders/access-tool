@@ -18,7 +18,7 @@ from core.services.cdn import CDNService
 from core.services.jetton import JettonService
 from core.services.superredis import RedisService
 from core.utils.file import download_media, VersionedFile
-from indexer.indexers.tonapi import TonApiService
+from core.ext.tonapi import TonApiService
 
 
 logger = logging.getLogger(__name__)

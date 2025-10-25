@@ -16,12 +16,10 @@ services:
     build:
       context: .
       dockerfile: ./config/docker/Dockerfile.api
-      target: api
     image: access-api
     env_file:
       - ./config/env/.api.env
       - ./config/env/.core.env
-      - ./config/env/.indexer.env
     container_name: "access-api"
     ports:
       - "8000:8000"

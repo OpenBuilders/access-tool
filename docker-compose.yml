@@ -51,6 +51,23 @@ services:
       - ./backend/core:/app/core
       - ./backend/indexer:/app/indexer
 
+  indexer-prices:
+    <<: *x-indexer
+    command: [
+      "celery",
+      "-A",
+      "indexer.celery_app:app",
+      "worker",
+      "-Q",
+      "index-prices-queue",
+      "--loglevel=info"
+    ]
+    environment:
+      - WORKER_CONCURRENCY=1
+    volumes:
+      - ./backend/core:/app/core
+      - ./backend/indexer:/app/indexer
+
   indexer-stickers:
     <<: *x-indexer
     command: [
@@ -178,7 +195,6 @@ services:
     env_file:
       - ./config/env/.api.env
       - ./config/env/.core.env
-      - ./config/env/.indexer.env
     container_name: "access-api"
     ports:
       - "8000:8000"

@@ -12,7 +12,7 @@ from core.constants import (
 from indexer.celery_app import (
     app,
 )
-from indexer.indexers.tonapi import TonApiService
+from core.ext.tonapi import TonApiService
 from core.services.db import DBService
 from core.services.jetton import JettonService
 from core.services.nft import NftCollectionService, NftItemService

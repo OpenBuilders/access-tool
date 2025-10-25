@@ -18,7 +18,7 @@ from core.services.cdn import CDNService
 from core.services.nft import NftCollectionService
 from core.services.superredis import RedisService
 from core.utils.file import pick_best_preview, download_media, VersionedFile
-from indexer.indexers.tonapi import TonApiService
+from core.ext.tonapi import TonApiService
 
 logger = logging.getLogger(__name__)
 
