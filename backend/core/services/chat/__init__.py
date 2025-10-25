@@ -93,6 +93,12 @@ class TelegramChatService(BaseService):
         logger.debug(f"Telegram Chat {chat.title!r} updated.")
         return chat
 
+    def update_price(self, chat: TelegramChat, price: float) -> TelegramChat:
+        chat.price = price
+        self.db_session.commit()
+        logger.debug(f"Telegram Chat {chat.title!r} price updated.")
+        return chat
+
     def set_insufficient_privileges(
         self, chat_id: int, value: bool = True
     ) -> TelegramChat:
