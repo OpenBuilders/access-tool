@@ -13,8 +13,8 @@ class TelegramChatPreviewDTO(BaseModel):
     slug: str
     is_forum: bool
     logo_path: str | None
-    members_count: int
-    tcv: float
+    members_count: int | None = None
+    tcv: float | None = None
 
     @classmethod
     def from_object(cls, obj: Any, members_count: int, tcv: float) -> Self:
@@ -45,6 +45,7 @@ class TelegramChatDTO(BaseTelegramChatDTO):
         obj: Any,
         insufficient_privileges: bool | None = None,
         members_count: int | None = None,
+        tcv: float | None = None,
     ) -> Self:
         """
         Creates an instance of the class from an existing object with specified overrides.
@@ -54,11 +55,13 @@ class TelegramChatDTO(BaseTelegramChatDTO):
         be inherited directly from the input object. This functionality is especially
         helpful in situations where a partial state modification of an object is required.
 
-        :param obj: The input object that serves as the source of data
+        :param obj: The input object that serves as the source of data.
         :param insufficient_privileges: Boolean value indicating privilege status,
-            overriding the original value from the input object if provided
-        :param members_count: Optional integer value to override the number of members in the object
-        :return: A new instance of the class with the updated or inherited attributes
+            overriding the original value from the input object if provided.
+        :param members_count: Optional integer value to provide the number of members for the chat.
+        :param tcv: Optional float value to provide the TCV (Total Chat Value).
+
+        :return: A new instance of the class with the updated or inherited attributes.
         """
         # Allows overwriting that value when there is no predefined one
         if insufficient_privileges is None:
@@ -74,6 +77,7 @@ class TelegramChatDTO(BaseTelegramChatDTO):
             logo_path=obj.logo_path,
             insufficient_privileges=insufficient_privileges,
             members_count=members_count,
+            tcv=tcv,
             is_enabled=obj.is_enabled,
             join_url=obj.invite_link,
         )
