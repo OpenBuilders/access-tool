@@ -1,12 +1,17 @@
+import asyncio
 import logging
 
 from sqlalchemy.orm import Session
 
+from core.actions.authorization import AuthorizationAction
+from core.models import TelegramChat
+from core.services.chat import TelegramChatService
 from core.services.jetton import JettonService
 from core.services.nft import NftCollectionService
 from core.services.sticker.character import StickerCharacterService
 from core.services.sticker.collection import StickerCollectionService
 from core.services.ton import TonPriceManager
+from core.utils.price import calculate_floor_price
 from indexer.dtos.dyor import VerificationStatus, DyorJettonInfoResponse
 from indexer.dtos.getgems import GetGemsNftCollectionFloorResponse
 from indexer.indexers.dyor import DyorIndexer
@@ -221,3 +226,42 @@ class StickerdomPriceIndexerAction(PriceIndexerAction):
         self.sticker_character_service.batch_update_prices(update_batch)
         self.db_session.commit()
         logger.info("Successfully refreshed stickers prices")
+
+
+class ChatPriceRefresherAction(PriceIndexerAction):
+    def __init__(self, db_session: Session) -> None:
+        super().__init__(db_session=db_session)
+        self.telegram_chat_service = TelegramChatService(db_session)
+        self.authorization_action = AuthorizationAction(db_session)
+
+    async def _refresh_chat_price(self, chat: TelegramChat) -> None:
+        eligibility_rules = self.authorization_action.get_eligibility_rules(
+            chat_id=chat.id,
+            enabled_only=True,
+        )
+        new_price = calculate_floor_price(eligibility_rules)
+        if new_price != chat.price:
+            logger.info(f"Updating price for chat {chat.id!r}: {new_price}")
+            self.telegram_chat_service.update_price(
+                chat=chat, price=new_price, commit=False
+            )
+        else:
+            logger.info(f"Price for chat {chat.id!r} hasn't changed")
+
+    async def refresh_all(self, batch_size: int = 5) -> None:
+        all_chats = self.telegram_chat_service.get_all(
+            enabled_only=True, sufficient_privileges_only=True
+        )
+        for i in range(0, len(all_chats), batch_size):
+            batch = all_chats[i : i + batch_size]
+            logger.info(f"Processing batch {i // batch_size + 1}: {len(batch)} chats")
+
+            # Process all chats in the current batch concurrently
+            await asyncio.gather(
+                *(self._refresh_chat_price(chat) for chat in batch),
+                return_exceptions=True,  # Prevent one failure from stopping the batch
+            )
+
+        # Commit all changes after processing all batches
+        self.db_session.commit()
+        logger.info("Successfully refreshed all chat prices")
