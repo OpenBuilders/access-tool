@@ -15,6 +15,8 @@ from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
     PaginatedTelegramChatsPreviewDTO,
+    TelegramChatOrderingRuleDTO,
+    TelegramChatPreviewDTO,
 )
 from core.dtos.chat.rule import (
     TelegramChatWithRulesDTO,
@@ -45,7 +47,6 @@ from core.dtos.chat.rule.summary import (
 )
 from core.dtos.pagination import (
     PaginationMetadataDTO,
-    OrderingRuleDTO,
     PaginatedResultDTO,
 )
 from core.enums.rule import EligibilityCheckType
@@ -55,7 +56,8 @@ from core.exceptions.chat import (
 from core.models.chat import TelegramChat
 from core.models.user import User
 from core.services.cdn import CDNService
-from core.services.chat import TelegramChatService, CustomOrderingRulesEnum
+from core.services.chat import TelegramChatService
+from core.enums.chat import CustomTelegramChatOrderingRulesEnum
 from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.user import TelegramChatUserService
 from core.utils.task import wait_for_task, sender
@@ -75,7 +77,7 @@ class TelegramChatAction(BaseAction):
     def get_all(
         self,
         pagination_params: PaginationMetadataDTO,
-        sorting_params: OrderingRuleDTO | None,
+        sorting_params: TelegramChatOrderingRuleDTO | None,
     ) -> PaginatedTelegramChatsPreviewDTO:
         chats = self.telegram_chat_service.get_all_paginated(
             # TODO: Add filtering by free text/attributes
@@ -85,13 +87,19 @@ class TelegramChatAction(BaseAction):
             include_total_count=pagination_params.include_total_count,
             order_by=[sorting_params]
             if sorting_params
-            else [OrderingRuleDTO(field=CustomOrderingRulesEnum.USERS_COUNT)],
+            else [
+                TelegramChatOrderingRuleDTO(
+                    field=CustomTelegramChatOrderingRulesEnum.USERS_COUNT
+                )
+            ],
         )
 
         return PaginatedTelegramChatsPreviewDTO(
             items=[
-                TelegramChatDTO.from_object(chat, members_count=members_count)
-                for chat, members_count in chats.items
+                TelegramChatPreviewDTO.from_object(
+                    chat, members_count=members_count, tcv=tcv
+                )
+                for chat, members_count, tcv in chats.items
             ],
             total_count=chats.total_count
             if isinstance(chats, PaginatedResultDTO)

@@ -6,8 +6,8 @@ from pydantic import BaseModel
 _T = TypeVar("_T")
 
 
-class OrderingRuleDTO(BaseModel):
-    field: str
+class OrderingRuleDTO(BaseModel, Generic[_T]):
+    field: str | _T
     is_ascending: bool = False
 
 
