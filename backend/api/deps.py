@@ -157,25 +157,42 @@ def get_pagination_params(
 
 
 def get_sorting_params(
-    order_by: Annotated[str | None, Query()] = None,
-    is_ascending: Annotated[bool, Query()] = True,
-) -> OrderingRuleDTO | None:
+    sorting_params_model: type[OrderingRuleDTO],
+):
     """
-    Extracts sorting parameters from query string inputs and returns an
-    OrderingRuleDTO object if valid parameters are provided.
-    This function is designed to handle optional sorting fields and ascending/descending
-    order flags, with a default behavior when parameters are not provided.
+    Extracts sorting parameters for a query based on provided inputs and returns a callable
+    function to create sorting models. The returned function can be used to handle optional
+    sorting fields and order preferences, with default assumptions when parameters are absent.
 
-    NOTE: It only allows ordering by a single field.
+    NOTE: It supports ordering by a single field.
 
-    :param order_by: The name of the field to sort by.
-        If None, the default sorting will be applied.
-    :param is_ascending: A boolean indicating whether the sorting should
-        be in ascending order (True) or descending order (False).
-        Defaults to True.
-    :return: An OrderingRuleDTO object if `order_by` is specified, otherwise None.
+    :param sorting_params_model: The data model class/type used to create the sorting parameters.
+        It must have attributes for the field name and ascending/descending order.
+    :return: A callable function `_get_sorting_params` that processes sorting query parameters
+        and returns an instance of `sorting_params_model` or None.
     """
-    if order_by:
-        return OrderingRuleDTO(field=order_by, is_ascending=is_ascending)
 
-    return None
+    def _get_sorting_params(
+        order_by: Annotated[str | None, Query(..., alias="orderBy")] = None,
+    ) -> sorting_params_model | None:
+        """
+        Extracts sorting parameters from query string inputs and returns an
+        sorting_params_model object if valid parameters are provided.
+        This function is designed to handle optional sorting fields and ascending/descending
+        order flags, with a default behavior when parameters are not provided.
+
+        NOTE: It only allows ordering by a single field.
+
+        :param order_by: The name of the field to sort by.
+            If None, the default sorting will be applied.
+        :return: A sorting_params_model object if `order_by` is specified, otherwise None.
+        """
+        if order_by:
+            is_ascending = not order_by.startswith("-")
+            return sorting_params_model(
+                field=order_by.lstrip("-"), is_ascending=is_ascending
+            )
+
+        return None
+
+    return _get_sorting_params

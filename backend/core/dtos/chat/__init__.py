@@ -2,7 +2,8 @@ from typing import Self, Any
 
 from pydantic import BaseModel
 
-from core.dtos.pagination import PaginatedResultDTO
+from core.dtos.pagination import PaginatedResultDTO, OrderingRuleDTO
+from core.enums.chat import CustomTelegramChatOrderingRulesEnum
 
 
 class TelegramChatPreviewDTO(BaseModel):
@@ -12,7 +13,21 @@ class TelegramChatPreviewDTO(BaseModel):
     slug: str
     is_forum: bool
     logo_path: str | None
-    members_count: int | None
+    members_count: int
+    tcv: float
+
+    @classmethod
+    def from_object(cls, obj: Any, members_count: int, tcv: float) -> Self:
+        return cls(
+            id=obj.id,
+            title=obj.title,
+            description=obj.description,
+            slug=obj.slug,
+            is_forum=obj.is_forum,
+            logo_path=obj.logo_path,
+            members_count=members_count,
+            tcv=tcv,
+        )
 
 
 class BaseTelegramChatDTO(TelegramChatPreviewDTO):
@@ -126,4 +141,8 @@ class TelegramChatPovDTO(BaseTelegramChatDTO):
 
 
 class PaginatedTelegramChatsPreviewDTO(PaginatedResultDTO[TelegramChatPreviewDTO]):
+    ...
+
+
+class TelegramChatOrderingRuleDTO(OrderingRuleDTO[CustomTelegramChatOrderingRulesEnum]):
     ...

@@ -7,12 +7,12 @@ from sqlalchemy.orm import Session
 from telethon.tl.types import ChatAdminRights
 
 from community_manager.actions.chat import CommunityManagerChatAction
-from core.dtos.pagination import PaginationMetadataDTO, OrderingRuleDTO
+from core.dtos.pagination import PaginationMetadataDTO
 from core.models.chat import TelegramChat, TelegramChatUser
 from tests.utils.misc import AsyncIterator
 from core.actions.chat import TelegramChatAction
 from core.constants import REQUIRED_BOT_PRIVILEGES
-from core.dtos.chat import TelegramChatDTO
+from core.dtos.chat import TelegramChatDTO, TelegramChatOrderingRuleDTO
 from core.exceptions.chat import TelegramChatNotSufficientPrivileges
 from core.models.user import User
 from tests.factories import TelegramChatUserFactory, TelegramChatFactory, UserFactory
@@ -174,7 +174,9 @@ def test_get_all__sorting__success(db_session: Session, is_ascending: bool) -> N
         pagination_params=PaginationMetadataDTO(
             offset=0, limit=100, include_total_count=True
         ),
-        sorting_params=OrderingRuleDTO(field="title", is_ascending=is_ascending),
+        sorting_params=TelegramChatOrderingRuleDTO(
+            field="title", is_ascending=is_ascending
+        ),
     )
 
     # Assert
