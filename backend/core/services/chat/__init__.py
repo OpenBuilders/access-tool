@@ -93,9 +93,28 @@ class TelegramChatService(BaseService):
         logger.debug(f"Telegram Chat {chat.title!r} updated.")
         return chat
 
-    def update_price(self, chat: TelegramChat, price: float) -> TelegramChat:
+    def update_price(
+        self, chat: TelegramChat, price: float | None, commit: bool = True
+    ) -> TelegramChat:
+        """
+        Updates the price of the given Telegram chat and optionally commits the change to the database.
+
+        This method takes a Telegram chat object and updates its price attribute with the specified
+        value.
+        The change is then flushed to the database session to reflect the update.
+        If the `commit` argument is set to True, the method commits the changes to the database.
+
+        :param chat: The Telegram chat object whose price needs to be updated.
+        :param price: The new price value for the chat.
+            If None, the price will be unset.
+        :param commit: A flag indicating whether to commit the changes to the database.
+            Defaults to True.
+        :return: The updated Telegram chat object with the new price.
+        """
         chat.price = price
-        self.db_session.commit()
+        self.db_session.flush()
+        if commit:
+            self.db_session.commit()
         logger.debug(f"Telegram Chat {chat.title!r} price updated.")
         return chat
 

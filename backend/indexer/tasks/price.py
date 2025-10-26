@@ -10,6 +10,7 @@ from indexer.actions.price import (
     TonPriceIndexerAction,
     NftCollectionPriceIndexerAction,
     StickerdomPriceIndexerAction,
+    ChatPriceRefresherAction,
 )
 from indexer.celery_app import app
 
@@ -48,6 +49,14 @@ async def refresh_stickers_price():
         logger.info("Successfully completed stickers prices refreshing action")
 
 
+async def refresh_chat_price_async() -> None:
+    with DBService().db_session() as db_session:
+        action = ChatPriceRefresherAction(db_session)
+        logger.info("Started chat prices refreshing action")
+        await action.refresh_all()
+        logger.info("Successfully completed chat prices refreshing action")
+
+
 async def refresh_all_prices():
     """
     Refreshes all prices for Toncoin, Jettons, NFT collections and other assets asynchronously.
@@ -64,6 +73,8 @@ async def refresh_all_prices():
         refresh_nft_collection_price(),
         refresh_stickers_price(),
     )
+    # Finally, refresh chat prices after all assets are refreshed
+    await refresh_chat_price_async()
 
 
 @app.task(
