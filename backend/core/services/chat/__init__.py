@@ -334,6 +334,15 @@ class TelegramChatService(BaseService):
         query = query.order_by(TelegramChat.id)
         return query.all()
 
+    def get_tcv(self, chat_ids: list[int]) -> dict[int, float]:
+        result = (
+            self.db_session.query(TelegramChat.id, TCV_QUERY)
+            .filter(TelegramChat.id.in_(chat_ids))
+            .group_by(TelegramChat.id)
+            .all()
+        )
+        return {r[0]: r[1] for r in result}
+
     def refresh_invite_link(self, chat_id: int, invite_link: str) -> TelegramChat:
         chat = self.get(chat_id)
         chat.is_enabled = True

@@ -12,7 +12,11 @@ from core.models.chat import TelegramChat, TelegramChatUser
 from tests.utils.misc import AsyncIterator
 from core.actions.chat import TelegramChatAction
 from core.constants import REQUIRED_BOT_PRIVILEGES
-from core.dtos.chat import TelegramChatDTO, TelegramChatOrderingRuleDTO
+from core.dtos.chat import (
+    TelegramChatDTO,
+    TelegramChatOrderingRuleDTO,
+    TelegramChatPreviewDTO,
+)
 from core.exceptions.chat import TelegramChatNotSufficientPrivileges
 from core.models.user import User
 from tests.factories import TelegramChatUserFactory, TelegramChatFactory, UserFactory
@@ -83,7 +87,7 @@ def test_get_all__success(db_session: Session) -> None:
     assert result.total_count == 3
 
     for expected_chat, actual_chat in zip(ordered_chats, result.items):
-        assert isinstance(actual_chat, TelegramChatDTO)
+        assert isinstance(actual_chat, TelegramChatPreviewDTO)
         assert actual_chat.id == expected_chat.id
         assert actual_chat.title == expected_chat.title
         assert actual_chat.is_forum == expected_chat.is_forum
@@ -141,7 +145,7 @@ def test_get_all__pagination__success(
     for expected_chat, actual_chat in zip(
         ordered_chats[offset : offset + limit], result.items
     ):
-        assert isinstance(actual_chat, TelegramChatDTO)
+        assert isinstance(actual_chat, TelegramChatPreviewDTO)
         assert actual_chat.id == expected_chat.id
         assert actual_chat.title == expected_chat.title
         assert actual_chat.is_forum == expected_chat.is_forum
@@ -184,7 +188,7 @@ def test_get_all__sorting__success(db_session: Session, is_ascending: bool) -> N
     assert result.total_count == 3
 
     for expected_chat, actual_chat in zip(ordered_chats, result.items):
-        assert isinstance(actual_chat, TelegramChatDTO)
+        assert isinstance(actual_chat, TelegramChatPreviewDTO)
         assert actual_chat.id == expected_chat.id
         assert actual_chat.title == expected_chat.title
         assert actual_chat.is_forum == expected_chat.is_forum

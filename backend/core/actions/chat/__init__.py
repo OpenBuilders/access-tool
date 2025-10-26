@@ -117,13 +117,17 @@ class TelegramChatAction(BaseAction):
         :return: A list of DTOs, each representing a managed Telegram chat.
         """
         chats = self.telegram_chat_service.get_all_managed(user_id=requestor.id)
+        chat_ids = [chat.id for chat in chats]
 
         members_count = self.telegram_chat_user_service.get_members_count_by_chat_id(
-            [chat.id for chat in chats]
+            chat_ids
         )
+        tcvs = self.telegram_chat_service.get_tcv(chat_ids=chat_ids)
 
         return [
-            TelegramChatDTO.from_object(chat, members_count=members_count[chat.id])
+            TelegramChatDTO.from_object(
+                chat, members_count=members_count[chat.id], tcv=tcvs[chat.id]
+            )
             for chat in chats
         ]
 
@@ -257,6 +261,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             enabled_only=False,
         )
         members_count = self.telegram_chat_user_service.get_members_count(self.chat.id)
+        tcv = self.telegram_chat_service.get_tcv(chat_ids=[self.chat.id])[self.chat.id]
 
         rules = sorted(
             [
@@ -308,6 +313,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             chat=TelegramChatDTO.from_object(
                 obj=self.chat,
                 members_count=members_count,
+                tcv=tcv,
             ),
             groups=[
                 ChatEligibilityRuleGroupDTO(
