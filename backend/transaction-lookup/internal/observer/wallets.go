@@ -3,7 +3,7 @@ package observer
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/xssnick/tonutils-go/address"
@@ -21,26 +21,26 @@ func (o *Observer) startRedisEventsHandler(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Println("redis events handler stopped")
+			slog.Info("redis events handler stopped")
 			return
 		case message := <-pubsub.Channel():
 			switch message.Channel {
 			case RedisChannelExpired:
-				// log.Printf("wallet expired: %s\n", message.Payload)
+				slog.Debug("wallet expired", "wallet", message.Payload)
 				wallet, err := getWalletAddressFromMessage(message)
 				if err != nil {
-					log.Printf("received bad message \"%s\" in %s: %v\n", message.Payload, RedisChannelExpired, err)
+					slog.Error("received bad message", "message", message.Payload, "channel", RedisChannelExpired, "error", err)
 				}
 				o.delWallet(wallet)
 			case RedisChannelNewExpire:
-				// log.Printf("new wallet set: %s\n", message.Payload)
+				slog.Debug("new wallet set", "wallet", message.Payload)
 				wallet, err := getWalletAddressFromMessage(message)
 				if err != nil {
-					log.Printf("received bad message \"%s\" in %s: %v\n", message.Payload, RedisChannelExpired, err)
+					slog.Error("received bad message", "message", message.Payload, "channel", RedisChannelNewExpire, "error", err)
 				}
 				o.setWallet(wallet)
 			default:
-				log.Printf("new unknown event: %s, %s\n", message.Channel, message.Payload)
+				slog.Warn("new unknown event", "channel", message.Channel, "message", message.Payload)
 			}
 		}
 	}
@@ -66,11 +66,11 @@ func (o *Observer) startRedisNotifier(ctx context.Context) {
 			},
 		).Result()
 		if err != nil {
-			log.Printf("failed to write to stream (%d:%x): %v\n", 0, noticedWallet, err)
+			slog.Error("failed to write to stream", "wallet", fmt.Sprintf("%d:%x", 0, noticedWallet), "error", err)
 			continue
 		}
 	}
-	log.Println("redis notifier stopped")
+	slog.Info("redis notifier stopped")
 }
 
 func (o *Observer) loadWallets(ctx context.Context) error {
@@ -84,7 +84,7 @@ func (o *Observer) loadWallets(ctx context.Context) error {
 	for _, wallet := range wallets {
 		walletAddress, err := address.ParseRawAddr(wallet)
 		if err != nil {
-			log.Printf("failed to parse address from redis: %s: %v\n", wallet, err)
+			slog.Error("failed to parse address from redis", "wallet", wallet, "error", err)
 			continue
 		}
 		o.walletsSet[WalletAddress(walletAddress.Data())] = struct{}{}
