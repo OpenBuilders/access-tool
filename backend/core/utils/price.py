@@ -65,7 +65,7 @@ def calculate_group_floor_price(
                     f"No price for nft collection {item.nft_collection.address!r}. Skipping."
                 )
                 continue
-            result += float(item.nft_collection.price * to_amount(item.threshold))
+            result += float(item.nft_collection.price * item.threshold)
 
         elif isinstance(item, TelegramChatStickerCollection):
             # Prioritize character prize, but if no character price, go for a collection floor price
