@@ -11,7 +11,7 @@ from indexer.settings import indexer_settings
 
 logger = logging.getLogger(__name__)
 # Ref: https://dyor.io/tonapi#pricing
-limiter = AsyncLimiter(max_rate=1, time_period=1.1)
+limiter = AsyncLimiter(max_rate=1, time_period=1.5)
 timeout = Timeout(REQUEST_TIMEOUT, read=READ_TIMEOUT, connect=CONNECT_TIMEOUT)
 
 
