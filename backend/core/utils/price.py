@@ -47,6 +47,10 @@ def calculate_group_floor_price(
     result = 0.0
     for item in items:
         if isinstance(item, TelegramChatToncoin):
+            if ton_price is None:
+                logger.warning("No Toncoin price found. Skipping.")
+                continue
+
             result += float(ton_price * to_amount(item.threshold))
 
         elif isinstance(item, TelegramChatJetton):
