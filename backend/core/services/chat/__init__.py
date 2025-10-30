@@ -1,11 +1,22 @@
 import logging
 import random
 from string import ascii_lowercase
+from typing import Any, Iterable
 
 from slugify import slugify
+from sqlalchemy import func, case
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Query
 from telethon.tl.types import Channel
 
+from core.db import Base
+from core.dtos.chat import TelegramChatOrderingRuleDTO
+from core.dtos.pagination import (
+    PaginatedResultWithoutCountDTO,
+    PaginatedResultDTO,
+)
+from core.enums.chat import CustomTelegramChatOrderingRulesEnum
+from core.exceptions.api import InvalidSortingParameter
 from core.models.chat import TelegramChat, TelegramChatUser
 
 from core.services.base import BaseService
@@ -15,6 +26,11 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_SLUG_SUFFIX_LENGTH = 6
 MAX_SLUG_SUFFIX_ATTEMPTS = 5
+
+
+TCV_QUERY = func.sum(
+    case((TelegramChatUser.is_managed.is_(True), TelegramChat.price), else_=0)
+)
 
 
 class TelegramChatService(BaseService):
@@ -79,6 +95,31 @@ class TelegramChatService(BaseService):
         logger.debug(f"Telegram Chat {chat.title!r} updated.")
         return chat
 
+    def update_price(
+        self, chat: TelegramChat, price: float | None, commit: bool = True
+    ) -> TelegramChat:
+        """
+        Updates the price of the given Telegram chat and optionally commits the change to the database.
+
+        This method takes a Telegram chat object and updates its price attribute with the specified
+        value.
+        The change is then flushed to the database session to reflect the update.
+        If the `commit` argument is set to True, the method commits the changes to the database.
+
+        :param chat: The Telegram chat object whose price needs to be updated.
+        :param price: The new price value for the chat.
+            If None, the price will be unset.
+        :param commit: A flag indicating whether to commit the changes to the database.
+            Defaults to True.
+        :return: The updated Telegram chat object with the new price.
+        """
+        chat.price = price
+        self.db_session.flush()
+        if commit:
+            self.db_session.commit()
+        logger.debug(f"Telegram Chat {chat.title!r} price updated.")
+        return chat
+
     def set_insufficient_privileges(
         self, chat_id: int, value: bool = True
     ) -> TelegramChat:
@@ -126,6 +167,143 @@ class TelegramChatService(BaseService):
             .all()
         )
 
+    @staticmethod
+    def _get_sorting_params(
+        order_by: Iterable[TelegramChatOrderingRuleDTO], model_class: type[Base]
+    ) -> list[Any]:
+        result = []
+        for rule in order_by:
+            if rule.field not in model_class.__table__.columns:
+                logger.warning(f"Invalid field {rule!r} for sorting.")
+                raise InvalidSortingParameter(f"Invalid field {rule!r} for sorting.")
+
+            order_by_field = getattr(model_class, rule.field)
+            if not rule.is_ascending:
+                order_by_field = order_by_field.desc()
+
+            result.append(order_by_field)
+
+        return result
+
+    @staticmethod
+    def _custom_ordering_rules(
+        query: Query, order_by: list[TelegramChatOrderingRuleDTO]
+    ) -> tuple[Query, list[TelegramChatOrderingRuleDTO]]:
+        """
+        Applies custom ordering rules on the provided query based on the specified
+        ordering criteria.
+
+        :param query: The SQLAlchemy Query object to which the custom ordering rules
+            will be applied.
+        :param order_by: A list of TelegramChatOrderingRuleDTO objects representing
+            the ordering criteria.
+            Each rule specifies a field to order by and whether it should be sorted
+            in ascending or descending order.
+        :return: A tuple where the first element is the updated Query object with the
+            custom ordering applied, and the second element is the modified list of
+            ordering rules after processing.
+        """
+        for rule in order_by:
+            match rule.field:
+                case CustomTelegramChatOrderingRulesEnum.USERS_COUNT:
+                    ordering_rule = func.count(TelegramChatUser.user_id)
+                    if not rule.is_ascending:
+                        ordering_rule = ordering_rule.desc()
+                    query = query.order_by(ordering_rule)
+                    order_by.remove(rule)
+                    continue
+                case CustomTelegramChatOrderingRulesEnum.TCV:
+                    # Only take into account managed users to avoid inflating metrics
+                    # with fake/bot users
+                    ordering_rule = TCV_QUERY
+                    if not rule.is_ascending:
+                        ordering_rule = ordering_rule.desc()
+                    query = query.order_by(ordering_rule)
+                    order_by.remove(rule)
+                    continue
+                case _:
+                    continue
+
+        return query, order_by
+
+    def get_all_paginated(
+        self,
+        filters: dict[str, str | int | bool],
+        offset: int,
+        limit: int,
+        include_total_count: bool = False,
+        order_by: list[TelegramChatOrderingRuleDTO] | None = None,
+    ) -> PaginatedResultDTO | PaginatedResultWithoutCountDTO:
+        """
+        Retrieves a paginated list of TelegramChat records based on the provided filters,
+        offset, limit, and order conditions.
+
+        The method supports filtering the records using the `filters` parameter, which
+        is a dictionary of column-value pairs. It also allows for pagination by specifying
+        the `offset` and `limit` arguments. Additionally, you can specify the ordering
+        of results by passing a tuple of column names via the `order_by` parameter.
+
+        By enabling the `include_total_count` option, the method returns the total count
+        of records matching the filters, alongside the retrieved results.
+
+        :param filters: Dictionary of column-value pairs to filter the TelegramChat records.
+            Example: {"column_name": "value", "another_column": 5}.
+        :param offset: Integer, specifying the number of records to skip before starting to
+            return results.
+        :param limit: Integer, specifying the maximum number of records to retrieve.
+        :param include_total_count: Boolean flag indicating whether to include the total
+            count of filtered records in the result. Default is False.
+        :param order_by: Optional tuple of items by which to order the results.
+
+        :return: Instance of PaginatedResultDTO if `include_total_count` is True, containing
+            both the retrieved results and the total count. If `include_total_count` is False,
+            an instance of PaginatedResultWithoutCountDTO is returned containing only the results.
+        """
+        query = self.db_session.query(
+            TelegramChat,
+            func.count(TelegramChatUser.user_id).label("members_count"),
+            TCV_QUERY.label("tcv"),
+        )
+        query = query.outerjoin(
+            TelegramChatUser, TelegramChatUser.chat_id == TelegramChat.id
+        )
+
+        query = query.filter(
+            # Ensure chat is not hidden
+            TelegramChat.is_enabled.is_(True),
+            # Ensure all sufficient privileges are granted
+            TelegramChat.insufficient_privileges.is_(False),
+        )
+        query = query.filter_by(**filters)
+
+        # First, apply any custom rules provided
+        query, order_by = self._custom_ordering_rules(query, order_by)
+
+        # Then go to the default attribute-based rules
+        # The default ordering is required to make ordering stable
+        order_by_items = (TelegramChat.id,)
+        if order_by:
+            # Apply other rules first
+            order_by_items = (
+                *self._get_sorting_params(order_by, model_class=TelegramChat),
+                *order_by_items,
+            )
+
+        query = query.order_by(*order_by_items)
+        query = query.group_by(TelegramChat.id)
+
+        total_count: int | None = None
+        if include_total_count:
+            total_count = query.count()
+
+        query = query.offset(offset).limit(limit)
+        items = query.all()
+
+        if include_total_count:
+            return PaginatedResultDTO(items=items, total_count=total_count)
+        else:
+            return PaginatedResultWithoutCountDTO(items=items)
+
     def get_all(
         self,
         chat_ids: list[int] | None = None,
@@ -155,6 +333,15 @@ class TelegramChatService(BaseService):
         )
         query = query.order_by(TelegramChat.id)
         return query.all()
+
+    def get_tcv(self, chat_ids: list[int]) -> dict[int, float]:
+        result = (
+            self.db_session.query(TelegramChat.id, TCV_QUERY)
+            .filter(TelegramChat.id.in_(chat_ids))
+            .group_by(TelegramChat.id)
+            .all()
+        )
+        return {r[0]: r[1] for r in result}
 
     def refresh_invite_link(self, chat_id: int, invite_link: str) -> TelegramChat:
         chat = self.get(chat_id)

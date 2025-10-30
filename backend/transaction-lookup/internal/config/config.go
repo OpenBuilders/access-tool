@@ -1,10 +1,8 @@
 package config
 
 import (
-	"log"
-
-	"github.com/caarlos0/env/v11"
-	"github.com/joho/godotenv"
+	liteclientconfig "transaction-lookup/internal/liteclient/config"
+	redisconfig "transaction-lookup/internal/redis/config"
 )
 
 var (
@@ -15,25 +13,11 @@ var (
 )
 
 type Config struct {
-	RedisHost string `env:"REDIS_HOST,required"`
-	RedisUser string `env:"REDIS_USER"  endDefault:""`
-	RedisPass string `env:"REDIS_PASS"  endDefault:""`
-	RedisDB   int    `env:"REDIS_DB"  endDefault:"0"`
+	LogLevel string `env:"LOG_LEVEL" env-default:"INFO"`
 
-	LiteserverHost string `env:"LITESERVER_HOST"`
-	LiteserverKey  string `env:"LITESERVER_KEY"`
-	IsTestnet      bool   `env:"IS_TESTNET" envDefault:"false"`
-	Public         bool   `env:"IS_PUBLIC" envDefault:"true"`
-}
+	IsTestnet bool `env:"IS_TESTNET" env-default:"false"`
+	Public    bool `env:"IS_PUBLIC" env-default:"true"`
 
-func LoadEnvVariables() *Config {
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env files found, using default environment")
-	}
-
-	cfg := &Config{}
-	if err := env.Parse(cfg); err != nil {
-		return nil
-	}
-	return cfg
+	RedisConfig      redisconfig.Config      `end-prefix:"REDIS_"`
+	LiteclientConfig liteclientconfig.Config `end-prefix:"LITESERVER_"`
 }

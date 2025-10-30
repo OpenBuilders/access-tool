@@ -19,6 +19,7 @@ from core.db import Base
 if TYPE_CHECKING:
     from core.models.gift import GiftCollection
     from core.models.chat import TelegramChat
+    from core.models.sticker import StickerCollection, StickerCharacter
 
 
 class TelegramChatRuleGroup(Base):
@@ -251,30 +252,30 @@ class TelegramChatWhitelist(TelegramChatWhitelistBase):
 
 class TelegramChatStickerCollection(TelegramChatThresholdRuleBase):
     __tablename__ = "telegram_chat_sticker_collection"
-    collection_id = mapped_column(
+    collection_id: Mapped[int] = mapped_column(
         ForeignKey("sticker_collection.id", ondelete="CASCADE"),
         nullable=True,
         doc="Collection ID that will be used to check eligibility for the collection.",
     )
-    collection = relationship(
+    collection: Mapped["StickerCollection"] = relationship(
         "StickerCollection",
         lazy="joined",
         viewonly=True,
     )
-    character_id = mapped_column(
+    character_id: Mapped[int] = mapped_column(
         ForeignKey("sticker_character.id", ondelete="CASCADE"),
         nullable=True,
         doc="Character ID that will be used to check eligibility for the collection.",
     )
-    group = relationship(
+    group: Mapped["TelegramChatRuleGroup"] = relationship(
         "TelegramChatRuleGroup",
         backref="sticker_collection_rules",
     )
-    chat = relationship(
+    chat: Mapped["TelegramChat"] = relationship(
         "TelegramChat",
         backref="sticker_collection_rules",
     )
-    character = relationship(
+    character: Mapped["StickerCharacter"] = relationship(
         "StickerCharacter",
         lazy="joined",
         viewonly=True,

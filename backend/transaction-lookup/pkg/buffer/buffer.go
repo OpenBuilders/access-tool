@@ -42,26 +42,3 @@ func (rb *RingBufferWithSearch) AddIfNotExists(value uint32) bool {
 	rb.index = (rb.index + 1) % rb.size
 	return true
 }
-
-// func (rb *RingBufferWithSearch) Add(value uint32) {
-// 	rb.mu.Lock()
-// 	defer rb.mu.Unlock()
-
-// 	if rb.count == rb.size {
-// 		oldValue := rb.data[rb.index]
-// 		delete(rb.set, oldValue)
-// 	} else {
-// 		rb.count++
-// 	}
-
-// 	rb.data[rb.index] = value
-// 	rb.set[value] = struct{}{}
-// 	rb.index = (rb.index + 1) % rb.size
-// }
-
-// func (rb *RingBufferWithSearch) Exists(value uint32) bool {
-// 	rb.mu.RLock()
-// 	defer rb.mu.RUnlock()
-// 	_, exists := rb.set[value]
-// 	return exists
-// }

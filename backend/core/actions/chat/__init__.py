@@ -14,6 +14,9 @@ from core.constants import CELERY_SYSTEM_QUEUE_NAME
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
+    PaginatedTelegramChatsPreviewDTO,
+    TelegramChatOrderingRuleDTO,
+    TelegramChatPreviewDTO,
 )
 from core.dtos.chat.rule import (
     TelegramChatWithRulesDTO,
@@ -42,6 +45,10 @@ from core.dtos.chat.rule.summary import (
     TelegramChatWithEligibilitySummaryDTO,
     TelegramChatGroupWithEligibilitySummaryDTO,
 )
+from core.dtos.pagination import (
+    PaginationMetadataDTO,
+    PaginatedResultDTO,
+)
 from core.enums.rule import EligibilityCheckType
 from core.exceptions.chat import (
     TelegramChatNotExists,
@@ -50,6 +57,7 @@ from core.models.chat import TelegramChat
 from core.models.user import User
 from core.services.cdn import CDNService
 from core.services.chat import TelegramChatService
+from core.enums.chat import CustomTelegramChatOrderingRulesEnum
 from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.user import TelegramChatUserService
 from core.utils.task import wait_for_task, sender
@@ -66,7 +74,39 @@ class TelegramChatAction(BaseAction):
         self.authorization_action = AuthorizationAction(db_session)
         self.cdn_service = CDNService()
 
-    def get_all(self, requestor: User) -> list[TelegramChatDTO]:
+    def get_all(
+        self,
+        pagination_params: PaginationMetadataDTO,
+        sorting_params: TelegramChatOrderingRuleDTO | None,
+    ) -> PaginatedTelegramChatsPreviewDTO:
+        chats = self.telegram_chat_service.get_all_paginated(
+            # TODO: Add filtering by free text/attributes
+            filters={},
+            offset=pagination_params.offset,
+            limit=pagination_params.limit,
+            include_total_count=pagination_params.include_total_count,
+            order_by=[sorting_params]
+            if sorting_params
+            else [
+                TelegramChatOrderingRuleDTO(
+                    field=CustomTelegramChatOrderingRulesEnum.USERS_COUNT
+                )
+            ],
+        )
+
+        return PaginatedTelegramChatsPreviewDTO(
+            items=[
+                TelegramChatPreviewDTO.from_object(
+                    chat, members_count=members_count, tcv=tcv
+                )
+                for chat, members_count, tcv in chats.items
+            ],
+            total_count=chats.total_count
+            if isinstance(chats, PaginatedResultDTO)
+            else None,
+        )
+
+    def get_all_managed(self, requestor: User) -> list[TelegramChatDTO]:
         """
         Retrieves all Telegram chats managed by the given user.
 
@@ -77,13 +117,17 @@ class TelegramChatAction(BaseAction):
         :return: A list of DTOs, each representing a managed Telegram chat.
         """
         chats = self.telegram_chat_service.get_all_managed(user_id=requestor.id)
+        chat_ids = [chat.id for chat in chats]
 
         members_count = self.telegram_chat_user_service.get_members_count_by_chat_id(
-            [chat.id for chat in chats]
+            chat_ids
         )
+        tcvs = self.telegram_chat_service.get_tcv(chat_ids=chat_ids)
 
         return [
-            TelegramChatDTO.from_object(chat, members_count=members_count[chat.id])
+            TelegramChatDTO.from_object(
+                chat, members_count=members_count[chat.id], tcv=tcvs[chat.id]
+            )
             for chat in chats
         ]
 
@@ -217,6 +261,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             enabled_only=False,
         )
         members_count = self.telegram_chat_user_service.get_members_count(self.chat.id)
+        tcv = self.telegram_chat_service.get_tcv(chat_ids=[self.chat.id])[self.chat.id]
 
         rules = sorted(
             [
@@ -268,6 +313,7 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             chat=TelegramChatDTO.from_object(
                 obj=self.chat,
                 members_count=members_count,
+                tcv=tcv,
             ),
             groups=[
                 ChatEligibilityRuleGroupDTO(

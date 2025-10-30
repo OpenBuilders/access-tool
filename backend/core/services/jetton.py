@@ -72,3 +72,11 @@ class JettonService(BaseService):
 
     def count(self) -> int:
         return self.db_session.query(Jetton).count()
+
+    def batch_update_prices(self, prices: dict[str, float]) -> None:
+        self.db_session.bulk_update_mappings(
+            Jetton,
+            [{"address": address, "price": price} for address, price in prices.items()],
+        )
+        self.db_session.flush()
+        logger.info(f"Updated {len(prices)} jettons prices successfully")

@@ -8,6 +8,7 @@ httpx>=0.27.0
 telethon==1.40.0
 celery==5.4.0
 alembic==1.14.1
+pydantic==2.10.6
 pydantic-settings==2.7.1
 pytonapi==0.4.3
 python-slugify==8.0.4
@@ -16,3 +17,6 @@ sentry-sdk[fastapi]==2.24.1
 aioboto3==14.1.0
 cryptography==44.0.2
 asgiref==3.9.0
+aiolimiter==1.2.1
+# For TONProof validation
+pynacl==1.5.0

@@ -1,29 +1,23 @@
-# Stage 1: Build the base image with the core package
-FROM python:3.11.6-slim AS access-base
+FROM python:3.11.6-slim
 
-# Set environment variables
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# Copy requirements and install dependencies
 COPY backend/alembic.ini .
 COPY backend/core/requirements.txt .
+COPY backend/api/requirements.txt requirements-api.txt
 
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install -r requirements.txt && \
+    pip install -r requirements-api.txt
 
+# Copy package files and source code
 COPY backend/setup.py .
 COPY backend/setup.cfg .
-
-RUN pip install -e .
-
-COPY backend/indexer ./indexer
 COPY backend/core ./core
-
-# Stage 2: FastAPI application
-FROM access-base AS api
-
-COPY backend/api/requirements.txt requirements-api.txt
-RUN pip install -r requirements-api.txt
-
 COPY backend/api ./api
+
+# Install packages in editable mode
+RUN pip install -e .

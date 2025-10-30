@@ -1,0 +1,2 @@
+class InvalidSortingParameter(Exception):
+    pass

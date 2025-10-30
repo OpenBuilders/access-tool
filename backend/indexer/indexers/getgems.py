@@ -1,53 +1,64 @@
-from pathlib import Path
+import logging
 
-from gql import Client
-from gql.transport.httpx import HTTPXAsyncTransport
+import httpx
+from httpx import Timeout, Response
+from aiolimiter import AsyncLimiter
 
-from core.dtos.resource import NftCollectionDTO
-from core.dtos.base import NftCollectionAttributeDTO
-from indexer.utils.graphql import get_gql_by_name
+from core.constants import REQUEST_TIMEOUT, CONNECT_TIMEOUT, READ_TIMEOUT
+from indexer.dtos.getgems import GetGemsNftCollectionFloorResponse
+from indexer.settings import indexer_settings
 
-transport = HTTPXAsyncTransport(url="https://api.getgems.io/graphql")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Ref: https://github.com/getgems-io/nft-contracts/blob/main/docs/read-api-en.md#limitations
+limiter = AsyncLimiter(max_rate=400, time_period=60 * 5)
+timeout = Timeout(REQUEST_TIMEOUT, read=READ_TIMEOUT, connect=CONNECT_TIMEOUT)
 
 
-class GetGemsService:
-    def __init__(self) -> None:
-        with open(
-            Path(__file__).parent.parent / "data" / "graphql" / "getgems.graphql", "r"
-        ) as f:
-            schema = f.read()
-        self.client = Client(transport=transport, schema=schema)
-
-    async def get_collection_data(self, address: str) -> NftCollectionDTO:
-        async with self.client as session:
-            result = await session.execute(
-                get_gql_by_name("getNftCollectionBasic"),
-                variable_values={"address": address},
-            )
-
-        payload = result["nftCollectionByAddress"]
-        return NftCollectionDTO(
-            name=payload["name"],
-            description=payload["description"],
-            logo_path=payload["coverImage"]["image"]["baseUrl"],
-            address=address,
-            is_enabled=True,
+class GetGemsIndexer:
+    def __init__(self):
+        self.client = httpx.AsyncClient(
+            base_url="https://api.getgems.io/public-api/",
+            timeout=timeout,
+            headers={"Authorization": indexer_settings.getgems_api_key},
         )
 
-    async def get_collection_attributes(
+    async def _request(self, path: str, params: dict = None) -> Response:
+        async with limiter:
+            response = await self.client.get(
+                path,
+                params=params,
+            )
+            logger.info(
+                f"Received response from GetGems: {response.status_code} – {response.text[:50]!r}..."
+            )
+            response.raise_for_status()
+            return response
+
+    async def get_collection_basic_info(
         self, address: str
-    ) -> list[NftCollectionAttributeDTO]:
-        async with self.client as session:
-            result = await session.execute(
-                get_gql_by_name("getNftCollectionAttributes"),
-                variable_values={"address": address},
+    ) -> GetGemsNftCollectionFloorResponse:
+        """
+        Fetches basic information about an NFT collection given its address.
+
+        This asynchronous method retrieves data from the specified endpoint, validates
+        the response, and returns parsed NFT collection information.
+        An exception is raised if the operation is unsuccessful.
+
+        :param address: The unique address identifier of the NFT collection to query.
+        :return: Parsed details about the NFT collection.
+        :raises Exception: If the response indicates a failure in retrieving the
+            collection's information.
+        """
+        path = f"v1/collection/basic-info/{address}"
+        response = await self._request(path)
+        nft_collection_info = GetGemsNftCollectionFloorResponse.model_validate(
+            response.json()
+        )
+        if not nft_collection_info.success:
+            raise Exception(
+                f"Failed to get collection info for {address=!r}: {nft_collection_info}"
             )
 
-        payload = result["alphaNftCollectionFilter"]
-        return [
-            NftCollectionAttributeDTO(
-                trait_type=attribute["traitType"],
-                values=list({v["value"] for v in attribute["values"]}),
-            )
-            for attribute in payload["attributes"]
-        ]
+        return nft_collection_info

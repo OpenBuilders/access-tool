@@ -36,6 +36,7 @@ CELERY_WALLET_FETCH_QUEUE_NAME = "wallet-fetch-queue"
 CELERY_STICKER_FETCH_QUEUE_NAME = "sticker-fetch-queue"
 CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME = "noticed-wallets-upload-queue"
 CELERY_SYSTEM_QUEUE_NAME = "system-queue"
+CELERY_INDEX_PRICES_QUEUE_NAME = "index-prices-queue"
 # Gifts
 GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata"
 CELERY_GIFT_FETCH_QUEUE_NAME = "gift-fetch-queue"
@@ -71,3 +72,4 @@ USER_FRIENDLY_ADDRESS_REGEX = re.compile(r"(EQ|UQ)[a-zA-Z0-9\-\_]{46}")
 # Misc
 DEFAULT_FILE_VERSION = 1
 DEFAULT_INCREMENTED_FILE_VERSION = DEFAULT_FILE_VERSION + 1
+TON_PRICE_CACHE_KEY = "ton_price_usdt"

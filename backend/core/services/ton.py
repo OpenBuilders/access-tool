@@ -5,8 +5,10 @@ import time
 from nacl.signing import VerifyKey
 from nacl.encoding import Base64Encoder
 
+from core.constants import TON_PRICE_CACHE_KEY
 from core.dtos.wallet import WalletDetailsWithProofDTO
 from core.exceptions.wallet import ProofValidationError
+from core.services.superredis import RedisService
 
 logger = logging.getLogger(__name__)
 
@@ -78,3 +80,24 @@ class TonProofService:
             msg = f"Proof is invalid: {e}"
             logger.error(msg)
             raise ProofValidationError(msg) from e
+
+
+class TonPriceManager:
+    def __init__(self) -> None:
+        self.redis_service = RedisService()
+
+    def get_ton_price(self) -> float | None:
+        try:
+            # Handle Redis service unavailability gracefully
+            raw_value = self.redis_service.get(TON_PRICE_CACHE_KEY)
+            if raw_value is None:
+                logger.warning("TON price is not cached yet.")
+                return None
+
+            return float(raw_value)
+        except Exception as e:
+            logger.error("Failed to get TON price: %s", e)
+            return None
+
+    def set_ton_price(self, price: float) -> None:
+        self.redis_service.set(TON_PRICE_CACHE_KEY, str(price))

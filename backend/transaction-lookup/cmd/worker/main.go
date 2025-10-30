@@ -2,56 +2,57 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"transaction-lookup/internal/config"
+	"transaction-lookup/internal/liteclient"
+	"transaction-lookup/internal/log"
 	"transaction-lookup/internal/observer"
-
-	"github.com/redis/go-redis/v9"
+	"transaction-lookup/internal/redis"
 )
 
 func main() {
 	var wg sync.WaitGroup
 	ctx, cancel := context.WithCancel(context.Background())
-	cfg := config.LoadEnvVariables()
-	if cfg == nil {
-		log.Println("Not enough environment variables to start")
-		return
-	}
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     cfg.RedisHost,
-		Username: cfg.RedisUser,
-		Password: cfg.RedisPass,
-		DB:       cfg.RedisDB,
-		TLSConfig: nil,
-		ReadTimeout: -1, // Disable read timeout for initial wallets load
-	})
-
-	log.Println("initializing new api client...")
-	api, err := observer.NewAPIClient(ctx, cfg)
+	cfg, err := config.Load()
 	if err != nil {
-		log.Println("liteserver api client init failed")
+		slog.Error("failed to load config", "error", err)
 		return
 	}
 
-	log.Println("initializing new block scanner...")
-	scanner := observer.NewBlockScanner(api, rdb)
+	log.Setup(cfg.LogLevel)
 
-	log.Println("monitoring new blocks...")
-	if err := scanner.Start(ctx, &wg); err != nil {
-		log.Printf("something wrong with observer: %v\n", err)
+	slog.Info("initializing redis client...")
+	rdb, err := redis.NewClient(cfg.RedisConfig)
+	if err != nil {
+		slog.Error("failed to create redis client", "error", err)
+		return
+	}
+
+	slog.Info("initializing new liteserver client...")
+	lt, err := liteclient.NewClient(ctx, cfg.LiteclientConfig, cfg.IsTestnet, cfg.Public)
+	if err != nil {
+		slog.Error("failed to create liteserver client", "error", err)
+		return
+	}
+
+	slog.Info("initializing new observer...")
+	obs := observer.New(lt, rdb)
+
+	slog.Info("monitoring new blocks...")
+	if err := obs.Start(ctx, &wg); err != nil {
+		slog.Error("something wrong with observer", "error", err)
 	}
 
 	stopChan := make(chan os.Signal, 1)
 	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
 	<-stopChan
-	log.Println("received shutdown signal, initiating graceful shutdown...")
+	slog.Info("received shutdown signal, initiating graceful shutdown...")
 
 	cancel()
 	wg.Wait()
-	log.Println("graceful shutdown finished")
+	slog.Info("graceful shutdown finished")
 }

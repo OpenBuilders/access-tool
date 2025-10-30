@@ -9,9 +9,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import mapped_column, relationship
 
 from core.db import Base
+from core.models.mixin import PricedEntityMixin
 
 
-class TelegramChat(Base):
+class TelegramChat(PricedEntityMixin):
     __tablename__ = "telegram_chat"
 
     id = mapped_column(BigInteger, primary_key=True)
@@ -71,6 +72,7 @@ class TelegramChatUser(Base):
         nullable=False,
         default=False,
         doc="If user is managed by bot, meaning that join request was approved by bot and should be if eligibility status changed, etc.",
+        index=True,  # This index is required for efficient queries that should work on managed users only
     )
     created_at = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

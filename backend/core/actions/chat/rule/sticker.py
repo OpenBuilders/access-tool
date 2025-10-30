@@ -104,6 +104,7 @@ class TelegramChatStickerCollectionAction(ManagedChatBaseAction):
         logger.info(
             f"New Telegram Chat Sticker Collection rule created for the chat {self.chat.id!r}."
         )
+        self.refresh_chat_floor_price()
         return StickerChatEligibilityRuleDTO.from_orm(new_rule)
 
     async def update(
@@ -144,6 +145,7 @@ class TelegramChatStickerCollectionAction(ManagedChatBaseAction):
         logger.info(
             f"Updated Telegram Chat Sticker Collection rule {rule_id!r} for the chat {self.chat.id!r}."
         )
+        self.refresh_chat_floor_price()
         return StickerChatEligibilityRuleDTO.from_orm(updated_rule)
 
     async def delete(self, rule_id: int) -> None:
@@ -157,6 +159,7 @@ class TelegramChatStickerCollectionAction(ManagedChatBaseAction):
             rule_id=rule_id,
             chat_id=self.chat.id,
         )
+        self.refresh_chat_floor_price()
         self.remove_group_if_empty(group_id)
         logger.info(
             f"Deleted Telegram Chat Sticker Collection rule {rule_id!r} for the chat {self.chat.id!r}."
