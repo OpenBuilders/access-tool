@@ -59,8 +59,7 @@ def create_app() -> Celery:
                 },
                 "refresh-prices": {
                     "task": "refresh-prices",
-                    # TODO - change to once an hour after release
-                    "schedule": 120,
+                    "schedule": crontab(hour="*/1", minute="*/30"),  # Every 30 minutes
                     "options": {"queue": CELERY_INDEX_PRICES_QUEUE_NAME},
                 },
             },
