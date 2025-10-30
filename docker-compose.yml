@@ -24,8 +24,8 @@ x-indexer:
 services:
   transaction-lookup:
     build:
-      context: ./backend/transaction-lookup
-      dockerfile: ./config/Dockerfile.worker
+      context: .
+      dockerfile: ./config/docker/Dockerfile.worker
     env_file:
       - ./config/env/.transaction-lookup.env
     depends_on:
