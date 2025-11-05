@@ -1,4 +1,4 @@
-import { ThemeContext } from '@context'
+import { TanStackProvider, ThemeContext } from '@context'
 import { useAppNavigation } from '@hooks'
 import '@styles/index.scss'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
@@ -92,15 +92,17 @@ function App() {
   if (!isAuthenticated) return null
 
   return (
-    <TonConnectUIProvider
-      // TODO: manifest
-      manifestUrl={config.tonConnectManifestUrl}
-      actionsConfiguration={{
-        twaReturnUrl: `https://t.me/${config.botName}/gate?startapp=ch_${clientChatSlug}`,
-      }}
-    >
-      {Routes}
-    </TonConnectUIProvider>
+    <TanStackProvider>
+      <TonConnectUIProvider
+        // TODO: manifest
+        manifestUrl={config.tonConnectManifestUrl}
+        actionsConfiguration={{
+          twaReturnUrl: `https://t.me/${config.botName}/gate?startapp=ch_${clientChatSlug}`,
+        }}
+      >
+        {Routes}
+      </TonConnectUIProvider>
+    </TanStackProvider>
   )
 }
 

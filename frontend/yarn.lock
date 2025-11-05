@@ -976,6 +976,40 @@
     "@svgr/hast-util-to-babel-ast" "8.0.0"
     svg-parser "^2.0.4"
 
+"@tanstack/query-async-storage-persister@^5.90.8":
+  version "5.90.8"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.90.8.tgz#568d54506887f96726833d1e6f8250087726b6db"
+  integrity sha512-8zFqc3eeYxB7esCZqXv5/fhtWuH9z3QPsRBDDQcw4MR92Sl40YTrIMnhoBHLX9FQTMHxxNb3jZKHNptNeobHKg==
+  dependencies:
+    "@tanstack/query-core" "5.90.6"
+    "@tanstack/query-persist-client-core" "5.91.5"
+
+"@tanstack/query-core@5.90.6":
+  version "5.90.6"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.90.6.tgz#e4627c442a4701adb350270dae5f6b72b2498eae"
+  integrity sha512-AnZSLF26R8uX+tqb/ivdrwbVdGemdEDm1Q19qM6pry6eOZ6bEYiY7mWhzXT1YDIPTNEVcZ5kYP9nWjoxDLiIVw==
+
+"@tanstack/query-persist-client-core@5.91.5":
+  version "5.91.5"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.91.5.tgz#53b20b725b001b59e7f5ac2eb2dd2ef8c69a1caf"
+  integrity sha512-wo+8ni3VBNqE2FIo8OiiaxbGNmRgyBalQnLFzupOId9gtOIsr++ADCi0dVnvdf1k+LWGfnijyWFxnXmkDKdf2A==
+  dependencies:
+    "@tanstack/query-core" "5.90.6"
+
+"@tanstack/react-query-persist-client@^5.90.8":
+  version "5.90.8"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query-persist-client/-/react-query-persist-client-5.90.8.tgz#f9f43d6374e103f44b6d68f7622fafb004d5027b"
+  integrity sha512-IcdOPGmk5KoQQxbsZboyurA9n6CKqdnz7BS2TAuPgbCxhVdpXloQ99hJPOk4QEtV3QhdQyAVrntiGfr/ReYobg==
+  dependencies:
+    "@tanstack/query-persist-client-core" "5.91.5"
+
+"@tanstack/react-query@^5.90.6":
+  version "5.90.6"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.90.6.tgz#50f46ca81679c3fda185ea7d2c7787af78ed0364"
+  integrity sha512-gB1sljYjcobZKxjPbKSa31FUTyr+ROaBdoH+wSSs9Dk+yDCmMs+TkTV3PybRRVLC7ax7q0erJ9LvRWnMktnRAw==
+  dependencies:
+    "@tanstack/query-core" "5.90.6"
+
 "@tonconnect/isomorphic-eventsource@^0.0.2":
   version "0.0.2"
   resolved "https://registry.npmjs.org/@tonconnect/isomorphic-eventsource/-/isomorphic-eventsource-0.0.2.tgz"
