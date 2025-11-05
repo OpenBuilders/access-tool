@@ -17,6 +17,7 @@ html[data-theme='light'] {
   --color-backgroundBlack: #{$palette-dark100};
   --color-backgroundWhite: #{$palette-white100};
   --color-input: #{$palette-transparentWhite80};
+  --color-control-active-background: rgba(255, 255, 255, 0.88);
 }
 
 html[data-theme='dark'] {
@@ -36,4 +37,5 @@ html[data-theme='dark'] {
   --color-backgroundBlack: #{$palette-dark100};
   --color-backgroundWhite: #{$palette-white100};
   --color-input: #{$palette-transparentDark80};
+  --color-control-active-background: rgba(72, 72, 74, 0.88);
 }

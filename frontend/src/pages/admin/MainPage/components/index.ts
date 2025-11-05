@@ -1,2 +1,5 @@
 export * from './ChannelsList'
 export * from './EmptyList'
+export * from './ChatsBlock'
+export * from './PopularChats'
+export * from './UserChats'

@@ -7,7 +7,7 @@ import svgr from 'vite-plugin-svgr'
 // https://vitejs.dev/config/
 export default defineConfig({
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  base: "/",
+  base: '/',
   server: {
     host: '0.0.0.0',
     port: 5173,
@@ -29,10 +29,11 @@ export default defineConfig({
       '@hooks': path.resolve(__dirname, './src/common/hooks'),
       '@utils': path.resolve(__dirname, './src/common/utils'),
       '@store': path.resolve(__dirname, './src/store'),
-      '@types': path.resolve(__dirname, './src/common/types'),
+      '@types': path.resolve(__dirname, './src/types'),
       '@styles': path.resolve(__dirname, './src/common/styles'),
       '@config': path.resolve(__dirname, './src/config'),
       '@services': path.resolve(__dirname, './src/services'),
+      '@store-new': path.resolve(__dirname, './src/store-new'),
     },
   },
   plugins: [

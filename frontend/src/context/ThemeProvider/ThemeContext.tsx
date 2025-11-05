@@ -7,5 +7,7 @@ interface ContextProps {
 
 export const ThemeContext = createContext<ContextProps>({
   darkTheme: true,
-  toggleTheme: () => {},
+  toggleTheme: () => {
+    console.log('toggleTheme')
+  },
 })
