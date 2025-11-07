@@ -1,23 +1,22 @@
-import { Block, TabsContainer } from '@components'
-import { ChatsActiveTab, ChatsPopularSortBy } from '@types'
-import { goTo } from '@utils'
-import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Block, Dropdown, Icon, TabsContainer } from '@components'
+import { ChatsActiveTab, ChatsPopularOrderBy } from '@types'
+import { useState } from 'react'
 
 import { useAdminChatsQuery, useChatsPopularQuery } from '@store-new'
 
-import { PopularChats } from '../PopularChats'
-import { UserChats } from '../UserChats'
+import { PopularChatsList } from '../PopularChatsList'
+import { UserChatsList } from '../UserChatsList'
 import styles from './ChatsBlock.module.scss'
 
 export const ChatsBlock = () => {
   const [activeTab, setActiveTab] = useState<ChatsActiveTab>('explore')
-  const [sortBy, setSortBy] = useState<ChatsPopularSortBy>('tcv')
+  const [orderBy, setOrderBy] = useState<ChatsPopularOrderBy>('tcv')
+  const [isDropdownOpen, setDropdownOpen] = useState(false)
 
   const { data: adminChatsData, isLoading: adminChatsIsLoading } =
     useAdminChatsQuery()
   const { data: chatsPopularData, isLoading: chatsPopularIsLoading } =
-    useChatsPopularQuery(sortBy)
+    useChatsPopularQuery(orderBy)
 
   const isLoading = chatsPopularIsLoading || adminChatsIsLoading
 
@@ -29,29 +28,64 @@ export const ChatsBlock = () => {
     setActiveTab(value)
   }
 
-  const handleChangeSortBy = (value: ChatsPopularSortBy) => {
-    setSortBy(value)
+  const handleChangeOrderBy = (value: ChatsPopularOrderBy) => {
+    setOrderBy(value)
   }
 
+  const tabs = [
+    { id: 0, label: 'Explore', value: 'explore' },
+    { id: 1, label: 'Added', value: 'added' },
+  ]
+
+  const activeTabIndex = tabs.findIndex((tab) => tab.value === activeTab)
+
+  const contentSlides = [
+    <PopularChatsList chats={chatsPopularData?.items ?? []} />,
+    <UserChatsList chats={adminChatsData ?? []} />,
+  ]
+
   return (
-    <Block>
-      <Block justify="between" align="center" row>
+    <Block gap={12} className={styles.chatsBlock}>
+      <Block justify="between" align="center" row padding="0 16px">
         <TabsContainer
-          tabs={[
-            { label: 'Explore', value: 'explore' },
-            { label: 'Added', value: 'added' },
-          ]}
+          tabs={tabs}
           activeTab={activeTab}
           onChangeTab={handleChangeActiveTab}
         />
-        <div>block</div>
+        <div
+          className={styles.orderByContainer}
+          onClick={() => setDropdownOpen(true)}
+        >
+          <Icon name="sortArrows" size={18} />
+          <Dropdown
+            active={isDropdownOpen}
+            options={[
+              { label: 'Sort By TVL', value: 'tcv' },
+              { label: 'Sort By Subscribers', value: 'users-count' },
+            ]}
+            selectedValue={orderBy}
+            onSelect={(value: string) =>
+              handleChangeOrderBy(value as ChatsPopularOrderBy)
+            }
+            onClose={() => setDropdownOpen(false)}
+          />
+        </div>
       </Block>
-      <Block margin="top" marginValue={12}>
-        {activeTab === 'explore' && (
-          <PopularChats chats={chatsPopularData?.items || []} />
-        )}
-        {activeTab === 'added' && <UserChats chats={adminChatsData || []} />}
-      </Block>
+      <div className={styles.contentWrapper}>
+        <div
+          className={styles.contentSlider}
+          style={{
+            transform: `translateX(-${activeTabIndex * 50}%)`,
+            width: `${contentSlides.length * 100}%`,
+          }}
+        >
+          {contentSlides.map((slide, index) => (
+            <div key={index} className={styles.contentSlide}>
+              {slide}
+            </div>
+          ))}
+        </div>
+      </div>
     </Block>
   )
 }

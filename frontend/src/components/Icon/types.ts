@@ -28,5 +28,6 @@ export type IconTypeName =
   | 'gifts'
   | 'checkUnable'
   | 'completed'
+  | 'sortArrows'
 
-export type IconSize = 112 | 100 | 40 | 28 | 24 | 20 | 16 | 12 | 7
+export type IconSize = 112 | 100 | 40 | 28 | 24 | 20 | 18 | 16 | 12 | 7

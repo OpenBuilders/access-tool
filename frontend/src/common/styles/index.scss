@@ -21,8 +21,8 @@ body {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
-  color: var(--color-textIconsPrimary);
-  background-color: var(--color-backgroundSecondary);
+  color: var(--color-foreground-primary);
+  background-color: var(--color-background-secondary);
   overflow-x: hidden;
 }
 

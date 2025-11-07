@@ -1,2 +1,6 @@
 export type ChatsActiveTab = 'explore' | 'added'
-export type ChatsPopularSortBy = 'tcv' | 'users-count'
+export type ChatsPopularOrderBy =
+  | 'tcv'
+  | '-tcv'
+  | 'users-count'
+  | '-users-count'

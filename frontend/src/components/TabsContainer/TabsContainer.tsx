@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import styles from './TabsContainer.module.scss'
 
 interface Tab {
+  id: number
   label: string
   value: string
 }
@@ -53,7 +54,7 @@ export const TabsContainer = ({
       <div ref={sliderRef} className={styles.slider} style={sliderStyle} />
       {tabs.map((tab) => (
         <div
-          key={tab.value}
+          key={tab.id}
           className={styles.tab}
           onClick={() => handleChangeTab(tab.value as ChatsActiveTab)}
         >

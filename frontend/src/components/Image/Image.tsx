@@ -15,7 +15,7 @@ export const Image = ({ src, size, borderRadius, fallback }: ImageProps) => {
   if (!src) {
     if (fallback) {
       const firstLetter = getFirstLetter(fallback)
-      const color = getColor()
+      const color = getColor(firstLetter)
       return (
         <div
           className={styles.fallback}
@@ -47,9 +47,13 @@ export const Image = ({ src, size, borderRadius, fallback }: ImageProps) => {
     )
   }
 
+  const srcUrl = src.includes('https://')
+    ? src
+    : `https://pub-afc0b291195b4529b0de88319506f30b.r2.dev/${src}`
+
   return (
     <img
-      src={src}
+      src={srcUrl}
       alt="image"
       width={size}
       height={size}
