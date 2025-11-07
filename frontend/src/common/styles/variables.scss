@@ -1,65 +1,111 @@
-$palette-white: #fff;
+:root {
+  /* Fonts */
+  --font-base:
+    -apple-system, 'SF Pro Text', 'SF UI Text', system-ui, 'Helvetica Neue',
+    Helvetica, Arial, sans-serif;
 
-$k-device-pixel-ratio: 2;
-$body-padding: 16px;
-$safe-area-left: 16px;
-$safe-area-right: 16px;
+  /* Colors */
+  --palette-black-100: rgba(0, 0, 0, 1);
+  --palette-black-80: rgba(0, 0, 0, 0.8);
+  --palette-black-60: rgba(0, 0, 0, 0.6);
+  --palette-black-40: rgba(0, 0, 0, 0.4);
+  --palette-black-20: rgba(0, 0, 0, 0.2);
+  --palette-black-16: rgba(0, 0, 0, 0.16);
+  --palette-black-12: rgba(0, 0, 0, 0.12);
+  --palette-black-10: rgba(0, 0, 0, 0.1);
+  --palette-black-8: rgba(0, 0, 0, 0.08);
 
-$palette-transparentDark80: #262629;
-$palette-transparentDark75: #000000bf;
-$palette-transparentDark60: #00000099;
-$palette-transparentDark50: #0000007f;
-$palette-transparentDark40: #0000000a;
-$palette-transparentDark30: #0000004c;
-$palette-transparentDark12: #0000001e;
-$palette-transparentDark8: #00000014;
-$palette-transparentDark5: #0000000c;
-$palette-transparentWhite80: #f7f7f9;
-$palette-transparentWhite75: #ffffffbf;
-$palette-transparentWhite60: #ffffff99;
-$palette-transparentWhite50: #ffffff7f;
-$palette-transparentWhite40: #ffffff0a;
-$palette-transparentWhite30: #ffffff4c;
-$palette-transparentWhite12: #ffffff1e;
-$palette-transparentWhite8: #ffffff14;
-$palette-transparentWhite5: #ffffff0c;
-$palette-transparentWhite0: #ffffff00;
-$palette-transparentDark0: #00000000;
-$palette-transparent15: rgba(0, 0, 0, 0.15);
-$palette-dark100: #000000;
-$palette-dark96: #111112;
-$palette-dark90: #1c1c1e;
-$palette-dark85: #262629;
-$palette-dark80: #313135;
-$palette-white100: #ffffff;
-$palette-grey50: #3d3d3d7f;
-$palette-accentLight: #2481cc;
-$palette-accentDark: #007aff;
-// $palette-brandAccent: #496aeb;
-// $palette-brandCommunity: #007aff;
-$palette-brandNotcoin: #42a0ff;
-$palette-brandExploreWhite: #ffffff;
-$palette-brandExploreYellow: #fdc626;
-$palette-brandLight: #758eef;
-$palette-brandLightBg: #f0f4ff;
-$palette-brandDarkBg: #1d2334;
-$palette-extraRed: #ff3b30;
-$palette-extraRed15: #ff5a5026;
-$palette-extraRed10: #ff5a5019;
-$palette-extraGreenLight: #15da40;
-$palette-extraGreenDark: #00ca14;
-$palette-extraEmojiPinkLight: #f9e2f6;
-$palette-extraEmojiRedLight: #ffdddd;
-$palette-extraEmojiGreyLight: #f0f0f0;
-$palette-extraEmojiWarmLight: #fbf0df;
-$palette-extraEmojiGreenLight: #eaf9e5;
-$palette-extraEmojiBlueLight: #eaf4ff;
-$palette-dark4: #efeff4;
+  --palette-white-100: rgba(255, 255, 255, 1);
+  --palette-white-80: rgba(255, 255, 255, 0.8);
+  --palette-white-60: rgba(255, 255, 255, 0.6);
+  --palette-white-40: rgba(255, 255, 255, 0.4);
+  --palette-white-32: rgba(255, 255, 255, 0.32);
+  --palette-white-20: rgba(255, 255, 255, 0.2);
+  --palette-white-16: rgba(255, 255, 255, 0.16);
+  --palette-white-12: rgba(255, 255, 255, 0.12);
+  --palette-white-10: rgba(255, 255, 255, 0.1);
+  --palette-white-8: rgba(255, 255, 255, 0.08);
 
-$elevation-light-1: 0px 10px 60px rgba(0, 0, 0, 0.1);
-$elevation-dark-1: 0px 10px 60px rgba(0, 0, 0, 0.7);
+  --palette-orange-light: rgba(255, 149, 0, 1);
+  --palette-orange-dark: rgba(255, 159, 10, 1);
 
-$stroke-white: #f2f2f2;
-$stroke-black: #252527;
+  --palette-yellow-light: rgba(255, 204, 0, 1);
+  --palette-yellow-dark: rgba(255, 214, 10, 1);
 
-$native-accent: var(--tg-theme-button-color, #007aff);
+  --palette-green-light: rgba(52, 199, 89, 1);
+  --palette-green-dark: rgba(48, 209, 88, 1);
+
+  --palette-mint-light: rgba(0, 199, 190, 1);
+  --palette-mint-dark: rgba(99, 230, 226, 1);
+
+  --palette-teal-light: rgba(48, 176, 199, 1);
+  --palette-teal-dark: rgba(64, 203, 224, 1);
+
+  --palette-cyan-light: rgba(50, 173, 230, 1);
+  --palette-cyan-dark: rgba(100, 210, 255, 1);
+
+  --palette-indigo-light: rgba(88, 86, 214, 1);
+  --palette-indigo-dark: rgba(94, 92, 230, 1);
+
+  --palette-purpleDark-light: rgba(175, 82, 222, 1);
+  --palette-purpleDark-dark: rgba(191, 90, 242, 1);
+
+  --palette-pink-light: rgba(255, 45, 85, 1);
+  --palette-pink-dark: rgba(255, 55, 95, 1);
+
+  --palette-brown-light: rgba(162, 132, 94, 1);
+  --palette-brown-dark: rgba(172, 142, 104, 1);
+
+  --palette-blueDark-light-100: rgba(0, 122, 255, 1);
+  --palette-blueDark-light-10: rgba(0, 122, 255, 0.1);
+  --palette-blueDark-dark-100: rgba(10, 132, 255, 1);
+  --palette-blueDark-dark-12: rgba(10, 132, 255, 0.12);
+
+  --palette-blueLight-light: rgba(90, 200, 250, 1);
+  --palette-blueLight-dark: rgba(143, 217, 251, 1);
+
+  --palette-red-light: rgba(255, 59, 48, 1);
+  --palette-red-dark: rgba(255, 69, 58, 1);
+
+  --palette-purpleLight-light: rgba(152, 143, 243, 1);
+  --palette-purpleLight-dark: rgba(177, 169, 248, 1);
+
+  --palette-greenLight-light: rgba(159, 200, 97, 1);
+  --palette-greenLight-dark: rgba(159, 200, 97, 1);
+
+  --palette-grey1-light: rgba(142, 142, 147, 1);
+  --palette-grey1-dark: rgba(142, 142, 147, 1);
+  --palette-grey2-light: rgba(174, 174, 178, 1);
+  --palette-grey2-dark: rgba(99, 99, 102, 1);
+  --palette-grey3-light: rgba(199, 199, 204, 1);
+  --palette-grey3-dark: rgba(72, 72, 74, 1);
+  --palette-grey4-light: rgba(209, 209, 214, 1);
+  --palette-grey4-dark: rgba(58, 58, 60, 1);
+  --palette-grey5-light: rgba(229, 229, 234, 1);
+  --palette-grey5-dark: rgba(44, 44, 46, 1);
+  --palette-grey6-light: rgba(242, 242, 247, 1);
+  --palette-grey6-dark: rgba(28, 28, 30, 1);
+
+  // --palette-telegram-main-color: var(--tg-theme-button-color, #007aff);
+
+  // Z-index
+  --z-base: 0;
+  --z-content: 1;
+  --z-overlay: 10;
+
+  --z-dropdown: 100;
+  --z-tooltip: 200;
+  --z-modal: 300;
+  --z-sheet: 400;
+  --z-toast: 500;
+
+  --z-loading: 1000;
+  --z-navigation: 1100;
+
+  --z-fullscreen: 2000;
+
+  //   Border-Radius
+  --border-radius-sm: 8px;
+  --border-radius-3xl: 26px;
+  --border-radius-full: 50%;
+}

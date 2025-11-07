@@ -1,0 +1,46 @@
+.chatsBlock {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.contentWrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentSlider {
+  display: flex;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 0;
+}
+
+.contentSlide {
+  width: 50%;
+  padding: 0 16px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.orderByContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-background-section);
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 6px 0;
+}

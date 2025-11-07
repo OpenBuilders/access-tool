@@ -1,7 +1,7 @@
 .tabsContainer {
   display: flex;
   position: relative;
-  background-color: var(--color-backgroundTertiary);
+  background-color: var(--color-background-section);
   border-radius: 18px;
   padding: 2px;
   height: 36px;
@@ -12,11 +12,13 @@
   position: absolute;
   top: 2px;
   height: calc(100% - 4px);
-  background-color: var(--color-control-active-background);
+  background-color: var(--color-segmentControl-background);
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   z-index: 0;
+
+  backdrop-filter: blur(12px);
 }
 
 .tab {
@@ -28,7 +30,7 @@
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  color: var(--color-textIconsPrimary);
+  color: var(--color-foreground-primary);
   font-size: 15px;
   font-weight: 590;
   line-height: 15px;

@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
-import { ChatPopularResponse, ChatsPopularSortBy } from '@types'
+import { ChatPopularResponse, ChatsPopularOrderBy } from '@types'
 import { TANSTACK_GC_TIME, TANSTACK_KEYS, TANSTACK_TTL } from '@utils'
 
 import { fetchChatAPI, fetchChatsPopularAPI } from './api'
 
-export const useChatsPopularQuery = (sortBy: ChatsPopularSortBy) => {
+export const useChatsPopularQuery = (orderBy: ChatsPopularOrderBy) => {
   return useQuery<ChatPopularResponse>({
-    queryKey: TANSTACK_KEYS.CHATS_POPULAR(sortBy),
+    queryKey: TANSTACK_KEYS.CHATS_POPULAR(orderBy),
     queryFn: async () => {
-      const { data, ok, error } = await fetchChatsPopularAPI()
+      const { data, ok, error } = await fetchChatsPopularAPI(orderBy)
 
       if (!ok || !data) {
         throw new Error(error)

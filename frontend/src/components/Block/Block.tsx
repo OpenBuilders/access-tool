@@ -4,7 +4,7 @@ import styles from './Block.module.scss'
 
 interface BlockProps {
   children: React.ReactNode
-  margin?: 'top' | 'bottom' | 'left' | 'right'
+  margin?: string
   defaultWidth?: boolean
   marginValue?:
     | 0
@@ -22,7 +22,7 @@ interface BlockProps {
     | 32
     | 44
     | 'auto'
-  padding?: 'top' | 'bottom' | 'left' | 'right'
+  padding?: string
   paddingValue?:
     | 0
     | 2
@@ -45,50 +45,41 @@ interface BlockProps {
   justify?: 'start' | 'center' | 'end' | 'between'
   align?: 'start' | 'center' | 'end'
   fadeIn?: boolean
+  className?: string
   onClick?: () => void
 }
 
 export const Block = ({
   children,
-  margin,
-  marginValue,
   fixed,
   row,
   gap,
   justify,
   align,
   padding,
-  paddingValue,
   onClick,
   fadeIn = true,
   defaultWidth = false,
+  className,
+  margin,
 }: BlockProps) => {
-  const marginStyle = {
-    marginTop: margin === 'top' ? marginValue : 0,
-    marginBottom: margin === 'bottom' ? marginValue : 0,
-    marginLeft: margin === 'left' ? marginValue : 0,
-    marginRight: margin === 'right' ? marginValue : 0,
-  }
-
-  const paddingStyle = {
-    paddingTop: padding === 'top' ? paddingValue : 0,
-    paddingBottom: padding === 'bottom' ? paddingValue : 0,
-    paddingLeft: padding === 'left' ? paddingValue : 0,
-    paddingRight: padding === 'right' ? paddingValue : 0,
-  }
   return (
     <div
       onClick={onClick}
-      style={{ ...marginStyle, ...paddingStyle }}
+      style={{
+        padding,
+        margin,
+      }}
       className={cn(
-        styles.root,
+        styles.block,
         fixed && styles[fixed],
         row && styles.row,
         gap && styles[`gap-${gap}`],
         justify && styles[`justify-${justify}`],
         align && styles[`align-${align}`],
         fadeIn && styles.fadeIn,
-        defaultWidth && styles.defaultWidth
+        defaultWidth && styles.defaultWidth,
+        className
       )}
     >
       {children}

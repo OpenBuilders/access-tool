@@ -14,6 +14,11 @@
   font-style: normal;
 }
 
+.title2 {
+  font-size: 24px;
+  font-style: normal;
+}
+
 .text {
   text-align: center;
   font-size: 17px;
@@ -48,23 +53,23 @@
 }
 
 .accent {
-  color: var(--color-accentsBrandCommunity);
+  color: var(--color-accent-primary);
 }
 
 .tertiary {
-  color: var(--color-textIconsTertiary);
+  color: var(--color-foreground-tertiary);
 }
 
 .secondary {
-  color: var(--color-textIconsSecondary);
+  color: var(--color-foreground-secondary);
 }
 
 .primary {
-  color: var(--color-textIconsPrimary);
+  color: var(--color-foreground-primary);
 }
 
 .danger {
-  color: var(--color-accentsRed);
+  color: var(--color-state-destructive);
 }
 
 .center {

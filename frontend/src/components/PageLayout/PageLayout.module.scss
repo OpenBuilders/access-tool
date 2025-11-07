@@ -1,29 +1,27 @@
 .root {
-  height: 100%;
-  width: 100%;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  min-height: 100dvh;
-  opacity: 1;
+  overflow-y: auto;
+  height: 100vh;
   animation: fadeIn 0.3s ease-in-out;
+  padding: 16px 0;
+}
+
+.isMobile {
+  padding: calc(var(--tg-content-safe-area-inset-top, 0px) + 66px) 0 16px 0;
 }
 
 .center {
-  margin: 0;
-  padding: 0 24px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex: 1;
 }
 
 @keyframes fadeIn {
-  from {
+  0% {
     opacity: 0;
   }
-  to {
+  100% {
     opacity: 1;
   }
 }

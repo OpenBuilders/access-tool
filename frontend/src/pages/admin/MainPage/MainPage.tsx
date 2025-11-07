@@ -9,6 +9,7 @@ import { goTo } from '@utils'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import styles from './MainPage.module.scss'
 import { ChatsBlock } from './components'
 
 export const MainPage = () => {
@@ -29,43 +30,48 @@ export const MainPage = () => {
 
   return (
     <PageLayout>
-      <TelegramBackButton />
-      <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
-      <Block>
-        <Text type="hero" weight="bold">
-          Access to Private
-          <br />
-          Groups & Channels
-        </Text>
-      </Block>
-      <Block margin="top" marginValue={12}>
+      <Block gap={12} className={styles.container}>
+        <Block padding="0 16px">
+          <Text type="hero" weight="bold">
+            Access to Private
+            <br />
+            Groups & Channels
+          </Text>
+        </Block>
         <ChatsBlock />
-      </Block>
-      <Block margin="top" marginValue="auto">
-        <Text align="center" type="caption" color="tertiary">
-          This tool is{' '}
-          <Text
-            type="caption"
-            color="accent"
-            as="span"
-            onClick={handleToProjectPage}
-          >
-            open source
+        <Block padding="0 16px">
+          <Text align="center" type="caption" color="tertiary">
+            This tool is{' '}
+            <Text
+              type="caption"
+              color="accent"
+              as="span"
+              onClick={handleToProjectPage}
+            >
+              open source
+            </Text>
+            , created by independent
+            <br />
+            developers, as part of
+            <Text
+              type="caption"
+              color="accent"
+              as="span"
+              onClick={navigateToToolsPage}
+            >
+              {' '}
+              Telegram Tools
+            </Text>
           </Text>
-          , created by independent
-          <br />
-          developers, as part of
-          <Text
-            type="caption"
-            color="accent"
-            as="span"
-            onClick={navigateToToolsPage}
-          >
-            {' '}
-            Telegram Tools
-          </Text>
-        </Text>
+        </Block>
       </Block>
+      {/* <TelegramBackButton /> */}
+      {/* <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} /> */}
+      {/* <Block gap={12} className={styles.container}>
+     
+        <ChatsBlock />
+    
+      </Block> */}
     </PageLayout>
   )
 }
