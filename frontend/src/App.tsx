@@ -2,7 +2,7 @@ import { TanStackProvider, ThemeContext } from '@context'
 import { useAppNavigation } from '@hooks'
 import '@styles/index.scss'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
-import { checkStartAppParams } from '@utils'
+import { checkIsMobile, checkStartAppParams } from '@utils'
 import { useContext, useEffect } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
@@ -47,15 +47,21 @@ function App() {
 
     if (darkTheme) {
       window.document.documentElement.style.backgroundColor = '#1c1c1e'
-      webApp?.setHeaderColor('#1c1c1e')
       webApp?.setBackgroundColor('#1c1c1e')
       webApp?.setBottomBarColor('#1c1c1e')
     } else {
       window.document.documentElement.style.backgroundColor = '#EFEFF4'
-      webApp?.setHeaderColor('#EFEFF4')
       webApp?.setBackgroundColor('#EFEFF4')
       webApp?.setBottomBarColor('#EFEFF4')
     }
+
+    const { isMobile } = checkIsMobile()
+
+    if (!isMobile) return
+
+    webApp?.requestFullscreen()
+    webApp?.lockOrientation()
+    webApp?.disableVerticalSwipes()
   }, [darkTheme])
 
   useEffect(() => {
@@ -71,9 +77,9 @@ function App() {
   }, [])
 
   useEffect(() => {
-    webApp.disableVerticalSwipes()
+    webApp?.disableVerticalSwipes()
     if (location.pathname && !location.pathname.includes('client')) {
-      webApp.expand()
+      webApp?.expand()
     }
   }, [location.pathname])
 
