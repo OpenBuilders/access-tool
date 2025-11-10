@@ -18,5 +18,8 @@ jobs:
             ./backend/api
             ./backend/community_manager
             ./backend/core
-            ./backend/indexer
+            ./backend/indexer_blockchain
+            ./backend/indexer_gifts
+            ./backend/indexer_price
+            ./backend/indexer_stickers
             ./backend/scheduler            
