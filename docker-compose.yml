@@ -11,13 +11,6 @@ x-python-service:
 x-indexer:
   &x-indexer
   <<: *x-python-service
-  build:
-    context: .
-    dockerfile: config/docker/Dockerfile.indexer
-  image: access-indexer
-  env_file:
-    - ./config/env/.core.env
-    - ./config/env/.indexer.env
   restart: on-failure
 
 
@@ -36,10 +29,18 @@ services:
 
   indexer-blockchain:
     <<: *x-indexer
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.indexer-blockchain
+    image: access-indexer-blockchain
+    env_file:
+      - ./config/env/.core.env
+      - ./config/env/.indexer-blockchain.env
+    restart: on-failure
     command: [
       "celery",
       "-A",
-      "indexer.celery_app:app",
+      "indexer_blockchain.celery_app:app",
       "worker",
       "-Q",
       "wallet-fetch-queue",
@@ -49,14 +50,21 @@ services:
       - WORKER_CONCURRENCY=4
     volumes:
       - ./backend/core:/app/core
-      - ./backend/indexer:/app/indexer
+      - ./backend/indexer_blockchain:/app/indexer_blockchain
 
-  indexer-prices:
+  indexer-price:
     <<: *x-indexer
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.indexer-price
+    image: access-indexer-price
+    env_file:
+      - ./config/env/.core.env
+      - ./config/env/.indexer-price.env
     command: [
       "celery",
       "-A",
-      "indexer.celery_app:app",
+      "indexer_price.celery_app:app",
       "worker",
       "-Q",
       "index-prices-queue",
@@ -66,14 +74,21 @@ services:
       - WORKER_CONCURRENCY=1
     volumes:
       - ./backend/core:/app/core
-      - ./backend/indexer:/app/indexer
+      - ./backend/indexer_price:/app/indexer_price
 
   indexer-stickers:
     <<: *x-indexer
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.indexer-stickers
+    env_file:
+      - ./config/env/.core.env
+      - ./config/env/.indexer-stickers.env
+    image: access-indexer-stickers
     command: [
       "celery",
       "-A",
-      "indexer.celery_app:app",
+      "indexer_stickers.celery_app:app",
       "worker",
       "-Q",
       "sticker-fetch-queue",
@@ -83,15 +98,22 @@ services:
       - WORKER_CONCURRENCY=1
     volumes:
       - ./backend/core:/app/core
-      - ./backend/indexer:/app/indexer
+      - ./backend/indexer_stickers:/app/indexer_stickers
       - ./config/certs/private_key.pem:/tmp/private_key.pem
 
   indexer-gifts:
     <<: *x-indexer
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.indexer-gifts
+    image: access-indexer-gifts
+    env_file:
+      - ./config/env/.core.env
+      - ./config/env/.indexer-gifts.env
     command: [
       "celery",
       "-A",
-      "indexer.celery_app:app",
+      "indexer_gifts.celery_app:app",
       "worker",
       "-Q",
       "gift-fetch-queue",
@@ -101,20 +123,23 @@ services:
       - WORKER_CONCURRENCY=1
     volumes:
       - ./backend/core:/app/core
-      - ./backend/indexer:/app/indexer
+      - ./backend/indexer_gifts:/app/indexer_gifts
       - ./config/env/sessions:/tmp:rw
 
   load-noticed-wallets:
     <<: *x-python-service
-    image: access-indexer
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.indexer-blockchain
+    image: access-indexer-blockchain
     env_file:
       - ./config/env/.core.env
-      - ./config/env/.indexer.env
+      - ./config/env/.indexer-blockchain.env
     restart: on-failure
     command: [
       "celery",
       "-A",
-      "indexer.celery_app:app",
+      "indexer_blockchain.celery_app:app",
       "worker",
       "-Q",
       "noticed-wallets-upload-queue",
@@ -125,7 +150,7 @@ services:
       - LOAD_WALLETS=1
     volumes:
       - ./backend/core:/app/core
-      - ./backend/indexer:/app/indexer
+      - ./backend/indexer_blockchain:/app/indexer_blockchain
 
   community-manager-tasks:
     <<: *x-python-service
@@ -156,7 +181,7 @@ services:
     env_file:
       - ./config/env/.core.env
       - ./config/env/.community-manager.env
-    command: ["python3", "community_manager/entrypoint.py"]
+    command: ["python", "-m", "community_manager.entrypoint"]
     ports:
       - "8081:8080"
     volumes:

@@ -3,23 +3,22 @@ FROM python:3.11.6-slim
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
+RUN mkdir /app/scheduler
+
+COPY backend/alembic.ini .
 
 # Copy requirements and install dependencies
-COPY backend/alembic.ini .
-COPY backend/core/requirements.txt .
-COPY backend/community_manager/requirements.txt requirements-community-manager.txt
+COPY backend/scheduler/requirements.txt ./scheduler/requirements.txt
 
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    pip install -r requirements-community-manager.txt
+    pip install -r scheduler/requirements.txt
 
-# Copy package files and source code
-COPY backend/setup.py .
-COPY backend/setup.cfg .
 COPY backend/core ./core
-COPY backend/indexer ./indexer
-COPY backend/community_manager ./community_manager
-COPY backend/scheduler ./scheduler
+RUN pip install -e ./core
 
-# Install packages in editable mode
-RUN pip install -e .
+# Copy the source code
+COPY backend/indexer_blockchain ./indexer_blockchain
+COPY backend/indexer_gifts ./indexer_gifts
+COPY backend/indexer_price ./indexer_price
+COPY backend/indexer_stickers ./indexer_stickers
+COPY backend/scheduler ./scheduler

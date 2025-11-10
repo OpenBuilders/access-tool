@@ -3,18 +3,18 @@ FROM python:3.11.6-slim
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
-RUN mkdir /app/api
+RUN mkdir /app/indexer_blockchain
 
 COPY backend/alembic.ini .
 
 # Copy requirements and install dependencies
-COPY backend/api/requirements.txt ./api/requirements.txt
+COPY backend/indexer_blockchain/requirements.txt ./indexer_blockchain/requirements.txt
 
 RUN pip install --upgrade pip && \
-    pip install -r api/requirements.txt
+    pip install -r indexer_blockchain/requirements.txt
 
 COPY backend/core ./core
 RUN pip install -e ./core
 
 # Copy the source code
-COPY backend/api ./api
+COPY backend/indexer_blockchain ./indexer_blockchain
