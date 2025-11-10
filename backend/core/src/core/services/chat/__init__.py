@@ -337,6 +337,7 @@ class TelegramChatService(BaseService):
     def get_tcv(self, chat_ids: list[int]) -> dict[int, float]:
         result = (
             self.db_session.query(TelegramChat.id, TCV_QUERY)
+            .join(TelegramChatUser, TelegramChat.id == TelegramChatUser.chat_id)
             .filter(TelegramChat.id.in_(chat_ids))
             .group_by(TelegramChat.id)
             .all()
