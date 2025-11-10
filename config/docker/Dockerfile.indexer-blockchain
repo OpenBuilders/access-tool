@@ -5,8 +5,6 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 RUN mkdir /app/indexer_blockchain
 
-COPY backend/alembic.ini .
-
 # Copy requirements and install dependencies
 COPY backend/indexer_blockchain/requirements.txt ./indexer_blockchain/requirements.txt
 
