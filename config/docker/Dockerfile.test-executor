@@ -3,7 +3,7 @@ FROM python:3.11.6-slim
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
-RUN mkdir /app/indexer_gifts
+RUN mkdir /app/core
 
 # Copy requirements and install dependencies
 COPY backend/core/requirements.txt ./core/requirements.txt
@@ -12,5 +12,8 @@ COPY backend/core/requirements-test.txt ./core/requirements-test.txt
 RUN pip install --upgrade pip && \
     pip install -r core/requirements.txt && \
     pip install -r core/requirements-test.txt
+
+COPY backend/core/pyproject.toml ./core/pyproject.toml
+COPY backend/core/src/core ./core/src/core
 
 RUN pip install -e ./core
