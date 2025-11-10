@@ -3,30 +3,16 @@ FROM python:3.11.6-slim
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
+RUN mkdir /app/indexer_gifts
 
-# Copy requirements and install all dependencies
 COPY backend/alembic.ini .
-COPY backend/core/requirements.txt .
-COPY backend/core/requirements-test.txt requirements-test.txt
-COPY backend/community_manager/requirements.txt requirements-community-manager.txt
-COPY backend/api/requirements.txt requirements-api.txt
-COPY backend/indexer/requirements.txt requirements-indexer.txt
+
+# Copy requirements and install dependencies
+COPY backend/core/requirements.txt ./core/requirements.txt
+COPY backend/core/requirements-test.txt ./core/requirements-test.txt
 
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    pip install -r requirements-test.txt && \
-    pip install -r requirements-community-manager.txt && \
-    pip install -r requirements-api.txt && \
-    pip install -r requirements-indexer.txt
+    pip install -r core/requirements.txt && \
+    pip install -r core/requirements-test.txt
 
-# Copy package files and source code
-COPY backend/setup.py .
-COPY backend/setup.cfg .
-COPY backend/core ./core
-COPY backend/indexer ./indexer
-COPY backend/community_manager ./community_manager
-COPY backend/api ./api
-COPY backend/tests ./tests
-
-# Install packages in editable mode
-RUN pip install -e .
+RUN pip install -e ./core

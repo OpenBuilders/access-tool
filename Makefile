@@ -1,5 +1,6 @@
 PYTHON_VERSION = "3.11.6"
 VENV_NAME := $(shell basename $(PWD))
+ONELINE: .
 
 _configure_redis_password:
 	./docker.sh run --rm redis redis-cli -a $(REDIS_PASSWORD) CONFIG SET requirepass $(REDIS_PASSWORD)
@@ -22,13 +23,13 @@ stop:
 	./docker.sh stop
 
 generate-migration:
-	./docker.sh run --rm api alembic revision --autogenerate -m "$(m)"
+	./docker.sh run --rm api alembic -c ./core/src/core/alembic.ini revision --autogenerate -m "$(m)"
 
 create-empty-migration:
-	./docker.sh run --rm api alembic revision -m "$(m)"
+	./docker.sh run --rm api alembic -c ./core/src/core/alembic.ini revision -m "$(m)"
 
 migrate:
-	./docker.sh run --rm api alembic upgrade head
+	./docker.sh run --rm api alembic -c ./core/src/core/alembic.ini upgrade head
 
 test:
 	MODE=test ./docker.sh run --rm -it test pytest tests
@@ -52,14 +53,13 @@ _install_virtualenv:
 	pyenv uninstall -f $(VENV_NAME)
 	echo "- Installing venv..."
 	pyenv virtualenv $(PYTHON_VERSION) $(VENV_NAME)
-	pip install --upgrade wheel pip
+	pip install --upgrade wheel pip==25.2
 
 _install_packages:
 	echo "Installing local packages"
 	pip3 install -r backend/core/requirements.txt
-	pip3 install -r backend/core/requirements-test.txt
-	pip3 install -r backend/indexer/requirements.txt
 	pip3 install -r backend/api/requirements.txt
+	pip3 install -e backend/core[dev]
 
 _install_pre_commit_hooks:
 	pre-commit install
@@ -93,6 +93,27 @@ generate-local-certs:
 
 	mkdir certs
 	mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "localhost"
+
+
+_compile_requirements_api:
+	pip-compile --no-emit-index-url backend/core/pyproject.toml backend/api/pyproject.toml --output-file backend/api/requirements.txt
+
+
+_compile_requirements_core:
+	pip-compile --no-emit-index-url backend/core/pyproject.toml --output-file backend/core/requirements.txt
+
+
+_compile_requirements_test:
+	 pip-compile --no-emit-index-url --extra dev backend/core/pyproject.toml --output-file backend/core/requirements-test.txt
+
+
+compile_requirements: _compile_requirements_api _compile_requirements_core _compile_requirements_test
+	cp backend/core/requirements.txt backend/community_manager/requirements.txt
+	cp backend/core/requirements.txt backend/indexer_blockchain/requirements.txt
+	cp backend/core/requirements.txt backend/indexer_gifts/requirements.txt
+	cp backend/core/requirements.txt backend/indexer_price/requirements.txt
+	cp backend/core/requirements.txt backend/indexer_stickers/requirements.txt
+	cp backend/core/requirements.txt backend/scheduler/requirements.txt
 
 
 include config/env/.core.env
