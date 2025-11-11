@@ -1,4 +1,4 @@
-PYTHON_VERSION = "3.11.6"
+PYTHON_VERSION = "3.13.9"
 VENV_NAME := $(shell basename $(PWD))
 ONELINE: .
 
