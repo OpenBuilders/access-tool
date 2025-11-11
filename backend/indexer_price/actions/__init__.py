@@ -43,7 +43,7 @@ class TonPriceIndexerAction(PriceIndexerAction):
 
     async def refresh_toncoin_price(self) -> None:
         try:
-            new_price = await self.indexer_price.index()
+            new_price = await self.indexer.index()
             logger.info(f"Successfully refreshed TON price. New price: {new_price}")
         except Exception as e:
             logger.exception(f"Error occurred while refreshing TON price: {e}")
@@ -95,7 +95,7 @@ class JettonPriceIndexerAction(PriceIndexerAction):
         update_batch: dict[str, float] = {}
         for jetton in all_jettons:
             try:
-                jetton_info = await self.indexer_price.get_jetton_info(jetton.address)
+                jetton_info = await self.indexer.get_jetton_info(jetton.address)
             except Exception as e:
                 logger.exception(f"Error occurred while fetching jetton info: {e}")
                 continue
@@ -158,10 +158,8 @@ class NftCollectionPriceIndexerAction(PriceIndexerAction):
         update_batch: dict[str, float] = {}
         for nft_collection in all_nft_collections:
             try:
-                nft_collection_info = (
-                    await self.indexer_price.get_collection_basic_info(
-                        address=nft_collection.address
-                    )
+                nft_collection_info = await self.indexer.get_collection_basic_info(
+                    address=nft_collection.address
                 )
             except Exception as e:
                 logger.exception(f"Error occurred while fetching collection info: {e}")
@@ -194,7 +192,7 @@ class StickerdomPriceIndexerAction(PriceIndexerAction):
 
     async def refresh_stickerdom_price(self) -> None:
         try:
-            stats = await self.indexer_price.get_stats()
+            stats = await self.indexer.get_stats()
             logger.info("Successfully fetch stickers stats.")
         except Exception as e:
             logger.exception(f"Error occurred while refreshing stickers prices: {e}")
