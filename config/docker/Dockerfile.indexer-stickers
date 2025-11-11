@@ -1,0 +1,18 @@
+FROM python:3.11.6-slim
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+RUN mkdir /app/indexer_stickers
+
+# Copy requirements and install dependencies
+COPY backend/indexer_stickers/requirements.txt ./indexer_stickers/requirements.txt
+
+RUN pip install --upgrade pip && \
+    pip install -r indexer_stickers/requirements.txt
+
+COPY backend/core ./core
+RUN pip install -e ./core
+
+# Copy the source code
+COPY backend/indexer_stickers ./indexer_stickers

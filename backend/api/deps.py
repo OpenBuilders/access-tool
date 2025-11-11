@@ -17,6 +17,7 @@ from starlette.status import (
 
 from api.pos.auth import InitDataPO
 from api.pos.chat import validate_address
+from core.dtos.pagination import PaginationMetadataDTO, OrderingRuleDTO
 from core.dtos.user import UserInitDataPO
 from api.services.authentication import AuthenticationService, UnauthorizedError
 from api.settings import api_settings
@@ -112,7 +113,86 @@ def get_address_raw(address: str) -> str:
 def validate_api_token(
     token: Annotated[str, Query(pattern=r"^[a-zA-Z0-9\-\_]+$", min_length=64)],
 ) -> str:
+    """
+    Validates the provided API token against the allowed API tokens in the system.
+
+    This function ensures that the input token conforms to the expected pattern
+    and is also part of the allowed API tokens.
+    If the validation fails, an appropriate HTTP exception with a forbidden status code is raised.
+
+    :param token: The API token to be validated.
+        It must be a string that matches the defined pattern and has a minimum length of 64 characters.
+    :return: The validated API token if it is valid.
+    :raises HTTPException: If the token is not in the allowed API tokens list or does not
+        meet the required criteria.
+    """
     if token not in api_settings.allowed_api_tokens:
         raise HTTPException(detail="Invalid API token", status_code=HTTP_403_FORBIDDEN)
 
     return token
+
+
+def get_pagination_params(
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+    include_total_count: Annotated[bool, Query(alias="includeTotalCount")] = True,
+) -> PaginationMetadataDTO:
+    """
+    Retrieves pagination parameters with specified offset, limit, and an optional
+    flag to include the total count in the metadata.
+
+    :param offset: The starting point of the pagination.
+        Must be a non-negative integer.
+    :param limit: The maximum number of items to return.
+        Must be an integer between 1 and 100, inclusive.
+    :param include_total_count: A boolean indicating whether to include the total
+        count of items in the pagination metadata.
+        Should mostly be used for performance reasons.
+    :return: Pagination metadata containing the offset, limit, and include_total_count
+        flag.
+    """
+    return PaginationMetadataDTO(
+        offset=offset, limit=limit, include_total_count=include_total_count
+    )
+
+
+def get_sorting_params(
+    sorting_params_model: type[OrderingRuleDTO],
+):
+    """
+    Extracts sorting parameters for a query based on provided inputs and returns a callable
+    function to create sorting models. The returned function can be used to handle optional
+    sorting fields and order preferences, with default assumptions when parameters are absent.
+
+    NOTE: It supports ordering by a single field.
+
+    :param sorting_params_model: The data model class/type used to create the sorting parameters.
+        It must have attributes for the field name and ascending/descending order.
+    :return: A callable function `_get_sorting_params` that processes sorting query parameters
+        and returns an instance of `sorting_params_model` or None.
+    """
+
+    def _get_sorting_params(
+        order_by: Annotated[str | None, Query(..., alias="orderBy")] = None,
+    ) -> sorting_params_model | None:
+        """
+        Extracts sorting parameters from query string inputs and returns an
+        sorting_params_model object if valid parameters are provided.
+        This function is designed to handle optional sorting fields and ascending/descending
+        order flags, with a default behavior when parameters are not provided.
+
+        NOTE: It only allows ordering by a single field.
+
+        :param order_by: The name of the field to sort by.
+            If None, the default sorting will be applied.
+        :return: A sorting_params_model object if `order_by` is specified, otherwise None.
+        """
+        if order_by:
+            is_ascending = not order_by.startswith("-")
+            return sorting_params_model(
+                field=order_by.lstrip("-"), is_ascending=is_ascending
+            )
+
+        return None
+
+    return _get_sorting_params

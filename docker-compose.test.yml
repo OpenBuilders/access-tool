@@ -16,7 +16,6 @@ services:
     build:
       context: .
       dockerfile: ./config/docker/Dockerfile.test-executor
-      target: tests-executor
     image: access-tests
     env_file:
       - ./config/env_template/.core.env.test

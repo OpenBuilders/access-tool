@@ -1,0 +1,20 @@
+[build-system]
+requires = [ "setuptools==80.9.0" ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "api"
+version = "1.0.0"
+description = "Access Community Tool – API"
+authors = [
+    { name="danoctua", email="danoctua@gmail.com" }
+]
+license = { text = "MIT" }
+requires-python = "==3.11.6"
+dependencies = [
+    "sentry-sdk[fastapi]==2.24.1",
+    "pyjwt==2.10.1",
+    "gunicorn==23.0.0",
+    "uvicorn-worker==0.4.0",
+    "prometheus-client==0.22.1",
+]

@@ -6,6 +6,7 @@ from core.constants import (
     CELERY_SYSTEM_QUEUE_NAME,
     CELERY_STICKER_FETCH_QUEUE_NAME,
     CELERY_GIFT_FETCH_QUEUE_NAME,
+    CELERY_INDEX_PRICES_QUEUE_NAME,
 )
 from core.settings import core_settings
 
@@ -18,7 +19,10 @@ def create_app() -> Celery:
             "result_backend": core_settings.broker_url,
             "include": [
                 "community_manager.tasks",
-                "indexer.tasks",
+                "indexer_blockchain.tasks",
+                "indexer_gifts.tasks",
+                "indexer_price.tasks",
+                "indexer_stickers.tasks",
             ],
             "beat_schedule": {
                 "check-chat-members": {
@@ -55,6 +59,11 @@ def create_app() -> Celery:
                     "task": "fetch-gift-ownership-details",
                     "schedule": crontab(hour="*/1", minute="0"),  # Every hour
                     "options": {"queue": CELERY_GIFT_FETCH_QUEUE_NAME},
+                },
+                "refresh-prices": {
+                    "task": "refresh-prices",
+                    "schedule": crontab(hour="*/1", minute="*/30"),  # Every 30 minutes
+                    "options": {"queue": CELERY_INDEX_PRICES_QUEUE_NAME},
                 },
             },
             "beat_schedule_filename": core_settings.beat_schedule_filename,

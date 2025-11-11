@@ -2,11 +2,23 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_404_NOT_FOUND, HTTP_200_OK
+from starlette.status import HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_400_BAD_REQUEST
 
-from api.deps import validate_access_token, get_db_session
+from api.deps import (
+    validate_access_token,
+    get_db_session,
+    get_pagination_params,
+    get_sorting_params,
+)
 from api.pos.base import BaseExceptionFDO
-from api.pos.chat import TelegramChatWithEligibilitySummaryFDO
+from api.pos.chat import (
+    TelegramChatWithEligibilitySummaryFDO,
+    PaginatedTelegramChatsFDO,
+    TelegramChatPreviewFDO,
+)
+from core.dtos.chat import TelegramChatOrderingRuleDTO
+from core.dtos.pagination import PaginationMetadataDTO
+from core.exceptions.api import InvalidSortingParameter
 from core.exceptions.chat import TelegramChatNotExists
 from core.actions.chat import TelegramChatAction
 from core.models.user import User
@@ -43,3 +55,41 @@ async def get_chat(
             detail="Chat not found",
             status_code=HTTP_404_NOT_FOUND,
         )
+
+
+@chat_router.get(
+    "/",
+    responses={
+        HTTP_200_OK: {"model": PaginatedTelegramChatsFDO},
+        HTTP_400_BAD_REQUEST: {
+            "description": "Bad request, e.g. wrong sorting params",
+            "model": BaseExceptionFDO,
+        },
+    },
+)
+async def get_chats(
+    _: User = Depends(validate_access_token),
+    db_session: Session = Depends(get_db_session),
+    pagination_params: PaginationMetadataDTO = Depends(get_pagination_params),
+    sorting_params: TelegramChatOrderingRuleDTO | None = Depends(
+        get_sorting_params(TelegramChatOrderingRuleDTO)
+    ),
+) -> PaginatedTelegramChatsFDO:
+    telegram_chat_action = TelegramChatAction(db_session)
+    try:
+        chats = telegram_chat_action.get_all(
+            pagination_params=pagination_params,
+            sorting_params=sorting_params,
+        )
+    except InvalidSortingParameter:
+        raise HTTPException(
+            detail="Bad request",
+            status_code=HTTP_400_BAD_REQUEST,
+        )
+    return PaginatedTelegramChatsFDO(
+        items=[
+            TelegramChatPreviewFDO.model_validate(chat.model_dump())
+            for chat in chats.items
+        ],
+        total_count=chats.total_count,
+    )

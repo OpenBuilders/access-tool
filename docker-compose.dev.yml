@@ -16,12 +16,10 @@ services:
     build:
       context: .
       dockerfile: ./config/docker/Dockerfile.api
-      target: api
     image: access-api
     env_file:
       - ./config/env/.api.env
       - ./config/env/.core.env
-      - ./config/env/.indexer.env
     container_name: "access-api"
     ports:
       - "8000:8000"
@@ -37,7 +35,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./config/certs:/etc/nginx/certs
     networks:
       - internal
