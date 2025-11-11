@@ -40,7 +40,7 @@ class TonApiService:
         limit: int = DEFAULT_TONAPI_LIMIT,
         attribute_name: str = "items",
         **kwargs,
-    ) -> AsyncGenerator[BaseModel, None]:
+    ) -> AsyncGenerator[BaseModel]:
         current_offset = offset
         previous_run_start: float | None = None
         while True:
@@ -89,7 +89,7 @@ class TonApiService:
 
     async def get_all_jetton_holders(
         self, account_id: str
-    ) -> AsyncGenerator[JettonHolders, None]:
+    ) -> AsyncGenerator[JettonHolders]:
         """
         Get all jettons' holders.
 
@@ -117,7 +117,7 @@ class TonApiService:
 
     async def get_all_nft_items_for_user(
         self, wallet_address: str, collection_address: str | None = None
-    ) -> AsyncGenerator[NftItems, None]:
+    ) -> AsyncGenerator[NftItems]:
         """
         Get all NFT items for the user.
 
@@ -136,7 +136,7 @@ class TonApiService:
 
     async def get_all_nft_items(
         self, collection_address: str
-    ) -> AsyncGenerator[NftItems, None]:
+    ) -> AsyncGenerator[NftItems]:
         """
         Get all NFT items.
 

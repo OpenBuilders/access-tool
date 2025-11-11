@@ -68,9 +68,9 @@ class StickerDomService:
             # Step 1: Get URL for collection data bucket with wrapped DEK
             headers = {}
             if stickers_indexer_settings.sticker_dom_ownership_header_key:
-                headers[
-                    stickers_indexer_settings.sticker_dom_ownership_header_key
-                ] = stickers_indexer_settings.sticker_dom_ownership_header_value
+                headers[stickers_indexer_settings.sticker_dom_ownership_header_key] = (
+                    stickers_indexer_settings.sticker_dom_ownership_header_value
+                )
             meta_response = await client.get(
                 self._get_ownership_url(collection_id),
                 headers=headers,

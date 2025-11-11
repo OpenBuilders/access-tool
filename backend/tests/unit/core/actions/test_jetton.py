@@ -287,9 +287,9 @@ async def test_refresh__increments_file_version__pass(
 
     jetton_record = db_session.query(Jetton).one()
     assert isinstance(jetton_record.logo_path, str)
-    assert (
-        jetton_record.logo_path == previous_logo_path
-    ), "Jetton logo path should match"
+    assert jetton_record.logo_path == previous_logo_path, (
+        "Jetton logo path should match"
+    )
 
     jetton_action = JettonAction(db_session)
     jetton_action.redis_service = create_autospec(RedisService, instance=True)

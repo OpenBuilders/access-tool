@@ -32,9 +32,9 @@ async def test_create_sticker_rule__pass(
         chat_slug=chat.slug,
         requestor=requestor,
     )
-    assert (
-        db_session.query(TelegramChatStickerCollection).first() is None
-    ), "There is already an existing rule."
+    assert db_session.query(TelegramChatStickerCollection).first() is None, (
+        "There is already an existing rule."
+    )
     result = await action.create(
         group_id=group.id,
         collection_id=sticker_collection.id,
@@ -142,9 +142,9 @@ async def test_update_sticker_rule__pass(
     assert updated_rule.category is None
     assert updated_rule.threshold == 1
     assert updated_rule.is_enabled is True
-    assert (
-        updated_rule.group_id == telegram_chat_sticker_collection_rule.group_id
-    ), "Group ID should not change."
+    assert updated_rule.group_id == telegram_chat_sticker_collection_rule.group_id, (
+        "Group ID should not change."
+    )
 
 
 @pytest.mark.asyncio
@@ -190,9 +190,9 @@ async def test_update_sticker_rule__set_character_null__pass(
     updated_rule = db_session.query(TelegramChatStickerCollection).one()
     assert updated_rule.collection_id == another_sticker_collection.id
     assert updated_rule.character_id is None
-    assert (
-        updated_rule.group_id == telegram_chat_sticker_collection_rule.group_id
-    ), "Group ID should not change."
+    assert updated_rule.group_id == telegram_chat_sticker_collection_rule.group_id, (
+        "Group ID should not change."
+    )
     assert updated_rule.is_enabled is True
 
 
@@ -215,9 +215,9 @@ async def test_delete_sticker_rule__pass(
         requestor=requestor,
     )
     await action.delete(rule_id=telegram_chat_sticker_collection_rule.id)
-    assert (
-        db_session.query(TelegramChatStickerCollection).first() is None
-    ), "The rule should be deleted."
-    assert (
-        db_session.query(TelegramChatRuleGroup).first() is None
-    ), "The group should be deleted."
+    assert db_session.query(TelegramChatStickerCollection).first() is None, (
+        "The rule should be deleted."
+    )
+    assert db_session.query(TelegramChatRuleGroup).first() is None, (
+        "The group should be deleted."
+    )

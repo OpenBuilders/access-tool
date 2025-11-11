@@ -71,8 +71,7 @@ CHAT_INPUT_REGEX = re.compile(
 )
 
 
-class TelegramChatPreviewFDO(BaseFDO, TelegramChatPreviewDTO):
-    ...
+class TelegramChatPreviewFDO(BaseFDO, TelegramChatPreviewDTO): ...
 
 
 class TelegramChatFDO(BaseFDO, TelegramChatDTO):
@@ -166,8 +165,7 @@ class TelegramChatJettonRuleCPO(BaseTelegramChatBlockchainResourceRuleCPO):
     expected: AmountInputField
 
 
-class NftItemAttributeFDO(BaseFDO, NftItemAttributeDTO):
-    ...
+class NftItemAttributeFDO(BaseFDO, NftItemAttributeDTO): ...
 
 
 class TelegramChatNFTCollectionRuleCPO(BaseTelegramChatBlockchainResourceRuleCPO):
@@ -272,8 +270,7 @@ class TelegramChatEmojiRuleCPO(BaseFDO):
     )
 
 
-class ChatEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
-    ...
+class ChatEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO): ...
 
 
 class ToncoinEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
@@ -301,8 +298,7 @@ class NftRuleEligibilitySummaryFDO(BaseFDO, NftRuleEligibilitySummaryDTO):
     photo_url: CDNImageField
 
 
-class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO):
-    ...
+class StickerChatEligibilityRuleFDO(BaseFDO, StickerChatEligibilityRuleDTO): ...
 
 
 class StickerChatEligibilitySummaryFDO(BaseFDO, StickerChatEligibilitySummaryDTO):
@@ -319,12 +315,10 @@ class GiftChatEligibilitySummaryFDO(BaseFDO, GiftChatEligibilitySummaryDTO):
     photo_url: CDNImageField
 
 
-class EmojiChatEligibilityRuleFDO(BaseFDO, EmojiChatEligibilityRuleDTO):
-    ...
+class EmojiChatEligibilityRuleFDO(BaseFDO, EmojiChatEligibilityRuleDTO): ...
 
 
-class EmojiChatEligibilitySummaryFDO(BaseFDO, EmojiChatEligibilitySummaryDTO):
-    ...
+class EmojiChatEligibilitySummaryFDO(BaseFDO, EmojiChatEligibilitySummaryDTO): ...
 
 
 RuleEligibilityFDOType = (
@@ -475,17 +469,13 @@ class UpdateWhitelistRuleExternalCPO(CreateWhitelistRuleExternalCPO):
     is_enabled: bool
 
 
-class WhitelistRuleFDO(BaseFDO, WhitelistRuleDTO):
-    ...
+class WhitelistRuleFDO(BaseFDO, WhitelistRuleDTO): ...
 
 
-class WhitelistRuleExternalFDO(BaseFDO, WhitelistRuleExternalDTO):
-    ...
+class WhitelistRuleExternalFDO(BaseFDO, WhitelistRuleExternalDTO): ...
 
 
-class WhitelistRuleUsersFDO(WhitelistRuleCPO):
-    ...
+class WhitelistRuleUsersFDO(WhitelistRuleCPO): ...
 
 
-class UpdateRuleGroupCPO(UpdateRuleGroupDTO, BaseFDO):
-    ...
+class UpdateRuleGroupCPO(UpdateRuleGroupDTO, BaseFDO): ...

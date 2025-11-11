@@ -10,5 +10,4 @@ class CreateTelegramChatPremiumRuleDTO(TelegramChatPremiumRule):
     group_id: int
 
 
-class UpdateTelegramChatPremiumRuleDTO(TelegramChatPremiumRule):
-    ...
+class UpdateTelegramChatPremiumRuleDTO(TelegramChatPremiumRule): ...

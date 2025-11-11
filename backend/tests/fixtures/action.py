@@ -18,8 +18,7 @@ class ChatManageActionFactory(Protocol):
         db_session: Session,
         chat_slug: str,
         requestor: User,
-    ) -> ActionT:
-        ...
+    ) -> ActionT: ...
 
 
 @pytest.fixture(scope="session")

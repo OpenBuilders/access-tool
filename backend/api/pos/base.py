@@ -15,5 +15,4 @@ class BaseExceptionFDO(BaseModel):
     detail: str
 
 
-class BaseThresholdFilterPO(BaseThresholdFilterDTO):
-    ...
+class BaseThresholdFilterPO(BaseThresholdFilterDTO): ...

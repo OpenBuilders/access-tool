@@ -1,9 +1,10 @@
-from typing import Any, Set
+from typing import Any
 
 import redis
 
 from core.constants import ASYNC_TASK_REDIS_PREFIX
 from core.settings import core_settings
+import builtins
 
 
 class RedisService:
@@ -117,7 +118,7 @@ class RedisService:
         Get all items from the stream and delete them
         :return: dictionary of key-value pairs where key is the stream id and value is the item
         """
-        result: list[list[str, dict[str, Any]]] = self.client.xread(
+        result: list[tuple[str, dict[str, Any]]] = self.client.xread(
             {core_settings.redis_transaction_stream_name: "0-0"}
         )
         if not result:
@@ -129,5 +130,5 @@ class RedisService:
         )
         return consumed_items
 
-    def get_unique_stream_items(self) -> Set[str]:
+    def get_unique_stream_items(self) -> builtins.set[str]:
         return {item["wallet"] for item in self.get_stream_items().values()}

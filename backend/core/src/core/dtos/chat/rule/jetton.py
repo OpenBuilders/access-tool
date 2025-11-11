@@ -21,8 +21,7 @@ class CreateTelegramChatJettonRuleDTO(BaseTelegramChatJettonRuleDTO):
     group_id: int
 
 
-class UpdateTelegramChatJettonRuleDTO(BaseTelegramChatJettonRuleDTO):
-    ...
+class UpdateTelegramChatJettonRuleDTO(BaseTelegramChatJettonRuleDTO): ...
 
 
 class JettonEligibilityRuleDTO(ChatEligibilityRuleDTO):

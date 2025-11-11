@@ -27,8 +27,7 @@ class CreateTelegramChatStickerCollectionRuleDTO(
 
 class UpdateTelegramChatStickerCollectionRuleDTO(
     BaseTelegramChatStickerCollectionRuleDTO
-):
-    ...
+): ...
 
 
 class StickerChatEligibilityRuleDTO(ChatEligibilityRuleDTO):

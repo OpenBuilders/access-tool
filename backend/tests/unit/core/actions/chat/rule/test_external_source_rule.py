@@ -44,9 +44,9 @@ async def test_create_external_source_rule__pass(
             current=new_content,
         )
     )
-    assert (
-        db_session.query(TelegramChatWhitelistExternalSource).first() is None
-    ), "There is already an existing rule."
+    assert db_session.query(TelegramChatWhitelistExternalSource).first() is None, (
+        "There is already an existing rule."
+    )
     input_dto = TelegramChatWhitelistExternalSourceDTO(
         url="https://notco.in/metadata",
         name="New External Source",
@@ -115,9 +115,9 @@ async def test_create_external_source_rule__fails_validation__doesnt_create(
         await action.create(
             group_id=group.id, **input_dto.model_dump(exclude={"is_enabled"})
         )
-    assert (
-        db_session.query(TelegramChatWhitelistExternalSource).first() is None
-    ), "The rule should not be created."
+    assert db_session.query(TelegramChatWhitelistExternalSource).first() is None, (
+        "The rule should not be created."
+    )
 
 
 @pytest.mark.asyncio

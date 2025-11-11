@@ -68,7 +68,7 @@ class WalletService(BaseService):
 
         return final_set
 
-    def get_all_wallet_addresses(self) -> Generator[str, None, None]:
+    def get_all_wallet_addresses(self) -> Generator[str]:
         query = self.db_session.query(UserWallet.address).all()
         return (str(address[0]) for address in query)
 

@@ -252,9 +252,9 @@ class AuthorizationAction(BaseAction):
 
         for chat_member in chat_members:
             members_per_chat[chat_member.chat_id].append(chat_member)
-            eligibility_rules_per_chat[
-                chat_member.chat_id
-            ] = self.get_eligibility_rules(chat_id=chat_member.chat_id)
+            eligibility_rules_per_chat[chat_member.chat_id] = (
+                self.get_eligibility_rules(chat_id=chat_member.chat_id)
+            )
             user_id_to_telegram_id[chat_member.user_id] = chat_member.user.telegram_id
 
         nft_item_service = NftItemService(self.db_session)

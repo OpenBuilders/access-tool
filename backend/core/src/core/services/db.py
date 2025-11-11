@@ -25,7 +25,7 @@ class DBService:
     @contextmanager
     def db_session(
         self,
-    ) -> Generator[Session, None, None]:
+    ) -> Generator[Session]:
         """See `DBSessionMaker.db_session` signature."""
         session = Session(bind=engine)
         try:

@@ -134,13 +134,13 @@ def test_get_all__pagination__success(
     # Assert
     assert len(result.items) == expected_count
     if include_total_count:
-        assert (
-            result.total_count == BATCH_RECORDS_COUNT
-        ), "Should be aligned with a number of records created"
+        assert result.total_count == BATCH_RECORDS_COUNT, (
+            "Should be aligned with a number of records created"
+        )
     else:
-        assert (
-            result.total_count is None
-        ), "Should be None if include_total_count is False"
+        assert result.total_count is None, (
+            "Should be None if include_total_count is False"
+        )
 
     for expected_chat, actual_chat in zip(
         ordered_chats[offset : offset + limit], result.items

@@ -23,8 +23,7 @@ class GetNftCollectionCPO(BaseFDO):
     whitelisted_only: bool = True
 
 
-class NftCollectionAttributeFDO(BaseFDO, NftCollectionAttributeDTO):
-    ...
+class NftCollectionAttributeFDO(BaseFDO, NftCollectionAttributeDTO): ...
 
 
 class NftCollectionMetadataFDO(BaseFDO):

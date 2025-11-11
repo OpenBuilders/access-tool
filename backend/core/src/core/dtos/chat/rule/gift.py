@@ -33,8 +33,9 @@ class CreateTelegramChatGiftCollectionRuleDTO(BaseTelegramChatGiftCollectionRule
     group_id: int
 
 
-class UpdateTelegramChatGiftCollectionRuleDTO(BaseTelegramChatGiftCollectionRuleDTO):
-    ...
+class UpdateTelegramChatGiftCollectionRuleDTO(
+    BaseTelegramChatGiftCollectionRuleDTO
+): ...
 
 
 class GiftChatEligibilityRuleDTO(ChatEligibilityRuleDTO):

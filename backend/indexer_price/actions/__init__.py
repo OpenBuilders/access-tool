@@ -207,9 +207,9 @@ class StickerdomPriceIndexerAction(PriceIndexerAction):
                 logger.info(
                     f"Got new price for {collection.name=!r} {character.name=!r}: {character.current.price.floor.usd}"
                 )
-                update_batch[
-                    (collection.id, character.id)
-                ] = character.current.price.floor.usd
+                update_batch[(collection.id, character.id)] = (
+                    character.current.price.floor.usd
+                )
 
                 collection_prices.append(character.current.price.floor.usd)
 

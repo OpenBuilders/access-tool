@@ -1,7 +1,8 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import AsyncGenerator, IO, BinaryIO
+from typing import IO, BinaryIO
+from collections.abc import AsyncGenerator
 
 from telethon import TelegramClient, Button
 from telethon.errors import MultiError, FloodWaitError, RPCError
@@ -152,9 +153,7 @@ class TelethonService:
         except ValueError as e:
             raise MissingUserEntityError(str(e)) from e
 
-    async def get_participants(
-        self, chat_id: int
-    ) -> AsyncGenerator[TelethonUser, None]:
+    async def get_participants(self, chat_id: int) -> AsyncGenerator[TelethonUser]:
         async for participant in self.client.iter_participants(chat_id):
             yield participant
 
@@ -408,7 +407,7 @@ class TelethonService:
             )
         except MultiError as e:
             logger.error(f"Error occurred while fetching gifts: {e}")
-            if any((isinstance(exc, FloodWaitError) for exc in e.exceptions)):
+            if any(isinstance(exc, FloodWaitError) for exc in e.exceptions):
                 # Typical Flood timeout for gifts fetching is 3 seconds
                 # We can go forward, but there is a chance of get banned or lose some data because of the errors
                 logger.warning(

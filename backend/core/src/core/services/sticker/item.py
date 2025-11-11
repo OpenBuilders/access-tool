@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from core.models.sticker import StickerItem
 from core.services.base import BaseService

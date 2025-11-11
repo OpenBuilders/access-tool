@@ -100,8 +100,7 @@ class StickerItemDTO(BaseStickerItemDTO):
         )
 
 
-class ExternalStickerItemDTO(BaseStickerItemDTO):
-    ...
+class ExternalStickerItemDTO(BaseStickerItemDTO): ...
 
 
 class StickerDomCollectionOwnershipMetadataDTO(BaseModel):

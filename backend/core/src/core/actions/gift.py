@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from fastapi import HTTPException
 from sqlalchemy import and_, select, distinct, func, union_all, Select

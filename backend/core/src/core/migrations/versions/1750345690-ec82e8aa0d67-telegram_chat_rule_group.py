@@ -5,7 +5,9 @@ Revises: 53b283880538
 Create Date: 2025-06-19 15:08:10.234943
 
 """
-from typing import Sequence, Union
+
+from typing import Union
+from collections.abc import Sequence
 
 from alembic import op
 import sqlalchemy as sa
@@ -13,9 +15,9 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = "ec82e8aa0d67"
-down_revision: Union[str, None] = "53b283880538"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "53b283880538"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def create_rule_group_table() -> None:

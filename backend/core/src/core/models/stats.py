@@ -13,6 +13,6 @@ class Stats(Base):
     timestamp = mapped_column(
         TIMESTAMP(timezone=False),
         nullable=False,
-        default=lambda: datetime.datetime.now(tz=datetime.timezone.utc),
+        default=lambda: datetime.datetime.now(tz=datetime.UTC),
         primary_key=True,
     )

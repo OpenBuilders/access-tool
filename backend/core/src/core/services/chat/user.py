@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from sqlalchemy import func, and_, or_
 from sqlalchemy.exc import NoResultFound

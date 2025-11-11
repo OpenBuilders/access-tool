@@ -14,5 +14,4 @@ class CreateTelegramChatToncoinRuleDTO(BaseTelegramChatToncoinRuleDTO):
     group_id: int
 
 
-class UpdateTelegramChatToncoinRuleDTO(BaseTelegramChatToncoinRuleDTO):
-    ...
+class UpdateTelegramChatToncoinRuleDTO(BaseTelegramChatToncoinRuleDTO): ...

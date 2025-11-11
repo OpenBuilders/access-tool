@@ -18,8 +18,7 @@ class CreateTelegramChatEmojiRuleDTO(TelegramChatEmojiRuleDTO):
     group_id: int
 
 
-class UpdateTelegramChatEmojiRuleDTO(TelegramChatEmojiRuleDTO):
-    ...
+class UpdateTelegramChatEmojiRuleDTO(TelegramChatEmojiRuleDTO): ...
 
 
 class EmojiChatEligibilityRuleDTO(ChatEligibilityRuleDTO):

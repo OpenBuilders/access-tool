@@ -1,7 +1,8 @@
 import logging
 import random
 from string import ascii_lowercase
-from typing import Any, Iterable
+from typing import Any
+from collections.abc import Iterable
 
 from slugify import slugify
 from sqlalchemy import func, case

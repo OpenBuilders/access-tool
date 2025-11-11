@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from core.dtos.gift.item import GiftUniqueDTO
 from core.services.supertelethon import TelethonService
@@ -16,7 +16,7 @@ class GiftUniqueIndexer:
 
     async def index_collection_items(
         self, collection_slug: str, start: int, stop: int
-    ) -> AsyncGenerator[list[GiftUniqueDTO], None]:
+    ) -> AsyncGenerator[list[GiftUniqueDTO]]:
         """
         Indexes all gifts from a specific collection using the telethon service. This process
         involves fetching a specific number of gifts from a collection, converting them into

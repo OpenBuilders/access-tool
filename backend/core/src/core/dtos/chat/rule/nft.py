@@ -20,8 +20,7 @@ class CreateTelegramChatNFTCollectionRuleDTO(BaseTelegramChatNFTCollectionRuleDT
     group_id: int
 
 
-class UpdateTelegramChatNFTCollectionRuleDTO(BaseTelegramChatNFTCollectionRuleDTO):
-    ...
+class UpdateTelegramChatNFTCollectionRuleDTO(BaseTelegramChatNFTCollectionRuleDTO): ...
 
 
 class NftEligibilityRuleDTO(ChatEligibilityRuleDTO):

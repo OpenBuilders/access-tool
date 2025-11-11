@@ -6,8 +6,7 @@ from api.pos.base import BaseFDO
 from core.dtos.wallet import WalletDetailsWithProofDTO
 
 
-class WalletDetailsWithProofCPO(BaseFDO, WalletDetailsWithProofDTO):
-    ...
+class WalletDetailsWithProofCPO(BaseFDO, WalletDetailsWithProofDTO): ...
 
 
 class ConnectWalletRequestCPO(BaseFDO):

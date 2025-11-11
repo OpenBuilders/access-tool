@@ -14,8 +14,7 @@ from core.dtos.gift.collection import (
 from core.dtos.gift.item import GiftUniqueDTO
 
 
-class GiftCollectionFDO(BaseFDO, GiftCollectionDTO):
-    ...
+class GiftCollectionFDO(BaseFDO, GiftCollectionDTO): ...
 
 
 class GiftCollectionMetadataFDO(BaseFDO, GiftCollectionMetadataDTO):

@@ -1,7 +1,7 @@
 import datetime
 import logging
 from pathlib import Path
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from sqlalchemy.orm import Session
 
@@ -25,7 +25,7 @@ class IndexerGiftUniqueAction(BaseAction):
         self.redis_service = RedisService()
         self.indexer = GiftUniqueIndexer(session_path=session_path)
 
-    async def index_all(self) -> AsyncGenerator[set[int], None]:
+    async def index_all(self) -> AsyncGenerator[set[int]]:
         """
         Indexes all unique items in the database.
         """

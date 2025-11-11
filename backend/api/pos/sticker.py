@@ -8,8 +8,7 @@ from core.dtos.sticker import (
 )
 
 
-class MinimalStickerCollectionFDO(BaseFDO, MinimalStickerCollectionDTO):
-    ...
+class MinimalStickerCollectionFDO(BaseFDO, MinimalStickerCollectionDTO): ...
 
 
 class MinimalStickerCharacterFDO(BaseFDO, MinimalStickerCharacterDTO):

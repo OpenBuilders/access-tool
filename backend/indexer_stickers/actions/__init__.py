@@ -1,5 +1,5 @@
 import logging
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -215,7 +215,7 @@ class IndexerStickerItemAction(BaseAction):
 
     async def process_collection_ownerships(
         self, collection_dto: StickerCollectionDTO
-    ) -> AsyncGenerator[set[int], None]:
+    ) -> AsyncGenerator[set[int]]:
         """
         Batch processes a sticker collection by updating ownership information and
         handling changes in sticker items within the collection.
@@ -268,11 +268,11 @@ class IndexerStickerItemAction(BaseAction):
             updated_users_ids = set()
             new_db_items = []
             updated_db_items = []
-            internal_new_items: list[
-                StickerItemDTO
-            ] = self.external_sticker_action.map_external_data_to_internal(
-                collection_id=collection.id,
-                items=batch,
+            internal_new_items: list[StickerItemDTO] = (
+                self.external_sticker_action.map_external_data_to_internal(
+                    collection_id=collection.id,
+                    items=batch,
+                )
             )
 
             for new_item in internal_new_items:
@@ -321,7 +321,7 @@ class IndexerStickerItemAction(BaseAction):
     async def refresh_ownerships(
         self,
         collections: list[StickerCollectionDTO],
-    ) -> AsyncGenerator[set[int], None]:
+    ) -> AsyncGenerator[set[int]]:
         """
         Refreshes ownerships for a given list of sticker collections.
         This coroutine iterates over each collection in the provided list,

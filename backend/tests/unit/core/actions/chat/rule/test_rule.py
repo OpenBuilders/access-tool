@@ -64,9 +64,9 @@ async def test_move_rule__pass(
 
     existing_rules = db_session.query(model).all()
     for rule in existing_rules:
-        assert (
-            rule.group_id == target_rule.group_id
-        ), "All rules should be in the same group."
+        assert rule.group_id == target_rule.group_id, (
+            "All rules should be in the same group."
+        )
 
     action.move(
         item=UpdateRuleGroupDTO(
@@ -142,9 +142,9 @@ async def test_move_rule__last_rule__group_removed(
 
     updated_rule = db_session.query(model).one()
 
-    assert (
-        updated_rule.group_id == another_group.id
-    ), "The rule should be moved to the new group."
+    assert updated_rule.group_id == another_group.id, (
+        "The rule should be moved to the new group."
+    )
 
 
 @pytest.mark.parametrize(

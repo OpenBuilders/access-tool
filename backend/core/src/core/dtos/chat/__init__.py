@@ -144,9 +144,9 @@ class TelegramChatPovDTO(BaseTelegramChatDTO):
             )
 
 
-class PaginatedTelegramChatsPreviewDTO(PaginatedResultDTO[TelegramChatPreviewDTO]):
-    ...
+class PaginatedTelegramChatsPreviewDTO(PaginatedResultDTO[TelegramChatPreviewDTO]): ...
 
 
-class TelegramChatOrderingRuleDTO(OrderingRuleDTO[CustomTelegramChatOrderingRulesEnum]):
-    ...
+class TelegramChatOrderingRuleDTO(
+    OrderingRuleDTO[CustomTelegramChatOrderingRulesEnum]
+): ...
