@@ -16,4 +16,3 @@ RUN pip install -e ./core
 
 # Copy the source code
 COPY backend/community_manager ./community_manager
-RUN pip install -e ./community_manager
