@@ -16,9 +16,7 @@ x-indexer:
 
 services:
   transaction-lookup:
-    build:
-      context: .
-      dockerfile: ./config/docker/Dockerfile.worker
+    image: ghcr.io/danoctua/transaction-lookup-worker:2.0.0
     env_file:
       - ./config/env/.transaction-lookup.env
     depends_on:
