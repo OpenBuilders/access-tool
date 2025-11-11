@@ -57,9 +57,10 @@ _install_virtualenv:
 
 _install_packages:
 	echo "Installing local packages"
-	pip3 install -r backend/core/requirements.txt
+	# requirements-test.txt already contains core requirements
+	# pip3 install -r backend/core/requirements.txt
+	pip3 install -r backend/core/requirements-test.txt
 	pip3 install -r backend/api/requirements.txt
-	pip3 install -e backend/core[dev]
 
 _install_pre_commit_hooks:
 	pre-commit install
