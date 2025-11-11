@@ -64,6 +64,7 @@ async def refresh_all_prices():
     This function calls specific tasks to refresh the prices of different types of assets.
 
     """
+    logger.info("Started refreshing all prices")
     # TON price should be refreshed first to ensure NFT collections price is properly calculated in USD,
     # since GetGems only returns it in TON
     await refresh_toncoin_price()
@@ -75,6 +76,7 @@ async def refresh_all_prices():
     )
     # Finally, refresh chat prices after all assets are refreshed
     await refresh_chat_price_async()
+    logger.info("Successfully completed refreshing all prices")
 
 
 @app.task(
