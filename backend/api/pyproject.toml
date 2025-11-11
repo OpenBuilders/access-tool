@@ -10,11 +10,11 @@ authors = [
     { name="danoctua", email="danoctua@gmail.com" }
 ]
 license = { text = "MIT" }
-requires-python = "==3.11.6"
+requires-python = "==3.13.9"
 dependencies = [
-    "sentry-sdk[fastapi]==2.24.1",
+    "sentry-sdk[fastapi]==2.44.0",
     "pyjwt==2.10.1",
     "gunicorn==23.0.0",
     "uvicorn-worker==0.4.0",
-    "prometheus-client==0.22.1",
+    "prometheus-client==0.23.1",
 ]

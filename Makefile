@@ -43,6 +43,7 @@ _install_python_version:
 		echo "- python $(PYTHON_VERSION) installation was found in pyenv"; \
 	else \
 		echo "- python $(PYTHON_VERSION) installation was not found in pyenv, installing it..."; \
+		pyenv update; \
 		pyenv install $(PYTHON_VERSION); \
 	fi
 
