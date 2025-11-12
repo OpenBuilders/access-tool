@@ -1,0 +1,27 @@
+.root {
+  overflow-y: auto;
+  height: 100vh;
+  animation: fadeIn 0.3s ease-in-out;
+  padding: 16px 0;
+}
+
+.isMobile {
+  padding: calc(var(--tg-content-safe-area-inset-top, 0px) + 66px) 0 16px 0;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex: 1;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

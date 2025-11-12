@@ -23,6 +23,7 @@ import {
   checkUnable,
   completed,
   sortArrows,
+  checkmark,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -76,5 +77,7 @@ export const getIcon = (name: IconTypeName) => {
       return completed
     case 'sortArrows':
       return sortArrows
+    case 'checkmark':
+      return checkmark
   }
 }

@@ -1,6 +1,6 @@
 import {
   Block,
-  PageLayout,
+  PageLayoutNew,
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
@@ -29,7 +29,9 @@ export const MainPage = () => {
   }
 
   return (
-    <PageLayout>
+    <PageLayoutNew>
+      <TelegramBackButton />
+      <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
       <Block gap={12} className={styles.container}>
         <Block padding="0 16px">
           <Text type="hero" weight="bold">
@@ -65,13 +67,6 @@ export const MainPage = () => {
           </Text>
         </Block>
       </Block>
-      {/* <TelegramBackButton /> */}
-      {/* <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} /> */}
-      {/* <Block gap={12} className={styles.container}>
-     
-        <ChatsBlock />
-    
-      </Block> */}
-    </PageLayout>
+    </PageLayoutNew>
   )
 }
