@@ -31,7 +31,7 @@ export const MainPage = () => {
 
   return (
     <PageLayoutNew>
-      <TelegramBackButton />
+      <TelegramBackButton hidden />
       <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
       <BlockNew gap={12} className={styles.container}>
         <BlockNew padding="0 16px">
