@@ -1,6 +1,7 @@
 import lockLottie from '@assets/lock.json'
 import {
   Block,
+  BlockNew,
   Group,
   GroupItem,
   Image,
@@ -8,7 +9,8 @@ import {
   Text,
 } from '@components'
 import { AdminChat } from '@types'
-import { createMembersCount } from '@utils'
+import { createMembersCount, hapticFeedback } from '@utils'
+import { useNavigate } from 'react-router-dom'
 
 import styles from './UserChatsList.module.scss'
 
@@ -17,23 +19,25 @@ interface UserChatsListProps {
 }
 
 export const UserChatsList = ({ chats }: UserChatsListProps) => {
+  const navigate = useNavigate()
+
   if (!chats.length) {
     return (
-      <Block className={styles.emptyContainer}>
+      <BlockNew className={styles.emptyContainer}>
         <StickerPlayer lottie={lockLottie} height={120} width={120} />
-        <Block margin="12px 0 0 0">
+        <BlockNew margin="12px 0 0 0">
           <Text type="title2" color="primary" align="center" weight="bold">
             Nothing Added Yet
           </Text>
-        </Block>
-        <Block margin="8px 0 0 0">
+        </BlockNew>
+        <BlockNew margin="8px 0 0 0">
           <Text type="text" color="secondary" align="center">
             Set up your first private access to your
             <br />
             Telegram group or channel.
           </Text>
-        </Block>
-      </Block>
+        </BlockNew>
+      </BlockNew>
     )
   }
 
@@ -57,6 +61,10 @@ export const UserChatsList = ({ chats }: UserChatsListProps) => {
               fallback={chat.title}
             />
           }
+          onClick={() => {
+            hapticFeedback('soft')
+            navigate(`/client/${chat.slug}`)
+          }}
         />
       ))}
     </Group>

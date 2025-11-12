@@ -1,12 +1,14 @@
 import { Group, GroupItem, Image, Text } from '@components'
 import { ChatPopular } from '@types'
-import { createMembersCount } from '@utils'
+import { createMembersCount, hapticFeedback } from '@utils'
+import { useNavigate } from 'react-router-dom'
 
 interface PopularChatsListProps {
   chats: ChatPopular[]
 }
 
 export const PopularChatsList = ({ chats }: PopularChatsListProps) => {
+  const navigate = useNavigate()
   return (
     <Group>
       {chats.map((chat) => (
@@ -27,6 +29,10 @@ export const PopularChatsList = ({ chats }: PopularChatsListProps) => {
               fallback={chat.title}
             />
           }
+          onClick={() => {
+            hapticFeedback('soft')
+            navigate(`/client/${chat.slug}`)
+          }}
         />
       ))}
     </Group>
