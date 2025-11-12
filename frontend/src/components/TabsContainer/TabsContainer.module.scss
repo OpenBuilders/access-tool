@@ -1,0 +1,39 @@
+.tabsContainer {
+  display: flex;
+  position: relative;
+  background-color: var(--color-background-section);
+  border-radius: 18px;
+  padding: 2px;
+  height: 36px;
+  width: fit-content;
+}
+
+.slider {
+  position: absolute;
+  top: 2px;
+  height: calc(100% - 4px);
+  background-color: var(--color-segmentControl-background);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 0;
+
+  backdrop-filter: blur(12px);
+}
+
+.tab {
+  position: relative;
+  z-index: 1;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--color-foreground-primary);
+  font-size: 15px;
+  font-weight: 590;
+  line-height: 15px;
+  cursor: pointer;
+  padding: 0 23px;
+}
