@@ -43,4 +43,12 @@
   min-width: 36px;
   height: 36px;
   padding: 6px 0;
+  opacity: 1;
+  visibility: visible;
+  transition: 0.2s;
+}
+
+.orderByContainerHide {
+  opacity: 0;
+  visibility: hidden;
 }
