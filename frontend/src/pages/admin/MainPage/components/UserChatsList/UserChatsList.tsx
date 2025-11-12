@@ -63,7 +63,7 @@ export const UserChatsList = ({ chats }: UserChatsListProps) => {
           }
           onClick={() => {
             hapticFeedback('soft')
-            navigate(`/client/${chat.slug}`)
+            navigate(`/admin/chat/${chat.slug}`)
           }}
         />
       ))}

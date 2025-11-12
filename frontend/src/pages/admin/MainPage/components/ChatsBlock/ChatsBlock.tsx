@@ -66,7 +66,7 @@ export const ChatsBlock = () => {
           onClick={() => handleToggleDropdown()}
           ref={buttonRef}
         >
-          <Icon name="sortArrows" size={18} />
+          <Icon name="sortArrows" size={18} color="secondary" />
           <Dropdown
             active={isDropdownOpen}
             options={[
