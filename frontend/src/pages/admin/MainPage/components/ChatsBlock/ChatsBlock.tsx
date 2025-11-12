@@ -1,6 +1,7 @@
 import { BlockNew, Dropdown, Icon, TabsContainer } from '@components'
 import { ChatsActiveTab, ChatsPopularOrderBy } from '@types'
 import { hapticFeedback } from '@utils'
+import cn from 'classnames'
 import { useRef, useState } from 'react'
 
 import { useAdminChatsQuery, useChatsPopularQuery } from '@store-new'
@@ -62,7 +63,10 @@ export const ChatsBlock = () => {
           onChangeTab={handleChangeActiveTab}
         />
         <div
-          className={styles.orderByContainer}
+          className={cn(
+            styles.orderByContainer,
+            activeTab !== 'explore' && styles.orderByContainerHide
+          )}
           onClick={() => handleToggleDropdown()}
           ref={buttonRef}
         >
