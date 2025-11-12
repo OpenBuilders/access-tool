@@ -1,34 +1,61 @@
-import { memo, useEffect, useRef } from 'react'
+import { useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 interface TelegramBackButtonProps {
-  onClick?: () => void
+  onClick?(): void
+  hidden?: boolean
 }
 
-const TelegramBackButtonMemo = ({ onClick }: TelegramBackButtonProps) => {
-  const onClickRef = useRef(onClick)
+export const TelegramBackButton = ({
+  hidden,
+  onClick,
+}: TelegramBackButtonProps) => {
+  const webApp = window?.Telegram?.WebApp
+  const backButton = webApp ? webApp?.BackButton : null
 
-  useEffect(() => {
-    onClickRef.current = onClick
-  }, [onClick])
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  useEffect(() => {
-    const webApp = window.Telegram?.WebApp
-    if (!webApp || !onClickRef.current) return
-
-    const handleBackButtonClick = () => {
-      onClickRef.current?.()
+  const handleClick = () => {
+    const closeApp = !!location?.state?.closeApp
+    if (hidden || closeApp) {
+      return null
     }
 
-    webApp.BackButton.show()
-    webApp.BackButton.onClick(handleBackButtonClick)
+    if (onClick) {
+      onClick()
+    } else {
+      const toMainPage = !!location?.state?.toMainPage
 
-    return () => {
-      webApp.BackButton.offClick(handleBackButtonClick)
-      webApp.BackButton.hide()
+      if (toMainPage) {
+        navigate('/')
+        return
+      }
+      navigate(-1)
+    }
+  }
+
+  useEffect(() => {
+    if (backButton) {
+      backButton.show()
     }
   }, [])
 
+  useEffect(() => {
+    if (hidden) {
+      if (backButton) {
+        backButton.hide()
+      }
+    }
+  }, [hidden])
+
+  useEffect(() => {
+    webApp?.onEvent('backButtonClicked', handleClick)
+
+    return () => {
+      webApp?.offEvent('backButtonClicked', handleClick)
+    }
+  }, [handleClick])
+
   return null
 }
-
-export const TelegramBackButton = memo(TelegramBackButtonMemo)

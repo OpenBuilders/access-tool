@@ -1,4 +1,4 @@
-import { Block, Dropdown, Icon, TabsContainer } from '@components'
+import { BlockNew, Dropdown, Icon, TabsContainer } from '@components'
 import { ChatsActiveTab, ChatsPopularOrderBy } from '@types'
 import { hapticFeedback } from '@utils'
 import { useRef, useState } from 'react'
@@ -12,7 +12,7 @@ import { Skeleton } from './Skeleton'
 
 export const ChatsBlock = () => {
   const [activeTab, setActiveTab] = useState<ChatsActiveTab>('explore')
-  const [orderBy, setOrderBy] = useState<ChatsPopularOrderBy>('tcv')
+  const [orderBy, setOrderBy] = useState<ChatsPopularOrderBy>('-tcv')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const buttonRef = useRef<HTMLDivElement>(null)
 
@@ -54,8 +54,8 @@ export const ChatsBlock = () => {
   ]
 
   return (
-    <Block gap={12} className={styles.chatsBlock}>
-      <Block justify="between" align="center" row padding="0 16px">
+    <BlockNew gap={12} className={styles.chatsBlock}>
+      <BlockNew justify="between" align="center" row padding="0 16px">
         <TabsContainer
           tabs={tabs}
           activeTab={activeTab}
@@ -81,7 +81,7 @@ export const ChatsBlock = () => {
             triggerRef={buttonRef}
           />
         </div>
-      </Block>
+      </BlockNew>
 
       {isLoading ? (
         <Skeleton />
@@ -102,6 +102,6 @@ export const ChatsBlock = () => {
           </div>
         </div>
       )}
-    </Block>
+    </BlockNew>
   )
 }

@@ -66,7 +66,7 @@ function App() {
   useEffect(() => {
     const ch = checkStartAppParams()
     if (ch) {
-      navigate(`/client/${ch}`)
+      navigate(`/client/${ch}`, { state: { closeApp: true } })
       return
     }
   }, [])
