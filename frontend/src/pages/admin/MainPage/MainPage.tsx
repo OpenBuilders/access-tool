@@ -1,5 +1,6 @@
 import {
   Block,
+  BlockNew,
   PageLayoutNew,
   TelegramBackButton,
   TelegramMainButton,
@@ -32,16 +33,16 @@ export const MainPage = () => {
     <PageLayoutNew>
       <TelegramBackButton />
       <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
-      <Block gap={12} className={styles.container}>
-        <Block padding="0 16px">
+      <BlockNew gap={12} className={styles.container}>
+        <BlockNew padding="0 16px">
           <Text type="hero" weight="bold">
             Access to Private
             <br />
             Groups & Channels
           </Text>
-        </Block>
+        </BlockNew>
         <ChatsBlock />
-        <Block padding="0 16px">
+        <BlockNew padding="0 16px">
           <Text align="center" type="caption" color="tertiary">
             This tool is{' '}
             <Text
@@ -65,8 +66,8 @@ export const MainPage = () => {
               Telegram Tools
             </Text>
           </Text>
-        </Block>
-      </Block>
+        </BlockNew>
+      </BlockNew>
     </PageLayoutNew>
   )
 }
