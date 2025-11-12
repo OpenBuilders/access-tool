@@ -1,17 +1,20 @@
 import { Block, Dropdown, Icon, TabsContainer } from '@components'
 import { ChatsActiveTab, ChatsPopularOrderBy } from '@types'
-import { useState } from 'react'
+import { hapticFeedback } from '@utils'
+import { useRef, useState } from 'react'
 
 import { useAdminChatsQuery, useChatsPopularQuery } from '@store-new'
 
 import { PopularChatsList } from '../PopularChatsList'
 import { UserChatsList } from '../UserChatsList'
 import styles from './ChatsBlock.module.scss'
+import { Skeleton } from './Skeleton'
 
 export const ChatsBlock = () => {
   const [activeTab, setActiveTab] = useState<ChatsActiveTab>('explore')
   const [orderBy, setOrderBy] = useState<ChatsPopularOrderBy>('tcv')
-  const [isDropdownOpen, setDropdownOpen] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const buttonRef = useRef<HTMLDivElement>(null)
 
   const { data: adminChatsData, isLoading: adminChatsIsLoading } =
     useAdminChatsQuery()
@@ -20,16 +23,22 @@ export const ChatsBlock = () => {
 
   const isLoading = chatsPopularIsLoading || adminChatsIsLoading
 
-  if (isLoading) {
-    return <p>is loading...</p>
-  }
-
   const handleChangeActiveTab = (value: ChatsActiveTab) => {
+    if (isLoading) return
+    hapticFeedback('soft')
     setActiveTab(value)
   }
 
   const handleChangeOrderBy = (value: ChatsPopularOrderBy) => {
+    if (isLoading) return
+    hapticFeedback('soft')
     setOrderBy(value)
+  }
+
+  const handleToggleDropdown = (value?: boolean) => {
+    if (isLoading) return
+    hapticFeedback('soft')
+    setIsDropdownOpen(value ?? !isDropdownOpen)
   }
 
   const tabs = [
@@ -54,38 +63,45 @@ export const ChatsBlock = () => {
         />
         <div
           className={styles.orderByContainer}
-          onClick={() => setDropdownOpen(true)}
+          onClick={() => handleToggleDropdown()}
+          ref={buttonRef}
         >
           <Icon name="sortArrows" size={18} />
           <Dropdown
             active={isDropdownOpen}
             options={[
-              { label: 'Sort By TVL', value: 'tcv' },
-              { label: 'Sort By Subscribers', value: 'users-count' },
+              { label: 'Sort By TVL', value: '-tcv' },
+              { label: 'Sort By Subscribers', value: '-users-count' },
             ]}
             selectedValue={orderBy}
             onSelect={(value: string) =>
               handleChangeOrderBy(value as ChatsPopularOrderBy)
             }
-            onClose={() => setDropdownOpen(false)}
+            onClose={() => handleToggleDropdown(false)}
+            triggerRef={buttonRef}
           />
         </div>
       </Block>
-      <div className={styles.contentWrapper}>
-        <div
-          className={styles.contentSlider}
-          style={{
-            transform: `translateX(-${activeTabIndex * 50}%)`,
-            width: `${contentSlides.length * 100}%`,
-          }}
-        >
-          {contentSlides.map((slide, index) => (
-            <div key={index} className={styles.contentSlide}>
-              {slide}
-            </div>
-          ))}
+
+      {isLoading ? (
+        <Skeleton />
+      ) : (
+        <div className={styles.contentWrapper}>
+          <div
+            className={styles.contentSlider}
+            style={{
+              transform: `translateX(-${activeTabIndex * 50}%)`,
+              width: `${contentSlides.length * 100}%`,
+            }}
+          >
+            {contentSlides.map((slide, index) => (
+              <div key={index} className={styles.contentSlide}>
+                {slide}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </Block>
   )
 }

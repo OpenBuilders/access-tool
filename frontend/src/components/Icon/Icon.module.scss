@@ -42,6 +42,17 @@
   }
 }
 
+.color-secondary {
+  svg {
+    g {
+      opacity: 1;
+    }
+    path {
+      fill: var(--color-foreground-primary);
+    }
+  }
+}
+
 .size-112 {
   width: 112px;
   height: 112px;

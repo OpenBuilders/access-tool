@@ -1,15 +1,23 @@
-// frontend/src/components/Dropdown/Dropdown.module.scss
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  z-index: 20;
   min-width: 180px;
-  padding: 8px 0;
-  border-radius: 12px;
-  background: rgba(33, 33, 33, 0.96);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(12px);
+  border-radius: 10px;
+  background-color: var(--color-segmentControl-background);
+  backdrop-filter: blur(25px);
+  z-index: 0;
+  transition: 0.2s;
+  transform: scale(0.3);
+  opacity: 0;
+  transform-origin: top right;
+}
+
+.dropdownActive {
+  opacity: 1;
+  visibility: visible;
+  z-index: 20;
+  transform: scale(1);
 }
 
 .list {
@@ -20,32 +28,22 @@
 
 .item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  white-space: nowrap;
+  padding: 11px 16px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.72);
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  gap: 8px;
+  border-bottom: 0.33px solid var(--color-border-separator);
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-  }
-}
-
-.itemActive {
-  color: #fff;
-  font-weight: 600;
-
-  .checkIcon {
-    opacity: 1;
+  &:last-child {
+    border-bottom: none;
   }
 }
 
 .checkIcon {
-  width: 16px;
-  height: 16px;
-  opacity: 0.8;
+  opacity: 0;
+}
+
+.checkIconActive {
+  opacity: 1;
 }

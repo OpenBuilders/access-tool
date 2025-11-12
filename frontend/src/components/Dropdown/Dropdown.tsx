@@ -2,6 +2,7 @@ import cn from 'classnames'
 import { useEffect, useRef } from 'react'
 
 import { Icon } from '../Icon'
+import { Text } from '../Text'
 import styles from './Dropdown.module.scss'
 
 type DropdownOption = {
@@ -16,6 +17,7 @@ type DropdownProps = {
   onSelect: (value: string) => void
   onClose: () => void
   className?: string
+  triggerRef?: React.RefObject<HTMLElement>
 }
 
 export const Dropdown = ({
@@ -25,6 +27,7 @@ export const Dropdown = ({
   onSelect,
   onClose,
   className,
+  triggerRef,
 }: DropdownProps) => {
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -33,19 +36,25 @@ export const Dropdown = ({
       return
     }
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!dropdownRef.current?.contains(event.target as Node)) {
-        onClose()
+    const handleClickOutside = (event: PointerEvent) => {
+      const target = event.target as Node
+
+      if (
+        dropdownRef.current?.contains(target) ||
+        triggerRef?.current?.contains(target)
+      ) {
+        return
       }
+
+      onClose()
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [active, onClose])
+    document.addEventListener('pointerdown', handleClickOutside, true)
 
-  if (!active) {
-    return null
-  }
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside, true)
+    }
+  }, [active, onClose, triggerRef])
 
   const handleSelect = (value: string) => {
     onSelect(value)
@@ -53,7 +62,14 @@ export const Dropdown = ({
   }
 
   return (
-    <div ref={dropdownRef} className={cn(styles.dropdown, className)}>
+    <div
+      ref={dropdownRef}
+      className={cn(
+        styles.dropdown,
+        active && styles.dropdownActive,
+        className
+      )}
+    >
       <ul className={styles.list}>
         {options.map(({ label, value }) => {
           const isSelected = value === selectedValue
@@ -64,8 +80,19 @@ export const Dropdown = ({
               className={cn(styles.item, isSelected && styles.itemActive)}
               onClick={() => handleSelect(value)}
             >
-              <span>{label}</span>
-              {isSelected && <Icon name="check" className={styles.checkIcon} />}
+              <Icon
+                name="checkmark"
+                color="secondary"
+                className={cn(
+                  styles.checkIcon,
+                  isSelected && styles.checkIconActive
+                )}
+                size={16}
+              />
+
+              <Text type="text" color="primary">
+                {label}
+              </Text>
             </li>
           )
         })}

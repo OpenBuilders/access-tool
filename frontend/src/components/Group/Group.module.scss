@@ -2,7 +2,8 @@
   background-color: var(--color-backgroundTertiary);
   overflow: hidden;
   overflow-y: auto;
-  border-radius: var(--border-radius-3xl);
+  // border-radius: var(--border-radius-3xl);
+  border-radius: 10px;
 
   [data-group-item] {
     border-radius: 0;

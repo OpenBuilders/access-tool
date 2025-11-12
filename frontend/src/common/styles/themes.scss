@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 [data-theme='light'] {
   --font-display: var(--font-base);
 
@@ -60,6 +62,24 @@
   --color-static-purpleLight: var(--palette-purpleLight-light);
   --color-static-pink: var(--palette-pink-light);
   --color-static-purpleDark: var(--palette-purpleDark-light);
+
+  // OLD STYLES (deprecated soon)
+  --color-backgroundSecondary: #{$palette-dark4};
+  --color-backgroundTertiary: #{$palette-white100};
+  --color-backgroundPrimary: #{$palette-white100};
+  --color-textIconsPrimary: #{$palette-dark100};
+  --color-textIconsSecondary: #{$palette-transparentDark75};
+  --color-textIconsTertiary: #{$palette-transparentDark50};
+  --color-textIconsBlack: #{$palette-dark100};
+  --color-textIconsWhite: #{$palette-white100};
+  --color-appliedSeparator: #{$palette-transparentDark8};
+  --color-accentsBrandCommunity: #{$native-accent};
+  --color-accentsRed: #{$palette-extraRed};
+  --color-accentsBgNegative: #{$palette-extraRed10};
+  --color-accentsGreen: #{$palette-extraGreenDark};
+  --color-backgroundBlack: #{$palette-dark100};
+  --color-backgroundWhite: #{$palette-white100};
+  --color-input: #{$palette-transparentWhite80};
 }
 
 [data-theme='dark'] {
@@ -125,4 +145,22 @@
   --color-static-purpleLight: var(--palette-purpleLight-light);
   --color-static-pink: var(--palette-pink-light);
   --color-static-purpleDark: var(--palette-purpleDark-light);
+
+  // OLD STYLES (deprecated soon)
+  --color-backgroundSecondary: #{$palette-dark90};
+  --color-backgroundTertiary: #{$palette-dark85};
+  --color-backgroundPrimary: #{$palette-dark96};
+  --color-textIconsPrimary: #{$palette-white100};
+  --color-textIconsSecondary: #{$palette-transparentWhite75};
+  --color-textIconsTertiary: #{$palette-transparentWhite50};
+  --color-textIconsBlack: #{$palette-dark100};
+  --color-textIconsWhite: #{$palette-white100};
+  --color-appliedSeparator: #{$palette-transparentWhite8};
+  --color-accentsBrandCommunity: #{$native-accent};
+  --color-accentsRed: #{$palette-extraRed};
+  --color-accentsBgNegative: #{$palette-extraRed15};
+  --color-accentsGreen: #{$palette-extraGreenLight};
+  --color-backgroundBlack: #{$palette-dark100};
+  --color-backgroundWhite: #{$palette-white100};
+  --color-input: #{$palette-transparentDark80};
 }

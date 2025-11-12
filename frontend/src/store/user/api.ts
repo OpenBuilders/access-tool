@@ -2,14 +2,14 @@ import { ApiService, ApiServiceResponse } from '@services'
 
 import { AuthenticatedUser, ChatTaskComplete, User, WalletData } from './types'
 
-const webApp = window.Telegram.WebApp
+const webApp = window?.Telegram?.WebApp
 
 export const authenticateUserAPI = async (): Promise<
   ApiServiceResponse<AuthenticatedUser>
 > => {
   const response = await ApiService.post<AuthenticatedUser>({
     endpoint: '/auth/telegram',
-    data: { initDataRaw: webApp.initData },
+    data: { initDataRaw: webApp?.initData },
   })
 
   return response
