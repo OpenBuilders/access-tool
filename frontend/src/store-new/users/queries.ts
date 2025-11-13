@@ -27,7 +27,7 @@ export const useUserQuery = () => {
   })
 }
 
-export const useConnectWalletQuery = (
+export const useUserConnectWalletQuery = (
   chatSlug: string,
   walletTonProof: WalletTonProof
 ) => {
@@ -47,7 +47,7 @@ export const useConnectWalletQuery = (
   })
 }
 
-export const useConnectExistingWalletQuery = (
+export const useUserConnectExistingWalletQuery = (
   chatSlug: string,
   wallet: string
 ) => {
@@ -67,7 +67,7 @@ export const useConnectExistingWalletQuery = (
   })
 }
 
-export const useDisconnectWalletQuery = (chatSlug: string) => {
+export const useUserDisconnectWalletQuery = (chatSlug: string) => {
   return useMutation<any>({
     mutationFn: async () => {
       const { data, ok, error } = await disconnectWalletAPI(chatSlug)
