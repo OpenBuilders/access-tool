@@ -34,14 +34,14 @@ interface UserActions {
   }
 }
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 const useUserStore = create<UserStore & UserActions>((set) => ({
   isAuthenticated: false,
   user: null,
   actions: {
     authenticateUserAction: async () => {
-      if (config.isDev && !webApp.initData) {
+      if (config.isDev && !webApp?.initData) {
         set({ isAuthenticated: true })
         return
       }
