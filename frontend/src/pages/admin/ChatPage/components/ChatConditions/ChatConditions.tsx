@@ -36,7 +36,7 @@ import { DraggableCondition } from '../DraggableCondition'
 import { DroppableGroup } from '../DroppableGroup'
 import styles from './ChatConditions.module.scss'
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 export const ChatConditions = () => {
   const { appNavigate } = useAppNavigation()
@@ -69,7 +69,7 @@ export const ChatConditions = () => {
         order: order,
         chatSlug: chat?.slug || '',
       })
-      webApp.HapticFeedback.impactOccurred('soft')
+      webApp?.HapticFeedback.impactOccurred('soft')
     } catch (error) {
       console.error(error)
       showToast({
@@ -137,7 +137,7 @@ export const ChatConditions = () => {
   const handleDragStart = (event: DragStartEvent) => {
     if (!canDrag) return
     setActiveId(event.active.id as string)
-    webApp.HapticFeedback.impactOccurred('light')
+    webApp?.HapticFeedback.impactOccurred('light')
   }
 
   const handleDragEnd = (event: DragEndEvent) => {

@@ -69,19 +69,19 @@ export const TelegramMainButton = memo(
     }, [disabled, loading, text])
 
     useEffect(() => {
-      if (webApp.MainButton && onClick) {
-        webApp.MainButton.onClick(onClick)
+      if (webApp?.MainButton && onClick) {
+        webApp?.MainButton.onClick(onClick)
 
         return () => {
-          if (webApp.MainButton) {
-            webApp.MainButton.offClick(onClick)
+          if (webApp?.MainButton) {
+            webApp?.MainButton.offClick(onClick)
           }
         }
       }
     }, [onClick])
 
     if (
-      webApp.platform === 'unknown' &&
+      webApp?.platform === 'unknown' &&
       process.env.NODE_ENV !== 'production' &&
       isVisible
     ) {
