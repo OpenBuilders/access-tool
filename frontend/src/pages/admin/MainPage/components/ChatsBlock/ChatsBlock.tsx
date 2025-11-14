@@ -2,7 +2,7 @@ import { BlockNew, Dropdown, Icon, TabsContainer } from '@components'
 import { ChatsActiveTab, ChatsPopularOrderBy } from '@types'
 import { hapticFeedback } from '@utils'
 import cn from 'classnames'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useAdminChatsQuery, useChatsPopularQuery } from '@store-new'
 
@@ -23,6 +23,27 @@ export const ChatsBlock = () => {
     useChatsPopularQuery(orderBy)
 
   const isLoading = chatsPopularIsLoading || adminChatsIsLoading
+
+  useEffect(() => {
+    const addedElement = document.getElementById(`added-container`)
+    const exploreElement = document.getElementById(`explore-container`)
+
+    if (!addedElement || !exploreElement) return
+
+    if (activeTab === 'added') {
+      addedElement.style.height = '100%'
+      setTimeout(() => {
+        exploreElement.style.height = '0px'
+      }, 300)
+    }
+
+    if (activeTab === 'explore') {
+      exploreElement.style.height = '100%'
+      setTimeout(() => {
+        addedElement.style.height = '0px'
+      }, 300)
+    }
+  }, [activeTab])
 
   const handleChangeActiveTab = (value: ChatsActiveTab) => {
     if (isLoading) return
@@ -90,20 +111,18 @@ export const ChatsBlock = () => {
       {isLoading ? (
         <Skeleton />
       ) : (
-        <div className={styles.contentWrapper}>
-          <div
-            className={styles.contentSlider}
-            style={{
-              transform: `translateX(-${activeTabIndex * 50}%)`,
-              width: `${contentSlides.length * 100}%`,
-            }}
-          >
-            {contentSlides.map((slide, index) => (
-              <div key={index} className={styles.contentSlide}>
-                {slide}
-              </div>
-            ))}
-          </div>
+        <div
+          className={styles.contentSlider}
+          style={{
+            transform: `translateX(-${activeTabIndex * 50}%)`,
+            width: `${contentSlides.length * 100}%`,
+          }}
+        >
+          {contentSlides.map((slide, index) => (
+            <div className={styles.contentSlide} key={index}>
+              {slide}
+            </div>
+          ))}
         </div>
       )}
     </BlockNew>

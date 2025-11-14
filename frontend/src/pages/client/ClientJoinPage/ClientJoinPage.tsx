@@ -14,7 +14,7 @@ import { useParams } from 'react-router-dom'
 
 import { useChat, useChatActions } from '@store'
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 export const ClientJoinPage = () => {
   const params = useParams<{ clientChatSlug: string }>()
@@ -31,7 +31,7 @@ export const ClientJoinPage = () => {
     if (!clientChatSlug) return
     try {
       await fetchUserChatAction(clientChatSlug)
-      webApp.HapticFeedback.notificationOccurred('success')
+      webApp?.HapticFeedback.notificationOccurred('success')
     } catch (error) {
       console.error(error)
       notFound()
@@ -63,7 +63,7 @@ export const ClientJoinPage = () => {
   const handleJoinGroup = () => {
     navigateToChat()
     setTimeout(() => {
-      webApp.close()
+      webApp?.close()
     }, 1500)
   }
 

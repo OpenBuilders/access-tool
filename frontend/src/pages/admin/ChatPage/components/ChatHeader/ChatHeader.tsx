@@ -23,9 +23,9 @@ export const ChatHeader = () => {
   const [description, setDescription] = useState(chat?.description ?? '')
 
   const isMobile =
-    webApp.platform === 'ios' ||
-    webApp.platform === 'android' ||
-    webApp.platform === 'android_x'
+    webApp?.platform === 'ios' ||
+    webApp?.platform === 'android' ||
+    webApp?.platform === 'android_x'
 
   const handleChangeDescription = (value: string) => {
     setDescription(value)
@@ -40,12 +40,12 @@ export const ChatHeader = () => {
 
   const handleShareLink = () => {
     if (!chat?.slug) return
-    webApp.HapticFeedback.impactOccurred('soft')
+    webApp?.HapticFeedback.impactOccurred('soft')
 
     const url = `${config.miniAppLink}?startapp=ch_${chat?.slug}`
 
     if (isMobile) {
-      webApp.openTelegramLink(
+      webApp?.openTelegramLink(
         `https://t.me/share/url?url=${encodeURI(url)}&text=${chat.title}`
       )
     } else {
@@ -56,7 +56,7 @@ export const ChatHeader = () => {
   const handleCopyLink = () => {
     if (!chat?.slug) return
     const url = `${config.miniAppLink}?startapp=ch_${chat?.slug}`
-    webApp.HapticFeedback.impactOccurred('soft')
+    webApp?.HapticFeedback.impactOccurred('soft')
     copy(url, 'Link copied!')
   }
 

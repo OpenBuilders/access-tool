@@ -1,8 +1,9 @@
 .root {
   overflow-y: auto;
-  height: 100vh;
+  min-height: 100vh;
   animation: fadeIn 0.3s ease-in-out;
   padding: 16px 0;
+  overflow: hidden;
 }
 
 // .isMobile {

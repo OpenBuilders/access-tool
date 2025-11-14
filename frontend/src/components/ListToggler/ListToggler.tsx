@@ -2,7 +2,7 @@ import cn from 'classnames'
 
 import styles from './ListToggler.module.scss'
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 interface ListTogglerProps {
   isEnabled: boolean

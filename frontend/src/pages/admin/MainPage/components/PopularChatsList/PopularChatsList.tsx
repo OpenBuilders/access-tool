@@ -1,7 +1,10 @@
-import { Group, GroupItem, Image, Text } from '@components'
+import { BlockNew, Group, GroupItem, Image, Text } from '@components'
 import { ChatPopular } from '@types'
-import { createMembersCount, hapticFeedback } from '@utils'
+import { hapticFeedback, pluralize } from '@utils'
 import { useNavigate } from 'react-router-dom'
+
+import { Footer } from '../Footer'
+import styles from './PopularChatsList.module.scss'
 
 interface PopularChatsListProps {
   chats: ChatPopular[]
@@ -9,32 +12,45 @@ interface PopularChatsListProps {
 
 export const PopularChatsList = ({ chats }: PopularChatsListProps) => {
   const navigate = useNavigate()
+
   return (
-    <Group>
-      {chats.map((chat) => (
-        <GroupItem
-          key={chat.id}
-          text={chat.title}
-          description={
-            <Text type="caption2" color="secondary">
-              {createMembersCount(chat.membersCount)}
-            </Text>
-          }
-          chevron
-          before={
-            <Image
-              src={chat.logoPath}
-              size={40}
-              borderRadius={50}
-              fallback={chat.title}
-            />
-          }
-          onClick={() => {
-            hapticFeedback('soft')
-            navigate(`/client/${chat.slug}`)
-          }}
-        />
-      ))}
-    </Group>
+    <BlockNew id="explore-container">
+      <Group>
+        {chats.map((chat) => (
+          <GroupItem
+            key={chat.id}
+            text={chat.title}
+            description={
+              <BlockNew gap={6} row align="center" fadeIn={false}>
+                <Text type="caption2" color="secondary">
+                  ${Math.floor(chat.tcv).toLocaleString()}
+                </Text>
+                <div className={styles.divider} />
+                <Text type="caption2" color="secondary">
+                  {pluralize(
+                    ['member', 'members', 'members'],
+                    chat.membersCount
+                  )}
+                </Text>
+              </BlockNew>
+            }
+            chevron
+            before={
+              <Image
+                src={chat.logoPath}
+                size={40}
+                borderRadius={50}
+                fallback={chat.title}
+              />
+            }
+            onClick={() => {
+              hapticFeedback('soft')
+              navigate(`/client/${chat.slug}`)
+            }}
+          />
+        ))}
+      </Group>
+      <Footer />
+    </BlockNew>
   )
 }

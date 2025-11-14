@@ -8,11 +8,11 @@ import {
 } from '@components'
 import { PageLayout } from '@components'
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 export const NotFound = () => {
   const handleCloseApp = () => {
-    webApp.close()
+    webApp?.close()
   }
 
   return (

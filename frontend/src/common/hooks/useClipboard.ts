@@ -3,11 +3,11 @@ import { useToast } from '@components'
 export function useClipboard() {
   const { showToast } = useToast()
 
-  const webApp = window.Telegram.WebApp
+  const webApp = window.Telegram?.WebApp
 
   return {
     copy: (text: string, message: string) => {
-      webApp.HapticFeedback.notificationOccurred('success')
+      webApp?.HapticFeedback.notificationOccurred('success')
       navigator.clipboard
         .writeText(text.toString())
         .then(() => {

@@ -2,8 +2,10 @@ import { useToast } from '@components'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { API_ERRORS } from '@utils'
+import { API_ERRORS, TANSTACK_KEYS } from '@utils'
 import { PropsWithChildren, useMemo } from 'react'
+
+import { AuthService } from '@services'
 
 const HIDDEN_ERRORS = ['user_forbidden', 'synced_recently', 'TON_CONNECT']
 
@@ -53,10 +55,19 @@ export const TanStackProvider = (props: PropsWithChildren) => {
             retryOnMount: false,
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
+            enabled: (query) => {
+              if (query.queryKey === TANSTACK_KEYS.AUTH) return true
+              return AuthService.isAuth()
+            },
           },
           mutations: {
             retry: false,
             throwOnError: false,
+            onMutate: () => {
+              if (!AuthService.isAuth()) {
+                throw new Error('Authorization required')
+              }
+            },
           },
         },
       }),

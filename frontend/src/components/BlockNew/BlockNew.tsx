@@ -3,6 +3,7 @@ import cn from 'classnames'
 import styles from './BlockNew.module.scss'
 
 interface BlockNewProps {
+  id?: string
   children: React.ReactNode
   margin?: string
   defaultWidth?: boolean
@@ -50,6 +51,7 @@ interface BlockNewProps {
 }
 
 export const BlockNew = ({
+  id,
   children,
   fixed,
   row,
@@ -65,6 +67,7 @@ export const BlockNew = ({
 }: BlockNewProps) => {
   return (
     <div
+      id={id}
       onClick={onClick}
       style={{
         padding,

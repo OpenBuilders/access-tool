@@ -1,4 +1,4 @@
-import { TanStackProvider, ThemeContext } from '@context'
+import { ThemeContext } from '@context'
 import '@styles/index.scss'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { checkIsMobile, checkStartAppParams } from '@utils'
@@ -6,7 +6,9 @@ import { useContext, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import config from '@config'
+import { AuthService } from '@services'
 import { useUser, useUserActions } from '@store'
+import { useAuthQuery } from '@store-new'
 
 import Routes from './Routes'
 
@@ -16,6 +18,8 @@ function App() {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
   const { darkTheme } = useContext(ThemeContext)
   const navigate = useNavigate()
+
+  // useAuthQuery()
 
   const { authenticateUserAction, fetchUserAction } = useUserActions()
   const { isAuthenticated } = useUser()
@@ -90,19 +94,17 @@ function App() {
     }
   }, [isAuthenticated])
 
-  if (!isAuthenticated) return null
+  // if (!AuthService.isAuth()) return null
 
   return (
-    <TanStackProvider>
-      <TonConnectUIProvider
-        manifestUrl={config.tonConnectManifestUrl}
-        actionsConfiguration={{
-          twaReturnUrl: `https://t.me/${config.botName}/gate?startapp=ch_${clientChatSlug}`,
-        }}
-      >
-        {Routes}
-      </TonConnectUIProvider>
-    </TanStackProvider>
+    <TonConnectUIProvider
+      manifestUrl={config.tonConnectManifestUrl}
+      actionsConfiguration={{
+        twaReturnUrl: `https://t.me/${config.botName}/gate?startapp=ch_${clientChatSlug}`,
+      }}
+    >
+      {Routes}
+    </TonConnectUIProvider>
   )
 }
 

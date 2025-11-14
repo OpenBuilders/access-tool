@@ -17,7 +17,7 @@ export interface ToastOptions {
     | 'warning'
 }
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 export const ToastElement = ({
   children,
@@ -52,11 +52,11 @@ export const ToastElement = ({
   useEffect(() => {
     setTimeout(() => {
       if (type === 'error') {
-        webApp.HapticFeedback.notificationOccurred('error')
+        webApp?.HapticFeedback.notificationOccurred('error')
       }
 
       if (type === 'success') {
-        webApp.HapticFeedback.notificationOccurred('success')
+        webApp?.HapticFeedback.notificationOccurred('success')
       }
       setIsOpen(true)
     }, 50)

@@ -18,7 +18,7 @@ import { AdminChat, useChatActions } from '@store'
 
 import { findNewChat } from './helpers'
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 export const AddBotToChatPage = () => {
   const { appNavigate } = useAppNavigation()
@@ -39,7 +39,7 @@ export const AddBotToChatPage = () => {
   }, [appNavigate])
 
   const addGatewayBot = useCallback(() => {
-    webApp.openTelegramLink(
+    webApp?.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
     setIsCheckingNewChat(true)
