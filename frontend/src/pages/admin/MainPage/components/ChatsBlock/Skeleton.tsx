@@ -4,15 +4,15 @@ export const Skeleton = () => {
   return (
     <div
       style={{
-        flex: '1',
-        minHeight: '0',
-        display: 'flex',
         width: '100%',
+        overflow: 'hidden',
+        height: '70vh',
         padding: '0 16px',
       }}
     >
       <SkeletonElement
         style={{
+          overflow: 'hidden',
           width: '100%',
           height: '100%',
           borderRadius: '10px',
