@@ -85,6 +85,7 @@ class TelegramChatAction(BaseAction):
             offset=pagination_params.offset,
             limit=pagination_params.limit,
             include_total_count=pagination_params.include_total_count,
+            configured_only=True,
             order_by=[sorting_params]
             if sorting_params
             else [

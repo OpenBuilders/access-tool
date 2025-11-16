@@ -4,7 +4,7 @@ from string import ascii_lowercase
 from typing import Any, Iterable
 
 from slugify import slugify
-from sqlalchemy import func, case
+from sqlalchemy import func, case, exists
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Query
 from telethon.tl.types import Channel
@@ -18,6 +18,7 @@ from core.dtos.pagination import (
 from core.enums.chat import CustomTelegramChatOrderingRulesEnum
 from core.exceptions.api import InvalidSortingParameter
 from core.models.chat import TelegramChat, TelegramChatUser
+from core.models.rule import TelegramChatRuleGroup
 
 from core.services.base import BaseService
 
@@ -232,6 +233,7 @@ class TelegramChatService(BaseService):
         offset: int,
         limit: int,
         include_total_count: bool = False,
+        configured_only: bool = False,
         order_by: list[TelegramChatOrderingRuleDTO] | None = None,
     ) -> PaginatedResultDTO | PaginatedResultWithoutCountDTO:
         """
@@ -253,6 +255,8 @@ class TelegramChatService(BaseService):
         :param limit: Integer, specifying the maximum number of records to retrieve.
         :param include_total_count: Boolean flag indicating whether to include the total
             count of filtered records in the result. Default is False.
+        :param configured_only: Boolean flag indicating whether to include only chats
+            that have at least one rule group configured (any rule exists). Default is False.
         :param order_by: Optional tuple of items by which to order the results.
 
         :return: Instance of PaginatedResultDTO if `include_total_count` is True, containing
@@ -275,6 +279,12 @@ class TelegramChatService(BaseService):
             TelegramChat.insufficient_privileges.is_(False),
         )
         query = query.filter_by(**filters)
+
+        if configured_only:
+            # Since it's the inner join, it'll filter out those, where there is no group set -> no tasks configured
+            query = query.filter(
+                exists().where(TelegramChatRuleGroup.chat_id == TelegramChat.id)
+            )
 
         # First, apply any custom rules provided
         query, order_by = self._custom_ordering_rules(query, order_by)
