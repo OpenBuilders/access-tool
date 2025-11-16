@@ -936,8 +936,9 @@ class CommunityManagerTaskChatAction:
                 continue
 
             if diff.removed:
+                users = self.user_service.get_all(telegram_ids=diff.removed)
                 chat_members = self.telegram_chat_user_service.get_all(
-                    user_ids=diff.removed
+                    user_ids=[_user.id for _user in users],
                 )
                 await community_user_action.kick_ineligible_chat_members(
                     chat_members=chat_members
