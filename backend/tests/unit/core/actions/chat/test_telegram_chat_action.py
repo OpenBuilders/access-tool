@@ -9,6 +9,7 @@ from telethon.tl.types import ChatAdminRights
 from community_manager.actions.chat import CommunityManagerChatAction
 from core.dtos.pagination import PaginationMetadataDTO
 from core.models.chat import TelegramChat, TelegramChatUser
+from tests.factories.rule.group import TelegramChatRuleGroupFactory
 from tests.utils.misc import AsyncIterator
 from core.actions.chat import TelegramChatAction
 from core.constants import REQUIRED_BOT_PRIVILEGES
@@ -62,13 +63,14 @@ def test_get_all__success(db_session: Session) -> None:
     TelegramChatUserFactory.with_session(db_session).create(
         chat=chats[1], user=user, is_admin=True
     )
+    # For get_all it's mandatory that chat has at least one rule group to be treated as active
+    for chat in chats:
+        TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
     # The default ordering is by users-count -> ID
     ordered_chats = (
         db_session.query(TelegramChat)
         .outerjoin(TelegramChatUser, TelegramChat.id == TelegramChatUser.chat_id)
-        .group_by(
-            TelegramChat.id,
-        )
+        .group_by(TelegramChat.id)
         .order_by(func.count(TelegramChatUser.user_id).desc(), TelegramChat.id)
         .all()
     )
@@ -120,6 +122,10 @@ def test_get_all__pagination__success(
     chats = TelegramChatFactory.with_session(db_session).create_batch(
         BATCH_RECORDS_COUNT
     )
+    # For get_all it's mandatory that chat has at least one rule group to be treated as active
+    for chat in chats:
+        TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
+
     ordered_chats = sorted(chats, key=lambda chat: chat.id)
 
     # Act
@@ -163,7 +169,10 @@ def test_get_all__sorting__success(db_session: Session, is_ascending: bool) -> N
 
     # Create multiple chats
     chats = TelegramChatFactory.with_session(db_session).create_batch(3)
-    ordered_chats = sorted(chats, key=lambda chat: chat.id)
+    # For get_all it's mandatory that chat has at least one rule group to be treated as active
+    for _chat in chats:
+        TelegramChatRuleGroupFactory.with_session(db_session).create(chat=_chat)
+
     # Assign user to one chat only to ensure it doesn't impact results
     TelegramChatUserFactory.with_session(db_session).create(
         chat=chats[0], user=user, is_admin=True
