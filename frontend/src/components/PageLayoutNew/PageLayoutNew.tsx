@@ -7,10 +7,11 @@ import styles from './PageLayoutNew.module.scss'
 interface PageLayoutNewProps extends PropsWithChildren {
   onScroll?: (event: any) => void
   center?: boolean
+  safeContent?: boolean
 }
 
 export const PageLayoutNew = (props: PageLayoutNewProps) => {
-  const { children, onScroll, center } = props
+  const { children, onScroll, center, safeContent } = props
 
   const { isMobile } = checkIsMobile()
 
@@ -21,7 +22,8 @@ export const PageLayoutNew = (props: PageLayoutNewProps) => {
       className={cn(
         styles.root,
         isMobile && styles.isMobile,
-        center && styles.center
+        center && styles.center,
+        safeContent && styles.safeContent
       )}
     >
       {children}

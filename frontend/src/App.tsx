@@ -7,7 +7,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import config from '@config'
 import { AuthService } from '@services'
-import { useUser, useUserActions } from '@store'
 import { useAuthQuery } from '@store-new'
 
 import Routes from './Routes'
@@ -19,26 +18,7 @@ function App() {
   const { darkTheme } = useContext(ThemeContext)
   const navigate = useNavigate()
 
-  // useAuthQuery()
-
-  const { authenticateUserAction, fetchUserAction } = useUserActions()
-  const { isAuthenticated } = useUser()
-
-  const authenticateUser = async () => {
-    try {
-      await authenticateUserAction()
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  const fetchUser = async () => {
-    try {
-      await fetchUserAction()
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  useAuthQuery()
 
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -58,13 +38,13 @@ function App() {
       webApp?.setBottomBarColor('#EFEFF4')
     }
 
-    // const { isMobile } = checkIsMobile()
+    const { isMobile } = checkIsMobile()
 
-    // if (!isMobile) return
+    if (!isMobile) return
 
-    // webApp?.requestFullscreen()
-    // webApp?.lockOrientation()
-    // webApp?.disableVerticalSwipes()
+    webApp?.requestFullscreen()
+    webApp?.lockOrientation()
+    webApp?.disableVerticalSwipes()
   }, [darkTheme])
 
   useEffect(() => {
@@ -75,28 +55,7 @@ function App() {
     }
   }, [])
 
-  useEffect(() => {
-    webApp?.disableVerticalSwipes()
-    if (location.pathname && !location.pathname.includes('client')) {
-      webApp?.expand()
-    }
-  }, [location.pathname])
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      authenticateUser()
-    }
-  }, [])
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchUser()
-    }
-  }, [isAuthenticated])
-
-  if (!isAuthenticated) return null
-
-  // if (!AuthService.isAuth()) return null
+  if (!AuthService.isAuth()) return null
 
   return (
     <TonConnectUIProvider

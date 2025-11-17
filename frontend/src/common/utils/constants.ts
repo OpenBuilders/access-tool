@@ -9,7 +9,11 @@ export const TANSTACK_KEYS = {
   USER: ['user'],
   CHATS_POPULAR: (sortBy: ChatsPopularOrderBy) => ['chats', 'popular', sortBy],
   CHAT: (slug: string) => ['chat', slug],
+  CHAT_POLLING: (slug: string) => ['chat', 'polling', slug],
   ADMIN_CHATS: ['admin', 'chats'],
+  ADMIN_CHAT: (slug: string) => ['admin', 'chat', slug],
+  ADMIN_CHATS_POLLING: ['admin', 'chats', 'polling'],
+  ADMIN_CHAT_POLLING: (slug: string) => ['admin', 'chat', 'polling', slug],
 }
 
 export const TANSTACK_TTL = {

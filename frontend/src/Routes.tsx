@@ -1,5 +1,5 @@
 import {
-  AddBotToChatPage,
+  AddBotPage,
   ChatPage,
   MainPage,
   ConditionPage,
@@ -32,11 +32,18 @@ export const ROUTES_NAME = {
 
 export default (
   <Routes>
-    <Route path={ROUTES_NAME.MAIN} element={<MainPage />} />
+    <Route path="/" element={<MainPage />} />
+    <Route path="/add-bot" element={<AddBotPage />} />
     <Route
-      path={ROUTES_NAME.ADD_TELEGRAM_CHAT}
-      element={<AddBotToChatPage />}
+      path="/bot-added-success/:chatSlug"
+      element={<BotAddedSuccessPage />}
     />
+    <Route
+      path="/grant-permissions/:chatSlug"
+      element={<GrantPermissionsPage />}
+    />
+
+    <Route path={ROUTES_NAME.ADD_TELEGRAM_CHAT} element={<AddBotPage />} />
     <Route path={ROUTES_NAME.CHAT} element={<ChatPage />} />
     <Route path={ROUTES_NAME.CHAT_CONDITION} element={<ConditionPage />} />
     <Route path={ROUTES_NAME.CHAT_NEW_CONDITION} element={<ConditionPage />} />

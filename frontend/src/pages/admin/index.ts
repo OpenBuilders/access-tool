@@ -1,6 +1,2 @@
-export * from './AddBotToChatPage'
-export * from './MainPage'
 export * from './ChatPage'
 export * from './ConditionPage'
-export * from './BotAddedSuccessPage'
-export * from './GrantPermissionsPage'

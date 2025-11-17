@@ -7,39 +7,7 @@ interface BlockNewProps {
   children: React.ReactNode
   margin?: string
   defaultWidth?: boolean
-  marginValue?:
-    | 0
-    | 2
-    | 4
-    | 6
-    | 8
-    | 10
-    | 12
-    | 14
-    | 16
-    | 18
-    | 20
-    | 24
-    | 32
-    | 44
-    | 'auto'
   padding?: string
-  paddingValue?:
-    | 0
-    | 2
-    | 4
-    | 6
-    | 8
-    | 10
-    | 12
-    | 14
-    | 16
-    | 18
-    | 20
-    | 24
-    | 32
-    | 44
-    | 'auto'
   fixed?: 'top' | 'bottom'
   row?: boolean
   gap?: 0 | 2 | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 18 | 20 | 24

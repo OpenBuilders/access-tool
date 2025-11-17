@@ -26,23 +26,34 @@ body {
   overflow-x: hidden;
 }
 
-::-webkit-scrollbar {
-  width: 0;
+// Скрытие скроллбара для всех элементов
+* {
+  // Firefox
+  scrollbar-width: none;
+  // IE и Edge
+  -ms-overflow-style: none;
 }
 
-::-webkit-scrollbar-track {
-  visibility: hidden;
+// Chrome, Safari, Edge
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
-::-webkit-scrollbar-thumb {
-  visibility: hidden;
+*::-webkit-scrollbar-track {
+  display: none !important;
 }
 
-::-webkit-scrollbar:window-inactive {
-  visibility: hidden;
+*::-webkit-scrollbar-thumb {
+  display: none !important;
 }
 
-body::-webkit-scrollbar {
-  /*Chrome, Safari, Edge*/
-  display: none;
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
 }

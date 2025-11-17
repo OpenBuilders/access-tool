@@ -11,3 +11,13 @@ export const fetchAdminChatsAPI = async (): Promise<
 
   return response
 }
+
+export const fetchAdminChatAPI = async (
+  slug: string
+): Promise<ApiServiceResponse<any>> => {
+  const response = await ApiService.get<any>({
+    endpoint: `/admin/chats/${slug}`,
+  })
+
+  return response
+}

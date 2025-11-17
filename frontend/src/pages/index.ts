@@ -1,3 +1,8 @@
 export * from './admin'
 export * from './client'
 export * from './not-found'
+
+export * from './MainPage'
+export * from './AddBotPage'
+export * from './BotAddedSuccessPage'
+export * from './GrantPermissionsPage'

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { ChatPopularResponse, ChatsPopularOrderBy } from '@types'
 import { TANSTACK_GC_TIME, TANSTACK_KEYS, TANSTACK_TTL } from '@utils'
+import { useNavigate } from 'react-router-dom'
 
 import { fetchChatAPI, fetchChatsPopularAPI } from './api'
 
@@ -22,10 +23,12 @@ export const useChatsPopularQuery = (orderBy: ChatsPopularOrderBy) => {
   })
 }
 
-export const useChatQuery = (slug: string) => {
+export const useChatQuery = (slug?: string) => {
   return useQuery<any>({
-    queryKey: TANSTACK_KEYS.CHAT(slug),
+    queryKey: TANSTACK_KEYS.CHAT(slug ?? ''),
     queryFn: async () => {
+      if (!slug) return
+
       const { data, ok, error } = await fetchChatAPI(slug)
 
       if (!ok || !data) {
