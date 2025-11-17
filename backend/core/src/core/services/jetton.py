@@ -25,6 +25,7 @@ class JettonService(BaseService):
         jetton.symbol = dto.symbol
         jetton.total_supply = dto.total_supply
         jetton.logo_path = dto.logo_path
+        jetton.decimals = dto.decimals
         self.db_session.commit()
         logger.info(f"Jetton {jetton.name!r} updated.")
         return jetton
