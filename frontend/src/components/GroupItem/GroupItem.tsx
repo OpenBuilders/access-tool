@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react'
 import styles from './GroupItem.module.scss'
 
 interface GroupProps {
+  isDragging?: boolean
+  main?: React.ReactNode
   text?: React.ReactNode
   description?: React.ReactNode
   before?: React.ReactNode
@@ -32,6 +34,8 @@ const renderDescription = (description: string | React.ReactNode) => {
 }
 
 export const GroupItem = ({
+  isDragging,
+  main,
   text,
   description,
   before,
@@ -65,7 +69,8 @@ export const GroupItem = ({
       className={cn(
         styles.container,
         onClick && styles.clickable,
-        disabled && styles.disabled
+        disabled && styles.disabled,
+        isDragging && styles.dragging
       )}
       onClick={handleClick}
       data-group-item
@@ -77,6 +82,7 @@ export const GroupItem = ({
       )}
       <div className={styles.main}>
         <div className={styles.content}>
+          {main && main}
           {text && renderText(text)}
           {description && renderDescription(description)}
         </div>

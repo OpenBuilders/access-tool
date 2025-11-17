@@ -1,5 +1,5 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { AdminChat } from '@types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Chat, ChatInstance, ConditionType } from '@types'
 import {
   findNewChat,
   TANSTACK_GC_TIME,
@@ -8,10 +8,15 @@ import {
 } from '@utils'
 import { useNavigate } from 'react-router-dom'
 
-import { fetchAdminChatAPI, fetchAdminChatsAPI } from './api'
+import {
+  fetchAdminChatAPI,
+  fetchAdminChatsAPI,
+  moveAdminChatConditionAPI,
+  updateAdminChatAPI,
+} from './api'
 
 export const useAdminChatsQuery = () => {
-  return useQuery<AdminChat[]>({
+  return useQuery<Chat[]>({
     queryKey: TANSTACK_KEYS.ADMIN_CHATS,
     queryFn: async () => {
       const { data, ok, error } = await fetchAdminChatsAPI()
@@ -31,7 +36,7 @@ export const useAdminChatsQuery = () => {
 export const useAdminChatsPollingQuery = (enabled: boolean) => {
   const navigate = useNavigate()
 
-  return useQuery<AdminChat[]>({
+  return useQuery<Chat[]>({
     queryKey: TANSTACK_KEYS.ADMIN_CHATS_POLLING,
     queryFn: async () => {
       const { data, ok, error } = await fetchAdminChatsAPI()
@@ -136,7 +141,7 @@ export const useAdminChatsPollingQuery = (enabled: boolean) => {
           joinUrl: 'https://t.me/+cjDwuYhmtgthOTk6',
           insufficientPrivileges: false,
         },
-      ] as AdminChat[]
+      ] as Chat[]
 
       if (currentData?.length !== initialData?.length) {
         if (initialData && currentData?.length) {
@@ -162,7 +167,7 @@ export const useAdminChatsPollingQuery = (enabled: boolean) => {
 }
 
 export const useAdminChatQuery = (slug: string) => {
-  return useQuery<any>({
+  return useQuery<ChatInstance>({
     queryKey: TANSTACK_KEYS.ADMIN_CHAT(slug),
     queryFn: async () => {
       const { data, ok, error } = await fetchAdminChatAPI(slug)
@@ -183,10 +188,10 @@ export const useAdminChatQuery = (slug: string) => {
 export const useAdminChatPollingQuery = (slug?: string, enabled?: boolean) => {
   const navigate = useNavigate()
 
-  return useQuery<any>({
+  return useQuery<ChatInstance>({
     queryKey: TANSTACK_KEYS.ADMIN_CHAT_POLLING(slug ?? ''),
     queryFn: async () => {
-      if (!slug) return
+      if (!slug) throw new Error('Slug is required')
 
       const { data, ok, error } = await fetchAdminChatAPI(slug)
 
@@ -196,18 +201,73 @@ export const useAdminChatPollingQuery = (slug?: string, enabled?: boolean) => {
 
       return data
     },
-    enabled: !!slug && !!enabled,
     refetchInterval: (query) => {
       const currentChat = query.state.data
 
-      if (currentChat?.insufficientPrivileges) {
+      if (currentChat?.chat.insufficientPrivileges) {
         navigate(`/bot-added-success/${slug}`)
         return false
       }
 
       return 1500
     },
+    enabled: !!slug && !!enabled,
     gcTime: 0,
     staleTime: 0,
+  })
+}
+
+export const useAdminChatUpdateMutation = (slug: string) => {
+  const queryClient = useQueryClient()
+  return useMutation<Chat, Error, Pick<Chat, 'description'>>({
+    mutationFn: async (newData) => {
+      const { data, ok, error } = await updateAdminChatAPI(slug, newData)
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CHAT(slug),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.CHAT(slug),
+      })
+    },
+  })
+}
+
+export const useMoveChatConditionMutation = (slug: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      ruleId,
+      groupId,
+      type,
+      order,
+    }: {
+      ruleId: number
+      groupId: number
+      type: ConditionType
+      order: number
+    }) => {
+      return await moveAdminChatConditionAPI({
+        ruleId,
+        groupId,
+        type,
+        order,
+        chatSlug: slug,
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CHAT(slug),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.CHAT(slug),
+      })
+    },
   })
 }

@@ -3,7 +3,7 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 180px;
-  border-radius: 10px;
+  border-radius: var(--border-radius-3xl);
   background-color: var(--color-segmentControl-background);
   backdrop-filter: blur(25px);
   box-shadow: 0 4px 40px 0 rgba(0, 0, 0, 0.2);

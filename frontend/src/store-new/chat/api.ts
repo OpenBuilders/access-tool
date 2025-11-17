@@ -1,4 +1,9 @@
-import { ChatPopularResponse, ChatsPopularOrderBy } from '@types'
+import {
+  ChatInstance,
+  ChatPopularResponse,
+  ChatsPopularOrderBy,
+  ConditionType,
+} from '@types'
 
 import { ApiService, ApiServiceResponse } from '@services'
 
@@ -14,8 +19,8 @@ export const fetchChatsPopularAPI = async (
 
 export const fetchChatAPI = async (
   slug: string
-): Promise<ApiServiceResponse<any>> => {
-  const response = await ApiService.get<any>({
+): Promise<ApiServiceResponse<ChatInstance>> => {
+  const response = await ApiService.get<ChatInstance>({
     endpoint: `/chats/${slug}`,
   })
 

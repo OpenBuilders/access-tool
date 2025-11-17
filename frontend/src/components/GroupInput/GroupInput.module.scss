@@ -1,0 +1,110 @@
+.input {
+  background: transparent;
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  color: var(--color-foreground-primary);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  line-height: inherit;
+
+  &::placeholder {
+    color: var(--color-foreground-secondary);
+  }
+
+  // Убираем стандартные стили браузера
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  // Убираем стрелки у number input
+  &[type='number'] {
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+
+  // Убираем стандартные стили для search input
+  &[type='search'] {
+    -webkit-appearance: none;
+
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+      -webkit-appearance: none;
+    }
+  }
+
+  // Убираем стандартные стили для password input
+  &[type='password'] {
+    -webkit-appearance: none;
+  }
+
+  // Убираем стандартные стили для email input
+  &[type='email'] {
+    -webkit-appearance: none;
+  }
+
+  // Убираем стандартные стили для tel input
+  &[type='tel'] {
+    -webkit-appearance: none;
+  }
+
+  // Убираем стандартные стили для url input
+  &[type='url'] {
+    -webkit-appearance: none;
+  }
+
+  // Убираем стандартные стили для text input
+  &[type='text'] {
+    -webkit-appearance: none;
+  }
+
+  // Убираем стандартные стили для всех input
+  &::-ms-clear,
+  &::-ms-expand {
+    display: none;
+  }
+
+  // Убираем стандартные стили для autofill
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+    -webkit-text-fill-color: inherit !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  // Убираем стандартные стили для placeholder
+  &::placeholder {
+    color: inherit;
+    opacity: 0.5;
+  }
+
+  // Убираем стандартные стили для selection
+  &::selection {
+    background: inherit;
+    color: inherit;
+  }
+
+  // Убираем стандартные стили для disabled
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  // Убираем стандартные стили для readonly
+  &:read-only {
+    cursor: default;
+  }
+}

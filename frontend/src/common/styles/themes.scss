@@ -12,6 +12,10 @@
   --color-foreground-primary: var(--palette-black-100);
   --color-foreground-secondary: var(--palette-grey1-light);
   --color-foreground-tertiary: var(--palette-grey3-light);
+  --color-foreground-accent: var(
+    --tg-theme-button-text-color,
+    var(--color-foreground-primary)
+  );
 
   --color-accent-primary: var(
     --tg-theme-button-color,

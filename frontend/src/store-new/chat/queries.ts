@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { ChatPopularResponse, ChatsPopularOrderBy } from '@types'
 import { TANSTACK_GC_TIME, TANSTACK_KEYS, TANSTACK_TTL } from '@utils'
-import { useNavigate } from 'react-router-dom'
 
 import { fetchChatAPI, fetchChatsPopularAPI } from './api'
 

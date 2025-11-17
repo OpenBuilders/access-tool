@@ -1,7 +1,6 @@
 import { Icon } from '@components'
+import { Condition } from '@types'
 import cn from 'classnames'
-
-import { Condition } from '@store'
 
 import { IconTypeName } from '../Icon/types'
 import styles from './ConditionIcon.module.scss'

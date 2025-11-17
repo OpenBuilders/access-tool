@@ -2,12 +2,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 12px 16px;
   background-color: var(--color-background-section);
-  border-radius: 10px;
+  border-radius: var(--border-radius-3xl);
   position: relative;
   gap: 10px;
   user-select: none;
+  transition: 0.2s;
+}
+
+.dragging {
+  opacity: 0.8;
+  border-radius: var(--border-radius-3xl) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
 }
 
 .before {
