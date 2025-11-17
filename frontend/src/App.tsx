@@ -94,6 +94,8 @@ function App() {
     }
   }, [isAuthenticated])
 
+  if (!isAuthenticated) return null
+
   // if (!AuthService.isAuth()) return null
 
   return (
