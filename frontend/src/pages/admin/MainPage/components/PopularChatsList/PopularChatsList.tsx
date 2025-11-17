@@ -23,7 +23,9 @@ export const PopularChatsList = ({ chats }: PopularChatsListProps) => {
             description={
               <BlockNew gap={6} row align="center" fadeIn={false}>
                 <Text type="caption2" color="secondary">
-                  ${Math.floor(chat.tcv).toLocaleString()}
+                  {chat.tcv < 1
+                    ? 'New'
+                    : `$${Math.floor(chat.tcv).toLocaleString()}`}
                 </Text>
                 <div className={styles.divider} />
                 <Text type="caption2" color="secondary">
