@@ -1,7 +1,8 @@
-from sqlalchemy import String, Boolean, DateTime, func, BigInteger, ForeignKey
+from sqlalchemy import String, Boolean, DateTime, func, BigInteger, ForeignKey, Integer
 from sqlalchemy.dialects.mysql import TEXT
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 
+from core.constants import DEFAULT_JETTON_DECIMALS
 from core.db import Base
 from core.dtos.base import BaseNftCollectionMetadataDTO, BaseNftItemMetadataDTO
 from core.models.fields import (
@@ -20,6 +21,7 @@ class Jetton(PricedEntityMixin):
     description = mapped_column(TEXT, nullable=True)
     symbol = mapped_column(String(255), nullable=False)
     total_supply = mapped_column(BigInteger, nullable=False)
+    decimals = mapped_column(Integer, nullable=False, default=DEFAULT_JETTON_DECIMALS)
     logo_path: Mapped[str | None] = mapped_column(String(290), nullable=True)
     is_enabled = mapped_column(Boolean, nullable=False, default=True)
     created_at = mapped_column(DateTime(timezone=True), server_default=func.now())

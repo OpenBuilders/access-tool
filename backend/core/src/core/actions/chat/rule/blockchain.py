@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import HTTPException
+from pytonapi.utils import to_nano
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
@@ -406,7 +407,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
                 group_id=group_id,
                 address=jetton_dto.address,
                 category=category,
-                threshold=threshold,
+                threshold=to_nano(threshold, jetton_dto.decimals),
                 is_enabled=True,
             )
         )
@@ -462,7 +463,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
             dto=UpdateTelegramChatJettonRuleDTO(
                 address=jetton_dto.address,
                 category=category,
-                threshold=threshold,
+                threshold=to_nano(threshold, jetton_dto.decimals),
                 is_enabled=is_enabled,
             ),
         )

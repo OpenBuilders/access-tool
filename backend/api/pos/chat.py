@@ -1,7 +1,7 @@
 import logging
 import re
 from collections.abc import Callable
-from typing import Annotated, Self
+from typing import Annotated, Self, Any
 
 from pydantic import (
     AfterValidator,
@@ -10,7 +10,7 @@ from pydantic import (
     model_validator,
     PlainSerializer,
 )
-from pytonapi.utils import raw_to_userfriendly, userfriendly_to_raw
+from pytonapi.utils import raw_to_userfriendly, userfriendly_to_raw, to_amount
 
 from api.pos.base import BaseFDO
 from api.pos.fields import AmountFacadeField, CDNImageField, AmountInputField
@@ -163,7 +163,9 @@ class TelegramChatToncoinRuleCPO(BaseTelegramChatQuantityRuleCPO):
 
 class TelegramChatJettonRuleCPO(BaseTelegramChatBlockchainResourceRuleCPO):
     category: CurrencyCategory = CurrencyCategory.BALANCE
-    expected: AmountInputField
+    # Don't use custom validator to convert to nano automatically
+    # since at that stage we don't know the number of decimals for the jetton
+    expected: int
 
 
 class NftItemAttributeFDO(BaseFDO, NftItemAttributeDTO):
@@ -282,14 +284,57 @@ class ToncoinEligibilityRuleFDO(BaseFDO, ChatEligibilityRuleDTO):
 
 class JettonEligibilityRuleFDO(BaseFDO, JettonEligibilityRuleDTO):
     photo_url: CDNImageField
-    expected: AmountFacadeField
+    expected: float | None
     blockchain_address: Annotated[str, PlainSerializer(raw_to_userfriendly)]
+    # Should not be deserialized via FDO
+    decimals: int | None = Field(None, exclude=True)
+
+    @classmethod
+    def model_validate(
+        cls,
+        obj: Any,
+        *,
+        strict: bool | None = None,
+        from_attributes: bool | None = None,
+        context: Any | None = None,
+    ) -> Self:
+        decimals_count = obj.pop("decimals", None)
+        if not decimals_count:
+            raise ValueError("Decimals count is required")
+        obj["expected"] = to_amount(int(obj["expected"]), decimals=decimals_count)
+        return cls(**obj)
 
 
 class JettonEligibilitySummaryFDO(BaseFDO, JettonEligibilitySummaryDTO):
     photo_url: CDNImageField
-    expected: AmountFacadeField
-    actual: AmountFacadeField
+    expected: float | None
+    actual: float | None
+    # Should not be deserialized via FDO
+    decimals: int | None = Field(None, exclude=True)
+
+    @classmethod
+    def model_validate(
+        cls,
+        obj: Any,
+        *,
+        strict: bool | None = None,
+        from_attributes: bool | None = None,
+        context: Any | None = None,
+    ) -> Self:
+        decimals_count = obj.pop("decimals", None)
+        if not decimals_count:
+            raise ValueError("Decimals count is required")
+
+        def validate_amount(v: int | float | None) -> float | None:
+            if not v:
+                return v
+
+            return to_amount(int(v), decimals=decimals_count)
+
+        obj["expected"] = validate_amount(obj.get("expected"))
+        obj["actual"] = validate_amount(obj.get("actual"))
+
+        return cls(**obj)
 
 
 class NftEligibilityRuleFDO(BaseFDO, NftEligibilityRuleDTO):
