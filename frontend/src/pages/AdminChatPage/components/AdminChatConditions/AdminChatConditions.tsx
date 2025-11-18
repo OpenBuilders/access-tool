@@ -1,12 +1,20 @@
-import { BlockNew, ConditionIcon, Group, GroupItem } from '@components'
+import {
+  BlockNew,
+  ConditionIcon,
+  Group as GroupComponent,
+  GroupItem,
+  Icon,
+  Text,
+} from '@components'
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
 } from '@hello-pangea/dnd'
-import { ConditionType, Group as GroupType } from '@types'
+import { Group } from '@types'
 import { createConditionDescription, createConditionName } from '@utils'
+import cn from 'classnames'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -15,12 +23,11 @@ import { useMoveChatConditionMutation } from '@store-new'
 import styles from './AdminChatConditions.module.scss'
 
 interface AdminChatConditionsProps {
-  groups?: GroupType[]
-  onGroupsChange?: (groups: GroupType[]) => void
+  groups?: Group[]
 }
 
 export const AdminChatConditions = (props: AdminChatConditionsProps) => {
-  const { groups: initialGroups, onGroupsChange } = props
+  const { groups: initialGroups } = props
 
   const params = useParams<{ chatSlug: string }>()
   const chatSlug = params.chatSlug || ''
@@ -30,12 +37,8 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
     isPending: moveChatConditionIsPending,
   } = useMoveChatConditionMutation(chatSlug)
 
-  // Локальное состояние для групп (если onGroupsChange не передан)
-  const [localGroups, setLocalGroups] = useState<GroupType[]>(
-    initialGroups || []
-  )
+  const [localGroups, setLocalGroups] = useState<Group[]>(initialGroups || [])
 
-  // Используем переданные группы или локальное состояние
   const groups = initialGroups || localGroups
 
   const onDragEnd = async (result: DropResult) => {
@@ -46,18 +49,14 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
       return
     }
 
-    // Если элемент перемещен в то же место
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
+    // Если элемент перемещен в ту же группу
+    if (destination.droppableId === source.droppableId) {
       return
     }
 
     const sourceGroupId = parseInt(source.droppableId)
     const destGroupId = parseInt(destination.droppableId)
 
-    // Создаем копию групп
     const newGroups = [...groups]
     const sourceGroup = newGroups.find((g) => g.id === sourceGroupId)
     const destGroup = newGroups.find((g) => g.id === destGroupId)
@@ -66,13 +65,10 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
       return
     }
 
-    // Удаляем элемент из исходной группы
     const [removed] = sourceGroup.items.splice(source.index, 1)
 
-    // Вставляем элемент в целевую группу
     destGroup.items.splice(destination.index, 0, removed)
 
-    // Обновляем группы
     setLocalGroups(newGroups)
     await moveChatConditionMutation({
       ruleId: removed.id,
@@ -82,26 +78,59 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
     })
   }
 
+  if (!initialGroups?.length) {
+    return (
+      <BlockNew padding="24px 0 0 0">
+        <GroupComponent header="Complete Tasks">
+          <GroupItem
+            text={
+              <Text type="text" color="accent">
+                Add Condition
+              </Text>
+            }
+            before={<Icon name="plus" size={28} />}
+            onClick={() => console.log('add condition')}
+          />
+        </GroupComponent>
+      </BlockNew>
+    )
+  }
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       {groups.map((group, groupIndex) => {
         const isFirstGroup = groupIndex === 0
         const groupHeader = isFirstGroup ? 'Complete Tasks' : 'Or Complete'
+        const isConditionInGroup = group.items.length > 0
+
+        const renderGroupAction = () => {
+          if (isConditionInGroup) {
+            return (
+              <Text
+                type="caption"
+                color="accent"
+                uppercase
+                onClick={() => console.log('add condition')}
+              >
+                Add Condition
+              </Text>
+            )
+          }
+          return null
+        }
 
         return (
           <BlockNew key={group.id} padding="24px 0 0 0">
-            <Group header={groupHeader}>
+            <GroupComponent header={groupHeader} action={renderGroupAction()}>
               <Droppable droppableId={group.id.toString()}>
                 {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    style={{
-                      backgroundColor: snapshot.isDraggingOver
-                        ? 'rgba(0, 0, 0, 0.05)'
-                        : 'transparent',
-                      minHeight: '20px',
-                    }}
+                    className={cn(styles.droppableContainer, {
+                      [styles.droppableContainerOnDraggingOver]:
+                        snapshot.isDraggingOver,
+                    })}
                   >
                     {group.items.map((item, itemIndex) => (
                       <Draggable
@@ -119,6 +148,10 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              className={cn({
+                                [styles.draggableItemOnDragging]:
+                                  snapshot.isDragging,
+                              })}
                             >
                               <GroupItem
                                 chevron
@@ -137,10 +170,23 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
                   </div>
                 )}
               </Droppable>
-            </Group>
+            </GroupComponent>
           </BlockNew>
         )
       })}
+      <BlockNew padding="24px 0 0 0">
+        <GroupComponent header="Or Complete">
+          <GroupItem
+            text={
+              <Text type="text" color="accent">
+                Add Condition
+              </Text>
+            }
+            before={<Icon name="plus" size={28} />}
+            onClick={() => console.log('add condition')}
+          />
+        </GroupComponent>
+      </BlockNew>
     </DragDropContext>
   )
 }

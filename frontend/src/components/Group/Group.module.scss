@@ -11,11 +11,11 @@
       opacity: 1;
     }
 
-    &:last-child {
-      [data-group-item-border-bottom] {
-        opacity: 0;
-      }
-    }
+    // &:last-child {
+    //   [data-group-item-border-bottom] {
+    //     opacity: 0;
+    //   }
+    // }
   }
 }
 

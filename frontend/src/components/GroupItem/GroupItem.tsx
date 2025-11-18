@@ -28,7 +28,11 @@ const renderText = (text: string | React.ReactNode) => {
 
 const renderDescription = (description: string | React.ReactNode) => {
   if (typeof description === 'string') {
-    return <Text type="caption">{description}</Text>
+    return (
+      <Text type="caption" color="secondary">
+        {description}
+      </Text>
+    )
   }
   return description
 }

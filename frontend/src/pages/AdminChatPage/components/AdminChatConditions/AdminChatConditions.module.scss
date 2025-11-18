@@ -1,0 +1,17 @@
+.droppableContainer {
+  background-color: transparent;
+  transition: 0.2s;
+}
+
+.droppableContainerOnDraggingOver {
+  background-color: rgba(0, 0, 0, 0.05);
+  min-height: 44px;
+}
+
+.draggableItemOnDragging {
+  [data-group-item] {
+    [data-group-item-border-bottom] {
+      opacity: 0;
+    }
+  }
+}
