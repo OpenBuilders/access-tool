@@ -13,6 +13,7 @@ import {
   ClientChatHidden,
   AdminChatPage,
   AdminConditionPage,
+  AdminNewConditionPage,
 } from '@pages'
 import { Route, Routes } from 'react-router-dom'
 
@@ -47,10 +48,10 @@ export default (
     <Route path="/admin/chat/:chatSlug" element={<AdminChatPage />} />
     <Route
       path="/admin/chat/:chatSlug/condition"
-      element={<AdminConditionPage />}
+      element={<AdminNewConditionPage />}
     />
     <Route
-      path="/admin/chat/:chatSlug/condition/:conditionId"
+      path="/admin/chat/:chatSlug/condition/:conditionType/:conditionId"
       element={<AdminConditionPage />}
     />
 

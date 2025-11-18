@@ -55,8 +55,14 @@ export const GroupItem = ({
 
   const [leftGapBottomBorder, setLeftGapBottomBorder] = useState(0)
 
-  const handleClick = () => {
-    if (onClick && !disabled) {
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (disabled) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+
+    if (onClick) {
       hapticFeedback('soft')
       onClick()
     }

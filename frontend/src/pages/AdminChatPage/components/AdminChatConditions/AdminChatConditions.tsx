@@ -13,11 +13,11 @@ import {
   DropResult,
   DragUpdate,
 } from '@hello-pangea/dnd'
-import { Group } from '@types'
+import { Condition, Group } from '@types'
 import { createConditionDescription, createConditionName } from '@utils'
 import cn from 'classnames'
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { useMoveChatConditionMutation } from '@store-new'
 
@@ -29,6 +29,8 @@ interface AdminChatConditionsProps {
 
 export const AdminChatConditions = (props: AdminChatConditionsProps) => {
   const { groups: initialGroups } = props
+
+  const navigate = useNavigate()
 
   const params = useParams<{ chatSlug: string }>()
   const chatSlug = params.chatSlug || ''
@@ -79,6 +81,17 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
     })
   }
 
+  const handleCreateCondition = useCallback(() => {
+    navigate(`/admin/chat/${chatSlug}/condition`)
+  }, [chatSlug])
+
+  const handleNavigateToConditionPage = useCallback(
+    (rule: Condition) => {
+      navigate(`/admin/chat/${chatSlug}/condition/${rule.type}/${rule.id}`)
+    },
+    [chatSlug]
+  )
+
   if (!initialGroups?.length) {
     return (
       <BlockNew padding="24px 0 0 0">
@@ -90,7 +103,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
               </Text>
             }
             before={<Icon name="plus" size={28} />}
-            onClick={() => console.log('add condition')}
+            onClick={handleCreateCondition}
           />
         </GroupComponent>
       </BlockNew>
@@ -113,7 +126,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
                 type="caption"
                 color="accent"
                 uppercase
-                onClick={() => console.log('add condition')}
+                onClick={handleCreateCondition}
               >
                 Add Condition
               </Text>
@@ -166,6 +179,9 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
                                 isDragging={snapshot.isDragging}
                                 before={<ConditionIcon condition={item} />}
                                 disabled={moveChatConditionIsPending}
+                                onClick={() =>
+                                  handleNavigateToConditionPage(item)
+                                }
                               />
                             </div>
                           )
@@ -189,7 +205,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
               </Text>
             }
             before={<Icon name="plus" size={28} />}
-            onClick={() => console.log('add condition')}
+            onClick={handleCreateCondition}
           />
         </GroupComponent>
       </BlockNew>

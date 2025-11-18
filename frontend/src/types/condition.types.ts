@@ -7,7 +7,8 @@ export type ConditionType =
   | 'toncoin'
   | 'premium'
   | 'jetton'
-
+  | 'whitelist'
+  | 'sticker_collection'
 export type ConditionCollection = {
   slug?: string
   title: string
@@ -45,4 +46,12 @@ export type Condition = {
   collection?: ConditionCollection | null
   emojiId?: string | null
   character?: ConditionCharacter | null
+}
+
+export interface ConditionAPIArgs {
+  type: ConditionType
+  chatSlug?: string
+  conditionId: string
+  data?: Partial<Condition>
+  address?: string
 }

@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Chat, ChatInstance, ConditionType } from '@types'
+import {
+  Chat,
+  ChatInstance,
+  Condition,
+  ConditionAPIArgs,
+  ConditionType,
+} from '@types'
 import {
   findNewChat,
   TANSTACK_GC_TIME,
@@ -8,12 +14,17 @@ import {
 } from '@utils'
 import { useNavigate } from 'react-router-dom'
 
+import { useConditionActions } from '../condition'
 import {
+  createAdminConditionAPI,
+  deleteAdminConditionAPI,
   fetchAdminChatAPI,
   fetchAdminChatsAPI,
+  fetchAdminConditionAPI,
   moveAdminChatConditionAPI,
   updateAdminChatAPI,
   updateAdminChatVisibilityAPI,
+  updateAdminConditionAPI,
 } from './api'
 
 export const useAdminChatsQuery = () => {
@@ -285,6 +296,103 @@ export const useAdminChatVisibilityMutation = (slug: string) => {
       })
       queryClient.invalidateQueries({
         queryKey: TANSTACK_KEYS.CHAT(slug),
+      })
+    },
+  })
+}
+
+export const useAdminConditionQuery = (args: ConditionAPIArgs) => {
+  return useQuery<Condition>({
+    queryKey: TANSTACK_KEYS.ADMIN_CONDITION(
+      args.chatSlug ?? '',
+      args.conditionId,
+      args.type
+    ),
+    queryFn: async () => {
+      const { data, ok, error } = await fetchAdminConditionAPI(args)
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+
+    enabled: !!args.chatSlug && !!args.conditionId && !!args.type,
+    gcTime: TANSTACK_GC_TIME,
+    staleTime: TANSTACK_TTL.ADMIN_CONDITION,
+    meta: { persist: true },
+  })
+}
+
+export const useAdminCreateConditionMutation = (chatSlug: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (newData: ConditionAPIArgs) => {
+      const { data, ok, error } = await createAdminConditionAPI(newData)
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CHAT(chatSlug),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.CHAT(chatSlug),
+      })
+    },
+  })
+}
+
+export const useAdminUpdateConditionMutation = (chatSlug: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (newData: ConditionAPIArgs) => {
+      const { data, ok, error } = await updateAdminConditionAPI(newData)
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    onSuccess: (_, variables) => {
+      const { conditionId, type } = variables
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CONDITION(chatSlug, conditionId, type),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CHAT(chatSlug),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.CHAT(chatSlug),
+      })
+    },
+  })
+}
+
+export const useAdminDeleteConditionMutation = (chatSlug: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (newData: ConditionAPIArgs) => {
+      const { data, ok, error } = await deleteAdminConditionAPI(newData)
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    onSuccess: (_, variables) => {
+      const { conditionId, type } = variables
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CONDITION(chatSlug, conditionId, type),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CHAT(chatSlug),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.CHAT(chatSlug),
       })
     },
   })

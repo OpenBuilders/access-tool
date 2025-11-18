@@ -12,6 +12,8 @@
   transform: scale(0.3);
   opacity: 0;
   transform-origin: top right;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .dropdownActive {

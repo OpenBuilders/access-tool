@@ -1,4 +1,4 @@
-import { ChatsPopularOrderBy } from '@types'
+import { ChatsPopularOrderBy, ConditionType } from '@types'
 
 export const API_VALIDATION_ERROR = 'Fill fields correctly'
 
@@ -14,6 +14,11 @@ export const TANSTACK_KEYS = {
   ADMIN_CHAT: (slug: string) => ['admin', 'chat', slug],
   ADMIN_CHATS_POLLING: ['admin', 'chats', 'polling'],
   ADMIN_CHAT_POLLING: (slug: string) => ['admin', 'chat', 'polling', slug],
+  ADMIN_CONDITION: (
+    chatSlug: string,
+    conditionId: string,
+    type: ConditionType
+  ) => ['admin', 'condition', chatSlug, conditionId, type],
 }
 
 export const TANSTACK_TTL = {
@@ -22,6 +27,7 @@ export const TANSTACK_TTL = {
   CHATS_POPULAR: 5 * 60 * 1000, // 5 minute
   ADMIN_CHATS: 5 * 60 * 1000, // 5 minute
   CHAT: 5 * 60 * 1000, // 5 minute
+  ADMIN_CONDITION: 2 * 60 * 1000, // 2 minutes
 }
 
 export const TANSTACK_GC_TIME = 30 * 60 * 1000 // 30 minute
