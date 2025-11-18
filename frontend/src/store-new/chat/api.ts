@@ -1,9 +1,4 @@
-import {
-  ChatInstance,
-  ChatPopularResponse,
-  ChatsPopularOrderBy,
-  ConditionType,
-} from '@types'
+import { ChatInstance, ChatPopularResponse, ChatsPopularOrderBy } from '@types'
 
 import { ApiService, ApiServiceResponse } from '@services'
 

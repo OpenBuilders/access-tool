@@ -13,6 +13,7 @@ import {
   fetchAdminChatsAPI,
   moveAdminChatConditionAPI,
   updateAdminChatAPI,
+  updateAdminChatVisibilityAPI,
 } from './api'
 
 export const useAdminChatsQuery = () => {
@@ -260,6 +261,23 @@ export const useMoveChatConditionMutation = (slug: string) => {
         order,
         chatSlug: slug,
       })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.ADMIN_CHAT(slug),
+      })
+      queryClient.invalidateQueries({
+        queryKey: TANSTACK_KEYS.CHAT(slug),
+      })
+    },
+  })
+}
+
+export const useAdminChatVisibilityMutation = (slug: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (newData: Pick<Chat, 'isEnabled'>) => {
+      return await updateAdminChatVisibilityAPI(slug, newData)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

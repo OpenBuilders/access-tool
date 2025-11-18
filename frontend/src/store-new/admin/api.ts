@@ -59,3 +59,15 @@ export const moveAdminChatConditionAPI = async ({
 
   return response.data || { status: '', message: '' }
 }
+
+export const updateAdminChatVisibilityAPI = async (
+  slug: string,
+  data: Pick<Chat, 'isEnabled'>
+): Promise<ApiServiceResponse<Chat>> => {
+  const response = await ApiService.put<Chat>({
+    endpoint: `/admin/chats/${slug}/visibility`,
+    data,
+  })
+
+  return response
+}

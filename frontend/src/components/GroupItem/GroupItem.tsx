@@ -1,4 +1,5 @@
 import { Icon, Text } from '@components'
+import { hapticFeedback } from '@utils'
 import cn from 'classnames'
 import { useEffect, useRef, useState } from 'react'
 
@@ -54,6 +55,7 @@ export const GroupItem = ({
 
   const handleClick = () => {
     if (onClick && !disabled) {
+      hapticFeedback('soft')
       onClick()
     }
   }
