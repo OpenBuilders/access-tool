@@ -63,6 +63,42 @@
   }
 }
 
+.dragIcon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  touch-action: none;
+}
+
+.dragIcon::before,
+.dragIcon::after,
+.dragIcon span {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: var(--color-foreground-secondary);
+  border-radius: 20px;
+}
+
+.dragIcon::before {
+  top: 3px;
+}
+
+.dragIcon span {
+  top: 7px;
+  position: absolute;
+}
+
+.dragIcon::after {
+  top: 11px;
+}
+
 .bottomBorder {
   position: absolute;
   bottom: 0;

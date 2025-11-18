@@ -12,6 +12,7 @@ import {
   NotFound,
   ClientChatHidden,
   AdminChatPage,
+  AdminConditionPage,
 } from '@pages'
 import { Route, Routes } from 'react-router-dom'
 
@@ -44,6 +45,14 @@ export default (
       element={<GrantPermissionsPage />}
     />
     <Route path="/admin/chat/:chatSlug" element={<AdminChatPage />} />
+    <Route
+      path="/admin/chat/:chatSlug/condition"
+      element={<AdminConditionPage />}
+    />
+    <Route
+      path="/admin/chat/:chatSlug/condition/:conditionId"
+      element={<AdminConditionPage />}
+    />
 
     <Route path={ROUTES_NAME.ADD_TELEGRAM_CHAT} element={<AddBotPage />} />
     <Route path={ROUTES_NAME.CHAT} element={<ChatPage />} />

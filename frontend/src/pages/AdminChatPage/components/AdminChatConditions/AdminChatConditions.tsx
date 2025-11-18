@@ -97,6 +97,8 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
     )
   }
 
+  const isDragEnabled = !moveChatConditionIsPending && groups.length > 1
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       {groups.map((group, groupIndex) => {
@@ -123,7 +125,10 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
         return (
           <BlockNew key={group.id} padding="24px 0 0 0">
             <GroupComponent header={groupHeader} action={renderGroupAction()}>
-              <Droppable droppableId={group.id.toString()}>
+              <Droppable
+                droppableId={group.id.toString()}
+                isDropDisabled={!isDragEnabled}
+              >
                 {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}
@@ -155,7 +160,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
                               })}
                             >
                               <GroupItem
-                                chevron
+                                canDrag={isDragEnabled}
                                 text={conditionName}
                                 description={conditionDescription}
                                 isDragging={snapshot.isDragging}

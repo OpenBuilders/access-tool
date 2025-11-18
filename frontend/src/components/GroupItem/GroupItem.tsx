@@ -15,6 +15,7 @@ interface GroupProps {
   onClick?: () => void
   disabled?: boolean
   chevron?: boolean
+  canDrag?: boolean
 }
 
 const GROUP_ITEM_GAP = 10
@@ -48,6 +49,7 @@ export const GroupItem = ({
   disabled,
   onClick,
   chevron,
+  canDrag,
 }: GroupProps) => {
   const beforeRef = useRef<HTMLDivElement>(null)
 
@@ -96,6 +98,11 @@ export const GroupItem = ({
         {chevron && (
           <div className={styles.chevron}>
             <Icon name="chevron" />
+          </div>
+        )}
+        {canDrag && (
+          <div className={styles.dragIcon}>
+            <span />
           </div>
         )}
       </div>
