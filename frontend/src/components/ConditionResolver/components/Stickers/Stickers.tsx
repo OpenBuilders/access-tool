@@ -1,5 +1,6 @@
 import { BlockNew, Group, GroupItem, Select } from '@components'
 import { Condition, Option } from '@types'
+import { useState } from 'react'
 
 import {
   useAdminConditionStickersQuery,
@@ -17,11 +18,11 @@ export const Stickers = () => {
   if (stickersIsPending) {
     return <p>Loading stickers...</p>
   }
-
+  console.log(condition)
   const handleChangeCollection = (field: keyof Condition, value?: string) => {
-    updateConditionAction({
-      [field]: value,
-    })
+    // updateConditionAction({
+    //   [field]: value,
+    // })
   }
 
   const collectionOptions = [

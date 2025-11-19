@@ -1,4 +1,5 @@
 export interface GroupInputProps {
+  postfix?: string
   value: string
   placeholder?: string
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search'

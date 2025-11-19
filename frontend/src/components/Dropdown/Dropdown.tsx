@@ -1,4 +1,5 @@
 import { Option } from '@types'
+import { hapticFeedback } from '@utils'
 import cn from 'classnames'
 import { useEffect, useRef } from 'react'
 
@@ -11,7 +12,7 @@ type DropdownProps = {
   options: Option[]
   active: boolean
   selectedValue?: string
-  onSelect: (value?: string) => void
+  onSelect: (value: string | null) => void
   onClose: () => void
   className?: string
   triggerRef?: React.RefObject<HTMLElement>
@@ -53,7 +54,8 @@ export const Dropdown = ({
     }
   }, [active, onClose, triggerRef])
 
-  const handleSelect = (value?: string) => {
+  const handleSelect = (value: string | null) => {
+    hapticFeedback('soft')
     onSelect(value)
     onClose()
   }

@@ -1,5 +1,18 @@
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.postfix {
+  color: var(--color-foreground-primary);
+  font-size: 17px;
+  font-weight: 400;
+}
+
 .input {
   background: transparent;
+  display: inline-block;
   width: 100%;
   border: none;
   outline: none;
@@ -9,7 +22,6 @@
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
-  color: inherit;
   line-height: inherit;
 
   &::placeholder {

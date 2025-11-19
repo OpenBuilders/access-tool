@@ -4,6 +4,7 @@ import {
   ChatInstance,
   Condition,
   ConditionAPIArgs,
+  ConditionCategory,
   ConditionStickersCollection,
   ConditionType,
 } from '@types'
@@ -22,6 +23,7 @@ import {
   fetchAdminChatAPI,
   fetchAdminChatsAPI,
   fetchAdminConditionAPI,
+  fetchAdminConditionCategoriesAPI,
   fetchAdminConditionsStickersAPI,
   moveAdminChatConditionAPI,
   updateAdminChatAPI,
@@ -49,6 +51,7 @@ export const useAdminChatsQuery = () => {
 
 export const useAdminChatsPollingQuery = (enabled: boolean) => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   return useQuery<Chat[]>({
     queryKey: TANSTACK_KEYS.ADMIN_CHATS_POLLING,
@@ -66,96 +69,9 @@ export const useAdminChatsPollingQuery = (enabled: boolean) => {
     enabled,
     refetchInterval: (query) => {
       const currentData = query.state.data
-      // const initialData = queryClient.getQueryData<AdminChat[]>(
-      //   TANSTACK_KEYS.ADMIN_CHATS
-      // )
-      const initialData = [
-        {
-          id: -1002695830207,
-          title: '[draft] Automatization test',
-          description: null,
-          slug: 'draft-automatization-test',
-          isForum: false,
-          logoPath: null,
-          membersCount: 2,
-          tcv: 0,
-          username: null,
-          isEnabled: true,
-          joinUrl: 'https://t.me/+PtVLNs82DQwwZDNi',
-          insufficientPrivileges: false,
-        },
-        {
-          id: -1002659072903,
-          title: 'Тест чата',
-          description: 'fdsfdsfjfjdjdjf',
-          slug: 'test-chata',
-          isForum: false,
-          logoPath:
-            'https://pub-afc0b291195b4529b0de88319506f30b.r2.dev/5321025092160975477.png',
-          membersCount: 2,
-          tcv: 0,
-          username: null,
-          isEnabled: true,
-          joinUrl: 'https://t.me/+RZq9kmi5VoI5ZmUy',
-          insufficientPrivileges: false,
-        },
-        {
-          id: -1002547149665,
-          title: 'Тестовый канал',
-          description: null,
-          slug: 'testovyi-kanal',
-          isForum: false,
-          logoPath: null,
-          membersCount: 1,
-          tcv: 0,
-          username: null,
-          isEnabled: true,
-          joinUrl: 'https://t.me/+gS8r35jj25BhNjcy',
-          insufficientPrivileges: false,
-        },
-        {
-          id: -1002197377487,
-          title: '[draft] TelegramTestChat',
-          description: null,
-          slug: 'draft-telegramtestchat',
-          isForum: false,
-          logoPath: null,
-          membersCount: 1,
-          tcv: 0,
-          username: null,
-          isEnabled: true,
-          joinUrl: 'https://t.me/+77Hi8abSl8MwMTBi',
-          insufficientPrivileges: false,
-        },
-        {
-          id: -1002156352148,
-          title: '[draft] Test subscribtions 2',
-          description: null,
-          slug: 'draft-test-subscribtions-2',
-          isForum: false,
-          logoPath: null,
-          membersCount: 6,
-          tcv: 0,
-          username: null,
-          isEnabled: true,
-          joinUrl: 'https://t.me/+cjDwuYhmtgthOTk6',
-          insufficientPrivileges: false,
-        },
-        {
-          id: -10021563521238,
-          title: '[draft] Test subscribtions 3',
-          description: null,
-          slug: 'draft-test-subscribtions-3',
-          isForum: false,
-          logoPath: null,
-          membersCount: 7,
-          tcv: 0,
-          username: null,
-          isEnabled: true,
-          joinUrl: 'https://t.me/+cjDwuYhmtgthOTk6',
-          insufficientPrivileges: false,
-        },
-      ] as Chat[]
+      const initialData = queryClient.getQueryData<Chat[]>(
+        TANSTACK_KEYS.ADMIN_CHATS
+      )
 
       if (currentData?.length !== initialData?.length) {
         if (initialData && currentData?.length) {
@@ -413,6 +329,24 @@ export const useAdminConditionStickersQuery = () => {
     },
     gcTime: TANSTACK_GC_TIME,
     staleTime: TANSTACK_TTL.ADMIN_CONDITION_STICKERS,
+    meta: { persist: true },
+  })
+}
+
+export const useAdminConditionCategoriesQuery = (type: ConditionType) => {
+  return useQuery<ConditionCategory[]>({
+    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_CATEGORIES(type),
+    queryFn: async () => {
+      const { data, ok, error } = await fetchAdminConditionCategoriesAPI(type)
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    enabled: !!type,
+    gcTime: TANSTACK_GC_TIME,
+    staleTime: TANSTACK_TTL.ADMIN_CONDITION_CATEGORIES,
     meta: { persist: true },
   })
 }

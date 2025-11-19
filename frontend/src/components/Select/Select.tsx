@@ -1,13 +1,16 @@
 import { Option } from '@types'
 import { useRef, useState } from 'react'
 
+import { BlockNew } from '../BlockNew'
 import { Dropdown } from '../Dropdown'
+import { Icon } from '../Icon'
+import { Text } from '../Text'
 import styles from './Select.module.scss'
 
 interface SelectProps {
   options: Option[]
   value?: string
-  onChange: (value?: string) => void
+  onChange: (value: string | null) => void
 }
 
 export const Select = (props: SelectProps) => {
@@ -21,18 +24,19 @@ export const Select = (props: SelectProps) => {
     setIsDropdownOpen(!isDropdownOpen)
   }
 
-  const handleSelect = (value?: string) => {
+  const handleSelect = (value: string | null) => {
     onChange(value)
     setIsDropdownOpen(false)
   }
 
   return (
     <div className={styles.select} ref={selectRef}>
-      <div className={styles.selectTrigger} onClick={handleToggleDropdown}>
-        <div className={styles.selectTriggerText}>
+      <BlockNew onClick={handleToggleDropdown} row gap={6} align="center">
+        <Text type="text" color="accent">
           {options.find((option) => option.value === value)?.label}
-        </div>
-      </div>
+        </Text>
+        <Icon name="doubleChevron" size={12} />
+      </BlockNew>
       <Dropdown
         active={isDropdownOpen}
         options={options}

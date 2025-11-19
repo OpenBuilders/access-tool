@@ -57,10 +57,6 @@ export const AdminConditionPage = () => {
     }
   }, [conditionData])
 
-  if (conditionIsPending || !condition) {
-    return <div>Loading...</div>
-  }
-
   const handleMainButtonClick = () => {
     if (!condition || isSaved) {
       return
@@ -68,7 +64,7 @@ export const AdminConditionPage = () => {
     updateConditionMutateAsync({
       conditionId,
       type: conditionType as ConditionType,
-      data: condition,
+      data: condition[conditionType as ConditionType],
     })
   }
 
@@ -92,7 +88,11 @@ export const AdminConditionPage = () => {
           Edit Condition
         </Text>
       </BlockNew>
-      <ConditionResolver />
+      {conditionIsPending || !condition ? (
+        <p>is loading...</p>
+      ) : (
+        <ConditionResolver />
+      )}
     </PageLayoutNew>
   )
 }

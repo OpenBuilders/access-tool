@@ -1,7 +1,8 @@
 import { GroupItem, Select } from '@components'
 import { Condition, ConditionType } from '@types'
+import { useEffect } from 'react'
 
-import { useCondition, useConditionActions } from '@store-new'
+import { useCondition, useConditionActions, useConditionType } from '@store-new'
 
 import { CONDITION_TYPES_NAMES, DEFAULT_CONDITION_TYPE } from '../../constants'
 import { ConditionResolverProps } from '../../types'
@@ -9,8 +10,9 @@ import { ConditionResolverProps } from '../../types'
 export const TypeSelector = (props: ConditionResolverProps) => {
   const { isNew } = props
 
-  const condition = useCondition()
-  const { updateConditionAction } = useConditionActions()
+  const conditionType = useConditionType()
+  const { setConditionTypeAction, setInitialConditionAction } =
+    useConditionActions()
 
   const options = Object.entries(CONDITION_TYPES_NAMES).map(
     ([value, label]) => ({
@@ -19,10 +21,13 @@ export const TypeSelector = (props: ConditionResolverProps) => {
     })
   )
 
-  const handleChangeType = (field: keyof Condition, value?: string) => {
-    updateConditionAction({
-      [field]: value,
-    })
+  useEffect(() => {
+    setInitialConditionAction()
+  }, [conditionType])
+
+  const handleChangeType = (value: string | null) => {
+    setConditionTypeAction(value as ConditionType)
+    setInitialConditionAction()
   }
 
   return (
@@ -32,9 +37,9 @@ export const TypeSelector = (props: ConditionResolverProps) => {
       after={
         <Select
           options={options}
-          value={condition?.type || DEFAULT_CONDITION_TYPE}
+          value={conditionType}
           onChange={(value) => {
-            handleChangeType('type', value)
+            handleChangeType(value)
           }}
         />
       }

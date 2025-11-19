@@ -145,7 +145,7 @@ export const fetchAdminConditionAddressAPI = async (
   return response
 }
 
-export const fetchConditionCategoriesAPI = async (
+export const fetchAdminConditionCategoriesAPI = async (
   type: ConditionType
 ): Promise<ApiServiceResponse<any>> => {
   const path = ConditionTypePath[type]

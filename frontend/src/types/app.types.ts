@@ -7,6 +7,6 @@ export type ChatsPopularOrderBy =
 
 export type Option = {
   label: string
-  value?: string
+  value: string | null
   image?: string
 }

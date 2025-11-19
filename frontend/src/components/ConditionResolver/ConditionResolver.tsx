@@ -1,6 +1,6 @@
 import { ConditionType } from '@types'
 
-import { useCondition } from '@store-new'
+import { useCondition, useConditionType } from '@store-new'
 
 import { BlockNew } from '../BlockNew'
 import { Jettons, Stickers, TypeSelector } from './components'
@@ -16,24 +16,16 @@ const CONDITION_COMPONENTS: Record<
 }
 
 export const ConditionResolver = (props: ConditionResolverProps) => {
-  const condition = useCondition()
+  const { isNew } = props
+  const conditionType = useConditionType()
 
   const ConditionTypeComponent =
-    CONDITION_COMPONENTS[
-      (condition?.type as keyof typeof CONDITION_COMPONENTS) ||
-        DEFAULT_CONDITION_TYPE
-    ]
-
-  console.log(condition)
+    CONDITION_COMPONENTS[conditionType as keyof typeof CONDITION_COMPONENTS]
 
   return (
     <BlockNew padding="24px 0 0 0">
-      <TypeSelector />
-      {ConditionTypeComponent && (
-        <BlockNew padding="24px 0 0 0">
-          <ConditionTypeComponent />
-        </BlockNew>
-      )}
+      <TypeSelector isNew={isNew} />
+      {ConditionTypeComponent && <ConditionTypeComponent />}
     </BlockNew>
   )
 }

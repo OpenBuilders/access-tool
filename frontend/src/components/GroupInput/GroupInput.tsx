@@ -19,6 +19,7 @@ export const GroupInput = forwardRef<HTMLInputElement, GroupInputProps>(
       id,
       maxLength,
       minLength,
+      postfix,
       pattern,
       size,
       spellCheck,
@@ -100,45 +101,48 @@ export const GroupInput = forwardRef<HTMLInputElement, GroupInputProps>(
     const error = externalError || internalError
 
     return (
-      <input
-        ref={ref}
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        disabled={disabled}
-        readOnly={readOnly}
-        required={required}
-        autoFocus={autoFocus}
-        autoComplete={autoComplete}
-        name={name}
-        id={id}
-        maxLength={maxLength}
-        minLength={minLength}
-        pattern={pattern}
-        size={size}
-        spellCheck={spellCheck}
-        tabIndex={tabIndex}
-        inputMode={
-          (numeric && 'numeric') || (decimal && 'decimal') || undefined
-        }
-        onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onKeyDown={onKeyDown}
-        onKeyUp={onKeyUp}
-        onInput={onInput}
-        onPaste={onPaste}
-        onCopy={onCopy}
-        onCut={onCut}
-        className={cn(styles.input, className)}
-        style={style}
-        data-testid={dataTestId}
-        aria-label={ariaLabel}
-        aria-describedby={ariaDescribedby}
-        aria-invalid={ariaInvalid ?? !!error}
-        aria-required={ariaRequired ?? required}
-        {...restProps}
-      />
+      <div className={styles.inputWrapper}>
+        <input
+          ref={ref}
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          disabled={disabled}
+          readOnly={readOnly}
+          required={required}
+          autoFocus={autoFocus}
+          autoComplete={autoComplete}
+          name={name}
+          id={id}
+          maxLength={maxLength}
+          minLength={minLength}
+          pattern={pattern}
+          size={size}
+          spellCheck={spellCheck}
+          tabIndex={tabIndex}
+          inputMode={
+            (numeric && 'numeric') || (decimal && 'decimal') || undefined
+          }
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={onKeyDown}
+          onKeyUp={onKeyUp}
+          onInput={onInput}
+          onPaste={onPaste}
+          onCopy={onCopy}
+          onCut={onCut}
+          className={cn(styles.input, className)}
+          style={style}
+          data-testid={dataTestId}
+          aria-label={ariaLabel}
+          aria-describedby={ariaDescribedby}
+          aria-invalid={ariaInvalid ?? !!error}
+          aria-required={ariaRequired ?? required}
+          {...restProps}
+        />
+        {postfix && <span className={styles.postfix}>{postfix}</span>}
+      </div>
     )
   }
 )
