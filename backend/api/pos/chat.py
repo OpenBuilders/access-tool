@@ -72,7 +72,7 @@ CHAT_INPUT_REGEX = re.compile(
 
 
 class TelegramChatPreviewFDO(BaseFDO, TelegramChatPreviewDTO):
-    ...
+    logo_path: CDNImageField
 
 
 class TelegramChatFDO(BaseFDO, TelegramChatDTO):
