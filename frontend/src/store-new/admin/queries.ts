@@ -5,6 +5,7 @@ import {
   Condition,
   ConditionAPIArgs,
   ConditionCategory,
+  ConditionJettonsPrefetch,
   ConditionStickersCollection,
   ConditionType,
 } from '@types'
@@ -24,6 +25,7 @@ import {
   fetchAdminChatsAPI,
   fetchAdminConditionAPI,
   fetchAdminConditionCategoriesAPI,
+  fetchAdminConditionJettonsAPI,
   fetchAdminConditionsStickersAPI,
   moveAdminChatConditionAPI,
   updateAdminChatAPI,
@@ -347,6 +349,30 @@ export const useAdminConditionCategoriesQuery = (type: ConditionType) => {
     enabled: !!type,
     gcTime: TANSTACK_GC_TIME,
     staleTime: TANSTACK_TTL.ADMIN_CONDITION_CATEGORIES,
+    meta: { persist: true },
+  })
+}
+
+export const useAdminConditionJettonsQuery = (
+  type: ConditionType,
+  address: string
+) => {
+  return useQuery<ConditionJettonsPrefetch>({
+    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_JETTONS(address),
+    queryFn: async () => {
+      const { data, ok, error } = await fetchAdminConditionJettonsAPI(
+        type,
+        address
+      )
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    enabled: !!type && !!address,
+    gcTime: TANSTACK_GC_TIME,
+    staleTime: TANSTACK_TTL.ADMIN_CONDITION_JETTONS,
     meta: { persist: true },
   })
 }

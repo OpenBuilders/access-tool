@@ -20,16 +20,22 @@ export const Group = ({ children, header, footer, action }: GroupProps) => {
         '[data-group-item-border-bottom]'
       )
 
-      items.forEach((item, index) => {
-        if (index === items.length - 1) {
-          if (item instanceof HTMLElement) {
-            item.style.opacity = '0'
-          }
-          return
+      // Сначала сбрасываем opacity для всех элементов
+      items.forEach((item) => {
+        if (item instanceof HTMLElement) {
+          item.style.opacity = '1'
         }
       })
+
+      // Затем скрываем последний элемент
+      if (items.length > 0) {
+        const lastItem = items[items.length - 1]
+        if (lastItem instanceof HTMLElement) {
+          lastItem.style.opacity = '0'
+        }
+      }
     }
-  }, [])
+  }, [children]) // Добавляем children в зависимости
 
   return (
     <>

@@ -299,3 +299,14 @@ export type ConditionCategory = {
   asset: string
   categories: string[]
 }
+
+export type ConditionJettonsPrefetch = {
+  address: string
+  decimals: number
+  description: string | null
+  isEnabled: boolean
+  logoPath: string
+  name: string
+  symbol: string
+  totalSupply: number
+}

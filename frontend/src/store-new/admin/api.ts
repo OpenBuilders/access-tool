@@ -3,6 +3,8 @@ import {
   ChatInstance,
   Condition,
   ConditionAPIArgs,
+  ConditionCategory,
+  ConditionJettonsPrefetch,
   ConditionType,
 } from '@types'
 
@@ -133,12 +135,12 @@ export const deleteAdminConditionAPI = async (
   return response
 }
 
-export const fetchAdminConditionAddressAPI = async (
-  args: ConditionAPIArgs
-): Promise<ApiServiceResponse<any>> => {
-  const { type, address } = args
+export const fetchAdminConditionJettonsAPI = async (
+  type: ConditionType,
+  address: string
+): Promise<ApiServiceResponse<ConditionJettonsPrefetch>> => {
   const path = ConditionTypePath[type]
-  const response = await ApiService.get<any>({
+  const response = await ApiService.get<ConditionJettonsPrefetch>({
     endpoint: `/admin/resources/prefetch/${path}?address=${address}`,
   })
 
@@ -147,9 +149,9 @@ export const fetchAdminConditionAddressAPI = async (
 
 export const fetchAdminConditionCategoriesAPI = async (
   type: ConditionType
-): Promise<ApiServiceResponse<any>> => {
+): Promise<ApiServiceResponse<ConditionCategory[]>> => {
   const path = ConditionTypePath[type]
-  const response = await ApiService.get<any>({
+  const response = await ApiService.get<ConditionCategory[]>({
     endpoint: `/admin/resources/categories/${path}`,
   })
 

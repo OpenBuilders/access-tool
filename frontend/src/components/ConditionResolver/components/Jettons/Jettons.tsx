@@ -1,9 +1,19 @@
-import { BlockNew, Group, GroupInput, GroupItem, Select } from '@components'
+import {
+  BlockNew,
+  Group,
+  GroupInput,
+  GroupItem,
+  Image,
+  Select,
+  Spinner,
+} from '@components'
 import { ConditionJettonsToSend, ConditionType, Option } from '@types'
+import { useDebounce } from '@uidotdev/usehooks'
 import { useState } from 'react'
 
 import {
   useAdminConditionCategoriesQuery,
+  useAdminConditionJettonsQuery,
   useCondition,
   useConditionActions,
   useConditionType,
@@ -19,8 +29,15 @@ export const Jettons = () => {
   )
   const [amountQuery, setAmountQuery] = useState(condition?.expected || '')
 
+  // Debounced значение для запроса
+  const debouncedJettonAddress = useDebounce(jettonAddressQuery, 500)
+
   const { data: categoriesData, isPending: categoriesIsPending } =
     useAdminConditionCategoriesQuery(conditionType)
+
+  // Используем debounced значение для запроса
+  const { data: jettonsData, isLoading: jettonsIsLoading } =
+    useAdminConditionJettonsQuery(conditionType, debouncedJettonAddress.trim())
 
   if (categoriesIsPending) {
     return <p>Loading categories...</p>
@@ -66,6 +83,7 @@ export const Jettons = () => {
       <BlockNew padding="24px 0 0 0">
         <Group footer="TON (The Open Network)">
           <GroupItem
+            disabled={jettonsIsLoading}
             main={
               <GroupInput
                 placeholder="Jetton Address"
@@ -73,7 +91,16 @@ export const Jettons = () => {
                 onChange={(value) => handleUpdateCondition('address', value)}
               />
             }
+            after={jettonsIsLoading ? <Spinner size={16} /> : null}
           />
+          {jettonsData && (
+            <GroupItem
+              before={
+                <Image src={jettonsData.logoPath} size={40} borderRadius={50} />
+              }
+              text={jettonsData.name}
+            />
+          )}
         </Group>
       </BlockNew>
       <BlockNew padding="24px 0 0 0">
@@ -82,7 +109,7 @@ export const Jettons = () => {
           after={
             <GroupInput
               placeholder="0"
-              postfix="TON"
+              postfix={jettonsData?.symbol}
               value={amountQuery.toString()}
               onChange={(value) => handleUpdateCondition('expected', value)}
             />
