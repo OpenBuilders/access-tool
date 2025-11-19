@@ -12,7 +12,10 @@ from core.models.chat import TelegramChat, TelegramChatUser
 from tests.factories.rule.group import TelegramChatRuleGroupFactory
 from tests.utils.misc import AsyncIterator
 from core.actions.chat import TelegramChatAction
-from core.constants import REQUIRED_BOT_PRIVILEGES
+from core.constants import (
+    REQUIRED_BOT_PRIVILEGES,
+    DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD,
+)
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatOrderingRuleDTO,
@@ -66,6 +69,9 @@ def test_get_all__success(db_session: Session) -> None:
     # For get_all it's mandatory that chat has at least one rule group to be treated as active
     for chat in chats:
         TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
+        TelegramChatUserFactory.with_session(db_session).create_batch(
+            DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD, chat=chat
+        )
     # The default ordering is by users-count -> ID
     ordered_chats = (
         db_session.query(TelegramChat)
@@ -125,8 +131,11 @@ def test_get_all__pagination__success(
     # For get_all it's mandatory that chat has at least one rule group to be treated as active
     for chat in chats:
         TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
+        TelegramChatUserFactory.with_session(db_session).create_batch(
+            DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD, chat=chat
+        )
 
-    ordered_chats = sorted(chats, key=lambda chat: chat.id)
+    ordered_chats = sorted(chats, key=lambda _chat: _chat.id)
 
     # Act
     action = TelegramChatAction(db_session)
@@ -172,6 +181,9 @@ def test_get_all__sorting__success(db_session: Session, is_ascending: bool) -> N
     # For get_all it's mandatory that chat has at least one rule group to be treated as active
     for _chat in chats:
         TelegramChatRuleGroupFactory.with_session(db_session).create(chat=_chat)
+        TelegramChatUserFactory.with_session(db_session).create_batch(
+            DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD, chat=_chat
+        )
 
     # Assign user to one chat only to ensure it doesn't impact results
     TelegramChatUserFactory.with_session(db_session).create(

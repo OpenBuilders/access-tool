@@ -9,6 +9,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Query
 from telethon.tl.types import Channel
 
+from core.constants import DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD
 from core.db import Base
 from core.dtos.chat import TelegramChatOrderingRuleDTO
 from core.dtos.pagination import (
@@ -29,6 +30,9 @@ DEFAULT_SLUG_SUFFIX_LENGTH = 6
 MAX_SLUG_SUFFIX_ATTEMPTS = 5
 
 
+MANAGED_USERS_COUNT_QUERY = func.sum(
+    case((TelegramChatUser.is_managed.is_(True), 1), else_=0)
+)
 TCV_QUERY = func.sum(
     case((TelegramChatUser.is_managed.is_(True), TelegramChat.price), else_=0)
 )
@@ -284,6 +288,9 @@ class TelegramChatService(BaseService):
             # Since it's the inner join, it'll filter out those, where there is no group set -> no tasks configured
             query = query.filter(
                 exists().where(TelegramChatRuleGroup.chat_id == TelegramChat.id)
+            )
+            query = query.having(
+                MANAGED_USERS_COUNT_QUERY >= DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD
             )
 
         # First, apply any custom rules provided
