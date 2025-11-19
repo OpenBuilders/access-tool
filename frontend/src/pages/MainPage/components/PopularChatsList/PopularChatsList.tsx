@@ -22,7 +22,7 @@ export const PopularChatsList = ({ chats }: PopularChatsListProps) => {
             text={chat.title}
             description={
               <BlockNew gap={6} row align="center" fadeIn={false}>
-                <Text type="caption2" color="secondary">
+                <Text type="caption2" color="tertiary">
                   {pluralize(
                     ['member', 'members', 'members'],
                     chat.membersCount
