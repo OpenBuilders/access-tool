@@ -1,21 +1,31 @@
 .group {
   background-color: var(--color-backgroundTertiary);
-  overflow: hidden;
-  overflow-y: auto;
   border-radius: var(--border-radius-3xl);
 
   [data-group-item] {
-    border-radius: 0;
+    &:first-child {
+      border-radius: var(--border-radius-3xl) var(--border-radius-3xl) 0 0;
+    }
+
+    &:last-child {
+      border-radius: 0 0 var(--border-radius-3xl) var(--border-radius-3xl);
+    }
 
     [data-group-item-border-bottom] {
       opacity: 1;
     }
 
-    // &:last-child {
-    //   [data-group-item-border-bottom] {
-    //     opacity: 0;
-    //   }
-    // }
+    &:last-child {
+      [data-group-item-border-bottom] {
+        opacity: 0;
+      }
+    }
+  }
+}
+
+.groupOnlyOneChild {
+  [data-group-item] {
+    border-radius: var(--border-radius-3xl) !important;
   }
 }
 

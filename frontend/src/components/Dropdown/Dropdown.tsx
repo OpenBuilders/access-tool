@@ -7,14 +7,14 @@ import styles from './Dropdown.module.scss'
 
 type DropdownOption = {
   label: string
-  value: string
+  value?: string
 }
 
 type DropdownProps = {
   options: DropdownOption[]
   active: boolean
   selectedValue?: string
-  onSelect: (value: string) => void
+  onSelect: (value?: string) => void
   onClose: () => void
   className?: string
   triggerRef?: React.RefObject<HTMLElement>
@@ -56,7 +56,7 @@ export const Dropdown = ({
     }
   }, [active, onClose, triggerRef])
 
-  const handleSelect = (value: string) => {
+  const handleSelect = (value?: string) => {
     onSelect(value)
     onClose()
   }

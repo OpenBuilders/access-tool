@@ -5,13 +5,13 @@ import styles from './Select.module.scss'
 
 type SelectOption = {
   label: string
-  value: string
+  value?: string
 }
 
 interface SelectProps {
   options: SelectOption[]
-  value: string
-  onChange: (value: string) => void
+  value?: string
+  onChange: (value?: string) => void
 }
 
 export const Select = (props: SelectProps) => {
@@ -25,7 +25,7 @@ export const Select = (props: SelectProps) => {
     setIsDropdownOpen(!isDropdownOpen)
   }
 
-  const handleSelect = (value: string) => {
+  const handleSelect = (value?: string) => {
     onChange(value)
     setIsDropdownOpen(false)
   }
@@ -41,7 +41,7 @@ export const Select = (props: SelectProps) => {
         active={isDropdownOpen}
         options={options}
         selectedValue={value}
-        onSelect={(value: string) => handleSelect(value)}
+        onSelect={(value) => handleSelect(value)}
         onClose={() => handleToggleDropdown()}
         triggerRef={selectRef}
       />

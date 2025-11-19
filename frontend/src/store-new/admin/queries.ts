@@ -4,6 +4,7 @@ import {
   ChatInstance,
   Condition,
   ConditionAPIArgs,
+  ConditionStickersCollection,
   ConditionType,
 } from '@types'
 import {
@@ -21,6 +22,7 @@ import {
   fetchAdminChatAPI,
   fetchAdminChatsAPI,
   fetchAdminConditionAPI,
+  fetchAdminConditionsStickersAPI,
   moveAdminChatConditionAPI,
   updateAdminChatAPI,
   updateAdminChatVisibilityAPI,
@@ -395,5 +397,22 @@ export const useAdminDeleteConditionMutation = (chatSlug: string) => {
         queryKey: TANSTACK_KEYS.CHAT(chatSlug),
       })
     },
+  })
+}
+
+export const useAdminConditionStickersQuery = () => {
+  return useQuery<ConditionStickersCollection[]>({
+    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_STICKERS,
+    queryFn: async () => {
+      const { data, ok, error } = await fetchAdminConditionsStickersAPI()
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    gcTime: TANSTACK_GC_TIME,
+    staleTime: TANSTACK_TTL.ADMIN_CONDITION_STICKERS,
+    meta: { persist: true },
   })
 }

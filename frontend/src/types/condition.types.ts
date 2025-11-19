@@ -9,6 +9,7 @@ export type ConditionType =
   | 'jetton'
   | 'whitelist'
   | 'sticker_collection'
+
 export type ConditionCollection = {
   slug?: string
   title: string
@@ -54,4 +55,17 @@ export interface ConditionAPIArgs {
   conditionId: string
   data?: Partial<Condition>
   address?: string
+}
+
+export type ConditionStickersCharacter = {
+  id: number
+  name: string
+  logoUrl: string
+}
+
+export type ConditionStickersCollection = {
+  id: number
+  logoUrl: string
+  title: string
+  characters: ConditionStickersCharacter[]
 }
