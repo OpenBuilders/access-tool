@@ -290,7 +290,7 @@ class TelegramChatService(BaseService):
                 exists().where(TelegramChatRuleGroup.chat_id == TelegramChat.id)
             )
             query = query.having(
-                MANAGED_USERS_COUNT_QUERY > DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD
+                MANAGED_USERS_COUNT_QUERY >= DEFAULT_MANAGED_USERS_PUBLIC_THRESHOLD
             )
 
         # First, apply any custom rules provided
