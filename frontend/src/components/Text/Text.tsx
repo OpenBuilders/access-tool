@@ -20,6 +20,7 @@ interface TextProps {
   as?: 'p' | 'span' | 'div' | 'a'
   uppercase?: boolean
   onClick?: () => void
+  className?: string
 }
 
 export const Text = ({
@@ -32,6 +33,7 @@ export const Text = ({
   as = 'p',
   uppercase,
   onClick,
+  className,
 }: TextProps) => {
   const Component = as
   return (
@@ -43,7 +45,8 @@ export const Text = ({
         styles[color],
         styles[weight],
         uppercase && styles.uppercase,
-        onClick && styles.clickable
+        onClick && styles.clickable,
+        className
       )}
       {...(href && { href })}
       {...(as && { as })}

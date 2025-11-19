@@ -4,3 +4,9 @@ export type ChatsPopularOrderBy =
   | '-tcv'
   | 'users-count'
   | '-users-count'
+
+export type Option = {
+  label: string
+  value?: string
+  image?: string
+}

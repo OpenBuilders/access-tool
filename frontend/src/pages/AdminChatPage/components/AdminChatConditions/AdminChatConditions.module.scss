@@ -6,6 +6,11 @@
 .droppableContainerOnDraggingOver {
   background-color: rgba(0, 0, 0, 0.05);
   min-height: 44px;
+  [data-group-item] {
+    [data-group-item-border-bottom] {
+      opacity: 0;
+    }
+  }
 }
 
 .draggableItemOnDragging {

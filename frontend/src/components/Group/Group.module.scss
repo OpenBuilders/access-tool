@@ -1,32 +1,17 @@
 .group {
-  background-color: var(--color-backgroundTertiary);
-
+  background-color: var(--color-background-section);
   border-radius: var(--border-radius-3xl);
 
   [data-group-item] {
-    &:first-child {
-      border-radius: var(--border-radius-3xl) var(--border-radius-3xl) 0 0;
-    }
-
-    &:last-child {
-      border-radius: 0 0 var(--border-radius-3xl) var(--border-radius-3xl);
-    }
-
     [data-group-item-border-bottom] {
       opacity: 1;
     }
 
-    &:last-child {
-      [data-group-item-border-bottom] {
-        opacity: 0;
-      }
-    }
-  }
-}
-
-.groupOnlyOneChild {
-  [data-group-item] {
-    border-radius: var(--border-radius-3xl) !important;
+    // &:last-child {
+    //   [data-group-item-border-bottom] {
+    //     opacity: 0;
+    //   }
+    // }
   }
 }
 

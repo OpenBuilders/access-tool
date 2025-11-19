@@ -1,17 +1,14 @@
+import { Option } from '@types'
 import cn from 'classnames'
 import { useEffect, useRef } from 'react'
 
 import { Icon } from '../Icon'
+import { Image } from '../Image'
 import { Text } from '../Text'
 import styles from './Dropdown.module.scss'
 
-type DropdownOption = {
-  label: string
-  value?: string
-}
-
 type DropdownProps = {
-  options: DropdownOption[]
+  options: Option[]
   active: boolean
   selectedValue?: string
   onSelect: (value?: string) => void
@@ -71,15 +68,26 @@ export const Dropdown = ({
       )}
     >
       <ul className={styles.list}>
-        {options.map(({ label, value }) => {
+        {options.map(({ label, value, image }, index) => {
           const isSelected = value === selectedValue
 
           return (
             <li
-              key={value}
+              key={`${value}-${index}-${label}`}
               className={cn(styles.item, isSelected && styles.itemActive)}
               onClick={() => handleSelect(value)}
             >
+              {image && (
+                <Image
+                  src={image}
+                  size={24}
+                  borderRadius={50}
+                  fallback={label}
+                />
+              )}
+              <Text type="text" color="primary" className={styles.itemText}>
+                {label}
+              </Text>
               <Icon
                 name="checkmark"
                 color="secondary"
@@ -89,10 +97,6 @@ export const Dropdown = ({
                 )}
                 size={16}
               />
-
-              <Text type="text" color="primary">
-                {label}
-              </Text>
             </li>
           )
         })}

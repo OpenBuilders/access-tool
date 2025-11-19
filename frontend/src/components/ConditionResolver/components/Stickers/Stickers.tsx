@@ -1,9 +1,15 @@
 import { BlockNew, Group, GroupItem, Select } from '@components'
+import { Condition, Option } from '@types'
 
-import { useAdminConditionStickersQuery, useCondition } from '@store-new'
+import {
+  useAdminConditionStickersQuery,
+  useCondition,
+  useConditionActions,
+} from '@store-new'
 
 export const Stickers = () => {
   const condition = useCondition()
+  const { updateConditionAction } = useConditionActions()
 
   const { data: stickers, isPending: stickersIsPending } =
     useAdminConditionStickersQuery()
@@ -12,20 +18,20 @@ export const Stickers = () => {
     return <p>Loading stickers...</p>
   }
 
+  const handleChangeCollection = (field: keyof Condition, value?: string) => {
+    updateConditionAction({
+      [field]: value,
+    })
+  }
+
   const collectionOptions = [
     { value: undefined, label: 'Any' },
     ...(stickers?.map((sticker) => ({
       value: sticker.id.toString(),
       label: sticker.title,
+      image: sticker.logoUrl,
     })) || []),
   ]
-
-  //   const characterOptions = stickers?.flatMap((sticker) =>
-  //     sticker.characters.map((character) => ({
-  //       value: character.id.toString(),
-  //       name: character.name,
-  //     }))
-  //   )
 
   return (
     <>
@@ -38,18 +44,29 @@ export const Stickers = () => {
                 options={collectionOptions}
                 value={condition?.collection?.id?.toString()}
                 onChange={(value) => {
-                  console.log(value)
+                  handleChangeCollection('collection', value)
                 }}
               />
             }
           />
         </Group>
       </BlockNew>
-      <BlockNew padding="24px 0 0 0">
-        {/* <Group>
-          <GroupItem text="Character" after={<Select />} />
-        </Group> */}
-      </BlockNew>
+      {/* <BlockNew padding="24px 0 0 0">
+        <Group>
+          <GroupItem
+            text="Character"
+            after={
+              <Select
+                options={characterOptions}
+                value={condition?.character?.id?.toString()}
+                onChange={(value) => {
+                  console.log(value)
+                }}
+              />
+            }
+          />
+        </Group>
+      </BlockNew> */}
     </>
   )
 }

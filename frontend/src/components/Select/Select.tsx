@@ -1,15 +1,11 @@
+import { Option } from '@types'
 import { useRef, useState } from 'react'
 
 import { Dropdown } from '../Dropdown'
 import styles from './Select.module.scss'
 
-type SelectOption = {
-  label: string
-  value?: string
-}
-
 interface SelectProps {
-  options: SelectOption[]
+  options: Option[]
   value?: string
   onChange: (value?: string) => void
 }

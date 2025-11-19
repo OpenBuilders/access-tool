@@ -19,7 +19,7 @@ export const TypeSelector = (props: ConditionResolverProps) => {
     })
   )
 
-  const handleChangeType = (field: keyof Condition, value: string) => {
+  const handleChangeType = (field: keyof Condition, value?: string) => {
     updateConditionAction({
       [field]: value,
     })

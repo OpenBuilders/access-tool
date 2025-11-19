@@ -13,16 +13,24 @@ interface GroupProps {
 
 export const Group = ({ children, header, footer, action }: GroupProps) => {
   const groupRef = useRef<HTMLDivElement>(null)
-  const [groupItemsCount, setGroupItemsCount] = useState(0)
 
   useLayoutEffect(() => {
     if (groupRef.current) {
-      const items = groupRef.current.querySelectorAll('[data-group-item]')
-      setGroupItemsCount(items.length)
-    }
-  })
+      const items = groupRef.current.querySelectorAll(
+        '[data-group-item-border-bottom]'
+      )
 
-  const isOnlyOneChild = groupItemsCount === 1
+      items.forEach((item, index) => {
+        if (index === items.length - 1) {
+          if (item instanceof HTMLElement) {
+            item.style.opacity = '0'
+          }
+          return
+        }
+      })
+    }
+  }, [])
+
   return (
     <>
       {header && (
@@ -35,10 +43,7 @@ export const Group = ({ children, header, footer, action }: GroupProps) => {
           {action && <div className={styles.action}>{action}</div>}
         </div>
       )}
-      <div
-        ref={groupRef}
-        className={cn(styles.group, isOnlyOneChild && styles.groupOnlyOneChild)}
-      >
+      <div ref={groupRef} className={styles.group}>
         {children}
       </div>
       {footer && (
