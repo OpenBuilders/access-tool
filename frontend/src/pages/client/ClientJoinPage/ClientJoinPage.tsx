@@ -10,7 +10,7 @@ import {
 import { useError } from '@hooks'
 import { createMembersCount, goTo } from '@utils'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { useChat, useChatActions } from '@store'
 
@@ -22,6 +22,7 @@ export const ClientJoinPage = () => {
   const [canJoinChat, setCanJoinChat] = useState(false)
   const { notFound } = useError()
 
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
 
   const { chat } = useChat()
@@ -67,9 +68,13 @@ export const ClientJoinPage = () => {
     }, 1500)
   }
 
+  const handleBackNavigation = () => {
+    navigate('/')
+  }
+
   return (
     <PageLayout center>
-      <TelegramBackButton />
+      <TelegramBackButton onClick={handleBackNavigation} />
       <TelegramMainButton text="Join Group" onClick={handleJoinGroup} />
       <ConfettiAnimation active={true} duration={5000} />
       <Image
