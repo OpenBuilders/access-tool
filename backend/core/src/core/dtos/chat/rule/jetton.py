@@ -26,6 +26,8 @@ class UpdateTelegramChatJettonRuleDTO(BaseTelegramChatJettonRuleDTO):
 
 
 class JettonEligibilityRuleDTO(ChatEligibilityRuleDTO):
+    decimals: int
+
     @classmethod
     def from_jetton_rule(cls, jetton_rule: TelegramChatJetton) -> Self:
         return cls(
@@ -34,6 +36,7 @@ class JettonEligibilityRuleDTO(ChatEligibilityRuleDTO):
             type=EligibilityCheckType.JETTON,
             title=jetton_rule.jetton.symbol,
             expected=jetton_rule.threshold,
+            decimals=jetton_rule.jetton.decimals,
             photo_url=jetton_rule.jetton.logo_path,
             blockchain_address=jetton_rule.jetton.address,
             is_enabled=jetton_rule.is_enabled,
@@ -44,6 +47,7 @@ class JettonEligibilityRuleDTO(ChatEligibilityRuleDTO):
 class JettonEligibilitySummaryDTO(JettonEligibilityRuleDTO):
     actual: float | None = None
     is_eligible: bool = False
+    decimals: int
 
     @classmethod
     def from_internal_dto(cls, internal_dto: EligibilitySummaryJettonInternalDTO):
@@ -57,5 +61,6 @@ class JettonEligibilitySummaryDTO(JettonEligibilityRuleDTO):
             blockchain_address=internal_dto.address,
             is_enabled=internal_dto.is_enabled,
             actual=internal_dto.actual,
+            decimals=internal_dto.jetton.decimals,
             is_eligible=internal_dto.is_eligible,  # type: ignore
         )
