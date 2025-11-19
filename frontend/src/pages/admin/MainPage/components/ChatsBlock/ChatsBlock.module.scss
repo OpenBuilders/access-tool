@@ -1,0 +1,44 @@
+.chatsBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.contentSlider {
+  display: flex;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contentSlide {
+  width: 50%;
+  padding: 0 16px;
+  opacity: 1;
+  visibility: visible;
+  height: 100%;
+}
+
+.contentSlideHide {
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+}
+
+.orderByContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-background-section);
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 6px 0;
+  opacity: 1;
+  visibility: visible;
+  transition: 0.2s;
+}
+
+.orderByContainerHide {
+  opacity: 0;
+  visibility: hidden;
+}

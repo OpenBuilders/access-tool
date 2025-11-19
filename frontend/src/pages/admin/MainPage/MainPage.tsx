@@ -1,114 +1,38 @@
-import lockLottie from '@assets/lock.json'
 import {
-  Block,
-  PageLayout,
-  StickerPlayer,
+  BlockNew,
+  PageLayoutNew,
   TelegramBackButton,
   TelegramMainButton,
 } from '@components'
 import { Text } from '@components'
-import { useAppNavigation, useError } from '@hooks'
-import { ROUTES_NAME } from '@routes'
-import { goTo } from '@utils'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { useChat, useChatActions, useApp, useAppActions } from '@store'
-
-import { Skeleton } from './Skeleton'
-import { ChannelsList } from './components'
-import { EmptyList } from './components'
+import styles from './MainPage.module.scss'
+import { ChatsBlock } from './components'
 
 export const MainPage = () => {
-  const { appNavigate } = useAppNavigation()
-  const { fetchAdminUserChatsAction } = useChatActions()
-  const { adminChats } = useChat()
-  const { isLoading } = useApp()
-  const { toggleIsLoadingAction } = useAppActions()
+  const navigate = useNavigate()
 
-  const { notFound } = useError()
-
-  const fetchAdminUserChats = async () => {
-    try {
-      await fetchAdminUserChatsAction()
-    } catch (error) {
-      console.error(error)
-      notFound()
-    }
-  }
-
-  useEffect(() => {
-    toggleIsLoadingAction(true)
-    fetchAdminUserChats()
-    toggleIsLoadingAction(false)
-  }, [])
-
-  const handleAddChat = useCallback(() => {
-    appNavigate({
-      path: ROUTES_NAME.ADD_TELEGRAM_CHAT,
-    })
-  }, [appNavigate])
-
-  const navigateToToolsPage = () => {
-    goTo('https://tools.tg')
-  }
-
-  const handleToProjectPage = () => {
-    goTo('https://github.com/OpenBuilders/access-tool')
-  }
-
-  if (isLoading) {
-    return (
-      <PageLayout>
-        <TelegramBackButton />
-        <Skeleton />
-      </PageLayout>
-    )
-  }
-
-  const isEmpty = !adminChats || !adminChats?.length
+  const handleAddChat = useCallback(
+    () => navigate('/admin/add-telegram-chat'),
+    []
+  )
 
   return (
-    <PageLayout center={isEmpty}>
-      <TelegramBackButton />
+    <PageLayoutNew>
+      <TelegramBackButton hidden />
       <TelegramMainButton text="Add Group or Channel" onClick={handleAddChat} />
-      <StickerPlayer lottie={lockLottie} />
-      <Block margin="top" marginValue={8}>
-        <Text type="title" align="center" weight="bold">
-          Access to Groups
-          <br />
-          and Channels
-        </Text>
-      </Block>
-      {isEmpty ? <EmptyList /> : <ChannelsList channels={adminChats} />}
-      <Block
-        margin="top"
-        marginValue="auto"
-        fixed={isEmpty ? 'bottom' : undefined}
-      >
-        <Text align="center" type="caption" color="tertiary">
-          This tool is{' '}
-          <Text
-            type="caption"
-            color="accent"
-            as="span"
-            onClick={handleToProjectPage}
-          >
-            open source
+      <BlockNew gap={12} className={styles.container}>
+        <BlockNew padding="0 16px">
+          <Text type="hero" weight="bold">
+            Access to Private
+            <br />
+            Groups & Channels
           </Text>
-          , created by independent
-          <br />
-          developers, as part of
-          <Text
-            type="caption"
-            color="accent"
-            as="span"
-            onClick={navigateToToolsPage}
-          >
-            {' '}
-            Telegram Tools
-          </Text>
-        </Text>
-      </Block>
-    </PageLayout>
+        </BlockNew>
+        <ChatsBlock />
+      </BlockNew>
+    </PageLayoutNew>
   )
 }

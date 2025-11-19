@@ -32,10 +32,11 @@
       "@hooks": ["src/common/hooks"],
       "@utils": ["src/common/utils"],
       "@store": ["src/store"],
-      "@types": ["src/common/types"],
+      "@types": ["src/types"],
       "@styles": ["src/common/styles"],
       "@config": ["src/config"],
-      "@services": ["src/services/index"]
+      "@services": ["src/services/index"],
+      "@store-new": ["src/store-new"]
     },
     "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },

@@ -16,7 +16,7 @@ import { useParams } from 'react-router-dom'
 import config from '@config'
 import { useApp, useChatActions, useAppActions } from '@store'
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 export const GrantPermissionsPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
@@ -56,7 +56,7 @@ export const GrantPermissionsPage = () => {
   }
 
   const grantPermissions = () => {
-    webApp.openTelegramLink(
+    webApp?.openTelegramLink(
       `${config.botLink}?startgroup=&admin=restrict_members+invite_users`
     )
 

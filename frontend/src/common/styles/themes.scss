@@ -1,6 +1,69 @@
 @use 'variables' as *;
 
-html[data-theme='light'] {
+[data-theme='light'] {
+  --font-display: var(--font-base);
+
+  --color-background-base: var(--palette-white-100);
+  --color-background-secondary: var(--palette-grey6-light);
+  --color-background-section: var(--palette-white-100);
+  --color-background-overlay: var(--palette-black-40);
+  --color-background-modal: var(--palette-white-100);
+
+  --color-foreground-primary: var(--palette-black-100);
+  --color-foreground-secondary: var(--palette-grey1-light);
+  --color-foreground-tertiary: var(--palette-grey3-light);
+
+  --color-accent-primary: var(
+    --tg-theme-button-color,
+    var(--palette-blueDark-light-100)
+  );
+
+  --color-button-primaryBackground: var(
+    --tg-theme-button-color,
+    var(--palette-blueDark-light-100)
+  );
+  --color-button-secondaryBackground: var(
+    color-mix(in srgb, var(--tg-theme-button-color) 10%, transparent),
+    var(--palette-blueDark-light-10)
+  );
+  --color-button-textOverlay: var(
+    var(--tg-theme-button-text-color) var(--palette-white-100)
+  );
+
+  --color-border-separator: rgba(198, 198, 200, 1);
+  --color-border-imageStroke: var(--palette-black-8);
+
+  --color-state-destructive: var(--palette-red-dark);
+  --color-state-warning: var(--palette-orange-light);
+  --color-state-success: var(--palette-green-light);
+
+  --color-snackbar-link: var(--palette-blueLight-light);
+  --color-snackbar-background: rgba(45, 45, 45, 0.8);
+
+  --color-fill-secondary: rgba(116, 116, 128, 0.16);
+  --color-fill-tertiary: rgba(116, 116, 128, 0.12);
+  --color-fill-quarternary: rgba(116, 116, 128, 0.08);
+
+  --color-bottomBar-background: rgba(255, 255, 255, 0.88);
+
+  --color-segmentControl-background: rgba(242, 242, 242, 0.88);
+
+  --color-quickMenu-background: var(--palette-white-60);
+  --color-quickMenu-foreground: var(--palette-black-100);
+
+  --color-static-black: var(--palette-black-100);
+  --color-static-white: var(--palette-white-100);
+  --color-static-grey: var(--palette-grey2-light);
+  --color-static-lightGreen: var(--palette-greenLight-light);
+  --color-static-yellowNeon: rgba(255, 255, 77, 1);
+  --color-static-orange: var(--palette-orange-light);
+  --color-static-orangeVivid: rgba(254, 86, 0, 1);
+  --color-static-blueLight: var(--palette-blueLight-light);
+  --color-static-purpleLight: var(--palette-purpleLight-light);
+  --color-static-pink: var(--palette-pink-light);
+  --color-static-purpleDark: var(--palette-purpleDark-light);
+
+  // OLD STYLES (deprecated soon)
   --color-backgroundSecondary: #{$palette-dark4};
   --color-backgroundTertiary: #{$palette-white100};
   --color-backgroundPrimary: #{$palette-white100};
@@ -19,7 +82,71 @@ html[data-theme='light'] {
   --color-input: #{$palette-transparentWhite80};
 }
 
-html[data-theme='dark'] {
+[data-theme='dark'] {
+  --font-display: var(--font-base);
+
+  --color-background-base: var(--palette-black-100);
+  --color-background-secondary: var(--palette-grey6-dark);
+  --color-background-section: var(--palette-grey5-dark);
+  --color-background-overlay: var(--palette-black-40);
+  --color-background-modal: var(--palette-grey5-dark);
+
+  --color-foreground-primary: var(--palette-white-100);
+  --color-foreground-secondary: var(--palette-grey1-dark);
+  --color-foreground-tertiary: var(--palette-grey3-dark);
+
+  --color-accent-primary: var(
+    --tg-theme-button-color,
+    var(--palette-blueDark-dark-100)
+  );
+
+  --color-button-primaryBackground: var(
+    var(--tg-theme-button-color),
+    var(--palette-blueDark-dark-100)
+  );
+  --color-button-secondaryBackground: var(
+    color-mix(in srgb, var(--tg-theme-button-color) 10%, transparent),
+    var(--palette-blueDark-dark-12)
+  );
+  --color-button-textOverlay: var(
+    var(--tg-theme-button-text-color),
+    var(--palette-white-100)
+  );
+
+  --color-border-separator: rgba(58, 58, 60, 1);
+  --color-border-imageStroke: var(--palette-white-8);
+
+  --color-state-destructive: var(--palette-red-light);
+  --color-state-warning: var(--palette-orange-dark);
+  --color-state-success: var(--palette-green-dark);
+
+  --color-snackbar-link: var(--palette-blueLight-light);
+  --color-snackbar-background: rgba(45, 45, 45, 0.8);
+
+  --color-fill-secondary: rgba(116, 116, 128, 0.16);
+  --color-fill-tertiary: rgba(116, 116, 128, 0.12);
+  --color-fill-quarternary: rgba(116, 116, 128, 0.08);
+
+  --color-bottomBar-background: rgba(242, 242, 242, 0.88);
+
+  --color-segmentControl-background: rgba(72, 72, 74, 0.88);
+
+  --color-quickMenu-background: var(--palette-white-60);
+  --color-quickMenu-foreground: var(--palette-black-100);
+
+  --color-static-black: var(--palette-black-100);
+  --color-static-white: var(--palette-white-100);
+  --color-static-grey: var(--palette-grey2-light);
+  --color-static-lightGreen: var(--palette-greenLight-light);
+  --color-static-yellowNeon: rgba(255, 255, 77, 1);
+  --color-static-orange: var(--palette-orange-light);
+  --color-static-orangeVivid: rgba(254, 86, 0, 1);
+  --color-static-blueLight: var(--palette-blueLight-light);
+  --color-static-purpleLight: var(--palette-purpleLight-light);
+  --color-static-pink: var(--palette-pink-light);
+  --color-static-purpleDark: var(--palette-purpleDark-light);
+
+  // OLD STYLES (deprecated soon)
   --color-backgroundSecondary: #{$palette-dark90};
   --color-backgroundTertiary: #{$palette-dark85};
   --color-backgroundPrimary: #{$palette-dark96};

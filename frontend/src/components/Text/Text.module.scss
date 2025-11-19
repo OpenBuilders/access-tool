@@ -1,3 +1,9 @@
+.hero {
+  font-size: 34px;
+  font-style: normal;
+  line-height: 41px;
+}
+
 .title {
   font-size: 28px;
   font-style: normal;
@@ -5,6 +11,11 @@
 
 .title1 {
   font-size: 26px;
+  font-style: normal;
+}
+
+.title2 {
+  font-size: 24px;
   font-style: normal;
 }
 
@@ -42,23 +53,23 @@
 }
 
 .accent {
-  color: var(--color-accentsBrandCommunity);
+  color: var(--color-accent-primary);
 }
 
 .tertiary {
-  color: var(--color-textIconsTertiary);
+  color: var(--color-foreground-tertiary);
 }
 
 .secondary {
-  color: var(--color-textIconsSecondary);
+  color: var(--color-foreground-secondary);
 }
 
 .primary {
-  color: var(--color-textIconsPrimary);
+  color: var(--color-foreground-primary);
 }
 
 .danger {
-  color: var(--color-accentsRed);
+  color: var(--color-state-destructive);
 }
 
 .center {

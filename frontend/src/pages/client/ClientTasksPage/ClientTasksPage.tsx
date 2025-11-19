@@ -8,9 +8,9 @@ import {
 } from '@components'
 import { useAppNavigation, useError } from '@hooks'
 import { ROUTES_NAME } from '@routes'
-import { goTo } from '@utils'
+import { goTo, hapticFeedback } from '@utils'
 import { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import config from '@config'
 import { useApp, useAppActions, useChat, useChatActions, useUser } from '@store'
@@ -19,13 +19,15 @@ import { Skeleton } from './Skeleton'
 import { ChatConditions, ChatHeader } from './components'
 import { checkWalletRequirements, createButtonText } from './helpers'
 
-const webApp = window.Telegram.WebApp
+const webApp = window.Telegram?.WebApp
 
 export const ClientTasksPage = () => {
   const { clientChatSlug } = useParams<{ clientChatSlug: string }>()
   const { notFound } = useError()
   const location = useLocation()
   const fromChat = location.state?.fromChat
+
+  const navigate = useNavigate()
 
   const { isLoading } = useApp()
   const { toggleIsLoadingAction } = useAppActions()
@@ -70,10 +72,6 @@ export const ClientTasksPage = () => {
     }
   }, [chat])
 
-  const handleBackNavigation = () => {
-    appNavigate({ path: ROUTES_NAME.CHAT, params: { chatSlug: fromChat } })
-  }
-
   const handleToAccessApp = () => {
     goTo(config.botLink)
   }
@@ -98,9 +96,9 @@ export const ClientTasksPage = () => {
           type: 'warning',
           message: 'Complete all requirments to join',
         })
-        webApp.HapticFeedback.notificationOccurred('error')
+        hapticFeedback('warning')
       } else {
-        webApp?.HapticFeedback?.impactOccurred('soft')
+        hapticFeedback('soft')
       }
     }, 400)
   }
@@ -177,9 +175,7 @@ export const ClientTasksPage = () => {
 
   return (
     <PageLayout>
-      <TelegramBackButton
-        onClick={fromChat ? handleBackNavigation : undefined}
-      />
+      <TelegramBackButton />
       <TelegramMainButton
         text={buttonText}
         isVisible={!!buttonText}

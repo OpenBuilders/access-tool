@@ -1,0 +1,15 @@
+.emptyContainer {
+  padding: 32px;
+  border-radius: var(--border-radius-3xl);
+  background-color: var(--color-background-section);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyMedia {
+  width: 120px;
+  min-width: 120px;
+  aspect-ratio: 1/1;
+}
