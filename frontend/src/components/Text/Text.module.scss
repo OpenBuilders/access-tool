@@ -57,11 +57,13 @@
 }
 
 .tertiary {
-  color: var(--color-foreground-tertiary);
+  color: var(--color-foreground-secondary);
+  // color: var(--color-foreground-tertiary);
 }
 
 .secondary {
-  color: var(--color-foreground-secondary);
+  color: var(--color-foreground-tertiary);
+  // color: var(--color-foreground-secondary);
 }
 
 .primary {
