@@ -570,4 +570,4 @@ class AuthorizationAction(BaseAction):
         :param rule: Whitelist rule to check
         :return: True if user is whitelisted
         """
-        return user.telegram_id in rule.content
+        return bool(rule.content and user.telegram_id in rule.content)
