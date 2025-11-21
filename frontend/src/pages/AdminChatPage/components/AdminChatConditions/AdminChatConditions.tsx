@@ -81,9 +81,16 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
     })
   }
 
-  const handleCreateCondition = useCallback(() => {
-    navigate(`/admin/chat/${chatSlug}/condition`)
-  }, [chatSlug])
+  const handleCreateCondition = useCallback(
+    (groupId?: number) => {
+      navigate(`/admin/chat/${chatSlug}/condition`, {
+        state: {
+          groupId: groupId || null,
+        },
+      })
+    },
+    [chatSlug]
+  )
 
   const handleNavigateToConditionPage = useCallback(
     (rule: Condition) => {
@@ -103,7 +110,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
               </Text>
             }
             before={<Icon name="plus" size={28} />}
-            onClick={handleCreateCondition}
+            onClick={() => handleCreateCondition()}
           />
         </GroupComponent>
       </BlockNew>
@@ -126,7 +133,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
                 type="caption"
                 color="accent"
                 uppercase
-                onClick={handleCreateCondition}
+                onClick={() => handleCreateCondition(group.id)}
               >
                 Add Condition
               </Text>
@@ -205,7 +212,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
               </Text>
             }
             before={<Icon name="plus" size={28} />}
-            onClick={handleCreateCondition}
+            onClick={() => handleCreateCondition()}
           />
         </GroupComponent>
       </BlockNew>

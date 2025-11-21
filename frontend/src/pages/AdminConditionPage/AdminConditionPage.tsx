@@ -1,16 +1,21 @@
 import {
   BlockNew,
   ConditionResolver,
+  GroupItem,
+  Icon,
   PageLayoutNew,
   TelegramBackButton,
   TelegramMainButton,
   Text,
+  useToast,
 } from '@components'
 import { ConditionType } from '@types'
+import { hapticFeedback } from '@utils'
 import { useCallback, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import {
+  transformCondition,
   useAdminConditionQuery,
   useAdminDeleteConditionMutation,
   useAdminUpdateConditionMutation,
@@ -31,17 +36,16 @@ export const AdminConditionPage = () => {
   const conditionType = params.conditionType ?? ''
 
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const isSaved = useIsSaved()
   const condition = useCondition()
-  const { setInitialConditionAction } = useConditionActions()
 
-  const { data: conditionData, isPending: conditionIsPending } =
-    useAdminConditionQuery({
-      conditionId,
-      chatSlug,
-      type: conditionType as ConditionType,
-    })
+  const { isPending: conditionIsPending } = useAdminConditionQuery({
+    conditionId,
+    chatSlug,
+    type: conditionType as ConditionType,
+  })
   const {
     mutateAsync: deleteConditionMutateAsync,
     isPending: deleteConditionIsPending,
@@ -51,21 +55,34 @@ export const AdminConditionPage = () => {
     isPending: updateConditionIsPending,
   } = useAdminUpdateConditionMutation(chatSlug)
 
-  useEffect(() => {
-    if (conditionData) {
-      setInitialConditionAction(conditionData)
-    }
-  }, [conditionData])
-
-  const handleMainButtonClick = () => {
-    if (!condition || isSaved) {
+  const handleUpdateCondition = async () => {
+    if (!condition) {
       return
     }
-    updateConditionMutateAsync({
+
+    hapticFeedback('soft')
+
+    if (isSaved) {
+      showToast({
+        message: 'Condition is already saved',
+        type: 'warning',
+      })
+      return
+    }
+
+    await updateConditionMutateAsync({
       conditionId,
-      type: conditionType as ConditionType,
-      data: condition[conditionType as ConditionType],
+      chatSlug,
+      type: condition.type,
+      data: condition,
     })
+
+    showToast({
+      message: 'Condition updated successfully',
+      type: 'success',
+    })
+
+    navigate(`/admin/chat/${chatSlug}`)
   }
 
   const handleBackButtonClick = () => {
@@ -79,20 +96,45 @@ export const AdminConditionPage = () => {
     navigate(`/admin/chat/${chatSlug}`)
   }
 
+  const handleDeleteCondition = () => {
+    if (!condition) {
+      return
+    }
+    hapticFeedback('soft')
+
+    console.log('delete condition')
+  }
+
   return (
     <PageLayoutNew safeContent>
       <TelegramBackButton onClick={handleBackButtonClick} />
-      <TelegramMainButton text="Save" onClick={handleMainButtonClick} />
-      <BlockNew padding="28px 0 0 0">
+      <TelegramMainButton
+        text="Save"
+        onClick={handleUpdateCondition}
+        disabled={updateConditionIsPending || isSaved}
+        loading={updateConditionIsPending}
+      />
+      <BlockNew padding="24px 0 0 0">
         <Text type="title" weight="bold" align="center">
           Edit Condition
         </Text>
       </BlockNew>
-      {conditionIsPending || !condition ? (
+      {conditionIsPending || !condition?.type ? (
         <p>is loading...</p>
       ) : (
         <ConditionResolver />
       )}
+      <BlockNew padding="24px 0 0 0">
+        <GroupItem
+          onClick={handleDeleteCondition}
+          text={
+            <Text type="text" color="danger">
+              Remove Condition
+            </Text>
+          }
+          before={<Icon color="danger" name="trash" size={24} />}
+        />
+      </BlockNew>
     </PageLayoutNew>
   )
 }

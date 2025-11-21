@@ -194,8 +194,8 @@ export type Condition = Partial<{
 export interface ConditionAPIArgs {
   type: ConditionType
   chatSlug?: string
-  conditionId: string
-  data?: Partial<Condition>
+  conditionId?: string
+  data?: ConditionMutated
   address?: string
 }
 
@@ -214,17 +214,16 @@ export type ConditionStickersCollection = {
 
 export type ConditionJettonsToSend = {
   expected: number
-  category: string
-  groupId: number
-  isEnabled: boolean
-  address: string
+  category: string | null
+  groupId: number | null
+  address: string | null
+  asset: string | null
 }
 
 export type ConditionNftCollectionToSend = {
   expected: number
   category: string
   groupId: number
-  isEnabled: boolean
   address: string
   asset: string
 }
@@ -233,11 +232,9 @@ export type ConditionToncoinToSend = {
   expected: number
   category: string
   groupId: number
-  isEnabled: boolean
 }
 
 export type ConditionEmojiToSend = {
-  isEnabled: boolean
   emojiId: string
   groupId: number
 }
@@ -246,7 +243,6 @@ export type ConditionStickersToSend = {
   expected: number
   category: string
   groupId: number
-  isEnabled: boolean
   collectionId: number
   characterId: number
 }
@@ -255,7 +251,6 @@ export type ConditionGiftsToSend = {
   expected: number
   category: string
   groupId: number
-  isEnabled: boolean
   collectionSlug: string
   model: string
   backdrop: string
@@ -267,7 +262,6 @@ export type ConditionWhitelistToSend = {
   description: string
   groupId: number
   users: number[]
-  isEnabled: boolean
 }
 
 export type ConditionExternalSourceToSend = {
@@ -277,7 +271,6 @@ export type ConditionExternalSourceToSend = {
   url: string
   authKey: string
   authValue: string
-  isEnabled: boolean
 }
 
 export type ConditionPremiumToSend = {
@@ -309,4 +302,27 @@ export type ConditionJettonsPrefetch = {
   name: string
   symbol: string
   totalSupply: number
+}
+
+export type ConditionMutated = {
+  type: ConditionType
+  expected: number
+  category: string | null
+  groupId: number | null
+  isEnabled: boolean
+  address: string | null
+  asset: string | null
+  emojiId: string | null
+  collectionId: number | null
+  characterId: number | null
+  collectionSlug: string | null
+  model: string | null
+  backdrop: string | null
+  pattern: string | null
+  users: number[] | null
+  name: string | null
+  description: string | null
+  url: string | null
+  authKey: string | null
+  authValue: string | null
 }

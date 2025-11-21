@@ -1,10 +1,9 @@
 import { ConditionType } from '@types'
 
-import { useCondition, useConditionType } from '@store-new'
+import { useCondition } from '@store-new'
 
 import { BlockNew } from '../BlockNew'
-import { Jettons, Stickers, TypeSelector } from './components'
-import { DEFAULT_CONDITION_TYPE } from './constants'
+import { Jettons, NFT, Stickers, Toncoin, TypeSelector } from './components'
 import { ConditionResolverProps } from './types'
 
 const CONDITION_COMPONENTS: Record<
@@ -12,20 +11,22 @@ const CONDITION_COMPONENTS: Record<
   React.ComponentType<ConditionResolverProps>
 > = {
   jetton: Jettons,
+  toncoin: Toncoin,
+  nft_collection: NFT,
   sticker_collection: Stickers,
 }
 
 export const ConditionResolver = (props: ConditionResolverProps) => {
   const { isNew } = props
-  const conditionType = useConditionType()
+  const condition = useCondition()
 
-  const ConditionTypeComponent =
-    CONDITION_COMPONENTS[conditionType as keyof typeof CONDITION_COMPONENTS]
+  const ConditionComponent =
+    CONDITION_COMPONENTS[condition.type as keyof typeof CONDITION_COMPONENTS]
 
   return (
     <BlockNew padding="24px 0 0 0">
       <TypeSelector isNew={isNew} />
-      {ConditionTypeComponent && <ConditionTypeComponent />}
+      {ConditionComponent && <ConditionComponent />}
     </BlockNew>
   )
 }

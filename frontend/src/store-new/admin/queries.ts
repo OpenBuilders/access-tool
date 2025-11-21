@@ -6,6 +6,7 @@ import {
   ConditionAPIArgs,
   ConditionCategory,
   ConditionJettonsPrefetch,
+  ConditionMutated,
   ConditionStickersCollection,
   ConditionType,
 } from '@types'
@@ -17,7 +18,7 @@ import {
 } from '@utils'
 import { useNavigate } from 'react-router-dom'
 
-import { useConditionActions } from '../condition'
+import { transformCondition, useConditionActions } from '../condition'
 import {
   createAdminConditionAPI,
   deleteAdminConditionAPI,
@@ -222,10 +223,11 @@ export const useAdminChatVisibilityMutation = (slug: string) => {
 }
 
 export const useAdminConditionQuery = (args: ConditionAPIArgs) => {
-  return useQuery<Condition>({
+  const { updateConditionAction } = useConditionActions()
+  return useQuery<ConditionMutated>({
     queryKey: TANSTACK_KEYS.ADMIN_CONDITION(
       args.chatSlug ?? '',
-      args.conditionId,
+      args.conditionId ?? '',
       args.type
     ),
     queryFn: async () => {
@@ -234,13 +236,13 @@ export const useAdminConditionQuery = (args: ConditionAPIArgs) => {
         throw new Error(error)
       }
 
-      return data
+      const transformedCondition = transformCondition(data)
+      updateConditionAction(transformedCondition)
+
+      return transformedCondition
     },
 
     enabled: !!args.chatSlug && !!args.conditionId && !!args.type,
-    gcTime: TANSTACK_GC_TIME,
-    staleTime: TANSTACK_TTL.ADMIN_CONDITION,
-    meta: { persist: true },
   })
 }
 
@@ -255,6 +257,7 @@ export const useAdminCreateConditionMutation = (chatSlug: string) => {
 
       return data
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: TANSTACK_KEYS.ADMIN_CHAT(chatSlug),
@@ -280,7 +283,11 @@ export const useAdminUpdateConditionMutation = (chatSlug: string) => {
     onSuccess: (_, variables) => {
       const { conditionId, type } = variables
       queryClient.invalidateQueries({
-        queryKey: TANSTACK_KEYS.ADMIN_CONDITION(chatSlug, conditionId, type),
+        queryKey: TANSTACK_KEYS.ADMIN_CONDITION(
+          chatSlug,
+          conditionId ?? '',
+          type
+        ),
       })
       queryClient.invalidateQueries({
         queryKey: TANSTACK_KEYS.ADMIN_CHAT(chatSlug),
@@ -306,7 +313,11 @@ export const useAdminDeleteConditionMutation = (chatSlug: string) => {
     onSuccess: (_, variables) => {
       const { conditionId, type } = variables
       queryClient.invalidateQueries({
-        queryKey: TANSTACK_KEYS.ADMIN_CONDITION(chatSlug, conditionId, type),
+        queryKey: TANSTACK_KEYS.ADMIN_CONDITION(
+          chatSlug,
+          conditionId ?? '',
+          type
+        ),
       })
       queryClient.invalidateQueries({
         queryKey: TANSTACK_KEYS.ADMIN_CHAT(chatSlug),

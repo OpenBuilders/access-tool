@@ -1,6 +1,6 @@
 export const CONDITION_TYPES_NAMES = {
   jetton: 'Jetton',
-  toncoin: 'Toncoin',
+  toncoin: 'Toncoin (TON)',
   nft_collection: 'NFT',
   sticker_collection: 'Stickers',
   gift_collection: 'Telegram Gifts',
@@ -11,3 +11,8 @@ export const CONDITION_TYPES_NAMES = {
 }
 
 export const DEFAULT_CONDITION_TYPE = 'jetton'
+
+export const ANY_OPTION = {
+  value: null,
+  label: 'Any',
+}

@@ -6,22 +6,48 @@ import {
   TelegramMainButton,
   Text,
 } from '@components'
-import { ConditionType } from '@types'
 import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import { useConditionActions } from '@store-new'
+import {
+  CONDITION_INITIAL_STATE,
+  useAdminCreateConditionMutation,
+  useCondition,
+  useConditionActions,
+  useIsSaved,
+} from '@store-new'
 
 export const AdminNewConditionPage = () => {
   const params = useParams<{ chatSlug: string }>()
   const chatSlug = params.chatSlug || ''
 
-  const { setConditionTypeAction } = useConditionActions()
+  const location = useLocation()
+  const groupId = location.state?.groupId || null
+
+  const condition = useCondition()
+  const isSaved = useIsSaved()
+
+  const { updateConditionAction } = useConditionActions()
+
+  const {
+    mutateAsync: createConditionMutateAsync,
+    isPending: createConditionIsPending,
+  } = useAdminCreateConditionMutation(chatSlug)
 
   const navigate = useNavigate()
 
-  const handleMainButtonClick = () => {
-    console.log('create condition')
+  const handleMainButtonClick = async () => {
+    if (!condition || isSaved) {
+      return
+    }
+
+    await createConditionMutateAsync({
+      type: condition.type,
+      data: condition,
+      chatSlug,
+    })
+    navigate(`/admin/chat/${chatSlug}`)
+    updateConditionAction(CONDITION_INITIAL_STATE)
   }
 
   const handleBackButtonClick = () => {
@@ -30,14 +56,20 @@ export const AdminNewConditionPage = () => {
   }
 
   useEffect(() => {
-    setConditionTypeAction(ConditionType.JETTON)
-  }, [])
+    if (!groupId) return
+    updateConditionAction({ groupId })
+  }, [groupId])
 
   return (
     <PageLayoutNew safeContent>
       <TelegramBackButton onClick={handleBackButtonClick} />
-      <TelegramMainButton text="Create" onClick={handleMainButtonClick} />
-      <BlockNew padding="28px 0 0 0">
+      <TelegramMainButton
+        text="Create"
+        onClick={handleMainButtonClick}
+        disabled={createConditionIsPending}
+        loading={createConditionIsPending}
+      />
+      <BlockNew padding="24px 0 0 0">
         <Text type="title" weight="bold" align="center">
           Create Condition
         </Text>

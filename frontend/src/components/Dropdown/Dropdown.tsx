@@ -11,7 +11,7 @@ import styles from './Dropdown.module.scss'
 type DropdownProps = {
   options: Option[]
   active: boolean
-  selectedValue?: string
+  selectedValue?: string | null
   onSelect: (value: string | null) => void
   onClose: () => void
   className?: string

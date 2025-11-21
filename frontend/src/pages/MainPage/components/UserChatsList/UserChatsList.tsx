@@ -51,7 +51,7 @@ export const UserChatsList = ({ chats }: UserChatsListProps) => {
             key={chat.id}
             text={chat.title}
             description={
-              <Text type="caption2" color="tertiary">
+              <Text type="caption2" color="secondary">
                 {createMembersCount(chat.membersCount)}
               </Text>
             }

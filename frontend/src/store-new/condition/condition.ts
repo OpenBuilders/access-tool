@@ -1,20 +1,16 @@
-import { Condition, ConditionToSend, ConditionType } from '@types'
+import { ConditionMutated } from '@types'
 import { create } from 'zustand'
 
 import { CONDITION_INITIAL_STATE } from './constants'
-import { transformConditionToSend } from './transformers'
 
 interface ConditionState {
-  conditionType: ConditionType
-  condition: Partial<ConditionToSend>
+  condition: ConditionMutated
   isSaved: boolean
 }
 
 interface ConditionActions {
   actions: {
-    setConditionTypeAction: (conditionType: ConditionType) => void
-    setInitialConditionAction: (condition?: Partial<Condition>) => void
-    updateConditionAction: (condition: Partial<ConditionToSend>) => void
+    updateConditionAction: (condition: any) => void
     toggleIsSavedAction: (value: boolean) => void
     cleanConditionAction: () => void
   }
@@ -22,23 +18,15 @@ interface ConditionActions {
 
 const useConditionStore = create<ConditionState & ConditionActions>(
   (set, get) => ({
-    conditionType: ConditionType.JETTON,
     condition: CONDITION_INITIAL_STATE,
     isSaved: true,
     actions: {
-      setConditionTypeAction: (conditionType) => {
-        get().actions.cleanConditionAction()
-        set({ conditionType })
-      },
-      setInitialConditionAction: (condition) => {
-        set({
-          condition: transformConditionToSend(get().conditionType, condition),
-          isSaved: true,
-        })
-      },
       updateConditionAction: (condition) => {
         set({
-          condition: transformConditionToSend(get().conditionType, condition),
+          condition: {
+            ...get().condition,
+            ...condition,
+          },
           isSaved: false,
         })
       },
@@ -47,7 +35,7 @@ const useConditionStore = create<ConditionState & ConditionActions>(
       },
       cleanConditionAction: () => {
         set({
-          condition: transformConditionToSend(get().conditionType),
+          condition: CONDITION_INITIAL_STATE,
           isSaved: true,
         })
       },
@@ -65,7 +53,6 @@ const createSheetFieldHook =
 // State
 export const useCondition = createSheetFieldHook('condition')
 export const useIsSaved = createSheetFieldHook('isSaved')
-export const useConditionType = createSheetFieldHook('conditionType')
 
 // Actions
 export const useConditionActions = () => useConditionStore(selectActions)

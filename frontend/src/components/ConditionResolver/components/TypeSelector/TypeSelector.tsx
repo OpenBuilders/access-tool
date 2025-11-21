@@ -1,18 +1,23 @@
 import { GroupItem, Select } from '@components'
-import { Condition, ConditionType } from '@types'
-import { useEffect } from 'react'
+import { ConditionType } from '@types'
+import { useState } from 'react'
 
-import { useCondition, useConditionActions, useConditionType } from '@store-new'
+import {
+  CONDITION_INITIAL_STATE,
+  useCondition,
+  useConditionActions,
+} from '@store-new'
 
-import { CONDITION_TYPES_NAMES, DEFAULT_CONDITION_TYPE } from '../../constants'
+import { CONDITION_TYPES_NAMES } from '../../constants'
 import { ConditionResolverProps } from '../../types'
 
 export const TypeSelector = (props: ConditionResolverProps) => {
   const { isNew } = props
 
-  const conditionType = useConditionType()
-  const { setConditionTypeAction, setInitialConditionAction } =
-    useConditionActions()
+  const condition = useCondition()
+  const { updateConditionAction } = useConditionActions()
+
+  const [typeQuery, setTypeQuery] = useState<ConditionType>(condition.type)
 
   const options = Object.entries(CONDITION_TYPES_NAMES).map(
     ([value, label]) => ({
@@ -21,13 +26,12 @@ export const TypeSelector = (props: ConditionResolverProps) => {
     })
   )
 
-  useEffect(() => {
-    setInitialConditionAction()
-  }, [conditionType])
-
   const handleChangeType = (value: string | null) => {
-    setConditionTypeAction(value as ConditionType)
-    setInitialConditionAction()
+    updateConditionAction(CONDITION_INITIAL_STATE)
+    setTypeQuery(value as ConditionType)
+    updateConditionAction({
+      type: value as ConditionType,
+    })
   }
 
   return (
@@ -37,7 +41,7 @@ export const TypeSelector = (props: ConditionResolverProps) => {
       after={
         <Select
           options={options}
-          value={conditionType}
+          value={typeQuery}
           onChange={(value) => {
             handleChangeType(value)
           }}
