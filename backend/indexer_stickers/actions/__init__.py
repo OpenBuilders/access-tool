@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from typing import AsyncGenerator
 
 from sqlalchemy.exc import NoResultFound
@@ -6,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from core.actions.base import BaseAction
 from core.actions.sticker.external import ExternalStickerAction
+from core.constants import DEFAULT_BATCH_PROCESSING_SIZE
 from core.dtos.sticker import (
     ExternalStickerDomCollectionOwnershipDTO,
     StickerDomCollectionOwnershipMetadataDTO,
@@ -13,11 +15,14 @@ from core.dtos.sticker import (
     StickerDomCollectionWithCharacters,
     StickerItemDTO,
 )
+from core.models.user import User
 from core.models.sticker import StickerItem
 from core.services.sticker.character import StickerCharacterService
 from core.services.sticker.collection import StickerCollectionService
 from core.services.sticker.item import StickerItemService
 from core.services.superredis import RedisService
+from core.services.user import UserService
+from core.utils.misc import batched
 from indexer_stickers.indexers.stickerdom import StickerDomService
 from indexer_stickers.settings import stickers_indexer_settings
 
@@ -257,23 +262,27 @@ class IndexerStickerItemAction(BaseAction):
                 batch_start : batch_start
                 + stickers_indexer_settings.sticker_dom_batch_processing_size
             ]
-            previous_items = self.sticker_item_service.get_all(
-                collection_id=collection.id,
-                item_ids=[item.id for item in batch],
-            )
-            previous_items_ownership = {
-                sticker.id: sticker.telegram_user_id for sticker in previous_items
-            }
-
-            updated_users_ids = set()
-            new_db_items = []
-            updated_db_items = []
+            # First, map external payload items to internal DTOs (resolve external character ids).
             internal_new_items: list[
                 StickerItemDTO
             ] = self.external_sticker_action.map_external_data_to_internal(
                 collection_id=collection.id,
                 items=batch,
             )
+
+            # Query previous items by the internal IDs (avoids mismatch between external and internal ids).
+            previous_ids = [item.id for item in internal_new_items]
+            previous_items_ownership = {
+                sticker.id: sticker.telegram_user_id
+                for sticker in self.sticker_item_service.get_all(
+                    collection_id=collection.id,
+                    item_ids=previous_ids if previous_ids else None,
+                )
+            }
+
+            updated_users_ids = set()
+            new_db_items = []
+            updated_db_items = []
 
             for new_item in internal_new_items:
                 if not (
@@ -313,10 +322,89 @@ class IndexerStickerItemAction(BaseAction):
                     # But we should do that for the previous user as they have fewer sticker items now.
                     updated_users_ids.add(previous_item_owner_telegram_id)
 
-            self.db_session.bulk_save_objects(new_db_items)
-            self.db_session.bulk_update_mappings(StickerItem, updated_db_items)
+            # Persist DB changes in a safe transactional block with rollback on failure
+            if new_db_items:
+                self.db_session.bulk_save_objects(new_db_items)
+            if updated_db_items:
+                self.db_session.bulk_update_mappings(StickerItem, updated_db_items)
+            # commit all changes for this batch
             self.db_session.commit()
+            logger.info(
+                "Persisted sticker changes for collection %s: created=%d updated=%d",
+                collection.id,
+                len(new_db_items),
+                len(updated_db_items),
+            )
             yield updated_users_ids
+
+        async for _batch in self.clean_burned_items(
+            collection_id=collection.id, current_items=new_items
+        ):
+            if _batch:
+                yield _batch
+
+    async def clean_burned_items(
+        self,
+        collection_id: int,
+        current_items: ExternalStickerDomCollectionOwnershipDTO,
+    ) -> AsyncGenerator[set[int], None]:
+        """
+        Cleans up burned items for a specific collection and yields sets of Telegram user IDs associated
+        with removed item IDs.
+
+        This method groups the items by their character IDs and compares the current item IDs with
+        previously existing item records to identify burned (removed) items. Burned items are logged and
+        then deleted in bulk. For each group of removed items, the method yields a set of Telegram
+        user IDs associated with those items.
+
+        :param collection_id: The ID of the collection being cleaned.
+        :param current_items: Current ownership data of items in the collection, containing character IDs
+                              and item IDs.
+        :return: An asynchronous generator that yields sets of Telegram user IDs for the removed items.
+        """
+        # Group items by character_ids
+        characters = self.sticker_character_service.get_all(collection_id=collection_id)
+        characters_by_external_id = {
+            character.external_id: character.id for character in characters
+        }
+
+        items_by_characters: dict[int, set[str]] = defaultdict(set)
+        for item in current_items.ownership_data:
+            character_id = characters_by_external_id.get(item.character_id)
+            if not character_id:
+                logger.warning(
+                    "Skipping current item %s for collection %s: character external_id=%s not found in DB",
+                    item.id,
+                    collection_id,
+                    item.character_id,
+                )
+                continue
+            items_by_characters[character_id].add(item.id)
+
+        for character_id, current_ids in items_by_characters.items():
+            # Load all the previously existed records
+            # but only fetch ID and Telegram User ID
+            all_previous_ids = {
+                _item.id
+                for _item in self.sticker_item_service.get_all(
+                    collection_id=collection_id,
+                    character_id=character_id,
+                    _load_attributes=[StickerItem.id],
+                )
+            }
+
+            # Get a set of removed keys
+            removed_item_ids = all_previous_ids - current_ids
+
+            if removed_item_ids:
+                logger.warning(
+                    f"Removing {removed_item_ids} from collection {collection_id} since they are burned."
+                )
+                telegram_user_ids = set(
+                    self.sticker_item_service.bulk_delete(removed_item_ids)
+                )
+
+                yield telegram_user_ids
 
     async def refresh_ownerships(
         self,
@@ -338,8 +426,21 @@ class IndexerStickerItemAction(BaseAction):
             corresponds to the IDs of users affected by the ownership updates.
         """
 
+        user_service = UserService(self.db_session)
+
         for collection in collections:
             async for targeted_users in self.process_collection_ownerships(
                 collection_dto=collection
             ):
-                yield targeted_users
+                if not targeted_users:
+                    continue
+                for batch in batched(targeted_users, DEFAULT_BATCH_PROCESSING_SIZE):
+                    yield {
+                        _user.telegram_id
+                        for _user in
+                        # That ensures we don't spam with
+                        user_service.get_all(
+                            telegram_ids=batch,
+                            _load_attributes=[User.telegram_id],
+                        )
+                    }

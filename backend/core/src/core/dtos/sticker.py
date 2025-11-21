@@ -127,7 +127,7 @@ class ExternalStickerDomCollectionOwnershipDTO(BaseStickerDomCollectionOwnership
         json_data = json.loads(raw)
         ownership_data = [
             ExternalStickerItemDTO(
-                id=f"{collection_id}_{character_id}_{instance_id}_{user_id}",
+                id=f"{collection_id}_{character_id}_{instance_id}",
                 collection_id=collection_id,
                 character_id=character_id,
                 telegram_user_id=user_id,
