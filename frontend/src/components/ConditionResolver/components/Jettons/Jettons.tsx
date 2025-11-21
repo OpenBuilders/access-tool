@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react'
 
 import {
   useAdminConditionCategoriesQuery,
-  useAdminConditionJettonsQuery,
+  useAdminConditionPrefetchQuery,
   useCondition,
   useConditionActions,
 } from '@store-new'
@@ -34,7 +34,7 @@ export const Jettons = () => {
   const debouncedJettonAddress = useDebounce(queries.address, 500)
 
   const { data: jettonsData, isLoading: jettonsIsLoading } =
-    useAdminConditionJettonsQuery(condition.type, debouncedJettonAddress || '')
+    useAdminConditionPrefetchQuery(condition.type, debouncedJettonAddress || '')
 
   const categoryOptions = categoriesData?.[0]?.categories.map((category) => ({
     value: category,

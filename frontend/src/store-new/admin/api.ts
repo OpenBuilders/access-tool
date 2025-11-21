@@ -5,6 +5,7 @@ import {
   ConditionAPIArgs,
   ConditionCategory,
   ConditionJettonsPrefetch,
+  ConditionPrefetchData,
   ConditionType,
 } from '@types'
 
@@ -135,12 +136,24 @@ export const deleteAdminConditionAPI = async (
   return response
 }
 
-export const fetchAdminConditionJettonsAPI = async (
+// export const fetchAdminConditionJettonsAPI = async (
+//   type: ConditionType,
+//   address: string
+// ): Promise<ApiServiceResponse<ConditionJettonsPrefetch>> => {
+//   const path = ConditionTypePath[type]
+//   const response = await ApiService.get<ConditionJettonsPrefetch>({
+//     endpoint: `/admin/resources/prefetch/${path}?address=${address}`,
+//   })
+
+//   return response
+// }
+
+export const prefetchAdminConditionDataApi = async (
   type: ConditionType,
   address: string
-): Promise<ApiServiceResponse<ConditionJettonsPrefetch>> => {
+): Promise<ApiServiceResponse<ConditionPrefetchData>> => {
   const path = ConditionTypePath[type]
-  const response = await ApiService.get<ConditionJettonsPrefetch>({
+  const response = await ApiService.get<ConditionPrefetchData>({
     endpoint: `/admin/resources/prefetch/${path}?address=${address}`,
   })
 

@@ -5,19 +5,19 @@ import {
   GroupItem,
   Image,
   Select,
+  Spinner,
 } from '@components'
-import { ConditionStickersCharacter, ConditionStickersCollection } from '@types'
+import { useDebounce } from '@uidotdev/usehooks'
 import { useEffect, useState } from 'react'
 
 import {
   useAdminConditionCategoriesQuery,
-  useAdminConditionStickersQuery,
+  useAdminConditionPrefetchQuery,
   useCondition,
   useConditionActions,
 } from '@store-new'
 
 import { ANY_OPTION } from '../../constants'
-import { getAssetData, getCharacterData, getCollectionData } from './helpers'
 
 export const NFT = () => {
   const condition = useCondition()
@@ -26,16 +26,21 @@ export const NFT = () => {
   const [queries, setQueries] = useState({
     category: condition?.category || null,
     asset: condition?.asset || null,
+    address: condition?.address || null,
     expected: condition?.expected || '',
   })
 
   const { data: categoriesData, isPending: categoriesIsPending } =
     useAdminConditionCategoriesQuery(condition.type)
 
+  const debouncedJettonAddress = useDebounce(queries.address, 500)
+
+  const { data: prefetchData, isLoading: prefetchIsLoading } =
+    useAdminConditionPrefetchQuery(condition.type, debouncedJettonAddress || '')
+
   useEffect(() => {
-    const initialAsset = condition?.asset || categoriesData?.[0]?.asset || null
-    const initialCategory =
-      condition?.category || categoriesData?.[0]?.categories[0] || null
+    const initialAsset = condition?.asset || null
+    const initialCategory = condition?.category || null
 
     setQueries({ ...queries, category: initialCategory, asset: initialAsset })
     updateConditionAction({ category: initialCategory, asset: initialAsset })
@@ -61,23 +66,22 @@ export const NFT = () => {
       })) || []
 
   const handleUpdateNFTCollection = (value: string | null) => {
-    if (!value) {
-      setQueries({ ...queries, asset: null, category: null })
-      updateConditionAction({ asset: null, category: null })
-      return
-    }
-    setQueries({ ...queries, asset: value, category: null })
-    updateConditionAction({ asset: Number(value), category: null })
+    setQueries({ ...queries, asset: value, category: null, address: null })
+    updateConditionAction({
+      asset: Number(value),
+      category: null,
+      address: null,
+    })
   }
 
   const handleUpdateNFTCollectionCategory = (value: string | null) => {
-    if (!value) {
-      setQueries({ ...queries, category: null })
-      updateConditionAction({ category: null })
-      return
-    }
     setQueries({ ...queries, category: value })
     updateConditionAction({ category: value })
+  }
+
+  const handleUpdateAddress = (value: string | null) => {
+    setQueries({ ...queries, address: value })
+    updateConditionAction({ address: value })
   }
 
   const handleUpdateExpected = (value: string | null) => {
@@ -102,19 +106,46 @@ export const NFT = () => {
         </Group>
       </BlockNew>
       <BlockNew padding="24px 0 0 0">
-        <Group>
-          <GroupItem
-            text="Character"
-            disabled={!queries.asset}
-            after={
-              <Select
-                options={[ANY_OPTION, ...nftCategoryOptions]}
-                value={queries.category || ANY_OPTION.value}
-                onChange={(value) => handleUpdateNFTCollectionCategory(value)}
+        {queries.asset ? (
+          <Group>
+            <GroupItem
+              text="Character"
+              after={
+                <Select
+                  options={[ANY_OPTION, ...nftCategoryOptions]}
+                  value={queries.category || ANY_OPTION.value}
+                  onChange={(value) => handleUpdateNFTCollectionCategory(value)}
+                />
+              }
+            />
+          </Group>
+        ) : (
+          <Group footer="TON (The Open Network)">
+            <GroupItem
+              disabled={prefetchIsLoading}
+              main={
+                <GroupInput
+                  placeholder="NFT Collection Address"
+                  value={queries.address || ''}
+                  onChange={(value) => handleUpdateAddress(value)}
+                />
+              }
+              after={prefetchIsLoading ? <Spinner size={16} /> : null}
+            />
+            {prefetchData && (
+              <GroupItem
+                before={
+                  <Image
+                    src={prefetchData.logoPath}
+                    size={40}
+                    borderRadius={50}
+                  />
+                }
+                text={prefetchData.name}
               />
-            }
-          />
-        </Group>
+            )}
+          </Group>
+        )}
       </BlockNew>
       <BlockNew padding="24px 0 0 0">
         <GroupItem

@@ -21,10 +21,11 @@ export const TANSTACK_KEYS = {
   ) => ['admin', 'condition', chatSlug, conditionId, type],
   ADMIN_CONDITION_STICKERS: ['admin', 'condition', 'stickers'],
   ADMIN_CONDITION_GIFTS: ['admin', 'condition', 'gifts'],
-  ADMIN_CONDITION_JETTONS: (address: string) => [
+  ADMIN_CONDITION_PREFETCH: (type: string, address: string) => [
     'admin',
     'condition',
-    'jettons',
+    'prefetch',
+    type,
     address,
   ],
   ADMIN_CONDITION_CATEGORIES: (type: ConditionType) => [
@@ -44,7 +45,7 @@ export const TANSTACK_TTL = {
   ADMIN_CONDITION: 2 * 60 * 1000, // 2 minutes
   ADMIN_CONDITION_STICKERS: 2 * 60 * 1000, // 2 minutes
   ADMIN_CONDITION_GIFTS: 2 * 60 * 1000, // 2 minutes
-  ADMIN_CONDITION_JETTONS: 2 * 60 * 1000, // 2 minutes
+  ADMIN_CONDITION_PREFETCH: 2 * 60 * 1000, // 2 minutes
   ADMIN_CONDITION_CATEGORIES: 2 * 60 * 1000, // 2 minutes
 }
 

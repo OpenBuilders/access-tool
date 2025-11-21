@@ -326,3 +326,13 @@ export type ConditionMutated = {
   authKey: string | null
   authValue: string | null
 }
+
+export type ConditionPrefetchData = {
+  address?: string
+  blockchainMetadata?: { attributes: any[] }
+  description?: string
+  isEnabled?: boolean
+  logoPath?: string
+  name?: string
+  symbol?: string
+}

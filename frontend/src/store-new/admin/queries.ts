@@ -7,6 +7,7 @@ import {
   ConditionCategory,
   ConditionJettonsPrefetch,
   ConditionMutated,
+  ConditionPrefetchData,
   ConditionStickersCollection,
   ConditionType,
 } from '@types'
@@ -26,7 +27,7 @@ import {
   fetchAdminChatsAPI,
   fetchAdminConditionAPI,
   fetchAdminConditionCategoriesAPI,
-  fetchAdminConditionJettonsAPI,
+  prefetchAdminConditionDataApi,
   fetchAdminConditionsStickersAPI,
   moveAdminChatConditionAPI,
   updateAdminChatAPI,
@@ -364,14 +365,14 @@ export const useAdminConditionCategoriesQuery = (type: ConditionType) => {
   })
 }
 
-export const useAdminConditionJettonsQuery = (
+export const useAdminConditionPrefetchQuery = (
   type: ConditionType,
   address: string
 ) => {
-  return useQuery<ConditionJettonsPrefetch>({
-    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_JETTONS(address),
+  return useQuery<ConditionPrefetchData>({
+    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_PREFETCH(type, address),
     queryFn: async () => {
-      const { data, ok, error } = await fetchAdminConditionJettonsAPI(
+      const { data, ok, error } = await prefetchAdminConditionDataApi(
         type,
         address
       )
@@ -383,7 +384,7 @@ export const useAdminConditionJettonsQuery = (
     },
     enabled: !!type && !!address,
     gcTime: TANSTACK_GC_TIME,
-    staleTime: TANSTACK_TTL.ADMIN_CONDITION_JETTONS,
+    staleTime: TANSTACK_TTL.ADMIN_CONDITION_PREFETCH,
     meta: { persist: true },
   })
 }
