@@ -4,8 +4,9 @@ import {
   Condition,
   ConditionAPIArgs,
   ConditionCategory,
-  ConditionJettonsPrefetch,
+  ConditionGiftsPrefetch,
   ConditionPrefetchData,
+  ConditionStickersPrefetch,
   ConditionType,
 } from '@types'
 
@@ -136,18 +137,6 @@ export const deleteAdminConditionAPI = async (
   return response
 }
 
-// export const fetchAdminConditionJettonsAPI = async (
-//   type: ConditionType,
-//   address: string
-// ): Promise<ApiServiceResponse<ConditionJettonsPrefetch>> => {
-//   const path = ConditionTypePath[type]
-//   const response = await ApiService.get<ConditionJettonsPrefetch>({
-//     endpoint: `/admin/resources/prefetch/${path}?address=${address}`,
-//   })
-
-//   return response
-// }
-
 export const prefetchAdminConditionDataApi = async (
   type: ConditionType,
   address: string
@@ -172,9 +161,9 @@ export const fetchAdminConditionCategoriesAPI = async (
 }
 
 export const fetchAdminConditionsStickersAPI = async (): Promise<
-  ApiServiceResponse<any>
+  ApiServiceResponse<ConditionStickersPrefetch[]>
 > => {
-  const response = await ApiService.get<any>({
+  const response = await ApiService.get<ConditionStickersPrefetch[]>({
     endpoint: `/admin/resources/stickers`,
   })
 
@@ -182,9 +171,9 @@ export const fetchAdminConditionsStickersAPI = async (): Promise<
 }
 
 export const fetchAdminConditionGiftsAPI = async (): Promise<
-  ApiServiceResponse<any>
+  ApiServiceResponse<ConditionGiftsPrefetch>
 > => {
-  const response = await ApiService.get<any>({
+  const response = await ApiService.get<ConditionGiftsPrefetch>({
     endpoint: `/admin/resources/gifts`,
   })
 

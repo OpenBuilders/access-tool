@@ -2,10 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Chat,
   ChatInstance,
-  Condition,
   ConditionAPIArgs,
   ConditionCategory,
-  ConditionJettonsPrefetch,
+  ConditionGiftsPrefetch,
   ConditionMutated,
   ConditionPrefetchData,
   ConditionStickersCollection,
@@ -33,6 +32,7 @@ import {
   updateAdminChatAPI,
   updateAdminChatVisibilityAPI,
   updateAdminConditionAPI,
+  fetchAdminConditionGiftsAPI,
 } from './api'
 
 export const useAdminChatsQuery = () => {
@@ -332,7 +332,7 @@ export const useAdminDeleteConditionMutation = (chatSlug: string) => {
 
 export const useAdminConditionStickersQuery = () => {
   return useQuery<ConditionStickersCollection[]>({
-    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_STICKERS,
+    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_PREFETCH_STICKERS,
     queryFn: async () => {
       const { data, ok, error } = await fetchAdminConditionsStickersAPI()
       if (!ok || !data) {
@@ -342,7 +342,24 @@ export const useAdminConditionStickersQuery = () => {
       return data
     },
     gcTime: TANSTACK_GC_TIME,
-    staleTime: TANSTACK_TTL.ADMIN_CONDITION_STICKERS,
+    staleTime: TANSTACK_TTL.ADMIN_CONDITION_PREFETCH_STICKERS,
+    meta: { persist: true },
+  })
+}
+
+export const useAdminConditionPrefetchGiftsQuery = () => {
+  return useQuery<ConditionGiftsPrefetch>({
+    queryKey: TANSTACK_KEYS.ADMIN_CONDITION_PREFETCH_GIFTS,
+    queryFn: async () => {
+      const { data, ok, error } = await fetchAdminConditionGiftsAPI()
+      if (!ok || !data) {
+        throw new Error(error)
+      }
+
+      return data
+    },
+    gcTime: TANSTACK_GC_TIME,
+    staleTime: TANSTACK_TTL.ADMIN_CONDITION_PREFETCH_GIFTS,
     meta: { persist: true },
   })
 }

@@ -3,7 +3,14 @@ import { ConditionType } from '@types'
 import { useCondition } from '@store-new'
 
 import { BlockNew } from '../BlockNew'
-import { Jettons, NFT, Stickers, Toncoin, TypeSelector } from './components'
+import {
+  Gifts,
+  Jettons,
+  NFT,
+  Stickers,
+  Toncoin,
+  TypeSelector,
+} from './components'
 import { ConditionResolverProps } from './types'
 
 const CONDITION_COMPONENTS: Record<
@@ -14,6 +21,7 @@ const CONDITION_COMPONENTS: Record<
   toncoin: Toncoin,
   nft_collection: NFT,
   sticker_collection: Stickers,
+  gift_collection: Gifts,
 }
 
 export const ConditionResolver = (props: ConditionResolverProps) => {

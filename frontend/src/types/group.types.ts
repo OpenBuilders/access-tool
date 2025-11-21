@@ -1,6 +1,6 @@
-import { Task } from './condition.types'
+import { Condition } from '@types'
 
 export type Group = {
   id: number
-  items: Task[]
+  items: Condition[]
 }

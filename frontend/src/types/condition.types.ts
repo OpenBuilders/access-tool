@@ -293,17 +293,6 @@ export type ConditionCategory = {
   categories: string[]
 }
 
-export type ConditionJettonsPrefetch = {
-  address: string
-  decimals: number
-  description: string | null
-  isEnabled: boolean
-  logoPath: string
-  name: string
-  symbol: string
-  totalSupply: number
-}
-
 export type ConditionMutated = {
   type: ConditionType
   expected: number
@@ -335,4 +324,28 @@ export type ConditionPrefetchData = {
   logoPath?: string
   name?: string
   symbol?: string
+  decimals?: number
+  totalSupply?: number
+}
+
+export type ConditionGiftsPrefetchItem = {
+  backdrops: string[]
+  models: string[]
+  patterns: string[]
+  previewUrl: string
+  slug: string
+  supply: number
+  upgradedCount: number
+  title: string
+}
+
+export type ConditionGiftsPrefetch = {
+  collections: ConditionGiftsPrefetchItem[]
+}
+
+export type ConditionStickersPrefetch = {
+  id: number
+  title: string
+  logoUrl: string
+  characters: ConditionStickersCharacter[]
 }
