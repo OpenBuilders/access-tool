@@ -13,7 +13,7 @@ import {
   DropResult,
   DragUpdate,
 } from '@hello-pangea/dnd'
-import { Condition, Group } from '@types'
+import { Condition, ConditionType, Group } from '@types'
 import { createConditionDescription, createConditionName } from '@utils'
 import cn from 'classnames'
 import { useCallback, useState } from 'react'
@@ -74,9 +74,9 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
 
     setLocalGroups(newGroups)
     await moveChatConditionMutation({
-      ruleId: removed.id,
+      ruleId: removed.id || 0,
       groupId: destGroupId,
-      type: removed.type,
+      type: removed.type || ConditionType.JETTON,
       order: destination.index,
     })
   }

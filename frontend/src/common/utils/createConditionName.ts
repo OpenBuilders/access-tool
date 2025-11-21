@@ -1,4 +1,4 @@
-import { Condition } from '@store'
+import { Condition } from '@types'
 
 import { separateNumber } from './separateNumber'
 
@@ -7,7 +7,7 @@ export const createConditionName = (condition: Condition) => {
   const { type, expected, title } = condition
 
   if (type === 'jetton' || type === 'toncoin') {
-    return `Hold ${separateNumber(expected)} ${title}`
+    return `Hold ${separateNumber(expected || 0)} ${title}`
   }
 
   if (type === 'emoji') {

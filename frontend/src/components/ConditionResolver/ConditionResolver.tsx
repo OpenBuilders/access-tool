@@ -7,6 +7,7 @@ import {
   Gifts,
   Jettons,
   NFT,
+  Premium,
   Stickers,
   Toncoin,
   TypeSelector,
@@ -22,6 +23,7 @@ const CONDITION_COMPONENTS: Record<
   nft_collection: NFT,
   sticker_collection: Stickers,
   gift_collection: Gifts,
+  premium: Premium,
 }
 
 export const ConditionResolver = (props: ConditionResolverProps) => {

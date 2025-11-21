@@ -1,4 +1,4 @@
-import { Condition } from '@store'
+import { Condition } from '@types'
 
 export const createConditionDescription = (condition: Condition) => {
   const { type, category, expected, model, pattern, backdrop } = condition
