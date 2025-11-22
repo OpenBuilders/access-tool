@@ -4,7 +4,12 @@ from pathlib import Path
 from typing import AsyncGenerator, IO, BinaryIO
 
 from telethon import TelegramClient, Button
-from telethon.errors import MultiError, FloodWaitError, RPCError
+from telethon.errors import (
+    MultiError,
+    FloodWaitError,
+    RPCError,
+    FrozenMethodInvalidError,
+)
 from telethon.sessions import MemorySession, SQLiteSession
 from telethon.tl.functions.messages import (
     ExportChatInviteRequest,
@@ -408,7 +413,11 @@ class TelethonService:
             )
         except MultiError as e:
             logger.error(f"Error occurred while fetching gifts: {e}")
-            if any((isinstance(exc, FloodWaitError) for exc in e.exceptions)):
+            if any((isinstance(exc, FrozenMethodInvalidError) for exc in e.exceptions)):
+                logger.error("Account is frozen. Exiting the process")
+                raise FrozenMethodInvalidError
+
+            elif any((isinstance(exc, FloodWaitError) for exc in e.exceptions)):
                 # Typical Flood timeout for gifts fetching is 3 seconds
                 # We can go forward, but there is a chance of get banned or lose some data because of the errors
                 logger.warning(

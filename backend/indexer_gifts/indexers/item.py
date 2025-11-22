@@ -2,6 +2,8 @@ import logging
 from pathlib import Path
 from typing import AsyncGenerator
 
+from telethon.errors import RPCError
+
 from core.dtos.gift.item import GiftUniqueDTO
 from core.services.supertelethon import TelethonService
 from indexer_gifts.settings import gifts_indexer_settings
@@ -28,42 +30,52 @@ class GiftUniqueIndexer:
         :return: An asynchronous generator yielding lists of GiftUniqueDTO objects.
         """
         await self.telethon_service.start()
-        entities = []
-        for num in range(
-            start, stop + 1, gifts_indexer_settings.telegram_batch_request_size
-        ):
-            gifts = await self.telethon_service.index_gifts_batch(
-                slugs=[
-                    f"{collection_slug}-{gift_id}"
-                    for i in range(gifts_indexer_settings.telegram_batch_request_size)
-                    if (gift_id := num + i) <= stop
-                ]
+        try:
+            entities = []
+            for num in range(
+                start, stop + 1, gifts_indexer_settings.telegram_batch_request_size
+            ):
+                gifts = await self.telethon_service.index_gifts_batch(
+                    slugs=[
+                        f"{collection_slug}-{gift_id}"
+                        for i in range(
+                            gifts_indexer_settings.telegram_batch_request_size
+                        )
+                        if (gift_id := num + i) <= stop
+                    ]
+                )
+
+                logger.debug(
+                    f"Indexed gifts {num}...{num + gifts_indexer_settings.telegram_batch_request_size - 1} "
+                    f"for {collection_slug!r}."
+                )
+
+                entities.extend(
+                    [
+                        GiftUniqueDTO.from_telethon(
+                            collection_slug=collection_slug,
+                            obj=gift,
+                        )
+                        for gift in gifts
+                    ]
+                )
+
+                if (
+                    len(entities)
+                    >= gifts_indexer_settings.telegram_batch_processing_size
+                ):
+                    logger.info(f"Indexed {num} unique gifts for {collection_slug!r}.")
+                    yield entities
+                    entities = []
+
+            yield entities
+        except RPCError:
+            logger.exception(
+                f"Failed to index gifts for collection {collection_slug!r}"
             )
-
-            logger.debug(
-                f"Indexed gifts {num}...{num + gifts_indexer_settings.telegram_batch_request_size - 1} "
-                f"for {collection_slug!r}."
-            )
-
-            entities.extend(
-                [
-                    GiftUniqueDTO.from_telethon(
-                        collection_slug=collection_slug,
-                        obj=gift,
-                    )
-                    for gift in gifts
-                ]
-            )
-
-            if len(entities) >= gifts_indexer_settings.telegram_batch_processing_size:
-                logger.info(f"Indexed {num} unique gifts for {collection_slug!r}.")
-                yield entities
-                entities = []
-
-        yield entities
-        # Free session for the next process
-        await self.telethon_service.stop()
-        return
+        finally:
+            # Free session for the next process
+            await self.telethon_service.stop()
 
     async def index_user_gifts(
         self,

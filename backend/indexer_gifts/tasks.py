@@ -1,7 +1,11 @@
 import asyncio
 
 from celery.utils.log import get_task_logger
-from telethon.errors import PhoneNumberBannedError, AuthKeyDuplicatedError
+from telethon.errors import (
+    PhoneNumberBannedError,
+    AuthKeyDuplicatedError,
+    FrozenMethodInvalidError,
+)
 
 from core.constants import (
     UPDATED_GIFT_USER_IDS,
@@ -55,7 +59,11 @@ async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
                         )
                     except GiftCollectionNotExistsError as e:
                         logger.error(f"Failed to index gift collection {slug!r}: {e}")
-            except (PhoneNumberBannedError, AuthKeyDuplicatedError) as e:
+            except (
+                PhoneNumberBannedError,
+                AuthKeyDuplicatedError,
+                FrozenMethodInvalidError,
+            ) as e:
                 # Rename session to mark as dirty
                 session_path.rename(f"{session_path}-dirty")
                 raise e
@@ -89,7 +97,11 @@ async def index_gift_collection_ownerships(
                 logger.info(
                     f"Indexed {len(batch_telegram_ids)} unique gift actions for collection {slug!r}."
                 )
-            except (PhoneNumberBannedError, AuthKeyDuplicatedError) as e:
+            except (
+                PhoneNumberBannedError,
+                AuthKeyDuplicatedError,
+                FrozenMethodInvalidError,
+            ) as e:
                 # Rename session to mark as dirty
                 session_path.rename(f"{session_path}-dirty")
                 raise e
