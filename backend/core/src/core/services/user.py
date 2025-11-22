@@ -1,6 +1,6 @@
-from typing import Iterable
+from typing import Iterable, Any
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, load_only, QueryableAttribute
 
 from core.dtos.user import TelegramUserDTO
 from core.models.user import User
@@ -8,10 +8,17 @@ from core.services.base import BaseService
 
 
 class UserService(BaseService):
-    def get_all(self, telegram_ids: Iterable[int] | None = None) -> list[User]:
+    def get_all(
+        self,
+        telegram_ids: Iterable[int] | None = None,
+        _load_attributes: list[QueryableAttribute[Any]] | None = None,
+    ) -> list[User]:
         query = self.db_session.query(User)
         if telegram_ids:
             query = query.filter(User.telegram_id.in_(telegram_ids))
+
+        if _load_attributes:
+            query = query.options(load_only(*_load_attributes))
 
         return query.all()
 

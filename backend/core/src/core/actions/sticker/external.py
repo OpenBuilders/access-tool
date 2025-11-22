@@ -9,9 +9,7 @@ from core.dtos.sticker import (
     StickerItemDTO,
     ExternalStickerItemDTO,
 )
-from core.services.sticker.character import StickerCharacterService
 from core.services.sticker.collection import StickerCollectionService
-from core.services.sticker.item import StickerItemService
 from core.services.superredis import RedisService
 
 
@@ -24,17 +22,11 @@ class ExternalStickerAction(BaseAction):
         self.sticker_collection_service = StickerCollectionService(
             db_session=db_session
         )
-        self.sticker_character_service = StickerCharacterService(db_session=db_session)
-        self.sticker_item_service = StickerItemService(db_session=db_session)
         self.redis_service = RedisService()
 
     @staticmethod
     def get_metadata_cache_key(collection_id: int) -> str:
         return f"sticker-dom::{collection_id}::ownership-metadata"
-
-    # @staticmethod
-    # def get_data_cache_key(collection_id: int) -> str:
-    #     return f"sticker-dom::{collection_id}::ownership-data"
 
     @staticmethod
     def get_collections_cache_key() -> str:
@@ -63,8 +55,11 @@ class ExternalStickerAction(BaseAction):
         hash_object = hashlib.sha256(collections_raw.encode())
         return hash_object.hexdigest()
 
+    @staticmethod
     def map_external_data_to_internal(
-        self, collection_id: int, items: list[ExternalStickerItemDTO]
+        collection_id: int,
+        items: list[ExternalStickerItemDTO],
+        characters_id_by_external_id: dict[int, int],
     ) -> list[StickerItemDTO]:
         """
         Maps external data to internal data format for stickers by integrating external data items
@@ -72,22 +67,18 @@ class ExternalStickerAction(BaseAction):
         internal user or character mapping, logging the appropriate debug or warning messages in such cases.
 
         :param collection_id: Unique identifier for the sticker collection.
-        :type collection_id: int
         :param items: List of external sticker items to be mapped to the internal format.
-        :type items: list[ExternalStickerItemDTO]
+        :param characters_id_by_external_id: Dictionary mapping external character IDs to their corresponding internal ID.
         :return: A list of StickerItemDTO instances representing the mapped internal sticker items.
-        :rtype: list[StickerItemDTO]
         """
-        characters = self.sticker_character_service.get_all(collection_id=collection_id)
-        characters_by_external_id = {
-            character.external_id: character for character in characters
-        }
 
         internally_mapped_items = []
 
         for item in items:
-            if not (character := characters_by_external_id.get(item.character_id)):
-                # There is a desynchronization between Sticker Dom and the database.
+            if not (
+                character_id := characters_id_by_external_id.get(item.character_id)
+            ):
+                # It would mean there is a desynchronization between Sticker Dom and the database.
                 logger.warning(
                     f"Missing character {item.character_id!r} for collection {collection_id!r}. Skipping item."
                 )
@@ -97,7 +88,7 @@ class ExternalStickerAction(BaseAction):
                 StickerItemDTO(
                     id=item.id,
                     collection_id=collection_id,
-                    character_id=character.id,
+                    character_id=character_id,
                     telegram_user_id=item.telegram_user_id,
                     instance=item.instance,
                 )
