@@ -109,7 +109,7 @@ class StickerItemService(BaseService):
             self.db_session.execute(
                 delete(StickerItem)
                 .where(StickerItem.id.in_(item_ids))
-                .returning(StickerItem.telegram_user_id.distinct())
+                .returning(StickerItem.telegram_user_id)
             )
             .scalars()
             .all()

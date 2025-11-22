@@ -127,6 +127,8 @@ class ExternalStickerDomCollectionOwnershipDTO(BaseStickerDomCollectionOwnership
         json_data = json.loads(raw)
         ownership_data = [
             ExternalStickerItemDTO(
+                # ID should not contain ID of the owner (user_id) to ensure
+                # that after changing the owner it'll stay the same
                 id=f"{collection_id}_{character_id}_{instance_id}",
                 collection_id=collection_id,
                 character_id=character_id,
