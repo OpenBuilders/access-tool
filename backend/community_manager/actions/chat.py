@@ -800,6 +800,10 @@ class CommunityManagerTaskChatAction:
 
         target_chat_members: set[tuple[int, int]] = set()
 
+        logger.info(
+            f"Retrieved {len(wallets)} wallets and {len(sticker_owners_telegram_ids)} sticker owners from Redis."
+        )
+
         if wallets:
             chat_members = self.telegram_chat_user_service.get_all_by_linked_wallet(
                 addresses=wallets
