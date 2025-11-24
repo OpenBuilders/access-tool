@@ -24,7 +24,7 @@ class StickerToolsIndexer:
         async with limiter:
             response = await self.client.get(url=path)
             logger.debug(
-                f"Received response from Sticker.tools: {response.status_code} – {response.text[:50]}..."
+                f"Received response from {response.request.url}: {response.status_code} – {response.text[:50]}..."
             )
             response.raise_for_status()
 
