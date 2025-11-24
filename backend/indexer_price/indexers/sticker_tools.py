@@ -16,7 +16,7 @@ timeout = Timeout(REQUEST_TIMEOUT, read=READ_TIMEOUT, connect=CONNECT_TIMEOUT)
 class StickerToolsIndexer:
     def __init__(self):
         self.client = httpx.AsyncClient(
-            base_url="https://stickers.tools/",
+            base_url="https://assets.tools/",
             timeout=timeout,
         )
 
