@@ -17,7 +17,7 @@ export const transformCondition = (condition: Condition): ConditionMutated => {
     backdrop: condition?.backdrop || null,
     pattern: condition?.pattern || null,
     users: condition?.users || [],
-    name: condition?.title || null,
+    name: condition?.name || null,
     description: condition?.description || null,
     url: condition?.url || null,
     authKey: condition?.authKey || null,

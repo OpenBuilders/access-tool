@@ -81,16 +81,13 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
     })
   }
 
-  const handleCreateCondition = useCallback(
-    (groupId?: number) => {
-      navigate(`/admin/chat/${chatSlug}/condition`, {
-        state: {
-          groupId: groupId || null,
-        },
-      })
-    },
-    [chatSlug]
-  )
+  const handleCreateCondition = (groupId?: number) => {
+    navigate(`/admin/chat/${chatSlug}/condition`, {
+      state: {
+        groupId: groupId || null,
+      },
+    })
+  }
 
   const handleNavigateToConditionPage = useCallback(
     (rule: Condition) => {

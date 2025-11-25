@@ -11,6 +11,7 @@ import {
   Stickers,
   Toncoin,
   TypeSelector,
+  Whitelist,
 } from './components'
 import { ConditionResolverProps } from './types'
 
@@ -24,6 +25,7 @@ const CONDITION_COMPONENTS: Record<
   sticker_collection: Stickers,
   gift_collection: Gifts,
   premium: Premium,
+  whitelist: Whitelist,
 }
 
 export const ConditionResolver = (props: ConditionResolverProps) => {

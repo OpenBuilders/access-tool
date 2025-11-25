@@ -54,7 +54,7 @@ export const Group = ({ children, header, footer, action }: GroupProps) => {
       </div>
       {footer && (
         <div className={styles.footer}>
-          <Text type="caption" color="secondary">
+          <Text type="caption" color="secondary" as="div">
             {footer}
           </Text>
         </div>

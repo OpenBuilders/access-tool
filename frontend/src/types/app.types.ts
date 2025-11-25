@@ -10,3 +10,10 @@ export type Option = {
   value: string | null
   image?: string
 }
+
+export type FileData = {
+  url: string
+  name: string
+  description: string
+  users?: number[] | string[]
+}

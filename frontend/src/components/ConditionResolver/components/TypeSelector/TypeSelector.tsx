@@ -1,6 +1,7 @@
 import { GroupItem, Select } from '@components'
 import { ConditionType } from '@types'
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import {
   CONDITION_INITIAL_STATE,
@@ -13,6 +14,9 @@ import { ConditionResolverProps } from '../../types'
 
 export const TypeSelector = (props: ConditionResolverProps) => {
   const { isNew } = props
+
+  const location = useLocation()
+  const groupId = location.state?.groupId || null
 
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
@@ -27,10 +31,11 @@ export const TypeSelector = (props: ConditionResolverProps) => {
   )
 
   const handleChangeType = (value: string | null) => {
-    updateConditionAction(CONDITION_INITIAL_STATE)
     setTypeQuery(value as ConditionType)
     updateConditionAction({
+      ...CONDITION_INITIAL_STATE,
       type: value as ConditionType,
+      groupId,
     })
   }
 
