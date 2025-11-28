@@ -13,8 +13,6 @@ interface ToggleProps {
   borderRadius?: number
 }
 
-const webApp = window?.Telegram?.WebApp
-
 export const Toggle = ({
   isEnabled = false,
   onChange,

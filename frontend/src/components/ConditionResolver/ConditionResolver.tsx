@@ -4,6 +4,8 @@ import { useCondition } from '@store-new'
 
 import { BlockNew } from '../BlockNew'
 import {
+  Emoji,
+  ExternalSource,
   Gifts,
   Jettons,
   NFT,
@@ -26,6 +28,8 @@ const CONDITION_COMPONENTS: Record<
   gift_collection: Gifts,
   premium: Premium,
   whitelist: Whitelist,
+  emoji: Emoji,
+  external_source: ExternalSource,
 }
 
 export const ConditionResolver = (props: ConditionResolverProps) => {
