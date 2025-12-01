@@ -34,16 +34,27 @@ const handleError = async (
   if (err instanceof HTTPError) {
     try {
       const errorData = await err.response.json()
-      if (Array.isArray(errorData.detail) && !!errorData.detail.length) {
-        const validationError = getValidationError(errorData.detail)
+      const detail = errorData?.detail
+
+      if (Array.isArray(detail) && detail.length) {
+        const validationError = getValidationError(detail)
         return {
           ok: err.response.ok,
           error: validationError,
         }
       }
+
+      if (detail && typeof detail === 'object' && 'loc' in detail) {
+        const validationError = getValidationError([detail])
+        return {
+          ok: err.response.ok,
+          error: validationError,
+        }
+      }
+
       return {
         ok: err.response.ok,
-        error: errorData.detail || 'Something went wrong',
+        error: typeof detail === 'string' ? detail : 'Something went wrong',
       }
     } catch {
       return {
@@ -74,12 +85,10 @@ const api = ky.extend({
         if (accessToken) {
           request.headers.set('Authorization', `Bearer ${accessToken}`)
         }
-        // console.log('Request:', request.method, request.url)
       },
     ],
     afterResponse: [
       (request, options, response) => {
-        // console.log('Response:', response.status, response.url)
         if (response.status === 401) {
           ApiService.after401()
         }
@@ -90,7 +99,9 @@ const api = ky.extend({
 })
 
 export const ApiService = {
-  after401: () => {},
+  after401: () => {
+    console.log('401')
+  },
 
   get: async <T>({
     endpoint,

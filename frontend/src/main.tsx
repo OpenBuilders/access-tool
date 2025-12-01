@@ -8,14 +8,14 @@ import App from './App'
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
-    <TanStackProvider>
-      <BrowserRouter>
-        <ToastProvider>
+    <ToastProvider>
+      <TanStackProvider>
+        <BrowserRouter>
           <ThemeProvider>
             <App />
           </ThemeProvider>
-        </ToastProvider>
-      </BrowserRouter>
-    </TanStackProvider>
+        </BrowserRouter>
+      </TanStackProvider>
+    </ToastProvider>
   </StrictMode>
 )

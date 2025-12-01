@@ -10,7 +10,7 @@ interface ConditionState {
 
 interface ConditionActions {
   actions: {
-    updateConditionAction: (condition: any) => void
+    updateConditionAction: (condition: Partial<ConditionMutated>) => void
     toggleIsSavedAction: (value: boolean) => void
     cleanConditionAction: () => void
   }

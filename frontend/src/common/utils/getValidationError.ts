@@ -1,25 +1,34 @@
+// frontend/src/common/utils/getValidationError.ts
+
 interface ValidationError {
   type: string
   msg: string
-  loc: string[]
+  loc: (string | number)[]
 }
 
 export const getValidationError = (arr: ValidationError[]) => {
   let error = ''
   const fields: string[] = []
+
   arr.forEach((item: ValidationError) => {
-    if (item.type === 'value_error') {
-      error = item.msg.replace('Value error,', '')
-    }
+    const fieldFromLoc = (item.loc[1] ?? item.loc[item.loc.length - 1]) as
+      | string
+      | undefined
 
     if (item.type === 'missing') {
-      let fieldName = item.loc.pop()
+      let fieldName = fieldFromLoc
       if (fieldName === 'expected') {
         fieldName = 'amount'
       }
-      if (fieldName) {
-        fields.push(fieldName)
-      }
+      if (fieldName) fields.push(fieldName)
+    }
+
+    if (item.type.endsWith('_type')) {
+      if (fieldFromLoc) fields.push(fieldFromLoc)
+    }
+
+    if (!fields.length && item.msg) {
+      error = item.msg
     }
   })
 
@@ -27,5 +36,5 @@ export const getValidationError = (arr: ValidationError[]) => {
     error = `Fill fields correctly: ${fields.join(', ')}`
   }
 
-  return error
+  return error || 'Validation error'
 }
