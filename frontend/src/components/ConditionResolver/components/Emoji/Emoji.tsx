@@ -1,24 +1,8 @@
-import {
-  BlockNew,
-  Group,
-  GroupInput,
-  GroupItem,
-  Image,
-  Select,
-  Spinner,
-  Text,
-} from '@components'
-import { Option } from '@types'
-import { useDebounce } from '@uidotdev/usehooks'
+import { BlockNew, Group, GroupInput, GroupItem, Text } from '@components'
 import { goTo } from '@utils'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import {
-  useAdminConditionCategoriesQuery,
-  useAdminConditionPrefetchQuery,
-  useCondition,
-  useConditionActions,
-} from '@store-new'
+import { useCondition, useConditionActions } from '@store-new'
 
 export const Emoji = () => {
   const condition = useCondition()

@@ -16,6 +16,7 @@ import {
 } from '@store-new'
 
 import { ANY_OPTION } from '../../constants'
+import { StickersSkeleton } from './Stickers.skeleton'
 import { getCharacterData, getCollectionData } from './helpers'
 
 export const Stickers = () => {
@@ -51,7 +52,7 @@ export const Stickers = () => {
   }, [stickersData?.length])
 
   if (stickersIsPending) {
-    return <p>Loading stickers...</p>
+    return <StickersSkeleton />
   }
 
   const collectionOptions =

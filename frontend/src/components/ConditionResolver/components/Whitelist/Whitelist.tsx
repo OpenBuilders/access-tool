@@ -11,7 +11,7 @@ export const Whitelist = () => {
   const { updateConditionAction } = useConditionActions()
 
   const { showToast } = useToast()
-  console.log(condition)
+
   const [queries, setQueries] = useState({
     name: condition?.name || null,
     description: condition?.description || null,

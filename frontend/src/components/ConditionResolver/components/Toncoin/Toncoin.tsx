@@ -8,6 +8,8 @@ import {
   useConditionActions,
 } from '@store-new'
 
+import { ToncoinSkeleton } from './Toncoin.skeleton'
+
 export const Toncoin = () => {
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
@@ -35,7 +37,7 @@ export const Toncoin = () => {
   }, [categoriesData?.length])
 
   if (categoriesIsPending || !queries.category) {
-    return <p>Loading categories...</p>
+    return <ToncoinSkeleton />
   }
 
   const handleUpdateCategory = (value: string | null) => {

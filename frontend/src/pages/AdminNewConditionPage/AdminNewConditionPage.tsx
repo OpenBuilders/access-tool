@@ -47,7 +47,6 @@ export const AdminNewConditionPage = () => {
   }
 
   const handleBackButtonClick = () => {
-    console.log('navigate to chat', chatSlug)
     navigate(`/admin/chat/${chatSlug}`)
   }
 

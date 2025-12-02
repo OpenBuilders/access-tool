@@ -12,16 +12,14 @@ import {
 } from '@components'
 import { ConditionType } from '@types'
 import { hapticFeedback } from '@utils'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import {
-  transformCondition,
   useAdminConditionQuery,
   useAdminDeleteConditionMutation,
   useAdminUpdateConditionMutation,
   useCondition,
-  useConditionActions,
   useIsSaved,
 } from '@store-new'
 
@@ -143,11 +141,7 @@ export const AdminConditionPage = () => {
           Edit Condition
         </Text>
       </BlockNew>
-      {conditionIsPending || !condition?.type ? (
-        <p>is loading...</p>
-      ) : (
-        <ConditionResolver />
-      )}
+      {conditionIsPending || !condition?.type ? null : <ConditionResolver />}
       <BlockNew padding="24px 0 0 0">
         <GroupItem
           onClick={handleDeleteButtonClick}

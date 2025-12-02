@@ -15,6 +15,7 @@ import {
 } from '@store-new'
 
 import { ANY_OPTION } from '../../constants'
+import { GiftsSkeleton } from './Gifts.skeleton'
 
 export const Gifts = () => {
   const condition = useCondition()
@@ -42,7 +43,7 @@ export const Gifts = () => {
   }, [giftsData?.collections?.length])
 
   if (giftsIsLoading) {
-    return <p>Loading gifts...</p>
+    return <GiftsSkeleton />
   }
 
   const collectionOptions =
@@ -188,92 +189,4 @@ export const Gifts = () => {
       </BlockNew>
     </>
   )
-
-  //   const handleUpdateNFTCollectionCategory = (value: string | null) => {
-  //     setQueries({ ...queries, category: value })
-  //     updateConditionAction({ category: value })
-  //   }
-
-  //   const handleUpdateAddress = (value: string | null) => {
-  //     setQueries({ ...queries, address: value })
-  //     updateConditionAction({ address: value })
-  //   }
-
-  //   const handleUpdateExpected = (value: string | null) => {
-  //     setQueries({ ...queries, expected: Number(value) })
-  //     updateConditionAction({ expected: Number(value) })
-  //   }
-
-  // return (
-  //   <>
-  //     <BlockNew padding="24px 0 0 0">
-  //       <Group>
-  //         <GroupItem
-  //           text="Collection"
-  //           after={
-  //             <Select
-  //               options={[ANY_OPTION, ...nftCollectionOptions]}
-  //               value={queries.asset || ANY_OPTION.value}
-  //               onChange={(value) => handleUpdateNFTCollection(value)}
-  //             />
-  //           }
-  //         />
-  //       </Group>
-  //     </BlockNew>
-  //     <BlockNew padding="24px 0 0 0">
-  //       {queries.asset ? (
-  //         <Group>
-  //           <GroupItem
-  //             text="Character"
-  //             after={
-  //               <Select
-  //                 options={[ANY_OPTION, ...nftCategoryOptions]}
-  //                 value={queries.category || ANY_OPTION.value}
-  //                 onChange={(value) => handleUpdateNFTCollectionCategory(value)}
-  //               />
-  //             }
-  //           />
-  //         </Group>
-  //       ) : (
-  //         <Group footer="TON (The Open Network)">
-  //           <GroupItem
-  //             disabled={prefetchIsLoading}
-  //             main={
-  //               <GroupInput
-  //                 placeholder="NFT Collection Address"
-  //                 value={queries.address || ''}
-  //                 onChange={(value) => handleUpdateAddress(value)}
-  //               />
-  //             }
-  //             after={prefetchIsLoading ? <Spinner size={16} /> : null}
-  //           />
-  //           {prefetchData && (
-  //             <GroupItem
-  //               before={
-  //                 <Image
-  //                   src={prefetchData.logoPath}
-  //                   size={40}
-  //                   borderRadius={50}
-  //                 />
-  //               }
-  //               text={prefetchData.name}
-  //             />
-  //           )}
-  //         </Group>
-  //       )}
-  //     </BlockNew>
-  //     <BlockNew padding="24px 0 0 0">
-  //       <GroupItem
-  //         text="# of NFTs"
-  //         after={
-  //           <GroupInput
-  //             placeholder="0"
-  //             value={queries.expected?.toString() || ''}
-  //             onChange={(value) => handleUpdateExpected(value)}
-  //           />
-  //         }
-  //       />
-  //     </BlockNew>
-  //   </>
-  // )
 }

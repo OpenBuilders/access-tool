@@ -66,7 +66,7 @@ export const ExternalSource = () => {
       )
       const response = await fetch(url)
       const data = await response.json()
-      console.log(data)
+
       setTestApiData({ data, status: response.status as number | null })
     } catch (error) {
       console.error(error)
@@ -78,8 +78,6 @@ export const ExternalSource = () => {
       setIsTestApiLoading(false)
     }
   }
-
-  console.log(testApiData)
 
   return (
     <>

@@ -66,8 +66,6 @@ export const useAdminChatsPollingQuery = (enabled: boolean) => {
         throw new Error(error)
       }
 
-      console.log('data', data.length)
-
       return data
     },
     enabled,

@@ -1,8 +1,6 @@
 import {
   AddBotPage,
-  ChatPage,
   MainPage,
-  ConditionPage,
   GrantPermissionsPage,
   BotAddedSuccessPage,
   ClientTasksPage,
@@ -55,18 +53,6 @@ export default (
       element={<AdminConditionPage />}
     />
 
-    <Route path={ROUTES_NAME.ADD_TELEGRAM_CHAT} element={<AddBotPage />} />
-    <Route path={ROUTES_NAME.CHAT} element={<ChatPage />} />
-    <Route path={ROUTES_NAME.CHAT_CONDITION} element={<ConditionPage />} />
-    <Route path={ROUTES_NAME.CHAT_NEW_CONDITION} element={<ConditionPage />} />
-    <Route
-      path={ROUTES_NAME.GRANT_PERMISSIONS}
-      element={<GrantPermissionsPage />}
-    />
-    <Route
-      path={ROUTES_NAME.BOT_ADDED_SUCCESS}
-      element={<BotAddedSuccessPage />}
-    />
     <Route path={ROUTES_NAME.CLIENT_TASKS} element={<ClientTasksPage />} />
     <Route
       path={ROUTES_NAME.CLIENT_CONNECTED_WALLET}

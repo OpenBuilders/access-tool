@@ -18,6 +18,8 @@ import {
   useConditionActions,
 } from '@store-new'
 
+import { JettonsSkeleton } from './Jettons.skeleton'
+
 export const Jettons = () => {
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
@@ -51,7 +53,7 @@ export const Jettons = () => {
   }, [categoriesData?.length])
 
   if (categoriesIsPending || !queries.category) {
-    return <p>Loading categories...</p>
+    return <JettonsSkeleton />
   }
 
   const handleUpdateCategory = (value: string | null) => {

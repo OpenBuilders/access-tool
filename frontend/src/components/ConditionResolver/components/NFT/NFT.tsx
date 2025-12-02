@@ -18,6 +18,7 @@ import {
 } from '@store-new'
 
 import { ANY_OPTION } from '../../constants'
+import { NFTSkeleton } from './NFT.skeleton'
 
 export const NFT = () => {
   const condition = useCondition()
@@ -47,7 +48,7 @@ export const NFT = () => {
   }, [categoriesData?.length])
 
   if (categoriesIsPending) {
-    return <p>Loading stickers...</p>
+    return <NFTSkeleton />
   }
 
   const nftCollectionOptions =
@@ -68,7 +69,7 @@ export const NFT = () => {
   const handleUpdateNFTCollection = (value: string | null) => {
     setQueries({ ...queries, asset: value, category: null, address: null })
     updateConditionAction({
-      asset: Number(value),
+      asset: value,
       category: null,
       address: null,
     })

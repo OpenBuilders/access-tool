@@ -2,17 +2,19 @@ import cn from 'classnames'
 
 import styles from './Text.module.scss'
 
+export type TextType =
+  | 'hero'
+  | 'title'
+  | 'title1'
+  | 'title2'
+  | 'text'
+  | 'link'
+  | 'caption'
+  | 'caption2'
+
 interface TextProps {
   children: React.ReactNode | string
-  type:
-    | 'hero'
-    | 'title'
-    | 'title1'
-    | 'title2'
-    | 'text'
-    | 'link'
-    | 'caption'
-    | 'caption2'
+  type: TextType
   align?: 'left' | 'center' | 'right'
   color?: 'primary' | 'tertiary' | 'secondary' | 'accent' | 'danger'
   weight?: 'normal' | 'medium' | 'bold'
