@@ -40,7 +40,8 @@ export const AdminConditionPage = () => {
   const isSaved = useIsSaved()
   const condition = useCondition()
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isDialogDeleteOpen, setIsDialogDeleteOpen] = useState(false)
+  const [isDialogSaveOpen, setIsDialogSaveOpen] = useState(false)
 
   const { isLoading: conditionIsLoading } = useAdminConditionQuery({
     conditionId,
@@ -90,7 +91,7 @@ export const AdminConditionPage = () => {
     if (!condition) return
 
     if (!isSaved) {
-      console.log('modal: not saved')
+      setIsDialogSaveOpen(true)
       return
     }
 
@@ -102,7 +103,7 @@ export const AdminConditionPage = () => {
       return
     }
     hapticFeedback('soft')
-    setIsDialogOpen(true)
+    setIsDialogDeleteOpen(true)
   }
 
   const handleDeleteCondition = async () => {
@@ -115,16 +116,25 @@ export const AdminConditionPage = () => {
       chatSlug,
       type: condition.type,
     })
-    setIsDialogOpen(false)
+    setIsDialogDeleteOpen(false)
     navigate(`/admin/chat/${chatSlug}`)
   }
 
-  const handleCloseDialog = () => {
+  const handleCloseDialogDelete = () => {
     if (!condition || deleteConditionIsPending) {
       return
     }
     hapticFeedback('soft')
-    setIsDialogOpen(false)
+    setIsDialogDeleteOpen(false)
+  }
+
+  const handleCloseDialogSave = () => {
+    if (!condition || updateConditionIsPending) {
+      return
+    }
+    hapticFeedback('soft')
+    setIsDialogSaveOpen(false)
+    navigate(`/admin/chat/${chatSlug}`)
   }
 
   return (
@@ -154,13 +164,22 @@ export const AdminConditionPage = () => {
         />
       </BlockNew>
       <DialogModal
-        active={isDialogOpen}
+        active={isDialogDeleteOpen}
         title="Remove Condition?"
         description="Removing this condition will delete all created dependencies. Are you sure you want to remove?"
         confirmText="Remove"
         closeText="Cancel"
-        onClose={handleCloseDialog}
+        onClose={handleCloseDialogDelete}
         onDelete={handleDeleteCondition}
+      />
+      <DialogModal
+        active={isDialogSaveOpen}
+        title="Condition is not saved"
+        description="Are you sure you want to leave the page? Your changes will not be saved."
+        confirmText="Save"
+        closeText="Leave"
+        onClose={handleCloseDialogSave}
+        onConfirm={handleUpdateCondition}
       />
     </PageLayoutNew>
   )

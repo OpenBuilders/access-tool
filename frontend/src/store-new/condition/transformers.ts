@@ -6,7 +6,7 @@ export const transformCondition = (condition: Condition): ConditionMutated => {
     expected: condition?.expected || 0,
     category: condition?.category || null,
     groupId: condition?.groupId || null,
-    isEnabled: condition?.isEnabled || true,
+    isEnabled: !!condition?.isEnabled,
     address: condition?.blockchainAddress || null,
     asset: condition?.asset || null,
     emojiId: condition?.emojiId || null,
