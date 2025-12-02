@@ -1,4 +1,5 @@
 import { ConditionType } from '@types'
+import { useParams } from 'react-router-dom'
 
 import { useCondition } from '@store-new'
 
@@ -33,16 +34,22 @@ const CONDITION_COMPONENTS: Record<
 }
 
 export const ConditionResolver = (props: ConditionResolverProps) => {
-  const { isNew } = props
+  const { isNew, conditionTypeParam, conditionIsLoading } = props
   const condition = useCondition()
 
-  const ConditionComponent =
-    CONDITION_COMPONENTS[condition.type as keyof typeof CONDITION_COMPONENTS]
+  const conditionType = conditionTypeParam || condition.type
+
+  const ConditionComponent = CONDITION_COMPONENTS[conditionType]
+
+  console.log('conditionTypeParam', conditionTypeParam)
+  console.log('condition.type', condition.type)
 
   return (
     <BlockNew padding="24px 0 0 0">
-      <TypeSelector isNew={isNew} />
-      {ConditionComponent && <ConditionComponent />}
+      <TypeSelector isNew={isNew} conditionTypeParam={conditionTypeParam} />
+      {ConditionComponent && (
+        <ConditionComponent conditionIsLoading={conditionIsLoading} />
+      )}
     </BlockNew>
   )
 }

@@ -18,9 +18,12 @@ import {
 } from '@store-new'
 
 import { ANY_OPTION } from '../../constants'
+import { ConditionResolverProps } from '../../types'
 import { NFTSkeleton } from './NFT.skeleton'
 
-export const NFT = () => {
+export const NFT = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -47,7 +50,7 @@ export const NFT = () => {
     updateConditionAction({ category: initialCategory, asset: initialAsset })
   }, [categoriesData?.length])
 
-  if (categoriesIsPending) {
+  if (conditionIsLoading || categoriesIsPending) {
     return <NFTSkeleton />
   }
 

@@ -11,6 +11,9 @@ import { useState } from 'react'
 
 import { useCondition, useConditionActions } from '@store-new'
 
+import { ConditionResolverProps } from '../../types'
+import { ExternalSourceSkeleton } from './ExternalSource.skeleton'
+
 const createUrl = (url: string, authKey: string, authValue: string) => {
   const urlObject = new URL(url)
   if (authKey) urlObject.searchParams.set('authKey', authKey)
@@ -18,7 +21,9 @@ const createUrl = (url: string, authKey: string, authValue: string) => {
   return urlObject.toString()
 }
 
-export const ExternalSource = () => {
+export const ExternalSource = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -77,6 +82,10 @@ export const ExternalSource = () => {
     } finally {
       setIsTestApiLoading(false)
     }
+  }
+
+  if (conditionIsLoading) {
+    return <ExternalSourceSkeleton />
   }
 
   return (

@@ -15,17 +15,26 @@ import {
 } from '@store-new'
 
 import { ANY_OPTION } from '../../constants'
+import { ConditionResolverProps } from '../../types'
 import { GiftsSkeleton } from './Gifts.skeleton'
+import {
+  getBackdropData,
+  getCollectionData,
+  getModelData,
+  getPatternData,
+} from './helpers'
 
-export const Gifts = () => {
+export const Gifts = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
   const [queries, setQueries] = useState({
-    collectionSlug: condition?.collectionSlug || null,
-    model: condition?.model || null,
-    backdrop: condition?.backdrop || null,
-    pattern: condition?.pattern || null,
+    collectionSlug: null as string | null,
+    model: null as string | null,
+    backdrop: null as string | null,
+    pattern: null as string | null,
     expected: condition?.expected || '',
   })
 
@@ -34,15 +43,36 @@ export const Gifts = () => {
 
   useEffect(() => {
     if (giftsData?.collections?.length) {
-      const initialCollection = giftsData?.collections[0]
+      const currentCollection = getCollectionData(
+        giftsData,
+        condition?.collectionSlug || ''
+      )
+
+      const currentModel = getModelData(
+        currentCollection,
+        condition?.model || ''
+      )
+
+      const currentBackdrop = getBackdropData(
+        currentCollection,
+        condition?.backdrop || ''
+      )
+      const currentPattern = getPatternData(
+        currentCollection,
+        condition?.pattern || ''
+      )
+
       setQueries({
         ...queries,
-        collectionSlug: initialCollection?.slug || null,
+        collectionSlug: currentCollection?.slug || null,
+        model: currentModel || null,
+        backdrop: currentBackdrop || null,
+        pattern: currentPattern || null,
       })
     }
   }, [giftsData?.collections?.length])
 
-  if (giftsIsLoading) {
+  if (conditionIsLoading || giftsIsLoading) {
     return <GiftsSkeleton />
   }
 

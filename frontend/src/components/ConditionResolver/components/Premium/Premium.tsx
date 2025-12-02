@@ -3,7 +3,12 @@ import { useState } from 'react'
 
 import { useCondition, useConditionActions } from '@store-new'
 
-export const Premium = () => {
+import { ConditionResolverProps } from '../../types'
+import { PremiumSkeleton } from './Premium.skeleton'
+
+export const Premium = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -14,6 +19,10 @@ export const Premium = () => {
   const handleUpdateIsEnabled = (value: boolean) => {
     setQueries({ ...queries, isEnabled: value })
     updateConditionAction({ isEnabled: value })
+  }
+
+  if (conditionIsLoading) {
+    return <PremiumSkeleton />
   }
 
   return (

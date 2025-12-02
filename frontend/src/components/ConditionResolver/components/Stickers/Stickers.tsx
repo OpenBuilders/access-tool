@@ -16,10 +16,13 @@ import {
 } from '@store-new'
 
 import { ANY_OPTION } from '../../constants'
+import { ConditionResolverProps } from '../../types'
 import { StickersSkeleton } from './Stickers.skeleton'
 import { getCharacterData, getCollectionData } from './helpers'
 
-export const Stickers = () => {
+export const Stickers = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -51,7 +54,7 @@ export const Stickers = () => {
     }
   }, [stickersData?.length])
 
-  if (stickersIsPending) {
+  if (conditionIsLoading || stickersIsPending) {
     return <StickersSkeleton />
   }
 

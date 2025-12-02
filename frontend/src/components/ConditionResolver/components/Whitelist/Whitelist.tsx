@@ -4,9 +4,14 @@ import { useState } from 'react'
 
 import { useCondition, useConditionActions } from '@store-new'
 
+import { ConditionResolverProps } from '../../types'
+import { WhitelistSkeleton } from './Whitelist.skeleton'
+
 const ALLOWED_FILE_TYPES = '.csv,.txt,.json'
 
-export const Whitelist = () => {
+export const Whitelist = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -48,6 +53,10 @@ export const Whitelist = () => {
       message: 'File uploaded successfully',
       type: 'success',
     })
+  }
+
+  if (conditionIsLoading) {
+    return <WhitelistSkeleton />
   }
 
   return (

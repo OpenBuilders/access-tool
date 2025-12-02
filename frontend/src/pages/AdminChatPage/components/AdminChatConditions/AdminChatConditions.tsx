@@ -19,7 +19,11 @@ import cn from 'classnames'
 import { useCallback, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { useMoveChatConditionMutation } from '@store-new'
+import {
+  CONDITION_INITIAL_STATE,
+  useConditionActions,
+  useMoveChatConditionMutation,
+} from '@store-new'
 
 import styles from './AdminChatConditions.module.scss'
 
@@ -34,6 +38,8 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
 
   const params = useParams<{ chatSlug: string }>()
   const chatSlug = params.chatSlug || ''
+
+  const { updateConditionAction } = useConditionActions()
 
   const {
     mutateAsync: moveChatConditionMutation,
@@ -82,6 +88,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
   }
 
   const handleCreateCondition = (groupId?: number) => {
+    updateConditionAction(CONDITION_INITIAL_STATE)
     navigate(`/admin/chat/${chatSlug}/condition`, {
       state: {
         groupId: groupId || null,
@@ -91,6 +98,7 @@ export const AdminChatConditions = (props: AdminChatConditionsProps) => {
 
   const handleNavigateToConditionPage = useCallback(
     (rule: Condition) => {
+      updateConditionAction(CONDITION_INITIAL_STATE)
       navigate(`/admin/chat/${chatSlug}/condition/${rule.type}/${rule.id}`)
     },
     [chatSlug]

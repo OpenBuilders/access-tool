@@ -42,7 +42,7 @@ export const AdminConditionPage = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { isPending: conditionIsPending } = useAdminConditionQuery({
+  const { isLoading: conditionIsLoading } = useAdminConditionQuery({
     conditionId,
     chatSlug,
     type: conditionType as ConditionType,
@@ -141,7 +141,7 @@ export const AdminConditionPage = () => {
           Edit Condition
         </Text>
       </BlockNew>
-      {conditionIsPending || !condition?.type ? null : <ConditionResolver />}
+      <ConditionResolver conditionIsLoading={conditionIsLoading} />
       <BlockNew padding="24px 0 0 0">
         <GroupItem
           onClick={handleDeleteButtonClick}

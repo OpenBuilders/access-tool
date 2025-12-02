@@ -18,9 +18,12 @@ import {
   useConditionActions,
 } from '@store-new'
 
+import { ConditionResolverProps } from '../../types'
 import { JettonsSkeleton } from './Jettons.skeleton'
 
-export const Jettons = () => {
+export const Jettons = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -52,7 +55,7 @@ export const Jettons = () => {
     }
   }, [categoriesData?.length])
 
-  if (categoriesIsPending || !queries.category) {
+  if (conditionIsLoading || categoriesIsPending || !queries.category) {
     return <JettonsSkeleton />
   }
 

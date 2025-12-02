@@ -8,9 +8,12 @@ import {
   useConditionActions,
 } from '@store-new'
 
+import { ConditionResolverProps } from '../../types'
 import { ToncoinSkeleton } from './Toncoin.skeleton'
 
-export const Toncoin = () => {
+export const Toncoin = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -36,7 +39,7 @@ export const Toncoin = () => {
     }
   }, [categoriesData?.length])
 
-  if (categoriesIsPending || !queries.category) {
+  if (conditionIsLoading || categoriesIsPending || !queries.category) {
     return <ToncoinSkeleton />
   }
 

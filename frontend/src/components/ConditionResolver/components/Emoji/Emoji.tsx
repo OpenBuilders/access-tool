@@ -4,7 +4,12 @@ import { useState } from 'react'
 
 import { useCondition, useConditionActions } from '@store-new'
 
-export const Emoji = () => {
+import { ConditionResolverProps } from '../../types'
+import { EmojiSkeleton } from './Emoji.skeleton'
+
+export const Emoji = (props: ConditionResolverProps) => {
+  const { conditionIsLoading } = props
+
   const condition = useCondition()
   const { updateConditionAction } = useConditionActions()
 
@@ -15,6 +20,10 @@ export const Emoji = () => {
   const handleUpdateEmojiId = (value: string | null) => {
     setQueries({ ...queries, emojiId: value })
     updateConditionAction({ emojiId: value })
+  }
+
+  if (conditionIsLoading) {
+    return <EmojiSkeleton />
   }
 
   return (
