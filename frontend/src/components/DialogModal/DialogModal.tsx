@@ -2,6 +2,7 @@ import cn from 'classnames'
 import { useEffect, useState } from 'react'
 
 import { Block } from '../Block'
+import { BlockNew } from '../BlockNew'
 import { Text } from '../Text'
 import styles from './DialogModal.module.scss'
 
@@ -49,16 +50,16 @@ export const DialogModal = (props: DialogModalProps) => {
       <div className={styles.dialogModalOverlay} onClick={onClose} />
       <div className={styles.dialogModalContent}>
         <div className={styles.dialogModalContentHeader}>
-          <Block>
+          <BlockNew>
             <Text type="text" weight="medium" align="center">
               {title}
             </Text>
-          </Block>
-          <Block margin="top" marginValue={4}>
+          </BlockNew>
+          <BlockNew padding="4px 0 0 0">
             <Text type="caption" color="primary" align="center">
               {description}
             </Text>
-          </Block>
+          </BlockNew>
         </div>
         <div className={styles.dialogModalContentFooter}>
           <div

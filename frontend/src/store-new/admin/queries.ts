@@ -305,21 +305,13 @@ export const useAdminDeleteConditionMutation = (chatSlug: string) => {
   return useMutation({
     mutationFn: async (newData: ConditionAPIArgs) => {
       const { data, ok, error } = await deleteAdminConditionAPI(newData)
-      if (!ok || !data) {
+      if (!ok) {
         throw new Error(error)
       }
 
       return data
     },
-    onSuccess: (_, variables) => {
-      const { conditionId, type } = variables
-      queryClient.invalidateQueries({
-        queryKey: TANSTACK_KEYS.ADMIN_CONDITION(
-          chatSlug,
-          conditionId ?? '',
-          type
-        ),
-      })
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: TANSTACK_KEYS.ADMIN_CHAT(chatSlug),
       })

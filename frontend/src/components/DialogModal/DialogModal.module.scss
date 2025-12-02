@@ -44,7 +44,7 @@
 }
 
 .dialogModalContent {
-  background-color: var(--color-backgroundSecondary);
+  background-color: var(--color-background-base);
   border-radius: 8px;
   max-width: 270px;
   border-radius: 14px;
@@ -57,7 +57,7 @@
 }
 
 .dialogModalContentFooter {
-  border-top: 1px solid var(--color-appliedSeparator);
+  border-top: 1px solid var(--color-border-separator);
   display: flex;
   width: 100%;
 }
@@ -71,6 +71,6 @@
   cursor: pointer;
 
   &:last-child {
-    border-left: 1px solid var(--color-appliedSeparator);
+    border-left: 1px solid var(--color-border-separator);
   }
 }

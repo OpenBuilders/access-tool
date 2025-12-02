@@ -1,6 +1,7 @@
 import {
   BlockNew,
   ConditionResolver,
+  DialogModal,
   GroupItem,
   Icon,
   PageLayoutNew,
@@ -11,7 +12,7 @@ import {
 } from '@components'
 import { ConditionType } from '@types'
 import { hapticFeedback } from '@utils'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import {
@@ -40,6 +41,8 @@ export const AdminConditionPage = () => {
 
   const isSaved = useIsSaved()
   const condition = useCondition()
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const { isPending: conditionIsPending } = useAdminConditionQuery({
     conditionId,
@@ -96,13 +99,34 @@ export const AdminConditionPage = () => {
     navigate(`/admin/chat/${chatSlug}`)
   }
 
-  const handleDeleteCondition = () => {
+  const handleDeleteButtonClick = () => {
     if (!condition) {
       return
     }
     hapticFeedback('soft')
+    setIsDialogOpen(true)
+  }
 
-    console.log('delete condition')
+  const handleDeleteCondition = async () => {
+    if (!condition || deleteConditionIsPending) {
+      return
+    }
+    hapticFeedback('soft')
+    await deleteConditionMutateAsync({
+      conditionId,
+      chatSlug,
+      type: condition.type,
+    })
+    setIsDialogOpen(false)
+    navigate(`/admin/chat/${chatSlug}`)
+  }
+
+  const handleCloseDialog = () => {
+    if (!condition || deleteConditionIsPending) {
+      return
+    }
+    hapticFeedback('soft')
+    setIsDialogOpen(false)
   }
 
   return (
@@ -126,7 +150,7 @@ export const AdminConditionPage = () => {
       )}
       <BlockNew padding="24px 0 0 0">
         <GroupItem
-          onClick={handleDeleteCondition}
+          onClick={handleDeleteButtonClick}
           text={
             <Text type="text" color="danger">
               Remove Condition
@@ -135,6 +159,15 @@ export const AdminConditionPage = () => {
           before={<Icon color="danger" name="trash" size={24} />}
         />
       </BlockNew>
+      <DialogModal
+        active={isDialogOpen}
+        title="Remove Condition?"
+        description="Removing this condition will delete all created dependencies. Are you sure you want to remove?"
+        confirmText="Remove"
+        closeText="Cancel"
+        onClose={handleCloseDialog}
+        onDelete={handleDeleteCondition}
+      />
     </PageLayoutNew>
   )
 }
