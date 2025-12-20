@@ -32,7 +32,7 @@ async def handle_chat_action(event: events.ChatAction.Event):
 
         telegram_chat_service = TelegramChatService(session)
         if not telegram_chat_service.check_exists(event.chat_id):
-            logger.warning(
+            logger.debug(
                 "Chat doesn't exist, but bot was not added to the chat: %d. Skipping event...",
                 event.chat_id,
             )
@@ -58,6 +58,10 @@ async def handle_chat_action(event: events.ChatAction.Event):
             # To avoid handling events twice (users are added or removed and the action message is sent),
             # The only message that should be handled is when a bot is added to the chat
             logger.debug(f"Chat action message {event!r} is not handled.")
+            return
+
+        elif not event.user:
+            logger.debug(f"Event without user is not going to be handled: {event!r}.")
             return
 
         elif event.user.bot and not event.user.is_self:

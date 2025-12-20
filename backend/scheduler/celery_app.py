@@ -40,11 +40,11 @@ def create_app() -> Celery:
                     "schedule": crontab(minute="*/1"),  # Every minute
                     "options": {"queue": CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME},
                 },
-                "refresh-chats": {
-                    "task": "refresh-chats",
-                    "schedule": crontab(hour="0"),  # Every day at midnight
-                    "options": {"queue": CELERY_SYSTEM_QUEUE_NAME},
-                },
+                # "refresh-chats": {
+                #     "task": "refresh-chats",
+                #     "schedule": crontab(hour="0"),  # Every day at midnight
+                #     "options": {"queue": CELERY_SYSTEM_QUEUE_NAME},
+                # },
                 "refresh-metrics": {
                     "task": "refresh-metrics",
                     "schedule": crontab(hour="*/6"),
