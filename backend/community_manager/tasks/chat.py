@@ -83,8 +83,8 @@ def refresh_chats() -> None:
         logger.warning("Community manager is disabled.")
         return
 
-    async_to_sync(refresh_all_chats_async)()
-    logger.info("Chats refreshed.")
+    # async_to_sync(refresh_all_chats_async)()
+    # logger.info("Chats refreshed.")
 
 
 async def async_disable_chat(chat_id: int) -> None:
