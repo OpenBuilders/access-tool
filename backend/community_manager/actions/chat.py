@@ -95,8 +95,6 @@ class CommunityManagerChatAction(BaseAction):
             logger.exception(f"Chat {chat_identifier!r} not found", exc_info=e)
             raise TelegramChatNotExists(f"Chat {chat_identifier!r} not found")
 
-        # breakpoint()
-
         if not chat.admin_rights or not all(
             [getattr(chat.admin_rights, right) for right in REQUIRED_BOT_PRIVILEGES]
         ):
