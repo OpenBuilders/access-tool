@@ -938,6 +938,9 @@ class CommunityManagerTaskChatAction:
                 continue
 
             if diff.removed:
+                logger.info(
+                    f"Found {len(diff.removed)} removed members from the source {source.chat_id!r}"
+                )
                 users = self.user_service.get_all(telegram_ids=diff.removed)
                 chat_members = self.telegram_chat_user_service.get_all(
                     user_ids=[_user.id for _user in users],
