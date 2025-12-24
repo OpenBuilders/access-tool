@@ -1,6 +1,7 @@
 from typing import Iterable
 
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, and_, or_, select, cast, Integer
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -263,6 +264,31 @@ class TelegramChatUserService(BaseService):
         ).delete(synchronize_session="fetch")
         self.db_session.commit()
         logger.debug(f"Telegram Chat Users {user_ids!r} in chat {chat_id!r} deleted.")
+
+    def delete_stale_participants(
+        self, chat_id: int, active_user_ids: list[int]
+    ) -> None:
+        """
+        Deletes all participants of a chat that are NOT in the provided list of active user IDs.
+        Uses postgres `unnest` to handle potentially large lists of IDs efficiently
+        and avoid argument limits.
+
+        :param chat_id: The ID of the chat to clean up.
+        :param active_user_ids: List of user IDs that are currently in the chat.
+        """
+        active_ids_query = select(
+            func.unnest(cast(active_user_ids, postgresql.ARRAY(Integer)))
+        )
+
+        self.db_session.query(TelegramChatUser).filter(
+            TelegramChatUser.chat_id == chat_id,
+            TelegramChatUser.user_id.not_in(active_ids_query),
+        ).delete(synchronize_session="fetch")
+        self.db_session.commit()
+        logger.info(
+            f"Stale participants cleaned up for chat {chat_id!r}. "
+            f"Active users count: {len(active_user_ids)}"
+        )
 
     def count(self, managed_only: bool = False) -> int:
         query = self.db_session.query(TelegramChatUser)

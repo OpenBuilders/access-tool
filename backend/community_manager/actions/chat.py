@@ -107,7 +107,9 @@ class CommunityManagerChatAction(BaseAction):
 
         return chat
 
-    async def _load_participants(self, chat_identifier: int) -> None:
+    async def _load_participants(
+        self, chat_identifier: int, cleanup: bool = False
+    ) -> None:
         """
         Loads participants of a specified chat and processes their data.
 
@@ -120,12 +122,14 @@ class CommunityManagerChatAction(BaseAction):
 
         :param chat_identifier: The unique identifier of the chat whose participants
             are to be loaded
+        :param cleanup: Whether to perform stale participants cleanup
         :return: This method does not return a value
         """
         user_action = UserAction(self.db_session)
         logger.info(f"Loading chat participants for chat {chat_identifier!r}...")
 
         await self.telethon_service.start()
+        processed_user_ids = []
 
         async for participant_user in self.telethon_service.get_participants(
             chat_identifier
@@ -143,15 +147,22 @@ class CommunityManagerChatAction(BaseAction):
                 is_admin=hasattr(participant_user.participant, "admin_rights"),
                 is_managed=False,
             )
+            processed_user_ids.append(user.id)
+
+        if cleanup:
+            self.telegram_chat_user_service.delete_stale_participants(
+                chat_id=chat_identifier, active_user_ids=processed_user_ids
+            )
         logger.info(f"Chat participants loaded for chat {chat_identifier!r}")
 
-    async def _index(self, chat: ChatPeerType) -> None:
+    async def _index(self, chat: ChatPeerType, cleanup: bool = False) -> None:
         """
         Handles the process of creating and refreshing a Telegram chat invite link
         and loading the participants for the given chat.
         If the chat already has an invitation link, it skips the creation process.
 
         :param chat: An instance of the ChatPeerType representing the Telegram chat.
+        :param cleanup: Whether to perform stale participants cleanup
         :return: None
         """
         chat_id = get_peer_id(chat, add_mark=True)
@@ -161,7 +172,7 @@ class CommunityManagerChatAction(BaseAction):
             logger.info(f"Creating a new chat invite link for the chat {chat_id!r}...")
             invite_link = await self.telethon_service.get_invite_link(chat)
             self.telegram_chat_service.refresh_invite_link(chat_id, invite_link.link)
-        await self._load_participants(telegram_chat.id)
+        await self._load_participants(telegram_chat.id, cleanup=cleanup)
 
     async def _create(
         self, chat: ChatPeerType, sufficient_bot_privileges: bool = False
@@ -309,7 +320,7 @@ class CommunityManagerChatAction(BaseAction):
             #  otherwise fallback to the current one
             logo_path=logo_path or chat.logo_path,
         )
-        await self._index(chat_entity)
+        await self._index(chat_entity, cleanup=True)
         logger.info(f"Chat {chat.id!r} refreshed successfully")
         return chat
 
