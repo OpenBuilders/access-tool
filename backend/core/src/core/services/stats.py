@@ -14,7 +14,7 @@ class StatsService(BaseService):
     def create(self, dto: StatsDTO) -> Stats:
         stats = Stats(data=dto.model_dump())
         self.db_session.add(stats)
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info("New stats stored in the database.")
         return stats
 

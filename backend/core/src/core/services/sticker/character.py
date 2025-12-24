@@ -42,7 +42,7 @@ class StickerCharacterService(BaseService):
             logo_url=logo_url,
         )
         self.db_session.add(new_character)
-        self.db_session.commit()
+        self.db_session.flush()
         return new_character
 
     @staticmethod
@@ -74,7 +74,7 @@ class StickerCharacterService(BaseService):
         character.description = description
         character.supply = supply
         character.logo_url = logo_url
-        self.db_session.commit()
+        self.db_session.flush()
         return character
 
     def map_external_ids_to_internal_ids(

@@ -81,7 +81,7 @@ class TelegramChatService(BaseService):
             slug=self._get_unique_slug(entity.title),
         )
         self.db_session.add(chat)
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} created.")
         return chat
 
@@ -96,7 +96,7 @@ class TelegramChatService(BaseService):
         chat.logo_path = logo_path
         # If the chat had insufficient permissions, we reset it
         chat.insufficient_privileges = False
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} updated.")
         return chat
 
@@ -121,7 +121,7 @@ class TelegramChatService(BaseService):
         chat.price = price
         self.db_session.flush()
         if commit:
-            self.db_session.commit()
+            self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} price updated.")
         return chat
 
@@ -131,7 +131,7 @@ class TelegramChatService(BaseService):
         chat = self.get(chat_id)
         if chat.insufficient_privileges != value:
             chat.insufficient_privileges = value
-            self.db_session.commit()
+            self.db_session.flush()
             logger.debug(
                 f"Telegram Chat {chat.title!r} insufficient permissions set to {value=}."
             )
@@ -143,7 +143,7 @@ class TelegramChatService(BaseService):
 
     def update_description(self, chat: TelegramChat, description: str) -> TelegramChat:
         chat.description = description
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} description updated.")
         return chat
 
@@ -365,7 +365,7 @@ class TelegramChatService(BaseService):
         chat = self.get(chat_id)
         chat.is_enabled = True
         chat.invite_link = invite_link
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} invite link updated.")
         return chat
 
@@ -378,7 +378,7 @@ class TelegramChatService(BaseService):
         self.db_session.query(TelegramChat).filter(TelegramChat.id == chat_id).delete(
             synchronize_session="fetch"
         )
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat_id!r} deleted.")
 
     def check_exists(self, chat_id: int) -> bool:
@@ -401,7 +401,7 @@ class TelegramChatService(BaseService):
         self.db_session.query(TelegramChat).filter(TelegramChat.id == chat_id).update(
             {"logo_path": logo_path}
         )
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat_id!r} logo set.")
 
     def set_title(self, chat_id: int, title: str) -> None:
@@ -412,25 +412,25 @@ class TelegramChatService(BaseService):
         self.db_session.query(TelegramChat).filter(TelegramChat.id == chat_id).update(
             {"title": title}
         )
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat_id!r} title set.")
 
     def clear_logo(self, chat_id: int) -> None:
         chat = self.get(chat_id)
         chat.logo_path = None
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} logo cleared.")
 
     def enable(self, chat: TelegramChat) -> TelegramChat:
         chat.is_enabled = True
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} enabled.")
         return chat
 
     def disable(self, chat: TelegramChat) -> TelegramChat:
         chat.invite_link = None
         chat.is_enabled = False
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat {chat.title!r} disabled.")
         return chat
 

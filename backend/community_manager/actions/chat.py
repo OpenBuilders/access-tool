@@ -942,7 +942,11 @@ class CommunityManagerTaskChatAction:
             )
             # It should not raise, but log any validation error and continue
             diff = await telegram_chat_external_source_service.validate_external_source(
-                source, raise_for_error=False
+                url=source.url,
+                auth_key=source.auth_key,
+                auth_value=source.auth_value,
+                previous_content=source.content,
+                raise_for_error=False,
             )
             if not diff:
                 logger.warning(f"Validation for {source.url!r} failed. Continue...")

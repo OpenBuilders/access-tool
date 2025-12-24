@@ -74,6 +74,17 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
         """
         group_id = self.resolve_group_id(group_id=group_id)
 
+        # Validate the external source before creating it
+        # If it fails - the exception will be raised and the transaction will be rolled back implicitly
+        result = (
+            await self.telegram_chat_external_source_service.validate_external_source(
+                url=url,
+                auth_key=auth_key,
+                auth_value=auth_value,
+                raise_for_error=True,
+            )
+        )
+
         try:
             external_source = self.telegram_chat_external_source_service.create(
                 CreateTelegramChatWhitelistExternalSourceDTO(
@@ -91,16 +102,6 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
             message = f"External source rule already exists for chat {self.chat.id!r} with url {url!r}. "
             logger.warning(message, exc_info=e)
             raise TelegramChatRuleExists(message) from e
-        try:
-            result = await self.telegram_chat_external_source_service.validate_external_source(
-                source=external_source, raise_for_error=True
-            )
-        except Exception as e:
-            logger.warning(
-                "Rolling back transaction as an error occurred while validating the source"
-            )
-            self.db_session.rollback()
-            raise e
 
         # We could safely set the content, and no action will be required, since it's a creation action
         self.set_content(rule=external_source, content=result.current)
@@ -147,6 +148,16 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
             logger.warning(message, exc_info=e)
             raise HTTPException(detail=message, status_code=HTTP_404_NOT_FOUND) from e
 
+        if is_enabled:
+            await self.telegram_chat_external_source_service.validate_external_source(
+                url=url,
+                auth_key=auth_key,
+                auth_value=auth_value,
+                # We pass the rule content to calculate the difference
+                previous_content=rule.content,
+                raise_for_error=True,
+            )
+
         external_source = self.telegram_chat_external_source_service.update(
             rule=rule,
             dto=UpdateTelegramChatWhitelistExternalSourceDTO(
@@ -158,22 +169,8 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
                 is_enabled=is_enabled,
             ),
         )
-        if is_enabled:
-            # No need for a manual commit, as it's already done in the service during set_content
-            try:
-                await (
-                    self.telegram_chat_external_source_service.validate_external_source(
-                        source=external_source, raise_for_error=True
-                    )
-                )
-            except Exception as e:
-                logger.warning(
-                    "Rolling back transaction as an error occurred while validating the source"
-                )
-                self.db_session.rollback()
-                raise e
-        else:
-            self.db_session.commit()
+        if not is_enabled:
+            self.db_session.flush()
 
         # Update should be handled by an async task to ensure that it'll kick all ineligible users.
         # There COULD be a slight delay, but external sources are updated every 10 minutes,

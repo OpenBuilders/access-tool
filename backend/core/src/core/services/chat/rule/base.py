@@ -117,7 +117,7 @@ class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
     ) -> TelegramChatRuleT:
         for key, value in dto.model_dump(exclude_unset=True).items():
             setattr(rule, key, value)
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"{rule!r} updated.")
         return rule
 
@@ -138,7 +138,7 @@ class BaseTelegramChatRuleService(BaseService, ABC, Generic[TelegramChatRuleT]):
         self.db_session.query(self.model).filter(
             self.model.id == rule_id, self.model.chat_id == chat_id
         ).delete(synchronize_session="fetch")
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(
             f"Telegram Chat Rule {self.model.__name__!r} {rule_id=!r} deleted."
         )

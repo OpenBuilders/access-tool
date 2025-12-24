@@ -31,7 +31,7 @@ class StickerCollectionService(BaseService):
             logo_url=logo_url,
         )
         self.db_session.add(new_collection)
-        self.db_session.commit()
+        self.db_session.flush()
         return new_collection
 
     @staticmethod
@@ -59,7 +59,7 @@ class StickerCollectionService(BaseService):
         collection.title = title
         collection.description = description
         collection.logo_url = logo_url
-        self.db_session.commit()
+        self.db_session.flush()
         return collection
 
     def delete(self, collection_id: int) -> None:

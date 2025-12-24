@@ -20,7 +20,7 @@ class BaseTelegramChatExternalSourceService(
         self, rule: TelegramChatRuleT, content: list[int]
     ) -> TelegramChatRuleT:
         rule.content = content
-        self.db_session.commit()
+        self.db_session.flush()
         return rule
 
 
@@ -31,7 +31,10 @@ class TelegramChatExternalSourceService(
 
     @staticmethod
     async def validate_external_source(
-        source: TelegramChatWhitelistExternalSource,
+        url: str,
+        auth_key: str | None,
+        auth_value: str | None,
+        previous_content: list[int] | None = None,
         raise_for_error: bool = False,
     ) -> WhitelistRuleItemsDifferenceDTO | None:
         """
@@ -43,39 +46,41 @@ class TelegramChatExternalSourceService(
         The actual update of the content is deferred to an asynchronous task to ensure
         proper processing and handling of ineligible members.
 
-        :param source: The external source configuration for the Telegram chat whitelist members
-                       including the URL and authentication details.
+        :param url: The URL of the external source to be refreshed.
+        :param auth_key: The authentication key for the external source.
+        :param auth_value: The authentication value for the external source.
+        :param previous_content: The previous content of the external source.
         :param raise_for_error: A flag indicating whether to re-raise exceptions encountered
                                 during the update process. Defaults to False.
         """
         try:
             result = await fetch_dynamic_allowed_members(
-                source.url,
-                auth_key=source.auth_key,
-                auth_value=source.auth_value,
+                url,
+                auth_key=auth_key,
+                auth_value=auth_value,
             )
         except HTTPError as e:
-            logger.warning(f"Failed to fetch external source {source.url!r}: {e}")
+            logger.warning(f"Failed to fetch external source {url!r}: {e}")
             if raise_for_error:
                 raise
             return None
         except TelegramChatInvalidExternalSourceError as e:
-            logger.warning(f"Invalid external source {source.url!r}: {e}")
+            logger.warning(f"Invalid external source {url!r}: {e}")
             if raise_for_error:
                 raise
             return None
         except Exception as e:
-            logger.exception(f"Failed to fetch external source {source.url!r}: {e}")
+            logger.exception(f"Failed to fetch external source {url!r}: {e}")
             if raise_for_error:
                 raise
             return None
 
         difference = WhitelistRuleItemsDifferenceDTO(
-            previous=source.content,
+            previous=previous_content,
             current=result.users,
         )
 
-        logger.info(f"Refreshed external source {source.url!r} successfully")
+        logger.info(f"Refreshed external source {url!r} successfully")
         return difference
 
 
