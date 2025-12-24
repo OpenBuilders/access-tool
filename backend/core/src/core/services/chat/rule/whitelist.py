@@ -20,7 +20,7 @@ class BaseTelegramChatExternalSourceService(
         self, rule: TelegramChatRuleT, content: list[int]
     ) -> TelegramChatRuleT:
         rule.content = content
-        self.db_session.commit()
+        self.db_session.flush()
         return rule
 
 

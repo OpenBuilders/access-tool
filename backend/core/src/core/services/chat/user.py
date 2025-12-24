@@ -29,7 +29,7 @@ class TelegramChatUserService(BaseService):
         self, chat_id: int, user_id: int, is_admin: bool, is_managed: bool
     ) -> TelegramChatUser:
         chat_user = self._create(chat_id, user_id, is_admin, is_managed)
-        self.db_session.commit()
+        self.db_session.flush()
         return chat_user
 
     def get(self, chat_id: int, user_id: int) -> TelegramChatUser:
@@ -173,7 +173,7 @@ class TelegramChatUserService(BaseService):
 
     def update(self, chat_user: TelegramChatUser, is_admin: bool) -> TelegramChatUser:
         chat_user.is_admin = is_admin
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat User {chat_user!r} updated.")
         return chat_user
 
@@ -222,13 +222,13 @@ class TelegramChatUserService(BaseService):
     def promote_admin(self, chat_id: int, user_id: int) -> None:
         chat_user = self.get(chat_id, user_id)
         chat_user.is_admin = True
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat User {chat_user!r} promoted to admin.")
 
     def demote_admin(self, chat_id: int, user_id: int) -> None:
         chat_user = self.get(chat_id, user_id)
         chat_user.is_admin = False
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat User {chat_user!r} demoted from admin.")
 
     def delete(self, chat_id: int, user_id: int) -> None:
@@ -236,7 +236,7 @@ class TelegramChatUserService(BaseService):
             TelegramChatUser.chat_id == chat_id,
             TelegramChatUser.user_id == user_id,
         ).delete(synchronize_session="fetch")
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat User {user_id!r} in chat {chat_id!r} deleted.")
 
     def create_batch(self, chat_id: int, user_ids: list[int]) -> list[TelegramChatUser]:
@@ -253,7 +253,7 @@ class TelegramChatUserService(BaseService):
             )
             for user_id in new_chat_members
         ]
-        self.db_session.commit()
+        self.db_session.flush()
 
         return chat_users
 
@@ -262,7 +262,7 @@ class TelegramChatUserService(BaseService):
             TelegramChatUser.chat_id == chat_id,
             TelegramChatUser.user_id.in_(user_ids),
         ).delete(synchronize_session="fetch")
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(f"Telegram Chat Users {user_ids!r} in chat {chat_id!r} deleted.")
 
     def delete_stale_participants(
@@ -284,7 +284,7 @@ class TelegramChatUserService(BaseService):
             TelegramChatUser.chat_id == chat_id,
             TelegramChatUser.user_id.not_in(active_ids_query),
         ).delete(synchronize_session="fetch")
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(
             f"Stale participants cleaned up for chat {chat_id!r}. "
             f"Active users count: {len(active_user_ids)}"

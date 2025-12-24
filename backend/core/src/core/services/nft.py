@@ -30,7 +30,7 @@ class NftCollectionService(BaseService):
             is_enabled=dto.is_enabled,
         )
         self.db_session.add(nft)
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(f"NFT Collection {nft.name!r} created.")
         return nft
 
@@ -44,7 +44,7 @@ class NftCollectionService(BaseService):
         nft_collection.logo_path = dto.logo_path
         nft_collection.blockchain_metadata = dto.blockchain_metadata
         nft_collection.is_enabled = dto.is_enabled
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(f"NFT Collection {nft_collection.name!r} updated.")
         return nft_collection
 
@@ -53,14 +53,14 @@ class NftCollectionService(BaseService):
     ) -> NFTCollection:
         nft_collection = self.get(address=address)
         nft_collection.blockchain_metadata = blockchain_metadata
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(f"NFT Collection {nft_collection.name!r} metadata updated.")
         return nft_collection
 
     def update_status(self, address: str, is_enabled: bool) -> NFTCollection:
         nft_collection = self.get(address=address)
         nft_collection.is_enabled = is_enabled
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(f"NFT Collection {nft_collection.name!r} status updated.")
         return nft_collection
 
@@ -159,7 +159,7 @@ class NftItemService(BaseService):
                 continue
 
             created_or_updated_nfts.append(self.create_or_update(nft_item))
-        self.db_session.commit()
+        self.db_session.flush()
         return created_or_updated_nfts
 
     def count(self) -> int:

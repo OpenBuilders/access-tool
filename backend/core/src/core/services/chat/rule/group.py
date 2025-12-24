@@ -72,7 +72,7 @@ class TelegramChatRuleGroupService(BaseService):
             )
             .delete()
         )
-        self.db_session.commit()
+        self.db_session.flush()
         if row_count:
             logger.info(f"Deleted rule group {group_id!r} for chat {chat_id!r}.")
         else:

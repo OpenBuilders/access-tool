@@ -173,7 +173,7 @@ class TelegramChatWhitelistExternalSourceAction(ManagedChatBaseAction):
                 self.db_session.rollback()
                 raise e
         else:
-            self.db_session.commit()
+            self.db_session.flush()
 
         # Update should be handled by an async task to ensure that it'll kick all ineligible users.
         # There COULD be a slight delay, but external sources are updated every 10 minutes,

@@ -40,7 +40,7 @@ class GiftCollectionService(BaseService):
             upgraded_count=upgraded_count,
         )
         self.db_session.add(new_collection)
-        self.db_session.commit()
+        self.db_session.flush()
 
         return new_collection
 
@@ -57,6 +57,6 @@ class GiftCollectionService(BaseService):
         collection.preview_url = preview_url
         collection.supply = supply
         collection.upgraded_count = upgraded_count
-        self.db_session.commit()
+        self.db_session.flush()
 
         return collection
