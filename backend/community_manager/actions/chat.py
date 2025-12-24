@@ -126,6 +126,7 @@ class CommunityManagerChatAction(BaseAction):
         logger.info(f"Loading chat participants for chat {chat_identifier!r}...")
 
         await self.telethon_service.start()
+        processed_user_ids = []
 
         async for participant_user in self.telethon_service.get_participants(
             chat_identifier
@@ -143,6 +144,11 @@ class CommunityManagerChatAction(BaseAction):
                 is_admin=hasattr(participant_user.participant, "admin_rights"),
                 is_managed=False,
             )
+            processed_user_ids.append(user.id)
+
+        self.telegram_chat_user_service.delete_stale_participants(
+            chat_id=chat_identifier, active_user_ids=processed_user_ids
+        )
         logger.info(f"Chat participants loaded for chat {chat_identifier!r}")
 
     async def _index(self, chat: ChatPeerType) -> None:
