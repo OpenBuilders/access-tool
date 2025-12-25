@@ -252,6 +252,17 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
         members_count = self.telegram_chat_user_service.get_members_count(chat.id)
         return TelegramChatDTO.from_object(chat, members_count=members_count)
 
+    async def set_control_level(self, is_fully_managed: bool) -> TelegramChatDTO:
+        chat = self.telegram_chat_service.change_control_level(
+            self.chat, is_fully_managed
+        )
+        sender.send_task(
+            "check-target-chat-members",
+            args=(self.chat.id,),
+            queue=CELERY_SYSTEM_QUEUE_NAME,
+        )
+        return TelegramChatDTO.from_object(chat)
+
     async def get_with_eligibility_rules(self) -> TelegramChatWithRulesDTO:
         """
         This is an administrative method to get chat with rules that includes disabled rules

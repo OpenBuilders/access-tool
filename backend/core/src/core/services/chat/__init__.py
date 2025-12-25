@@ -434,5 +434,15 @@ class TelegramChatService(BaseService):
         logger.debug(f"Telegram Chat {chat.title!r} disabled.")
         return chat
 
+    def set_control_level(
+        self, chat: TelegramChat, new_control_level: bool
+    ) -> TelegramChat:
+        chat.is_full_control = new_control_level
+        self.db_session.flush()
+        logger.debug(
+            f"Telegram Chat {chat.title!r} control level set to {new_control_level}."
+        )
+        return chat
+
     def count(self) -> int:
         return self.db_session.query(TelegramChat).count()

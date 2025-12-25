@@ -4,6 +4,7 @@ from celery.utils.log import get_task_logger
 from community_manager.actions.chat import (
     CommunityManagerTaskChatAction,
     CommunityManagerChatAction,
+    CommunityManagerUserChatAction,
 )
 from community_manager.celery_app import app
 from community_manager.entrypoint import init_client
@@ -41,11 +42,33 @@ def check_chat_members() -> None:
     logger.info("Chat members checked.")
 
 
+async def check_target_chat_members(chat_id: int) -> None:
+    with DBService().db_session() as db_session:
+        telethon_service = init_client()
+        action = CommunityManagerUserChatAction(
+            db_session, telethon_client=telethon_service.client
+        )
+        chat_members = await action.telegram_chat_user_service.get_all(
+            chat_ids=[chat_id], with_wallet_details=True
+        )
+        logger.info(f"Found {len(chat_members)} chat members for chat {chat_id=!r}.")
+        await action.kick_ineligible_chat_members(chat_members=chat_members)
+
+
+@app.task(
+    name="check-target-chat-members",
+    queue=CELERY_SYSTEM_QUEUE_NAME,
+    ignore_result=True,
+)
+def check_target_chat_members_task(chat_id: int) -> None:
+    async_to_sync(check_target_chat_members)(chat_id)
+
+
 async def refresh_chat_external_sources_async() -> None:
     with DBService().db_session() as db_session:
         telethon_service = init_client()
         action = CommunityManagerTaskChatAction(db_session)
-        await action.refresh_enabled(telethon_client=telethon_service.client)
+        await action.refresh_external_sources(telethon_client=telethon_service.client)
 
 
 @app.task(

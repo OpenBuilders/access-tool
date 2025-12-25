@@ -856,6 +856,7 @@ class CommunityManagerTaskChatAction:
         return TargetChatMembersDTO(
             wallets=wallets,
             sticker_owners_ids=list(sticker_owners_telegram_ids),
+            gift_owners_ids=list(gift_owners_telegram_ids),
             target_chat_members=target_chat_members,
         )
 
@@ -919,8 +920,10 @@ class CommunityManagerTaskChatAction:
             self.redis_service.add_to_set(
                 UPDATED_STICKERS_USER_IDS, *map(str, dto.sticker_owners_ids)
             )
+        if dto.gift_owners_ids:
+            self.redis_service.add_to_set(UPDATED_GIFT_USER_IDS, *dto.gift_owners_ids)
 
-    async def refresh_enabled(self, telethon_client: TelegramClient) -> None:
+    async def refresh_external_sources(self, telethon_client: TelegramClient) -> None:
         """
         Refreshes all enabled Telegram chat external sources.
 
@@ -975,6 +978,7 @@ class CommunityManagerUserChatAction:
         self, db_session: Session, telethon_client: TelegramClient | None = None
     ):
         self.db_session = db_session
+        self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
         self.authorization_action = AuthorizationAction(db_session)
         self.telethon_service = TelethonService(
@@ -985,7 +989,7 @@ class CommunityManagerUserChatAction:
     async def kick_chat_member(self, chat_member: TelegramChatUser) -> None:
         """
         Kicks a specified chat member from the chat. It ensures that the bot
-        has sufficient privileges to perform the action and sends a notification
+        has enough privileges to perform the action and sends a notification
         to the user if they allow direct messages. The method handles exceptions
         arising due to administrative restrictions or RPC errors and logs
         appropriate messages for each case.
@@ -994,7 +998,7 @@ class CommunityManagerUserChatAction:
             kicked from the chat. Must be a bot-managed user with attributes defining
             their chat, user ID, and permission states.
         """
-        if not chat_member.is_managed:
+        if not chat_member.is_managed and not chat_member.chat.is_full_control:
             logger.warning(
                 f"Attempt to kick non-managed chat member {chat_member.chat_id=} and {chat_member.user_id=}. Skipping."
             )
@@ -1007,7 +1011,6 @@ class CommunityManagerUserChatAction:
             )
             return
 
-        await self.telethon_service.start()
         try:
             await self.telethon_service.kick_chat_member(
                 chat_id=chat_member.chat_id,
@@ -1036,8 +1039,7 @@ class CommunityManagerUserChatAction:
                 f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r} as bot user lacks admin privileges",
                 exc_info=e,
             )
-            telegram_chat_service = TelegramChatService(self.db_session)
-            telegram_chat_service.set_insufficient_privileges(
+            self.telegram_chat_service.set_insufficient_privileges(
                 chat_id=chat_member.chat_id, value=True
             )
             logger.info(
@@ -1048,8 +1050,6 @@ class CommunityManagerUserChatAction:
                 f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r}",
                 exc_info=e,
             )
-        finally:
-            await self.telethon_service.stop()
 
     async def kick_ineligible_chat_members(
         self,
@@ -1075,16 +1075,20 @@ class CommunityManagerUserChatAction:
 
         logger.info(f"Found {len(ineligible_members)} ineligible chat members")
 
-        for member in ineligible_members:
-            try:
-                await self.kick_chat_member(member)
-            except MissingChatEntityError as e:
-                logger.error(
-                    f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as chat entity is missing",
-                    exc_info=e,
-                )
-            except MissingUserEntityError as e:
-                logger.error(
-                    f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as user entity is missing",
-                    exc_info=e,
-                )
+        await self.telethon_service.start()
+        try:
+            for member in ineligible_members:
+                try:
+                    await self.kick_chat_member(member)
+                except MissingChatEntityError as e:
+                    logger.error(
+                        f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as chat entity is missing",
+                        exc_info=e,
+                    )
+                except MissingUserEntityError as e:
+                    logger.error(
+                        f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as user entity is missing",
+                        exc_info=e,
+                    )
+        finally:
+            await self.telethon_service.stop()

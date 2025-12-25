@@ -132,6 +132,10 @@ class ChatVisibilityCPO(BaseFDO):
     is_enabled: bool
 
 
+class ChatFullControlCPO(BaseFDO):
+    is_enabled: bool
+
+
 class BaseTelegramChatQuantityRuleCPO(BaseFDO):
     expected: Annotated[float | int, Field(..., gt=0, description="Expected value")]
     category: Annotated[
