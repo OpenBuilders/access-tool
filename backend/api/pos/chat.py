@@ -134,6 +134,12 @@ class ChatVisibilityCPO(BaseFDO):
 
 class ChatFullControlCPO(BaseFDO):
     is_enabled: bool
+    effective_in_days: int = Field(
+        default=0,
+        description="Number of days after which the rule will be applied",
+        le=7,
+        ge=0,
+    )
 
 
 class BaseTelegramChatQuantityRuleCPO(BaseFDO):

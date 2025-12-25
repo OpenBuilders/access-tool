@@ -97,5 +97,8 @@ async def update_chat_full_control(
         requestor=request.state.user,
         chat_slug=slug,
     )
-    chat = await telegram_chat_action.set_control_level(chat.is_enabled)
+    chat = await telegram_chat_action.set_control_level(
+        is_fully_managed=chat.is_enabled,
+        effective_in_days=chat.effective_in_days,
+    )
     return TelegramChatFDO.model_validate(chat.model_dump())

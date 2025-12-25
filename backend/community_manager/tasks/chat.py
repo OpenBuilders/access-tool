@@ -48,7 +48,7 @@ async def check_target_chat_members(chat_id: int) -> None:
         action = CommunityManagerUserChatAction(
             db_session, telethon_client=telethon_service.client
         )
-        chat_members = await action.telegram_chat_user_service.get_all(
+        chat_members = action.telegram_chat_user_service.get_all(
             chat_ids=[chat_id], with_wallet_details=True
         )
         logger.info(f"Found {len(chat_members)} chat members for chat {chat_id=!r}.")
@@ -136,3 +136,36 @@ async def async_enable_chat(chat_id: int) -> None:
 )
 def enable_chat(chat_id: int) -> None:
     async_to_sync(async_enable_chat)(chat_id)
+
+
+async def notify_chat_mode_changed(
+    chat_id: int, is_fully_managed: bool, effective_in_days: int
+) -> None:
+    with DBService().db_session() as db_session:
+        action = CommunityManagerChatAction(db_session)
+        await action.notify_control_level_change(
+            chat_id=chat_id,
+            is_fully_managed=is_fully_managed,
+            effective_in_days=effective_in_days,
+        )
+
+        if is_fully_managed:
+            app.send_task(
+                "check-target-chat-members",
+                args=(chat_id,),
+                queue=CELERY_SYSTEM_QUEUE_NAME,
+                # We need to give an interval to ensure that the request was committed
+                countdown=max(effective_in_days * 24 * 3600, 30),
+            )
+
+
+@app.task(
+    name="notify-chat-mode-changed",
+    queue=CELERY_SYSTEM_QUEUE_NAME,
+)
+def notify_chat_mode_changed_task(
+    chat_id: int, is_fully_managed: bool, effective_in_days: int
+) -> None:
+    async_to_sync(notify_chat_mode_changed)(
+        chat_id, is_fully_managed, effective_in_days
+    )

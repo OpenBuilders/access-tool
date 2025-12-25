@@ -750,6 +750,49 @@ class CommunityManagerChatAction(BaseAction):
 
         return chat
 
+    async def notify_control_level_change(
+        self, chat_id: int, is_fully_managed: bool, effective_in_days: int
+    ) -> None:
+        """
+        Notifies the chat about a change in its control level (full control or not).
+        Sends a message to the chat informing members about the change in management
+        status.
+
+        :param chat_id: The unique identifier of the Telegram chat.
+        :param is_fully_managed: Indicates whether the chat is fully managed (i.e., has full control over it).
+        :param effective_in_days: The number of days until the change in control level takes effect.
+        """
+        chat = self.telegram_chat_service.get(chat_id)
+        await self.telethon_service.start()
+        try:
+            if is_fully_managed:
+                message = "Your community manager has enabled full control for your chat. 🔑 Access is taking it over.\n\n"
+                message += "**All ineligible members will be kicked from the chat" + (
+                    f" in {effective_in_days} day(s).**"
+                    if effective_in_days > 0
+                    else ".**"
+                )
+            else:
+                message = (
+                    "🔑 Access bot no longer has full control over this chat.\n\n"
+                    "**Users will be able to join the chat without confirmation of eligibility by Access.**"
+                )
+
+            await self.telethon_service.send_message(
+                chat_id=chat.id,
+                message=message,
+            )
+            logger.info(
+                f"Notified chat {chat.id!r} about control level change. Full control: {is_fully_managed}"
+            )
+        except RPCError as e:
+            logger.error(
+                f"Failed to notify chat {chat.id!r} about control level change",
+                exc_info=e,
+            )
+        finally:
+            await self.telethon_service.stop()
+
 
 class CommunityManagerTaskChatAction:
     def __init__(self, db_session: Session):
@@ -1012,22 +1055,28 @@ class CommunityManagerUserChatAction:
             return
 
         try:
-            await self.telethon_service.kick_chat_member(
-                chat_id=chat_member.chat_id,
-                telegram_user_id=chat_member.user.telegram_id,
-            )
-            if chat_member.user.allows_write_to_pm:
-                try:
-                    await self.telethon_service.send_message(
-                        chat_id=chat_member.user.telegram_id,
-                        message=f"You were kicked out of the **{chat_member.chat.title}**.",
-                    )
-                except RPCError as e:
-                    logger.error(
-                        f"Failed to send message to user {chat_member.user.telegram_id!r} "
-                        f"while kicking them from chat {chat_member.chat_id!r}",
-                        exc_info=e,
-                    )
+            try:
+                await self.telethon_service.kick_chat_member(
+                    chat_id=chat_member.chat_id,
+                    telegram_user_id=chat_member.user.telegram_id,
+                )
+                if chat_member.user.allows_write_to_pm:
+                    try:
+                        await self.telethon_service.send_message(
+                            chat_id=chat_member.user.telegram_id,
+                            message=f"You were kicked out of the **{chat_member.chat.title}**.",
+                        )
+                    except RPCError as e:
+                        logger.error(
+                            f"Failed to send message to user {chat_member.user.telegram_id!r} "
+                            f"while kicking them from chat {chat_member.chat_id!r}",
+                            exc_info=e,
+                        )
+            except MissingUserEntityError:
+                logger.warning(
+                    f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r} as user entity is missing. "
+                    f"Most probably, the user was removed from the chat before.",
+                )
             self.telegram_chat_user_service.delete(
                 chat_id=chat_member.chat_id, user_id=chat_member.user.id
             )
