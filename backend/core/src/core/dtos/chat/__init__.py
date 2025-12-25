@@ -38,6 +38,7 @@ class BaseTelegramChatDTO(TelegramChatPreviewDTO):
 
 class TelegramChatDTO(BaseTelegramChatDTO):
     insufficient_privileges: bool
+    is_full_control: bool
 
     @classmethod
     def from_object(
@@ -76,6 +77,7 @@ class TelegramChatDTO(BaseTelegramChatDTO):
             is_forum=obj.is_forum,
             logo_path=obj.logo_path,
             insufficient_privileges=insufficient_privileges,
+            is_full_control=obj.is_full_control,
             members_count=members_count,
             tcv=tcv,
             is_enabled=obj.is_enabled,
