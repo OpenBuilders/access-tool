@@ -71,8 +71,20 @@ We use a layered requirements approach managed by `pip-tools`.
 ## 💻 Development Flow
 ### Running Tests
 Tests are located in `tests/` and often require the Docker environment.
+
+**Run All Tests:**
 ```bash
 make test
+```
+
+**Run Specific Tests (Granular):**
+To run specific test files or directories (e.g., only unit tests), use the `docker.sh` script:
+```bash
+# Run only unit tests
+MODE=test ./docker.sh run --rm test pytest tests/unit
+
+# Run a specific test file
+MODE=test ./docker.sh run --rm test pytest tests/unit/core/actions/test_user.py
 ```
 
 ### Database Migrations

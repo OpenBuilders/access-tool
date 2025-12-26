@@ -57,7 +57,7 @@ class UserService(BaseService):
             allows_write_to_pm=telegram_user.allow_write_to_pm,
         )
         self.db_session.add(new_user)
-        self.db_session.commit()
+        self.db_session.flush()
         return new_user
 
     def update(self, user: User, telegram_user: TelegramUserDTO) -> User:
@@ -69,7 +69,7 @@ class UserService(BaseService):
         user.allows_write_to_pm = telegram_user.allow_write_to_pm
         # TODO add photo_url
         self.db_session.add(user)
-        self.db_session.commit()
+        self.db_session.flush()
         return user
 
     def count(self) -> int:

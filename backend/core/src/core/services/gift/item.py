@@ -72,7 +72,7 @@ class GiftUniqueService(BaseService):
             owner_address=owner_address,
         )
         self.db_session.add(new_unique)
-        self.db_session.commit()
+        self.db_session.flush()
         return new_unique
 
     def update(
@@ -94,7 +94,7 @@ class GiftUniqueService(BaseService):
         unique.telegram_owner_id = telegram_owner_id
         unique.blockchain_address = blockchain_address
         unique.owner_address = owner_address
-        self.db_session.commit()
+        self.db_session.flush()
 
         return unique
 
@@ -109,7 +109,7 @@ class GiftUniqueService(BaseService):
         unique.telegram_owner_id = telegram_owner_id
         unique.blockchain_address = blockchain_address
         unique.owner_address = owner_address
-        self.db_session.commit()
+        self.db_session.flush()
 
         return unique
 

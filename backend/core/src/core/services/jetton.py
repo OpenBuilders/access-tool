@@ -15,7 +15,7 @@ class JettonService(BaseService):
     def create(self, dto: JettonDTO) -> Jetton:
         jetton = Jetton(**dto.model_dump())
         self.db_session.add(jetton)
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(f"Jetton {jetton.name!r} created.")
         return jetton
 
@@ -26,14 +26,14 @@ class JettonService(BaseService):
         jetton.total_supply = dto.total_supply
         jetton.logo_path = dto.logo_path
         jetton.decimals = dto.decimals
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(f"Jetton {jetton.name!r} updated.")
         return jetton
 
     def update_status(self, address: str, is_enabled: bool) -> Jetton:
         jetton = self.get(address=address)
         jetton.is_enabled = is_enabled
-        self.db_session.commit()
+        self.db_session.flush()
         logger.info(f"Jetton {jetton.name!r} status updated.")
         return jetton
 

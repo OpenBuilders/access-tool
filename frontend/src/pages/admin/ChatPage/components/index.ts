@@ -1,4 +1,6 @@
-export * from './ChatHeader'
 export * from './ChatConditions'
+export * from './ChatFullControlModal'
+export * from './ChatHeader'
+export * from './ChatVisibilityModal'
 export * from './DraggableCondition'
 export * from './DroppableGroup'

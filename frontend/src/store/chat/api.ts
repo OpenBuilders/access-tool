@@ -57,6 +57,19 @@ export const updateChatVisibilityAPI = async (
   return response
 }
 
+export const updateChatFullControlAPI = async (
+  slug: string,
+  data: {
+    isEnabled: boolean
+    effectiveInDays: number
+  }
+): Promise<ApiServiceResponse<ChatInstance>> => {
+  return await ApiService.put<ChatInstance>({
+    endpoint: `/admin/chats/${slug}/control`,
+    data,
+  })
+}
+
 export const moveChatConditionApi = async ({
   ruleId,
   groupId,

@@ -72,7 +72,7 @@ class StickerItemService(BaseService):
             telegram_user_id=telegram_user_id,
         )
         self.db_session.add(new_item)
-        self.db_session.commit()
+        self.db_session.flush()
         return new_item
 
     def update(
@@ -81,7 +81,7 @@ class StickerItemService(BaseService):
         telegram_user_id: int,
     ) -> StickerItem:
         item.telegram_user_id = telegram_user_id
-        self.db_session.commit()
+        self.db_session.flush()
         return item
 
     def delete(self, item_id: str) -> None:

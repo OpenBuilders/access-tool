@@ -31,7 +31,7 @@ class WalletService(BaseService):
         try:
             new_wallet = UserWallet(user_id=user_id, address=wallet_address)
             self.db_session.add(new_wallet)
-            self.db_session.commit()
+            self.db_session.flush()
             return new_wallet
         except IntegrityError:
             self.db_session.rollback()
@@ -86,19 +86,19 @@ class WalletService(BaseService):
         self.db_session.query(UserWallet).filter(
             UserWallet.user_id == user_id,
         ).delete()
-        self.db_session.commit()
+        self.db_session.flush()
 
     def turn_visibility_on(self, user_id: int) -> None:
         self.db_session.query(UserWallet).filter(
             UserWallet.user_id == user_id,
         ).update({"hide_wallet": False})
-        self.db_session.commit()
+        self.db_session.flush()
 
     def turn_visibility_off(self, user_id: int) -> None:
         self.db_session.query(UserWallet).filter(
             UserWallet.user_id == user_id,
         ).update({"hide_wallet": True})
-        self.db_session.commit()
+        self.db_session.flush()
 
     def set_balance(self, address_raw: str, balance: int) -> None:
         """
@@ -138,7 +138,7 @@ class TelegramChatUserWalletService(BaseService):
             user_id=user_id, chat_id=chat_id, address=wallet_address
         )
         self.db_session.add(new_link)
-        self.db_session.commit()
+        self.db_session.flush()
         return new_link
 
     def disconnect(self, user_id: int, chat_id: int) -> None:
@@ -146,7 +146,7 @@ class TelegramChatUserWalletService(BaseService):
             TelegramChatUserWallet.user_id == user_id,
             TelegramChatUserWallet.chat_id == chat_id,
         ).delete(synchronize_session=False)
-        self.db_session.commit()
+        self.db_session.flush()
 
     def get(self, user_id: int, chat_id: int) -> TelegramChatUserWallet:
         return (
@@ -264,7 +264,7 @@ class JettonWalletService(BaseService):
                 jetton_balance, owner_address=owner_address
             )
             jetton_wallets.append(jetton_wallet)
-        self.db_session.commit()
+        self.db_session.flush()
         logger.debug(
             "Created/updated %s Jetton Wallets for user %s",
             len(jetton_wallets),

@@ -26,6 +26,7 @@ export interface ChatInstance {
   username: string | null
   membersCount: number
   isEnabled: boolean
+  isFullControl: boolean
 }
 
 export interface ChatRuleAttribute {

@@ -9,6 +9,7 @@ import {
   moveChatConditionApi,
   updateChatAPI,
   updateChatVisibilityAPI,
+  updateChatFullControlAPI,
 } from './api'
 import { AdminChat, ChatGroup, ChatInstance } from './types'
 
@@ -33,6 +34,13 @@ interface ChatActions {
     updateChatVisibilityAction: (
       slug: string,
       data: Partial<ChatInstance>
+    ) => void
+    updateChatFullControlAction: (
+      slug: string,
+      data: {
+        isEnabled: boolean
+        effectiveInDays: number
+      }
     ) => void
     resetChatAction: () => void
     moveChatConditionAction: (args: {
@@ -109,6 +117,25 @@ const useChatStore = create<ChatStore & ChatActions>((set) => ({
       const { data, ok, error } = await updateChatVisibilityAPI(slug, values)
 
       if (!ok) {
+        throw new Error(error)
+      }
+
+      if (!data) {
+        throw new Error('Chat data not found')
+      }
+
+      set({ chat: data })
+    },
+    updateChatFullControlAction: async (slug, values) => {
+      const { data, ok, error, status } = await updateChatFullControlAPI(
+        slug,
+        values
+      )
+
+      if (!ok) {
+        if (status === 429) {
+          throw new Error('Too many attempts. Try again in an hour')
+        }
         throw new Error(error)
       }
 

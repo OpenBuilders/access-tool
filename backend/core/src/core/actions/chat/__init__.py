@@ -5,7 +5,11 @@ from celery.result import AsyncResult
 from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_502_BAD_GATEWAY
+from starlette.status import (
+    HTTP_502_BAD_GATEWAY,
+    HTTP_400_BAD_REQUEST,
+    HTTP_429_TOO_MANY_REQUESTS,
+)
 
 from core.actions.authorization import AuthorizationAction
 from core.actions.base import BaseAction
@@ -60,6 +64,7 @@ from core.services.chat import TelegramChatService
 from core.enums.chat import CustomTelegramChatOrderingRulesEnum
 from core.services.chat.rule.group import TelegramChatRuleGroupService
 from core.services.chat.user import TelegramChatUserService
+from core.services.superredis import RedisService
 from core.utils.task import wait_for_task, sender
 
 logger = logging.getLogger(__name__)
@@ -251,6 +256,64 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
 
         members_count = self.telegram_chat_user_service.get_members_count(chat.id)
         return TelegramChatDTO.from_object(chat, members_count=members_count)
+
+    async def set_control_level(
+        self, is_fully_managed: bool, effective_in_days: int
+    ) -> TelegramChatDTO:
+        """
+        Sets the control level of a chat and manages related state changes in the system.
+        This method allows toggling between fully managed and partially managed control modes
+        while ensuring appropriate security and rate-limiting checks are performed.
+
+        :param is_fully_managed: Indicates whether the chat should be set to fully managed control.
+        :param effective_in_days: The number of days for which the change will be effective in the chat.
+        :return: Returns an updated `TelegramChatDTO` object representing the modified chat state.
+        :raises HTTPException: Raises HTTPException with status 400 if there are insufficient
+            privileges for the bot in the chat.
+        :raises HTTPException: Raises HTTPException with status 429 if the request is
+            made too frequently to change the control level.
+        :raises HTTPException: Raises HTTPException with status 502 if an unexpected
+            issue occurs while notifying the system of the change.
+        """
+        if self.chat.insufficient_privileges:
+            logger.warning(
+                "An attempt to make a chat fully managed while insufficient privileges in the chat %d",
+                self.chat.id,
+            )
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail="Insufficient privileges for bot in the chat",
+            )
+
+        if is_fully_managed == self.chat.is_full_control:
+            # Don't raise an error, just skip silently
+            return TelegramChatDTO.from_object(self.chat)
+
+        redis_service = RedisService()
+        # Don't allow to change that too often to prevent spamming
+        if is_fully_managed and not redis_service.set(
+            f"set_control_level_{self.chat.id}", "1", ex=1800, nx=True
+        ):
+            logger.warning(
+                "An attempt to spam set_control_level in chat %d", self.chat.id
+            )
+            raise HTTPException(
+                status_code=HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests"
+            )
+
+        chat = self.telegram_chat_service.set_control_level(self.chat, is_fully_managed)
+        notifier = sender.send_task(
+            "notify-chat-mode-changed",
+            args=(self.chat.id, is_fully_managed, effective_in_days),
+            queue=CELERY_SYSTEM_QUEUE_NAME,
+        )
+        result = await wait_for_task(task_result=notifier)
+        if not result:
+            raise HTTPException(
+                status_code=HTTP_502_BAD_GATEWAY,
+                detail="Something went wrong while changing the chat mode. Please, try again later.",
+            )
+        return TelegramChatDTO.from_object(chat)
 
     async def get_with_eligibility_rules(self) -> TelegramChatWithRulesDTO:
         """
