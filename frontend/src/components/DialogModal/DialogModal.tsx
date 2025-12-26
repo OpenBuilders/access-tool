@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Block } from '../Block'
 import { Text } from '../Text'
@@ -14,6 +14,7 @@ interface DialogModalProps {
   onConfirm?: () => void
   onDelete?: () => void
   onClose: () => void
+  children?: React.ReactNode
 }
 
 export const DialogModal = (props: DialogModalProps) => {
@@ -26,6 +27,7 @@ export const DialogModal = (props: DialogModalProps) => {
     onConfirm,
     onClose,
     onDelete,
+    children,
   } = props
 
   const [isOpen, setIsOpen] = useState(false)
@@ -59,6 +61,7 @@ export const DialogModal = (props: DialogModalProps) => {
               {description}
             </Text>
           </Block>
+          {children && <Block margin="top" marginValue={16}>{children}</Block>}
         </div>
         <div className={styles.dialogModalContentFooter}>
           <div

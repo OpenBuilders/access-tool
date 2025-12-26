@@ -32,10 +32,11 @@ REQUIRED_ADMIN_PRIVILEGES = ["add_admins"]
 REQUIRED_BOT_PRIVILEGES = ["invite_users", "ban_users"]
 
 # ------------------ Redis --------------------
+UPDATED_TELEGRAM_USERS_SET_NAME = "updated_telegram_users"
 UPDATED_WALLETS_SET_NAME = "updated_wallets"
 DISCONNECTED_WALLETS_SET_NAME = "disconnected_wallets"
-UPDATED_STICKERS_USER_IDS = "updated_stickers_user_ids"
 CELERY_WALLET_FETCH_QUEUE_NAME = "wallet-fetch-queue"
+UPDATED_STICKERS_USER_IDS = "updated_stickers_user_ids"
 CELERY_STICKER_FETCH_QUEUE_NAME = "sticker-fetch-queue"
 CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME = "noticed-wallets-upload-queue"
 CELERY_SYSTEM_QUEUE_NAME = "system-queue"

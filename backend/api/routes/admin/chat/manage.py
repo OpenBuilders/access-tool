@@ -8,6 +8,7 @@ from api.pos.chat import (
     TelegramChatFDO,
     EditChatCPO,
     ChatVisibilityCPO,
+    ChatFullControlCPO,
 )
 from api.routes.admin.chat.rule import manage_rules_router
 from core.actions.chat import TelegramChatManageAction
@@ -81,4 +82,23 @@ async def update_chat_visibility(
         chat_slug=slug,
     )
     chat = await telegram_chat_action.update_visibility(chat.is_enabled)
+    return TelegramChatFDO.model_validate(chat.model_dump())
+
+
+@admin_chat_manage_router.put("/control")
+async def update_chat_full_control(
+    request: Request,
+    slug: str,
+    chat: ChatFullControlCPO,
+    db_session: Session = Depends(get_db_session),
+) -> TelegramChatFDO:
+    telegram_chat_action = TelegramChatManageAction(
+        db_session=db_session,
+        requestor=request.state.user,
+        chat_slug=slug,
+    )
+    chat = await telegram_chat_action.set_control_level(
+        is_fully_managed=chat.is_enabled,
+        effective_in_days=chat.effective_in_days,
+    )
     return TelegramChatFDO.model_validate(chat.model_dump())
