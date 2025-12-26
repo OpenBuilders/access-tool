@@ -191,15 +191,18 @@ export const ChatPage = () => {
                   <div
                     style={{
                       backgroundColor: 'var(--tg-theme-button-color, #2481cc)',
+                      color: 'var(--tg-theme-button-text-color, #ffffff)',
                       borderRadius: '4px',
                       padding: '2px 6px',
                       width: 'auto',
                       whiteSpace: 'nowrap',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      lineHeight: '1',
                     }}
                   >
-                    <Text type="caption2" weight="bold" color="primary" uppercase>
-                      Beta
-                    </Text>
+                    Beta
                   </div>
                 </Block>
               }
