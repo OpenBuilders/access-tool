@@ -13,6 +13,7 @@ const STATUS_CODES = [408, 413, 429, 500, 502, 503, 504]
 export interface ApiServiceResponse<T> {
   ok: boolean
   error?: string
+  status?: number
   data?: T
 }
 
@@ -38,16 +39,19 @@ const handleError = async (
         const validationError = getValidationError(errorData.detail)
         return {
           ok: err.response.ok,
+          status: err.response.status,
           error: validationError,
         }
       }
       return {
         ok: err.response.ok,
+        status: err.response.status,
         error: errorData.detail || 'Something went wrong',
       }
     } catch {
       return {
         ok: err.response.ok,
+        status: err.response.status,
         error: 'Server error',
       }
     }
@@ -90,6 +94,7 @@ const api = ky.extend({
 })
 
 export const ApiService = {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   after401: () => {},
 
   get: async <T>({

@@ -1,7 +1,9 @@
 import {
   Block,
+  Group,
   Icon,
   ListItem,
+  ListToggler,
   PageLayout,
   Spinner,
   TelegramBackButton,
@@ -18,7 +20,7 @@ import config from '@config'
 import { useApp, useAppActions, useChat, useChatActions } from '@store'
 
 import { Skeleton } from './Skeleton'
-import { ChatConditions, ChatHeader } from './components'
+import { ChatConditions, ChatFullControlModal, ChatHeader, ChatVisibilityModal } from './components'
 
 export const ChatPage = () => {
   const { chatSlug } = useParams<{ chatSlug: string }>()
@@ -28,12 +30,20 @@ export const ChatPage = () => {
   const { toggleIsLoadingAction } = useAppActions()
   const [updateChatVisibilityLoading, setUpdateChatVisibilityLoading] =
     useState(false)
+  const [isVisibilityModalOpen, setIsVisibilityModalOpen] = useState(false)
+
+  const [isFullControlModalOpen, setIsFullControlModalOpen] = useState(false)
+  const [isEnablingFullControl, setIsEnablingFullControl] = useState(false)
 
   const { adminChatNotFound } = useError()
 
   const { chat } = useChat()
-  const { fetchChatAction, updateChatVisibilityAction, resetChatAction } =
-    useChatActions()
+  const {
+    fetchChatAction,
+    updateChatVisibilityAction,
+    resetChatAction,
+    updateChatFullControlAction,
+  } = useChatActions()
 
   const { showToast } = useToast()
 
@@ -51,17 +61,62 @@ export const ChatPage = () => {
     if (!chatSlug) return
     try {
       setUpdateChatVisibilityLoading(true)
+      setIsVisibilityModalOpen(false)
       await updateChatVisibilityAction(chatSlug, {
         isEnabled: !chat?.isEnabled,
       })
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setUpdateChatVisibilityLoading(false)
       showToast({
         message: 'Chat visibility updated',
         type: 'success',
       })
+    } catch (error) {
+      console.error(error)
+      showToast({
+        message:
+          error instanceof Error ? error.message : 'Something went wrong',
+        type: 'error',
+      })
+    } finally {
+      setUpdateChatVisibilityLoading(false)
+    }
+  }
+
+  const handleFullControlToggle = async () => {
+    if (chat?.insufficientPrivileges) return
+
+    if (chat?.isFullControl) {
+      // Is currently ON, so we are turning it OFF
+      setIsEnablingFullControl(false)
+      setIsFullControlModalOpen(true)
+    } else {
+      // Is currently OFF, so we are turning it ON
+      setIsEnablingFullControl(true)
+      setIsFullControlModalOpen(true)
+    }
+  }
+
+  const onConfirmFullControl = async (days: number) => {
+    if (!chatSlug) return
+    try {
+      toggleIsLoadingAction(true)
+      await updateChatFullControlAction(chatSlug, {
+        isEnabled: isEnablingFullControl,
+        effectiveInDays: days,
+      })
+      showToast({
+        message: 'Chat control updated',
+        type: 'success',
+      })
+    } catch (error) {
+      console.error(error)
+      showToast({
+        message:
+          error instanceof Error ? error.message : 'Something went wrong',
+        type: 'error',
+      })
+    } finally {
+      toggleIsLoadingAction(false)
+      setIsFullControlModalOpen(false)
     }
   }
 
@@ -105,27 +160,60 @@ export const ChatPage = () => {
       <ChatHeader />
       <ChatConditions />
       <Block margin="top" marginValue={24}>
-        <Block margin="bottom" marginValue={24}>
-          <ListItem
-            padding="6px 16px"
-            disabled={updateChatVisibilityLoading}
-            text={
-              <Text type="text" color={chat?.isEnabled ? 'danger' : 'accent'}>
-                {chat?.isEnabled
-                  ? `Pause Access for New Users`
-                  : 'Allow Access for New Users'}
-              </Text>
-            }
-            after={updateChatVisibilityLoading && <Spinner size={16} />}
-            onClick={updateChatVisibility}
-            before={
-              <Icon
-                name={chat?.isEnabled ? 'eyeCrossed' : 'eye'}
-                size={28}
-                color={chat?.isEnabled ? 'danger' : 'accent'}
-              />
-            }
-          />
+        <Block margin="bottom" marginValue={44}>
+          <Group header="CONFIGURATION">
+            <ListItem
+              padding="6px 16px"
+              disabled={updateChatVisibilityLoading}
+              text={
+                <Text type="text" color={chat?.isEnabled ? 'danger' : 'accent'}>
+                  {chat?.isEnabled
+                    ? `Pause Access for New Users`
+                    : 'Allow Access for New Users'}
+                </Text>
+              }
+              after={updateChatVisibilityLoading && <Spinner size={16} />}
+              onClick={() => setIsVisibilityModalOpen(true)}
+              before={
+                <Icon
+                  name={chat?.isEnabled ? 'eyeCrossed' : 'eye'}
+                  size={28}
+                  color={chat?.isEnabled ? 'danger' : 'accent'}
+                />
+              }
+            />
+            <ListItem
+              padding="6px 16px"
+              disabled={chat?.insufficientPrivileges}
+              text={
+                <Block row align="center" gap={8}>
+                  <Text type="text">Full Chat Management</Text>
+                  <div
+                    style={{
+                      backgroundColor: 'var(--tg-theme-button-color, #2481cc)',
+                      borderRadius: '4px',
+                      padding: '2px 6px',
+                      width: 'auto',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Text type="caption2" weight="bold" color="primary" uppercase>
+                      Beta
+                    </Text>
+                  </div>
+                </Block>
+              }
+              onClick={handleFullControlToggle}
+              after={
+                <ListToggler
+                  isEnabled={!!chat?.isFullControl}
+                  onChange={handleFullControlToggle}
+                  disabled={chat?.insufficientPrivileges}
+                />
+              }
+              before={<Icon name="lock" size={28} color="accent" />}
+            />
+          </Group>
         </Block>
       </Block>
       <Block margin="top" marginValue="auto">
@@ -135,6 +223,18 @@ export const ChatPage = () => {
           remove @{config.botName} from admins
         </Text>
       </Block>
+      <ChatFullControlModal
+        isOpen={isFullControlModalOpen}
+        onClose={() => setIsFullControlModalOpen(false)}
+        onConfirm={onConfirmFullControl}
+        isEnabling={isEnablingFullControl}
+      />
+      <ChatVisibilityModal
+        isOpen={isVisibilityModalOpen}
+        onClose={() => setIsVisibilityModalOpen(false)}
+        onConfirm={updateChatVisibility}
+        isEnabled={!!chat?.isEnabled}
+      />
     </PageLayout>
   )
 }
