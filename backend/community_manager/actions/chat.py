@@ -132,9 +132,6 @@ class CommunityManagerChatAction(BaseAction):
         """
         chat_identifier = get_peer_id(chat)
 
-        if not str(chat_identifier).startswith("-100"):
-            chat_identifier = int(f"-100{chat_identifier}")
-
         # Note: invite link creation is now handled by BotAPI in other flows,
         # but for full refresh we might still want it.
         # However, for now we just focus on offloading the heavy participant load.

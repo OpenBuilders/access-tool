@@ -290,7 +290,7 @@ class TelegramChatNFTCollectionAction(ManagedChatBaseAction):
         self.refresh_chat_floor_price()
         return NftEligibilityRuleDTO.from_nft_collection_rule(rule)
 
-    async def delete(self, rule_id: int) -> None:
+    def delete(self, rule_id: int) -> None:
         try:
             group_id = self.telegram_chat_nft_collection_service.get(
                 rule_id, chat_id=self.chat.id
@@ -473,7 +473,7 @@ class TelegramChatJettonAction(ManagedChatBaseAction):
         self.refresh_chat_floor_price()
         return JettonEligibilityRuleDTO.from_jetton_rule(updated_rule)
 
-    async def delete(self, rule_id: int) -> None:
+    def delete(self, rule_id: int) -> None:
         try:
             group_id = self.telegram_chat_jetton_service.get(
                 rule_id, chat_id=self.chat.id

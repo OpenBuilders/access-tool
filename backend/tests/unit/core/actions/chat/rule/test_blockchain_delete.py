@@ -60,7 +60,7 @@ async def test_delete_rule__last_in_group__group_removed(
         requestor=requestor,
     )
 
-    await action.delete(rule_id=rule.id)
+    action.delete(rule_id=rule.id)
 
     assert db_session.query(model_cls).first() is None, "The rule should be deleted."
     assert (
@@ -112,7 +112,7 @@ async def test_delete_rule__other_rules_exist__group_retained(
         requestor=requestor,
     )
 
-    await action.delete(rule_id=rule_to_delete_id)
+    action.delete(rule_id=rule_to_delete_id)
 
     assert (
         db_session.query(model_cls).filter_by(id=rule_to_delete_id).first() is None

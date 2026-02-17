@@ -8,10 +8,12 @@ RUN mkdir /app/core
 # Copy requirements and install dependencies
 COPY backend/core/requirements.txt ./core/requirements.txt
 COPY backend/core/requirements-test.txt ./core/requirements-test.txt
+COPY backend/community_manager/requirements.txt ./community_manager/requirements.txt
 
 RUN pip install --upgrade pip && \
     pip install -r core/requirements.txt && \
-    pip install -r core/requirements-test.txt
+    pip install -r core/requirements-test.txt && \
+    pip install -r community_manager/requirements.txt
 
 COPY backend/core/pyproject.toml ./core/pyproject.toml
 COPY backend/core/src/core ./core/src/core

@@ -22,7 +22,6 @@ from core.dtos.chat import (
     TelegramChatPreviewDTO,
 )
 from core.exceptions.chat import TelegramChatNotSufficientPrivileges
-from core.models.user import User
 from tests.factories import TelegramChatUserFactory, TelegramChatFactory, UserFactory
 
 
@@ -271,17 +270,22 @@ async def test_load_participants(
         return_value=AsyncIterator([mocked_telethon_user])
     )
 
+    # TODO: Review test setup - gateway client should be properly configured for tests
+    # Currently mocked to avoid Redis DB index issue in test environment
+    mock_gateway = mocker.patch("community_manager.actions.chat.TelegramGatewayClient")
+    mock_gateway_instance = mock_gateway.return_value
+
     # Act: Call `_load_participants`
     action = CommunityManagerChatAction(
         db_session, telethon_client=mocked_telethon_client
     )
     await action._load_participants(chat.id)
 
-    # Assert: Verify the participant was added to the database
-    user = (
-        db_session.query(User).filter(User.telegram_id == mocked_telethon_user.id).one()
-    )
-    assert user.username == mocked_telethon_user.username
+    # Assert: Verify the gateway client was called to enqueue the indexing command
+    mock_gateway_instance.enqueue_command.assert_called_once()
+    call_args = mock_gateway_instance.enqueue_command.call_args[0][0]
+    assert call_args.chat_id == chat.id
+    assert not call_args.cleanup
 
 
 @pytest.mark.parametrize("sufficient_bot_privileges", [True, False])
@@ -311,6 +315,10 @@ async def test_create_success(
     mocker.patch.object(
         CommunityManagerChatAction, "fetch_and_push_profile_photo", mock_fetch_photo
     )
+
+    # TODO: Review test setup - gateway client should be properly configured for tests
+    # Currently mocked to avoid Redis DB index issue in test environment
+    mocker.patch("community_manager.actions.chat.TelegramGatewayClient")
 
     # Act
     action = CommunityManagerChatAction(
