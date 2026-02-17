@@ -241,9 +241,11 @@ class AuthorizationAction(BaseAction):
 
         chat_members = [
             # Skip checks for non-managed users in the chats where full control is disabled
+            # and skip checks for admins
             chat_member
             for chat_member in chat_members
-            if chat_member.chat.is_full_control or chat_member.is_managed
+            if (chat_member.chat.is_full_control or chat_member.is_managed)
+            and not chat_member.is_admin
         ]
 
         if not chat_members:

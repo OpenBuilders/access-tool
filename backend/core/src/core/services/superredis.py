@@ -96,8 +96,20 @@ class RedisService:
         """
         return self.client.spop(name, count=count)
 
-    def delete(self, key: str) -> str:
+    def delete(self, key: str) -> int:
         return self.client.delete(key)
+
+    def blpop(self, keys: str | list[str], timeout: int = 0) -> tuple[str, str] | None:
+        """
+        Remove and get the first element in a list, or block until one is available
+        :param keys: Key(s) to pop from
+        :param timeout: Timeout in seconds
+        :return: Tuple of (key, value) or None
+        """
+        return self.client.blpop(keys, timeout=timeout)
+
+    def rpush(self, key: str, *values: str) -> int:
+        return self.client.rpush(key, *values)
 
     def set_task_status(
         self, task_id: str, status: str, ex=core_settings.redis_task_status_expiration

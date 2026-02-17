@@ -17,6 +17,7 @@ from community_manager.events import (
     ChatJoinRequestEventBuilder,
     ChatAdminChangeEventBuilder,
 )
+from community_manager.gateway.service import TelegramGatewayService
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -59,6 +60,8 @@ def main() -> None:
     telethon_service = init_client()
     telethon_service = add_event_handlers(telethon_service)
 
+    gateway_service = TelegramGatewayService(telethon_service)
+
     health_thread = threading.Thread(
         target=start_health_check_server,
         args=(lambda: telethon_service.client.is_connected(),),
@@ -68,7 +71,14 @@ def main() -> None:
 
     telethon_service.start_sync()
     telethon_service.client.loop.run_until_complete(telethon_service.client.catch_up())
-    telethon_service.client.run_until_disconnected()
+
+    # Start the Gateway Service as a background task on the same loop
+    telethon_service.client.loop.create_task(gateway_service.start())
+
+    try:
+        telethon_service.client.run_until_disconnected()
+    finally:
+        gateway_service.stop()
 
 
 if __name__ == "__main__":

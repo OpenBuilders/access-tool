@@ -108,13 +108,16 @@ _compile_requirements_test:
 	 pip-compile --no-emit-index-url --extra dev backend/core/pyproject.toml --output-file backend/core/requirements-test.txt
 
 
-compile_requirements: _compile_requirements_api _compile_requirements_core _compile_requirements_test
-	cp backend/core/requirements.txt backend/community_manager/requirements.txt
+_compile_requirements_community_manager:
+	pip-compile --no-emit-index-url backend/core/pyproject.toml backend/community_manager/pyproject.toml --output-file backend/community_manager/requirements.txt
+
+
+compile_requirements: _compile_requirements_api _compile_requirements_core _compile_requirements_test _compile_requirements_community_manager
 	cp backend/core/requirements.txt backend/indexer_blockchain/requirements.txt
 	cp backend/core/requirements.txt backend/indexer_gifts/requirements.txt
 	cp backend/core/requirements.txt backend/indexer_price/requirements.txt
 	cp backend/core/requirements.txt backend/indexer_stickers/requirements.txt
-	cp backend/core/requirements.txt backend/scheduler/requirements.txt
+	cp backend/community_manager/requirements.txt backend/scheduler/requirements.txt
 
 
 include config/env/.core.env

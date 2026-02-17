@@ -7,7 +7,6 @@ from community_manager.actions.chat import (
     CommunityManagerUserChatAction,
 )
 from community_manager.celery_app import app
-from community_manager.entrypoint import init_client
 from community_manager.settings import community_manager_settings
 from core.constants import (
     CELERY_SYSTEM_QUEUE_NAME,
@@ -21,10 +20,9 @@ async def run_sanity_checks() -> None:
     """
     Separate function to ensure that the telethon client is initiated in the same event loop
     """
-    service = init_client()
     with DBService().db_session() as db_session:
         action = CommunityManagerTaskChatAction(db_session)
-        await action.sanity_chat_checks(service.client)
+        await action.sanity_chat_checks()
     logger.info("Chat sanity checks completed.")
 
 
@@ -44,10 +42,8 @@ def check_chat_members() -> None:
 
 async def check_target_chat_members(chat_id: int) -> None:
     with DBService().db_session() as db_session:
-        telethon_service = init_client()
-        action = CommunityManagerUserChatAction(
-            db_session, telethon_client=telethon_service.client
-        )
+        # BotAPI does not need a telethon client
+        action = CommunityManagerUserChatAction(db_session)
         chat_members = action.telegram_chat_user_service.get_all(
             chat_ids=[chat_id], with_wallet_details=True
         )
@@ -66,9 +62,9 @@ def check_target_chat_members_task(chat_id: int) -> None:
 
 async def refresh_chat_external_sources_async() -> None:
     with DBService().db_session() as db_session:
-        telethon_service = init_client()
+        # BotAPI does not need a telethon client
         action = CommunityManagerTaskChatAction(db_session)
-        await action.refresh_external_sources(telethon_client=telethon_service.client)
+        await action.refresh_external_sources()
 
 
 @app.task(
@@ -112,7 +108,8 @@ def refresh_chats() -> None:
 
 async def async_disable_chat(chat_id: int) -> None:
     with DBService().db_session() as db_session:
-        action = CommunityManagerChatAction(db_session)
+        # BotAPI does not need a telethon client
+        action = CommunityManagerTaskChatAction(db_session)
         await action.disable(chat_id)
 
 
@@ -126,7 +123,8 @@ def disable_chat(chat_id: int) -> None:
 
 async def async_enable_chat(chat_id: int) -> None:
     with DBService().db_session() as db_session:
-        action = CommunityManagerChatAction(db_session)
+        # BotAPI does not need a telethon client
+        action = CommunityManagerTaskChatAction(db_session)
         await action.enable(chat_id)
 
 
@@ -142,7 +140,8 @@ async def notify_chat_mode_changed(
     chat_id: int, is_fully_managed: bool, effective_in_days: int
 ) -> None:
     with DBService().db_session() as db_session:
-        action = CommunityManagerChatAction(db_session)
+        # BotAPI does not need a telethon client
+        action = CommunityManagerTaskChatAction(db_session)
         await action.notify_control_level_change(
             chat_id=chat_id,
             is_fully_managed=is_fully_managed,

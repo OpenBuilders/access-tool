@@ -3,21 +3,23 @@ from tempfile import NamedTemporaryFile
 
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
-from telethon import types, TelegramClient, Button
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
+from telethon import types, TelegramClient
 from telethon.errors import (
     BadRequestError,
-    PeerIdInvalidError,
     HideRequesterMissingError,
     RPCError,
-    UserIsBlockedError,
-    UserAdminInvalidError,
-    ChatAdminRequiredError,
 )
 from telethon.utils import get_peer_id
+from aiogram.utils.markdown import text as fmt_text, bold as fmt_bold
 
 from community_manager.dtos.chat import TargetChatMembersDTO
 from community_manager.events import ChatAdminChangeEventBuilder
 from community_manager.settings import community_manager_settings
+from community_manager.gateway.client import TelegramGatewayClient
+from community_manager.gateway.types import IndexChatCommand
+from community_manager.services.bot_api import TelegramBotApiService
 from core.actions.authorization import AuthorizationAction
 from core.actions.base import BaseAction
 from core.actions.user import UserAction
@@ -35,7 +37,6 @@ from core.exceptions.chat import (
     TelegramChatPublicError,
     TelegramChatAlreadyExists,
 )
-from core.exceptions.telethon import MissingChatEntityError, MissingUserEntityError
 from core.models.chat import TelegramChat, TelegramChatUser
 from core.services.cdn import CDNService
 from core.services.chat import TelegramChatService
@@ -65,6 +66,7 @@ class CommunityManagerChatAction(BaseAction):
             bot_token=community_manager_settings.telegram_bot_token,
             session_path=community_manager_settings.telegram_session_path,
         )
+        self.bot_api_service = TelegramBotApiService()
 
     async def _get_chat_data(
         self,
@@ -111,49 +113,12 @@ class CommunityManagerChatAction(BaseAction):
         self, chat_identifier: int, cleanup: bool = False
     ) -> None:
         """
-        Loads participants of a specified chat and processes their data.
-
-        This asynchronous method retrieves participants of the given chat using the
-        Telethon service, processes each participant's information, and stores it in
-        the database.
-        Bot users are excluded from processing.
-        Additionally, it determines participant admin status and stores the associated chat-user
-        relationship.
-
-        :param chat_identifier: The unique identifier of the chat whose participants
-            are to be loaded
-        :param cleanup: Whether to perform stale participants cleanup
-        :return: This method does not return a value
+        Offloads participant loading to the Telegram Gateway via Redis.
         """
-        user_action = UserAction(self.db_session)
-        logger.info(f"Loading chat participants for chat {chat_identifier!r}...")
-
-        await self.telethon_service.start()
-        processed_user_ids = []
-
-        async for participant_user in self.telethon_service.get_participants(
-            chat_identifier
-        ):
-            if participant_user.bot:
-                # Don't index bot users
-                continue
-
-            user = user_action.create_or_update(
-                TelegramUserDTO.from_telethon_user(participant_user)
-            )
-            self.telegram_chat_user_service.create_or_update(
-                chat_id=chat_identifier,
-                user_id=user.id,
-                is_admin=hasattr(participant_user.participant, "admin_rights"),
-                is_managed=False,
-            )
-            processed_user_ids.append(user.id)
-
-        if cleanup:
-            self.telegram_chat_user_service.delete_stale_participants(
-                chat_id=chat_identifier, active_user_ids=processed_user_ids
-            )
-        logger.info(f"Chat participants loaded for chat {chat_identifier!r}")
+        client = TelegramGatewayClient()
+        command = IndexChatCommand(chat_id=chat_identifier, cleanup=cleanup)
+        client.enqueue_command(command)
+        logger.info(f"Enqueued indexing task for chat {chat_identifier}")
 
     async def _index(self, chat: ChatPeerType, cleanup: bool = False) -> None:
         """
@@ -165,14 +130,22 @@ class CommunityManagerChatAction(BaseAction):
         :param cleanup: Whether to perform stale participants cleanup
         :return: None
         """
-        chat_id = get_peer_id(chat, add_mark=True)
-        telegram_chat = self.telegram_chat_service.get(chat_id=chat_id)
+        chat_identifier = get_peer_id(chat)
 
-        if not telegram_chat.invite_link:
-            logger.info(f"Creating a new chat invite link for the chat {chat_id!r}...")
-            invite_link = await self.telethon_service.get_invite_link(chat)
-            self.telegram_chat_service.refresh_invite_link(chat_id, invite_link.link)
-        await self._load_participants(telegram_chat.id, cleanup=cleanup)
+        if not str(chat_identifier).startswith("-100"):
+            chat_identifier = int(f"-100{chat_identifier}")
+
+        # Note: invite link creation is now handled by BotAPI in other flows,
+        # but for full refresh we might still want it.
+        # However, for now we just focus on offloading the heavy participant load.
+
+        client = TelegramGatewayClient()
+        command = IndexChatCommand(
+            chat_id=chat_identifier,
+            cleanup=cleanup,
+        )
+        client.enqueue_command(command)
+        logger.info(f"Enqueued indexing task for chat {chat_identifier}")
 
     async def _create(
         self, chat: ChatPeerType, sufficient_bot_privileges: bool = False
@@ -238,6 +211,22 @@ class CommunityManagerChatAction(BaseAction):
             chat, sufficient_bot_privileges=event.sufficient_bot_privileges
         )
         logger.info(f"Chat {chat.id!r} created successfully")
+
+        # Create an invite link if we have privileges
+        if event.sufficient_bot_privileges:
+            try:
+                invite_link_obj = await self.bot_api_service.create_chat_invite_link(
+                    chat_id=chat_id, name="Access Tool Link"
+                )
+                self.telegram_chat_service.refresh_invite_link(
+                    chat_id=chat_id, invite_link=invite_link_obj.invite_link
+                )
+                logger.info(f"Invite link created for chat {chat.id!r}")
+            except Exception as e:
+                logger.warning(
+                    f"Failed to create invite link for chat {chat.id!r}: {e}"
+                )
+
         await self._index(chat)
         logger.info(f"Chat {chat.id!r} indexed successfully")
         members_count = self.telegram_chat_user_service.get_members_count(
@@ -454,9 +443,16 @@ class CommunityManagerChatAction(BaseAction):
             )
         # If user is not eligible - kick it from the chat
         else:
-            await self.telethon_service.kick_chat_member(
-                chat_id=chat_id, telegram_user_id=local_user.telegram_id
-            )
+            # Use Bot API for kicking to be consistent and scalable
+            try:
+                await self.bot_api_service.kick_chat_member(
+                    chat_id=chat_id, user_id=local_user.telegram_id
+                )
+            except Exception as e:
+                logger.error(
+                    f"Failed to kick user {local_user.telegram_id!r} from chat {chat_id!r}: {e}",
+                    exc_info=e,
+                )
             logger.warning(
                 f"User {local_user.telegram_id!r} is not eligible to join chat {chat_id!r} even though was added. Kicking the user",
                 extra={
@@ -652,22 +648,39 @@ class CommunityManagerChatAction(BaseAction):
             )
             if local_user.allows_write_to_pm:
                 try:
-                    await self.telethon_service.send_message(
+                    # Create button using aiogram types
+                    # We need the invite link. If chat structure has it, use it.
+                    # 'chat' here is a DB model (TelegramChat)
+                    keyboard = None
+                    if chat.invite_link:
+                        keyboard = InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [
+                                    InlineKeyboardButton(
+                                        text="Open Chat", url=chat.invite_link
+                                    )
+                                ]
+                            ]
+                        )
+
+                    await self.bot_api_service.send_message(
                         chat_id=telegram_user_id,
-                        message=f"You join request for **{chat.title}** was successfully approved! 🎉\n\nWelcome aboard! 🚀",
-                        buttons=[[Button.url("Open Chat", chat.invite_link)]],
+                        text=fmt_text(
+                            "You join request for ",
+                            fmt_bold(chat.title),
+                            " was successfully approved\\! 🎉\n\nWelcome aboard\\! 🚀",
+                            sep="",
+                        ),
+                        reply_markup=keyboard,
                     )
-                except PeerIdInvalidError as e:
+                except (TelegramBadRequest, TelegramForbiddenError) as e:
                     logger.warning(
-                        f"Can't send confirmation message to user {telegram_user_id=!r}: {e.message}"
+                        f"Can't send confirmation message to user {telegram_user_id=!r}: {e}"
                     )
-                except UserIsBlockedError as e:
-                    logger.warning(
-                        f"User {telegram_user_id=!r} blocked the bot: {e.message}"
-                    )
-                except RPCError as e:
-                    logger.exception(
-                        f"Error while sending message to user {telegram_user_id=!r}: {e}"
+                except Exception as e:
+                    logger.error(
+                        f"Unexpected error sending confirmation message to user {telegram_user_id=!r}: {e}",
+                        exc_info=e,
                     )
             self.telegram_chat_user_service.create_or_update(
                 chat_id=chat_id,
@@ -692,107 +705,6 @@ class CommunityManagerChatAction(BaseAction):
                 },
             )
 
-    async def enable(self, chat_id: int) -> TelegramChat:
-        """
-        This method will enable the chat by setting the invite link and updating status in the DB
-
-        :param chat_id: The unique identifier of the Telegram chat to enable.
-        """
-        chat = self.telegram_chat_service.get(chat_id)
-        if chat.is_enabled:
-            logger.debug(
-                f"Chat {chat.id!r} is already enabled. Skipping enable operation..."
-            )
-            return chat
-
-        await self.telethon_service.start()
-        try:
-            peer = await self.telethon_service.get_chat(entity=chat.id)
-            invite_link = await self.telethon_service.get_invite_link(chat=peer)
-            chat = self.telegram_chat_service.refresh_invite_link(
-                chat_id=chat.id, invite_link=invite_link.link
-            )
-            logger.info(
-                f"Updated invite link of chat {chat.id!r} to {invite_link.link!r} and enabled it."
-            )
-        except ChatAdminRequiredError:
-            logger.exception(f"Insufficient privileges to enable chat {chat.id!r}")
-            raise
-        except RPCError:
-            logger.exception(f"Failed to enable chat {chat.id!r}")
-            raise
-        finally:
-            await self.telethon_service.stop()
-
-        return chat
-
-    async def disable(self, chat_id: int) -> TelegramChat:
-        """
-        This method will disable the chat by setting the invite link and updating status in the DB
-        :param chat_id: The unique identifier of the Telegram chat to disable.
-        """
-        chat = self.telegram_chat_service.get(chat_id)
-        await self.telethon_service.start()
-        try:
-            await self.telethon_service.revoke_chat_invite(
-                chat_id=chat.id, link=chat.invite_link
-            )
-            chat = self.telegram_chat_service.disable(chat)
-            logger.info(f"Removed invite link of chat {chat.id!r} and disabled it.")
-        except ChatAdminRequiredError:
-            logger.error(f"Insufficient privileges to disable chat {chat.id!r}")
-            raise
-        except RPCError:
-            logger.exception(f"Failed to disable chat {chat.id!r}")
-            raise
-        finally:
-            await self.telethon_service.stop()
-
-        return chat
-
-    async def notify_control_level_change(
-        self, chat_id: int, is_fully_managed: bool, effective_in_days: int
-    ) -> None:
-        """
-        Notifies the chat about a change in its control level (full control or not).
-        Sends a message to the chat informing members about the change in management
-        status.
-
-        :param chat_id: The unique identifier of the Telegram chat.
-        :param is_fully_managed: Indicates whether the chat is fully managed (i.e., has full control over it).
-        :param effective_in_days: The number of days until the change in control level takes effect.
-        """
-        chat = self.telegram_chat_service.get(chat_id)
-        await self.telethon_service.start()
-        try:
-            if is_fully_managed:
-                message = "Your community manager has enabled full control for your chat. 🔑 Access is taking it over.\n\n"
-                message += "**All ineligible members will be kicked from the chat" + (
-                    f" in {effective_in_days} day(s).**"
-                    if effective_in_days > 0
-                    else ".**"
-                )
-            else:
-                message = (
-                    "🔑 Access bot no longer has full control over this chat.\n\n"
-                    "**Users will be able to join the chat without confirmation of eligibility by Access.**"
-                )
-
-            await self.telethon_service.send_message(
-                chat_id=chat.id,
-                message=message,
-            )
-            logger.info(
-                f"Notified chat {chat.id!r} about control level change. Full control: {is_fully_managed}"
-            )
-        except RPCError as e:
-            logger.error(
-                f"Failed to notify chat {chat.id!r} about control level change",
-                exc_info=e,
-            )
-        finally:
-            await self.telethon_service.stop()
-
 
 class CommunityManagerTaskChatAction:
     def __init__(self, db_session: Session):
@@ -805,6 +717,8 @@ class CommunityManagerTaskChatAction:
         self.telegram_chat_gift_collection_service = TelegramChatGiftCollectionService(
             db_session
         )
+        self.telegram_chat_service = TelegramChatService(db_session)
+        self.bot_api_service = TelegramBotApiService()
         self.redis_service = RedisService()
 
     def get_updated_chat_members(self) -> TargetChatMembersDTO:
@@ -915,7 +829,7 @@ class CommunityManagerTaskChatAction:
             target_chat_members=target_chat_members,
         )
 
-    async def sanity_chat_checks(self, telethon_client: TelegramClient) -> None:
+    async def sanity_chat_checks(self) -> None:
         """
         Performs sanity checks on chat members and validates their eligibility. If there are
         any chat members to validate, it initiates the validation process with the help of
@@ -944,7 +858,6 @@ class CommunityManagerTaskChatAction:
 
                 community_user_action = CommunityManagerUserChatAction(
                     db_session=self.db_session,
-                    telethon_client=telethon_client,
                 )
                 await community_user_action.kick_ineligible_chat_members(
                     chat_members=chat_members
@@ -978,7 +891,7 @@ class CommunityManagerTaskChatAction:
         if dto.gift_owners_ids:
             self.redis_service.add_to_set(UPDATED_GIFT_USER_IDS, *dto.gift_owners_ids)
 
-    async def refresh_external_sources(self, telethon_client: TelegramClient) -> None:
+    async def refresh_external_sources(self) -> None:
         """
         Refreshes all enabled Telegram chat external sources.
 
@@ -992,7 +905,7 @@ class CommunityManagerTaskChatAction:
         )
         sources = telegram_chat_external_source_service.get_all(enabled_only=True)
         community_user_action = CommunityManagerUserChatAction(
-            db_session=self.db_session, telethon_client=telethon_client
+            db_session=self.db_session
         )
         for source in sources:
             logger.info(
@@ -1027,19 +940,113 @@ class CommunityManagerTaskChatAction:
 
         logger.info("All enabled chat sources refreshed.")
 
+    async def enable(self, chat_id: int) -> TelegramChat:
+        """
+        This method will enable the chat by setting the invite link and updating status in the DB
+
+        :param chat_id: The unique identifier of the Telegram chat to enable.
+        """
+        chat = self.telegram_chat_service.get(chat_id)
+        if chat.is_enabled:
+            logger.debug(
+                f"Chat {chat.id!r} is already enabled. Skipping enable operation..."
+            )
+            return chat
+
+        try:
+            invite_link = await self.bot_api_service.create_chat_invite_link(
+                chat_id=chat.id
+            )
+            chat = self.telegram_chat_service.refresh_invite_link(
+                chat_id=chat.id, invite_link=invite_link.invite_link
+            )
+            logger.info(
+                f"Updated invite link of chat {chat.id!r} to {invite_link.invite_link!r} and enabled it."
+            )
+        except Exception as e:
+            logger.exception(f"Failed to enable chat {chat.id!r}: {e}")
+            raise
+
+        return chat
+
+    async def disable(self, chat_id: int) -> TelegramChat:
+        """
+        This method will disable the chat by setting the invite link and updating status in the DB
+        :param chat_id: The unique identifier of the Telegram chat to disable.
+        """
+        chat = self.telegram_chat_service.get(chat_id)
+        try:
+            if chat.invite_link:
+                await self.bot_api_service.revoke_chat_invite_link(
+                    chat_id=chat.id, invite_link=chat.invite_link
+                )
+            chat = self.telegram_chat_service.disable(chat)
+            logger.info(f"Removed invite link of chat {chat.id!r} and disabled it.")
+        except Exception as e:
+            logger.exception(f"Failed to disable chat {chat.id!r}: {e}")
+            raise
+
+        return chat
+
+    async def notify_control_level_change(
+        self, chat_id: int, is_fully_managed: bool, effective_in_days: int
+    ) -> None:
+        """
+        Notifies the chat about a change in its control level (full control or not).
+        Sends a message to the chat informing members about the change in management
+        status.
+
+        :param chat_id: The unique identifier of the Telegram chat.
+        :param is_fully_managed: Indicates whether the chat is fully managed (i.e., has full control over it).
+        :param effective_in_days: The number of days until the change in control level takes effect.
+        """
+        chat = self.telegram_chat_service.get(chat_id)
+
+        try:
+            if is_fully_managed:
+                days_text = (
+                    f" in {effective_in_days} day(s)." if effective_in_days > 0 else "."
+                )
+                message = fmt_text(
+                    "Your community manager has enabled full control for your chat\\. 🔑 Access is taking it over\\.\n\n",
+                    fmt_bold(
+                        "All ineligible members will be kicked from the chat"
+                        + days_text
+                    ),
+                    sep="",
+                )
+            else:
+                message = fmt_text(
+                    "🔑 Access bot no longer has full control over this chat\\.\n\n",
+                    fmt_bold(
+                        "Users will be able to join the chat without confirmation of eligibility by Access."
+                    ),
+                    sep="",
+                )
+
+            await self.bot_api_service.send_message(
+                chat_id=chat.id,
+                text=message,
+            )
+            logger.info(
+                f"Notified chat {chat.id!r} about control level change. Full control: {is_fully_managed}"
+            )
+            return
+
+        except Exception as e:
+            logger.error(
+                f"Failed to notify chat {chat.id!r} about control level change",
+                exc_info=e,
+            )
+
 
 class CommunityManagerUserChatAction:
-    def __init__(
-        self, db_session: Session, telethon_client: TelegramClient | None = None
-    ):
+    def __init__(self, db_session: Session):
         self.db_session = db_session
         self.telegram_chat_service = TelegramChatService(db_session)
         self.telegram_chat_user_service = TelegramChatUserService(db_session)
         self.authorization_action = AuthorizationAction(db_session)
-        self.telethon_service = TelethonService(
-            client=telethon_client,
-            bot_token=community_manager_settings.telegram_bot_token,
-        )
+        self.bot_api_service = TelegramBotApiService()
 
     async def kick_chat_member(self, chat_member: TelegramChatUser) -> None:
         """
@@ -1067,48 +1074,54 @@ class CommunityManagerUserChatAction:
             return
 
         try:
-            try:
-                await self.telethon_service.kick_chat_member(
-                    chat_id=chat_member.chat_id,
-                    telegram_user_id=chat_member.user.telegram_id,
-                )
-                if chat_member.user.allows_write_to_pm:
-                    try:
-                        await self.telethon_service.send_message(
-                            chat_id=chat_member.user.telegram_id,
-                            message=f"You were kicked out of the **{chat_member.chat.title}**.",
-                        )
-                    except RPCError as e:
-                        logger.error(
-                            f"Failed to send message to user {chat_member.user.telegram_id!r} "
-                            f"while kicking them from chat {chat_member.chat_id!r}",
-                            exc_info=e,
-                        )
-            except MissingUserEntityError:
-                logger.warning(
-                    f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r} as user entity is missing. "
-                    f"Most probably, the user was removed from the chat before.",
-                )
+            # use Bot API for kicking
+            await self.bot_api_service.kick_chat_member(
+                chat_id=chat_member.chat_id,
+                user_id=chat_member.user.telegram_id,
+            )
+
+            if chat_member.user.allows_write_to_pm:
+                try:
+                    await self.bot_api_service.send_message(
+                        chat_id=chat_member.user.telegram_id,
+                        text=fmt_text(
+                            "You were kicked out of the ",
+                            fmt_bold(chat_member.chat.title),
+                            "\\.",
+                            sep="",
+                        ),
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"Failed to send message to user {chat_member.user.telegram_id!r} "
+                        f"while kicking them from chat {chat_member.chat_id!r}",
+                        exc_info=e,
+                    )
+
             self.telegram_chat_user_service.delete(
                 chat_id=chat_member.chat_id, user_id=chat_member.user.id
             )
             logger.info(
                 f"User {chat_member.user.telegram_id!r} was kicked from chat {chat_member.chat_id!r}"
             )
-        except UserAdminInvalidError as e:
+        except (TelegramBadRequest, TelegramForbiddenError) as e:
+            if "owner" in str(e) or "administrator" in str(e):
+                logger.info(
+                    f"User {chat_member.user.telegram_id!r} is an admin/owner in chat {chat_member.chat_id!r}. "
+                    f"Marking as admin and skipping kick."
+                )
+                chat_member.is_admin = True
+                self.db_session.flush()
+                return
+
+            # Common BotAPI errors: User not found (400) or Bot was blocked/kicked (403)
             logger.warning(
-                f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r} as bot user lacks admin privileges",
-                exc_info=e,
+                f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r}: {e}"
             )
-            self.telegram_chat_service.set_insufficient_privileges(
-                chat_id=chat_member.chat_id, value=True
-            )
-            logger.info(
-                f"Set insufficient privileges flag for chat {chat_member.chat_id!r}."
-            )
-        except RPCError as e:
+        except Exception as e:
+            # Unexpected errors
             logger.error(
-                f"Failed to kick user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r}",
+                f"Unexpected error kicking user {chat_member.user.telegram_id!r} from chat {chat_member.chat_id!r}",
                 exc_info=e,
             )
 
@@ -1136,20 +1149,6 @@ class CommunityManagerUserChatAction:
 
         logger.info(f"Found {len(ineligible_members)} ineligible chat members")
 
-        await self.telethon_service.start()
-        try:
-            for member in ineligible_members:
-                try:
-                    await self.kick_chat_member(member)
-                except MissingChatEntityError as e:
-                    logger.error(
-                        f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as chat entity is missing",
-                        exc_info=e,
-                    )
-                except MissingUserEntityError as e:
-                    logger.error(
-                        f"Failed to kick chat member {member.chat_id=} and {member.user_id=} as user entity is missing",
-                        exc_info=e,
-                    )
-        finally:
-            await self.telethon_service.stop()
+        for member in ineligible_members:
+            # kick_chat_member handles exceptions internally
+            await self.kick_chat_member(member)

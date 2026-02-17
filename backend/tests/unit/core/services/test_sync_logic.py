@@ -2,13 +2,11 @@ import pytest
 from sqlalchemy.orm import Session
 
 from core.models.blockchain import NftItem
-from core.models.wallet import UserWallet, JettonWallet
-from core.models.user import User
+from core.models.wallet import JettonWallet
 from core.services.nft import NftItemService
 from core.services.wallet import JettonWalletService
 from tests.factories.jetton import JettonFactory
 from tests.factories.nft import NFTCollectionFactory, NftItemFactory
-from tests.factories.user import UserFactory
 from tests.factories.wallet import UserWalletFactory, JettonWalletFactory
 
 

@@ -40,6 +40,7 @@ UPDATED_STICKERS_USER_IDS = "updated_stickers_user_ids"
 CELERY_STICKER_FETCH_QUEUE_NAME = "sticker-fetch-queue"
 CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME = "noticed-wallets-upload-queue"
 CELERY_SYSTEM_QUEUE_NAME = "system-queue"
+CELERY_GATEWAY_INDEX_QUEUE_NAME = "gateway-index-queue"
 CELERY_INDEX_PRICES_QUEUE_NAME = "index-prices-queue"
 # Gifts
 GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata"
