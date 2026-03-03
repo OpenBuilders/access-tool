@@ -1321,9 +1321,18 @@ class CommunityManagerUserChatAction:
             )
         )
 
-        ineligible_members = [
-            res.member for res in evaluation_results if not res.is_eligible
-        ]
+        ineligible_members = []
+        for res in evaluation_results:
+            if not res.is_eligible:
+                ineligible_members.append(res.member)
+            elif not res.member.is_managed and res.member.chat.is_full_control:
+                # User passed the check, but was previously unmanaged in a full control chat.
+                # Bring them under management so that they are continuously monitored.
+                res.member.is_managed = True
+                self.db_session.add(res.member)
+                logger.debug(
+                    f"User {res.member.user.telegram_id!r} is now managed in chat {res.member.chat_id!r}."
+                )
 
         if not ineligible_members:
             logger.info("No ineligible chat members found")
