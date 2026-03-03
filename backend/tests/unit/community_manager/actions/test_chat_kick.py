@@ -3,21 +3,22 @@ import logging
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from community_manager.actions.chat import CommunityManagerUserChatAction
-from core.models.chat import TelegramChatUser, TelegramChat
-from core.models.user import User
 from core.dtos.chat.rule.internal import (
     ChatMemberEligibilityResultDTO,
     RulesEligibilitySummaryInternalDTO,
 )
+from tests.factories import TelegramChatFactory, TelegramChatUserFactory, UserFactory
 
 
 @pytest.mark.asyncio
 async def test_kick_chat_member_admin_protection(db_session):
     action = CommunityManagerUserChatAction(db_session)
-    chat = TelegramChat(id=1, title="Test Chat", is_full_control=True)
-    user = User(id=1, telegram_id=123)
-    chat_user = TelegramChatUser(
-        user_id=1, chat_id=1, is_admin=True, is_managed=True, chat=chat, user=user
+    chat = TelegramChatFactory.with_session(db_session).create(
+        id=1, title="Test Chat", is_full_control=True
+    )
+    user = UserFactory.with_session(db_session).create(id=1, telegram_id=123)
+    chat_user = TelegramChatUserFactory.with_session(db_session).create(
+        user=user, chat=chat, is_admin=True, is_managed=True
     )
 
     # Mock bot_api_service to ensure it is NOT called
@@ -31,10 +32,12 @@ async def test_kick_chat_member_admin_protection(db_session):
 @pytest.mark.asyncio
 async def test_kick_chat_member_normal_user(db_session):
     action = CommunityManagerUserChatAction(db_session)
-    chat = TelegramChat(id=1, title="Test Chat", is_full_control=True)
-    user = User(id=1, telegram_id=123)
-    chat_user = TelegramChatUser(
-        user_id=1, chat_id=1, is_admin=False, is_managed=True, chat=chat, user=user
+    chat = TelegramChatFactory.with_session(db_session).create(
+        id=1, title="Test Chat", is_full_control=True
+    )
+    user = UserFactory.with_session(db_session).create(id=1, telegram_id=123)
+    chat_user = TelegramChatUserFactory.with_session(db_session).create(
+        user=user, chat=chat, is_admin=False, is_managed=True
     )
 
     # Mock bot_api_service context manager
@@ -55,25 +58,27 @@ async def test_kick_chat_member_normal_user(db_session):
 @pytest.mark.asyncio
 async def test_check_chat_members_compliance_dry_run_counters(db_session, caplog):
     action = CommunityManagerUserChatAction(db_session)
-    chat = TelegramChat(id=1, title="Test Chat", is_full_control=True)
+    chat = TelegramChatFactory.with_session(db_session).create(
+        id=1, title="Test Chat", is_full_control=True
+    )
 
     # Create 3 users:
     # 1. Managed and ineligible
     # 2. Non-managed and ineligible
     # 3. Non-managed and eligible (to test total non_managed counting)
-    user1 = User(id=1, telegram_id=111)
-    chat_user1 = TelegramChatUser(
-        user_id=1, chat_id=1, is_admin=False, is_managed=True, chat=chat, user=user1
+    user1 = UserFactory.with_session(db_session).create(id=1, telegram_id=111)
+    chat_user1 = TelegramChatUserFactory.with_session(db_session).create(
+        user=user1, chat=chat, is_admin=False, is_managed=True
     )
 
-    user2 = User(id=2, telegram_id=222)
-    chat_user2 = TelegramChatUser(
-        user_id=2, chat_id=1, is_admin=False, is_managed=False, chat=chat, user=user2
+    user2 = UserFactory.with_session(db_session).create(id=2, telegram_id=222)
+    chat_user2 = TelegramChatUserFactory.with_session(db_session).create(
+        user=user2, chat=chat, is_admin=False, is_managed=False
     )
 
-    user3 = User(id=3, telegram_id=333)
-    chat_user3 = TelegramChatUser(
-        user_id=3, chat_id=1, is_admin=False, is_managed=False, chat=chat, user=user3
+    user3 = UserFactory.with_session(db_session).create(id=3, telegram_id=333)
+    chat_user3 = TelegramChatUserFactory.with_session(db_session).create(
+        user=user3, chat=chat, is_admin=False, is_managed=False
     )
 
     # Mock telegram_chat_user_service yield
@@ -119,3 +124,31 @@ async def test_check_chat_members_compliance_dry_run_counters(db_session, caplog
 
     assert "User 111 is ineligible for chat 1. Managed: True" in caplog.text
     assert "User 222 is ineligible for chat 1. Managed: False" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_kick_ineligible_chat_members_sets_managed_flag(db_session):
+    action = CommunityManagerUserChatAction(db_session)
+    chat = TelegramChatFactory.with_session(db_session).create(
+        id=1, title="Test Chat", is_full_control=True
+    )
+
+    user1 = UserFactory.with_session(db_session).create(id=1, telegram_id=111)
+    chat_user1 = TelegramChatUserFactory.with_session(db_session).create(
+        user=user1, chat=chat, is_admin=False, is_managed=False
+    )
+
+    action.authorization_action = MagicMock()
+
+    res1 = ChatMemberEligibilityResultDTO(
+        member=chat_user1,
+        is_eligible=True,
+        summary=RulesEligibilitySummaryInternalDTO(groups=[]),
+    )
+    action.authorization_action.evaluate_chat_members_eligibility.return_value = [res1]
+
+    assert chat_user1.is_managed is False
+
+    await action.kick_ineligible_chat_members([chat_user1])
+
+    assert chat_user1.is_managed is True
