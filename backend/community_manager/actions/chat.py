@@ -1339,7 +1339,9 @@ class CommunityManagerUserChatAction:
                         ineligible_non_managed_count += 1
 
                     summary_json = (
-                        result.summary.model_dump_json() if result.summary else "{}"
+                        result.summary.model_dump_json()
+                        if result.summary is not None
+                        else "{}"
                     )
                     logger.info(
                         f"Dry-run: User {result.member.user.telegram_id!r} is ineligible for chat {chat_id!r}. "
