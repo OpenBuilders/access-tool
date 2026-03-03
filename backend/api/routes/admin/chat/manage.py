@@ -97,8 +97,23 @@ async def update_chat_full_control(
         requestor=request.state.user,
         chat_slug=slug,
     )
-    chat = await telegram_chat_action.set_control_level(
+    chat_result = await telegram_chat_action.set_control_level(
         is_fully_managed=chat.is_enabled,
         effective_in_days=chat.effective_in_days,
     )
-    return TelegramChatFDO.model_validate(chat.model_dump())
+    return TelegramChatFDO.model_validate(chat_result.model_dump())
+
+
+@admin_chat_manage_router.post("/control-dry-run")
+async def trigger_chat_full_control_dry_run(
+    request: Request,
+    slug: str,
+    db_session: Session = Depends(get_db_session),
+) -> TelegramChatFDO:
+    telegram_chat_action = TelegramChatManageAction(
+        db_session=db_session,
+        requestor=request.state.user,
+        chat_slug=slug,
+    )
+    chat_result = await telegram_chat_action.trigger_control_level_dry_run()
+    return TelegramChatFDO.model_validate(chat_result.model_dump())

@@ -319,6 +319,35 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
             )
         return TelegramChatDTO.from_object(chat)
 
+    async def trigger_control_level_dry_run(self) -> TelegramChatDTO:
+        """
+        Triggers a dry-run of the chat control level checks.
+        Uses a 5-minute rate limit to prevent spamming.
+        """
+        redis_service = RedisService()
+        if not redis_service.set(
+            f"set_control_level_dry_run_{self.chat.id}", "1", ex=300, nx=True
+        ):
+            logger.warning(
+                "An attempt to spam trigger_control_level_dry_run in chat %d",
+                self.chat.id,
+            )
+            raise HTTPException(
+                status_code=HTTP_429_TOO_MANY_REQUESTS,
+                detail="Too many requests. Please wait 5 minutes before trying again.",
+            )
+
+        logger.info(f"Triggering control level dry run for chat {self.chat.id}")
+
+        # Enqueue the dry run task
+        sender.send_task(
+            "check-target-chat-members-dry-run",
+            args=(self.chat.id,),
+            queue=CELERY_SYSTEM_QUEUE_NAME,
+        )
+
+        return TelegramChatDTO.from_object(self.chat)
+
     async def get_with_eligibility_rules(self) -> TelegramChatWithRulesDTO:
         """
         This is an administrative method to get chat with rules that includes disabled rules
