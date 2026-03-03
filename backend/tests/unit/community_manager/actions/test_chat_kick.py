@@ -5,8 +5,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from community_manager.actions.chat import CommunityManagerUserChatAction
 from core.dtos.chat.rule.internal import (
     ChatMemberEligibilityResultDTO,
+    EligibilitySummaryInternalDTO,
+    RulesEligibilityGroupSummaryInternalDTO,
     RulesEligibilitySummaryInternalDTO,
 )
+from core.enums.rule import EligibilityCheckType
 from tests.factories import TelegramChatFactory, TelegramChatUserFactory, UserFactory
 
 
@@ -93,12 +96,48 @@ async def test_check_chat_members_compliance_dry_run_counters(db_session, caplog
     res1 = ChatMemberEligibilityResultDTO(
         member=chat_user1,
         is_eligible=False,
-        summary=RulesEligibilitySummaryInternalDTO(groups=[]),
+        summary=RulesEligibilitySummaryInternalDTO(
+            groups=[
+                RulesEligibilityGroupSummaryInternalDTO(
+                    id=1,
+                    items=[
+                        EligibilitySummaryInternalDTO(
+                            id=1,
+                            group_id=1,
+                            type=EligibilityCheckType.TONCOIN,
+                            title="TON",
+                            actual=0.5,
+                            expected=1.0,
+                            is_enabled=True,
+                        )
+                    ],
+                )
+            ],
+            wallet="EQD123",
+        ),
     )
     res2 = ChatMemberEligibilityResultDTO(
         member=chat_user2,
         is_eligible=False,
-        summary=RulesEligibilitySummaryInternalDTO(groups=[]),
+        summary=RulesEligibilitySummaryInternalDTO(
+            groups=[
+                RulesEligibilityGroupSummaryInternalDTO(
+                    id=2,
+                    items=[
+                        EligibilitySummaryInternalDTO(
+                            id=2,
+                            group_id=2,
+                            type=EligibilityCheckType.JETTON,
+                            title="USDT",
+                            actual=0,
+                            expected=100,
+                            is_enabled=True,
+                        )
+                    ],
+                )
+            ],
+            wallet=None,
+        ),
     )
     res3 = ChatMemberEligibilityResultDTO(
         member=chat_user3,
@@ -122,8 +161,14 @@ async def test_check_chat_members_compliance_dry_run_counters(db_session, caplog
     assert "Ineligible (managed): 1" in caplog.text
     assert "Ineligible (non-managed): 1" in caplog.text
 
-    assert "User 111 is ineligible for chat 1. Managed: True" in caplog.text
-    assert "User 222 is ineligible for chat 1. Managed: False" in caplog.text
+    assert (
+        'User 111 is ineligible for chat 1. Managed: True. Compliance summary: {"groups":[{"id":1,"items":[{"id":1,"group_id":1,"type":"toncoin","title":"TON","address_raw":null,"actual":0.5,"expected":1.0,"is_enabled":true,"category":null,"is_eligible":false}]}],"wallet":"EQD123"}'
+        in caplog.text
+    )
+    assert (
+        'User 222 is ineligible for chat 1. Managed: False. Compliance summary: {"groups":[{"id":2,"items":[{"id":2,"group_id":2,"type":"jetton","title":"USDT","address_raw":null,"actual":0,"expected":100,"is_enabled":true,"category":null,"is_eligible":false}]}],"wallet":null}'
+        in caplog.text
+    )
 
 
 @pytest.mark.asyncio
