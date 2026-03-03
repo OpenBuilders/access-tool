@@ -1304,9 +1304,27 @@ class CommunityManagerUserChatAction:
         :raises MissingChatEntityError: Raised when the chat entity is missing for a member.
         :raises MissingUserEntityError: Raised when the user entity is missing for a member.
         """
-        ineligible_members = self.authorization_action.get_ineligible_chat_members(
-            chat_members=chat_members
+        chat_members_to_check = [
+            chat_member
+            for chat_member in chat_members
+            if (chat_member.chat.is_full_control or chat_member.is_managed)
+            and not chat_member.is_admin
+        ]
+
+        if not chat_members_to_check:
+            logger.info("No chat members require eligibility check in this chunk")
+            return
+
+        evaluation_results = (
+            self.authorization_action.evaluate_chat_members_eligibility(
+                chat_members=chat_members_to_check
+            )
         )
+
+        ineligible_members = [
+            res.member for res in evaluation_results if not res.is_eligible
+        ]
+
         if not ineligible_members:
             logger.info("No ineligible chat members found")
             return
@@ -1316,3 +1334,73 @@ class CommunityManagerUserChatAction:
         for member in ineligible_members:
             # kick_chat_member handles exceptions internally
             await self.kick_chat_member(member)
+
+    async def check_chat_members_compliance_dry_run(self, chat_id: int) -> None:
+        """
+        Iterates over all members of a chat in batches and performs a dry-run eligibility check.
+        Logs compliance summaries for ineligible members without kicking them.
+
+        :param chat_id: The ID of the chat to check.
+        """
+        logger.info(f"Starting dry-run check of chat members for chat {chat_id=!r}.")
+
+        total_processed = 0
+        total_non_managed = 0
+        ineligible_managed_count = 0
+        ineligible_non_managed_count = 0
+
+        for chat_members_chunk in self.telegram_chat_user_service.yield_all_for_chat(
+            chat_id=chat_id,
+            batch_size=100,
+        ):
+            chat_members_to_check = [
+                chat_member
+                for chat_member in chat_members_chunk
+                if not chat_member.is_admin
+            ]
+
+            if not chat_members_to_check:
+                logger.info(
+                    "No chat members require eligibility check in this chunk. Continue..."
+                )
+                continue
+
+            evaluation_results = (
+                self.authorization_action.evaluate_chat_members_eligibility(
+                    chat_members=chat_members_to_check
+                )
+            )
+
+            for result in evaluation_results:
+                member_is_managed = result.member.is_managed
+
+                if not member_is_managed:
+                    total_non_managed += 1
+
+                if not result.is_eligible:
+                    if member_is_managed:
+                        ineligible_managed_count += 1
+                    else:
+                        ineligible_non_managed_count += 1
+
+                    summary_json = (
+                        result.summary.model_dump_json() if result.summary else "{}"
+                    )
+                    logger.info(
+                        f"Dry-run: User {result.member.user.telegram_id!r} is ineligible for chat {chat_id!r}. "
+                        f"Managed: {member_is_managed}. Compliance summary: {summary_json}"
+                    )
+
+            total_processed += len(chat_members_chunk)
+            logger.info(
+                f"Dry-run: Processed chunk of {len(chat_members_chunk)} users for chat {chat_id=!r}. "
+                f"Total processed: {total_processed}"
+            )
+
+        logger.info(
+            f"Dry-run summary for chat {chat_id}: "
+            f"Total processed: {total_processed}, "
+            f"Non-managed: {total_non_managed}, "
+            f"Ineligible (managed): {ineligible_managed_count}, "
+            f"Ineligible (non-managed): {ineligible_non_managed_count}"
+        )

@@ -16,6 +16,7 @@ from core.dtos.chat.rule.internal import (
     EligibilitySummaryStickerCollectionInternalDTO,
     EligibilitySummaryJettonInternalDTO,
     EligibilitySummaryNftCollectionInternalDTO,
+    ChatMemberEligibilityResultDTO,
 )
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.dtos.resource import JettonDTO, NftCollectionDTO
@@ -220,33 +221,22 @@ class AuthorizationAction(BaseAction):
             emoji=all_emoji_rules,
         )
 
-    def get_ineligible_chat_members(
+    def evaluate_chat_members_eligibility(
         self,
         chat_members: list[TelegramChatUser],
-    ) -> list[TelegramChatUser]:
+    ) -> list[ChatMemberEligibilityResultDTO]:
         """
-        Determines and returns a list of chat members who are ineligible to be part of their respective chats based on
+        Determines and returns eligibility evaluations for a list of chat members based on
         eligibility rules and various related data sources such as wallets, NFTs, and gifts. This functionality checks
         each member's eligibility against the chat's specific rules, wallet information, NFTs, jettons, stickers, and
-        other items associated with the user. Users that do not meet the criteria defined by the chat's eligibility
-        rules are considered ineligible.
+        other items associated with the user.
 
         :param chat_members: A list of TelegramChatUser objects representing the members of various Telegram chats.
-        :return: A list of TelegramChatUser objects representing chat members who are not eligible to be part of their
-            respective chats.
+        :return: A list of ChatMemberEligibilityResultDTO objects representing the eligibility of each member.
         """
         members_per_chat = defaultdict(list)
         user_id_to_telegram_id = {}
         eligibility_rules_per_chat: dict[int, TelegramChatEligibilityRulesDTO] = {}
-
-        chat_members = [
-            # Skip checks for non-managed users in the chats where full control is disabled
-            # and skip checks for admins
-            chat_member
-            for chat_member in chat_members
-            if (chat_member.chat.is_full_control or chat_member.is_managed)
-            and not chat_member.is_admin
-        ]
 
         if not chat_members:
             logger.info("No chat members to check eligibility for. Skipping.")
@@ -295,38 +285,39 @@ class AuthorizationAction(BaseAction):
                     telegram_user_id=user_id_to_telegram_id[user_id]
                 )
 
-        ineligible_members = []
+        results = []
         for chat, members in members_per_chat.items():
             for member in members:
                 member_wallet = (
                     member.wallet_link.wallet if member.wallet_link else None
                 )
                 member_wallet_address = member_wallet.address if member_wallet else None
-                if not (
-                    eligibility_summary := self.check_chat_member_eligibility(
-                        eligibility_rules=eligibility_rules_per_chat[chat],
-                        user=member.user,
-                        user_wallet=member_wallet,
-                        user_jettons=jetton_wallets_per_wallet.get(
-                            member_wallet_address, []
-                        ),
-                        user_nft_items=nft_items_per_wallet.get(
-                            member_wallet_address, []
-                        ),
-                        user_sticker_items=sticker_items_per_user.get(
-                            member.user_id, []
-                        ),
-                        user_gift_items=gift_items_per_user.get(member.user_id, []),
-                        chat_member=member,
-                    )
-                ):
+                eligibility_summary = self.check_chat_member_eligibility(
+                    eligibility_rules=eligibility_rules_per_chat[chat],
+                    user=member.user,
+                    user_wallet=member_wallet,
+                    user_jettons=jetton_wallets_per_wallet.get(
+                        member_wallet_address, []
+                    ),
+                    user_nft_items=nft_items_per_wallet.get(member_wallet_address, []),
+                    user_sticker_items=sticker_items_per_user.get(member.user_id, []),
+                    user_gift_items=gift_items_per_user.get(member.user_id, []),
+                    chat_member=member,
+                )
+                if not eligibility_summary:
                     logger.debug(
                         f"User {member.user.telegram_id!r} is not eligible to be in chat {chat!r}."
                         f"Eligibility summary: {eligibility_summary!r}"
                     )
-                    ineligible_members.append(member)
+                results.append(
+                    ChatMemberEligibilityResultDTO(
+                        member=member,
+                        is_eligible=bool(eligibility_summary),
+                        summary=eligibility_summary,
+                    )
+                )
 
-        return ineligible_members
+        return results
 
     @classmethod
     def check_chat_member_eligibility(
