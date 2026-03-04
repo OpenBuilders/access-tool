@@ -8,12 +8,19 @@ from core.dtos.fields import StringifiedInt
 from core.models.gift import GiftCollection
 
 
+class GiftCollectionOptionsDTO(BaseModel):
+    models: list[str]
+    backdrops: list[str]
+    patterns: list[str]
+
+
 class GiftCollectionDTO(BaseModel):
     id: StringifiedInt
     title: str
     preview_url: str | None
     supply: int
     upgraded_count: int
+    options: GiftCollectionOptionsDTO
     last_updated: datetime.datetime
 
     @classmethod
@@ -24,6 +31,7 @@ class GiftCollectionDTO(BaseModel):
             preview_url=obj.preview_url,
             supply=obj.supply,
             upgraded_count=obj.upgraded_count,
+            options=obj.options,
             last_updated=obj.last_updated,
         )
 
@@ -35,6 +43,7 @@ class GiftCollectionDTO(BaseModel):
             preview_url=preview_url,
             supply=obj.availability_total,
             upgraded_count=obj.availability_issued,
+            options=GiftCollectionOptionsDTO(models=[], backdrops=[], patterns=[]),
             last_updated=datetime.datetime.now(tz=datetime.UTC),
         )
 
@@ -45,9 +54,7 @@ class GiftCollectionMetadataDTO(BaseModel):
     preview_url: str | None
     supply: int
     upgraded_count: int
-    models: list[str]
-    backdrops: list[str]
-    patterns: list[str]
+    options: GiftCollectionOptionsDTO
 
 
 class GiftCollectionsMetadataDTO(BaseModel):
@@ -78,17 +85,20 @@ class GiftFiltersDTO(BaseModel):
                     f"Collection {obj.collection_id} not found in metadata"
                 )
 
-            if obj.model and obj.model not in collection_metadata.models:
+            if obj.model and obj.model not in collection_metadata.options.models:
                 raise ValueError(
                     f"Model {obj.model} not found in collection {obj.collection_id}"
                 )
 
-            if obj.backdrop and obj.backdrop not in collection_metadata.backdrops:
+            if (
+                obj.backdrop
+                and obj.backdrop not in collection_metadata.options.backdrops
+            ):
                 raise ValueError(
                     f"Backdrop {obj.backdrop} not found in collection {obj.collection_id}"
                 )
 
-            if obj.pattern and obj.pattern not in collection_metadata.patterns:
+            if obj.pattern and obj.pattern not in collection_metadata.options.patterns:
                 raise ValueError(
                     f"Pattern {obj.pattern} not found in collection {obj.collection_id}"
                 )
