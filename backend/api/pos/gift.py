@@ -40,7 +40,8 @@ class GiftCollectionsMetadataFDO(BaseFDO, GiftCollectionsMetadataDTO):
 class GiftFilterPO(GiftFilterDTO):
     @classmethod
     def from_query_string(cls, value: str) -> Self:
-        return cls.model_validate_json(unquote(value))
+        data = cls.model_validate_json(unquote(value))
+        return data
 
 
 class GiftUniqueInfoFDO(BaseFDO):
