@@ -53,7 +53,6 @@ class GiftUniqueAction(BaseAction):
                     patterns=options["patterns"],
                 )
             )
-
         return GiftCollectionsMetadataDTO(collections=collections_with_options)
 
     @staticmethod

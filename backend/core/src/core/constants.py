@@ -43,7 +43,7 @@ CELERY_SYSTEM_QUEUE_NAME = "system-queue"
 CELERY_GATEWAY_INDEX_QUEUE_NAME = "gateway-index-queue"
 CELERY_INDEX_PRICES_QUEUE_NAME = "index-prices-queue"
 # Gifts
-GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata-v2"
+GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata-v3"
 CELERY_GIFT_FETCH_QUEUE_NAME = "gift-fetch-queue"
 UPDATED_GIFT_USER_IDS = "updated_gift_user_ids"
 

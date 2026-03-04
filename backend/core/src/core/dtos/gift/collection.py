@@ -4,11 +4,12 @@ from typing import Self
 from pydantic import BaseModel
 from telethon.tl.types import StarGiftUnique
 
+from core.dtos.fields import StringifiedInt
 from core.models.gift import GiftCollection
 
 
 class GiftCollectionDTO(BaseModel):
-    id: int
+    id: StringifiedInt
     title: str
     preview_url: str | None
     supply: int
@@ -39,7 +40,7 @@ class GiftCollectionDTO(BaseModel):
 
 
 class GiftCollectionMetadataDTO(BaseModel):
-    id: int
+    id: StringifiedInt
     title: str
     preview_url: str | None
     supply: int
@@ -54,7 +55,7 @@ class GiftCollectionsMetadataDTO(BaseModel):
 
 
 class GiftFilterDTO(BaseModel):
-    collection_id: int
+    collection_id: StringifiedInt
     model: str | None = None
     backdrop: str | None = None
     pattern: str | None = None
