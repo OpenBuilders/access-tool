@@ -19,7 +19,6 @@ from core.models.gift import GiftUnique
 from core.services.gift.collection import GiftCollectionService
 from core.services.gift.item import GiftUniqueService
 from core.services.superredis import RedisService
-from core.settings import core_settings
 from core.utils.cache import cached_dto_result
 
 
@@ -33,12 +32,10 @@ class GiftUniqueAction(BaseAction):
     @cached_dto_result(
         cache_key=GIFT_COLLECTIONS_METADATA_KEY,
         response_model=GiftCollectionsMetadataDTO,
-        cache_ttl=60 * 60 * 24,  # 1-day cache
+        cache_ttl=60 * 5,  # 5-minute cache
     )
     def get_metadata(self) -> GiftCollectionsMetadataDTO:
-        all_collections = self.collection_service.get_all(
-            slugs=core_settings.whitelisted_gift_collections
-        )
+        all_collections = self.collection_service.get_all()
 
         collections_with_options = []
 
