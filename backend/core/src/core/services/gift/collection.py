@@ -3,37 +3,35 @@ from core.services.base import BaseService
 
 
 class GiftCollectionService(BaseService):
-    def get(self, slug: str) -> GiftCollection:
+    def get(self, id: int) -> GiftCollection:
         return (
-            self.db_session.query(GiftCollection)
-            .filter(GiftCollection.slug == slug)
-            .one()
+            self.db_session.query(GiftCollection).filter(GiftCollection.id == id).one()
         )
 
-    def get_all(self, slugs: list[str] | None = None) -> list[GiftCollection]:
+    def get_all(self, ids: list[int] | None = None) -> list[GiftCollection]:
         query = self.db_session.query(GiftCollection)
-        if slugs:
-            query = query.filter(GiftCollection.slug.in_(slugs))
-        result = query.order_by(GiftCollection.slug).all()
+        if ids:
+            query = query.filter(GiftCollection.id.in_(ids))
+        result = query.order_by(GiftCollection.id).all()
         return result
 
-    def find(self, slug: str) -> GiftCollection | None:
+    def find(self, id: int) -> GiftCollection | None:
         return (
             self.db_session.query(GiftCollection)
-            .filter(GiftCollection.slug == slug)
+            .filter(GiftCollection.id == id)
             .first()
         )
 
     def create(
         self,
-        slug: str,
+        id: int,
         title: str,
         preview_url: str | None,
         supply: int | None,
         upgraded_count: int | None,
     ) -> GiftCollection:
         new_collection = GiftCollection(
-            slug=slug,
+            id=id,
             title=title,
             preview_url=preview_url,
             supply=supply,
@@ -46,13 +44,13 @@ class GiftCollectionService(BaseService):
 
     def update(
         self,
-        slug: str,
+        id: int,
         title: str,
         preview_url: str | None,
         supply: int | None,
         upgraded_count: int | None,
     ) -> GiftCollection:
-        collection = self.get(slug)
+        collection = self.get(id)
         collection.title = title
         collection.preview_url = preview_url
         collection.supply = supply

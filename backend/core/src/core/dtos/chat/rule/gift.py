@@ -12,17 +12,17 @@ from core.models.rule import TelegramChatGiftCollection
 class BaseTelegramChatGiftCollectionRuleDTO(BaseModel):
     threshold: int
     is_enabled: bool
-    collection_slug: str | None
+    collection_id: int | None
     model: str | None
     backdrop: str | None
     pattern: str | None
     category: str | None
 
     @model_validator(mode="after")
-    def validate_slug_or_category(self) -> Self:
-        if (self.category is None) == (self.collection_slug is None):
+    def validate_id_or_category(self) -> Self:
+        if (self.category is None) == (self.collection_id is None):
             raise ValueError(
-                "Either category or collection_slug must be provided and not both."
+                "Either category or collection_id must be provided and not both."
             )
 
         return self
@@ -73,9 +73,8 @@ class GiftChatEligibilitySummaryDTO(GiftChatEligibilityRuleDTO):
         # FIXME: Turn on when market is released
         # if self.collection:
         #     return PROMOTE_GIFT_COLLECTION_TEMPLATE.format(
-        #         collection_slug=self.collection.slug
+        #         collection_id=self.collection.id
         #     )
-
         return None
 
     @classmethod

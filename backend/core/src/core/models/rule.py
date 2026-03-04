@@ -284,10 +284,14 @@ class TelegramChatStickerCollection(TelegramChatThresholdRuleBase):
 
 class TelegramChatGiftCollection(TelegramChatThresholdRuleBase):
     __tablename__ = "telegram_chat_gift_collection"
-    collection_slug = mapped_column(
-        ForeignKey("gift_collection.slug", ondelete="CASCADE"),
+    collection_id = mapped_column(
+        ForeignKey(
+            "gift_collection.id",
+            ondelete="CASCADE",
+            name="telegram_chat_gift_collection_collection_id_fkey",
+        ),
         nullable=True,
-        doc="Collection slug that will be used to check eligibility for the collection.",
+        doc="Collection ID that will be used to check eligibility for the collection.",
     )
     collection: Mapped["GiftCollection"] = relationship(
         "GiftCollection",
