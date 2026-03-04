@@ -8,7 +8,7 @@ from core.models.gift import GiftCollection
 
 
 class GiftCollectionDTO(BaseModel):
-    slug: str
+    id: int
     title: str
     preview_url: str | None
     supply: int
@@ -18,7 +18,7 @@ class GiftCollectionDTO(BaseModel):
     @classmethod
     def from_orm(cls, obj: GiftCollection) -> Self:
         return cls(
-            slug=obj.slug,
+            id=obj.id,
             title=obj.title,
             preview_url=obj.preview_url,
             supply=obj.supply,
@@ -27,9 +27,9 @@ class GiftCollectionDTO(BaseModel):
         )
 
     @classmethod
-    def from_telethon(cls, slug: str, obj: StarGiftUnique, preview_url: str) -> Self:
+    def from_telethon(cls, id: int, obj: StarGiftUnique, preview_url: str) -> Self:
         return cls(
-            slug=slug,
+            id=id,
             title=obj.title,
             preview_url=preview_url,
             supply=obj.availability_total,
@@ -39,7 +39,7 @@ class GiftCollectionDTO(BaseModel):
 
 
 class GiftCollectionMetadataDTO(BaseModel):
-    slug: str
+    id: int
     title: str
     preview_url: str | None
     supply: int
@@ -54,7 +54,7 @@ class GiftCollectionsMetadataDTO(BaseModel):
 
 
 class GiftFilterDTO(BaseModel):
-    collection: str
+    collection_id: int
     model: str | None = None
     backdrop: str | None = None
     pattern: str | None = None
@@ -68,26 +68,28 @@ class GiftFiltersDTO(BaseModel):
     def validate_with_context(
         cls, objs: list[GiftFilterDTO], context: GiftCollectionsMetadataDTO
     ) -> Self:
-        context_by_slug = {
-            collection.slug: collection for collection in context.collections
+        context_by_id = {
+            collection.id: collection for collection in context.collections
         }
         for obj in objs:
-            if not (collection_metadata := context_by_slug.get(obj.collection)):
-                raise ValueError(f"Collection {obj.collection} not found in metadata")
+            if not (collection_metadata := context_by_id.get(obj.collection_id)):
+                raise ValueError(
+                    f"Collection {obj.collection_id} not found in metadata"
+                )
 
             if obj.model and obj.model not in collection_metadata.models:
                 raise ValueError(
-                    f"Model {obj.model} not found in collection {obj.collection}"
+                    f"Model {obj.model} not found in collection {obj.collection_id}"
                 )
 
             if obj.backdrop and obj.backdrop not in collection_metadata.backdrops:
                 raise ValueError(
-                    f"Backdrop {obj.backdrop} not found in collection {obj.collection}"
+                    f"Backdrop {obj.backdrop} not found in collection {obj.collection_id}"
                 )
 
             if obj.pattern and obj.pattern not in collection_metadata.patterns:
                 raise ValueError(
-                    f"Pattern {obj.pattern} not found in collection {obj.collection}"
+                    f"Pattern {obj.pattern} not found in collection {obj.collection_id}"
                 )
 
         return cls(filters=objs)

@@ -43,10 +43,10 @@ class GiftUniqueAction(BaseAction):
         collections_with_options = []
 
         for collection in all_collections:
-            options = self.service.get_unique_options(collection_slug=collection.slug)
+            options = collection.options
             collections_with_options.append(
                 GiftCollectionMetadataDTO(
-                    slug=collection.slug,
+                    id=collection.id,
                     title=collection.title,
                     preview_url=collection.preview_url,
                     supply=collection.supply,
@@ -89,7 +89,7 @@ class GiftUniqueAction(BaseAction):
         for option in options:
             # Basic filtering logic (collection, model, backdrop, pattern)
             base_filter = and_(
-                GiftUnique.collection_slug == option.collection,
+                GiftUnique.collection_id == option.collection_id,
                 GiftUnique.telegram_owner_id.isnot(None),
                 *filter(
                     None.__ne__,
@@ -144,18 +144,18 @@ class GiftUniqueAction(BaseAction):
         result = self.db_session.execute(query).scalars().all()
         return result
 
-    def get_all(self, collection_slug: str) -> Sequence[GiftUniqueDTO]:
+    def get_all(self, collection_id: int) -> Sequence[GiftUniqueDTO]:
         """
         Fetches all unique items in a given collection.
         """
         try:
-            self.collection_service.get(slug=collection_slug)
+            self.collection_service.get(id=collection_id)
         except NoResultFound:
             raise HTTPException(
                 status_code=HTTP_404_NOT_FOUND,
-                detail=f"Collection {collection_slug!r} not found",
+                detail=f"Collection {collection_id!r} not found",
             )
         return [
             GiftUniqueDTO.from_orm(gift)
-            for gift in self.service.get_all(collection_slug=collection_slug)
+            for gift in self.service.get_all(collection_id=collection_id)
         ]
