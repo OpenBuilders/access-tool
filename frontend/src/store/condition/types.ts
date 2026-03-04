@@ -102,12 +102,12 @@ export interface StickersCollection {
 }
 
 export interface GiftsCollection {
+  id: string,
   title: string
   backdrops: string[]
   models: string[]
   patterns: string[]
   previewUrl: string
-  slug: string
   supply: number
   upgradedCount: number
 }
