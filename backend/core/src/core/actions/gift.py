@@ -10,6 +10,7 @@ from core.actions.base import BaseAction
 from core.constants import GIFT_COLLECTIONS_METADATA_KEY
 from core.dtos.gift.collection import (
     GiftCollectionMetadataDTO,
+    GiftCollectionOptionsDTO,
     GiftCollectionsMetadataDTO,
     GiftFilterDTO,
     GiftFiltersDTO,
@@ -48,9 +49,11 @@ class GiftUniqueAction(BaseAction):
                     preview_url=collection.preview_url,
                     supply=collection.supply,
                     upgraded_count=collection.upgraded_count,
-                    models=options["models"],
-                    backdrops=options["backdrops"],
-                    patterns=options["patterns"],
+                    options=GiftCollectionOptionsDTO(
+                        models=options["models"],
+                        backdrops=options["backdrops"],
+                        patterns=options["patterns"],
+                    ),
                 )
             )
         return GiftCollectionsMetadataDTO(collections=collections_with_options)
