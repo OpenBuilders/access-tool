@@ -29,6 +29,7 @@ class GiftCollectionService(BaseService):
         preview_url: str | None,
         supply: int | None,
         upgraded_count: int | None,
+        options: dict[str, list[str]] | None = None,
     ) -> GiftCollection:
         new_collection = GiftCollection(
             id=id,
@@ -37,6 +38,9 @@ class GiftCollectionService(BaseService):
             supply=supply,
             upgraded_count=upgraded_count,
         )
+        if options is not None:
+            new_collection.options = options.model_dump()
+
         self.db_session.add(new_collection)
         self.db_session.flush()
 
@@ -49,12 +53,15 @@ class GiftCollectionService(BaseService):
         preview_url: str | None,
         supply: int | None,
         upgraded_count: int | None,
+        options: dict[str, list[str]] | None = None,
     ) -> GiftCollection:
         collection = self.get(id)
         collection.title = title
         collection.preview_url = preview_url
         collection.supply = supply
         collection.upgraded_count = upgraded_count
+        if options is not None:
+            collection.options = options.model_dump()
         self.db_session.flush()
 
         return collection

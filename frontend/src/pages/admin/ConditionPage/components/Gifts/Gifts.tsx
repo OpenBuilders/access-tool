@@ -134,7 +134,7 @@ export const Gifts = ({
                     value: 'Any',
                     name: 'Any',
                   },
-                  ...(currentCollection?.models || []).map((model) => ({
+                  ...(currentCollection?.options?.models || []).map((model) => ({
                     value: model,
                     name: model,
                   })),
@@ -159,7 +159,7 @@ export const Gifts = ({
                     value: 'Any',
                     name: 'Any',
                   },
-                  ...(currentCollection?.backdrops || []).map((backdrop) => ({
+                  ...(currentCollection?.options?.backdrops || []).map((backdrop) => ({
                     value: backdrop,
                     name: backdrop,
                   })),
@@ -184,7 +184,7 @@ export const Gifts = ({
                     value: 'Any',
                     name: 'Any',
                   },
-                  ...(currentCollection?.patterns || []).map((pattern) => ({
+                  ...(currentCollection?.options?.patterns || []).map((pattern) => ({
                     value: pattern,
                     name: pattern,
                   })),
