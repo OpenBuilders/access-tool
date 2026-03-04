@@ -9,12 +9,13 @@ from telethon.tl.types import (
     StarGiftAttributePattern,
 )
 
+from core.dtos.fields import StringifiedInt
 from core.models.gift import GiftUnique
 
 
 class GiftUniqueDTO(BaseModel):
     slug: str
-    collection_id: int
+    collection_id: StringifiedInt
     telegram_owner_id: int | None
     number: int
     blockchain_address: str | None

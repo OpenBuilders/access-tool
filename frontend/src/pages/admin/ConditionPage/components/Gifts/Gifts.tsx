@@ -1,14 +1,14 @@
-import { AppSelect, Image, ListInput, ListItem, Text } from '@components'
-import { List } from '@components'
-import { Block } from '@components'
-import { useEffect, useState } from 'react'
+import { AppSelect, Image, ListInput, ListItem, Text } from '@components';
+import { List } from '@components';
+import { Block } from '@components';
+import { useEffect } from 'react';
 
-import { Condition, GiftsCollection } from '@store'
-import { useCondition } from '@store'
-import { useConditionActions } from '@store'
+import { Condition, GiftsCollection } from '@store';
+import { useCondition } from '@store';
+import { useConditionActions } from '@store';
 
-import { ConditionComponentProps } from '../types'
-import { Skeleton } from './Skeleton'
+import { ConditionComponentProps } from '../types';
+import { Skeleton } from './Skeleton';
 
 export const Gifts = ({
   isNewCondition,
@@ -20,9 +20,6 @@ export const Gifts = ({
   const { resetPrefetchedConditionDataAction, fetchGiftsAction } =
     useConditionActions()
   const { giftsData } = useCondition()
-
-  const [currentCollection, setCurrentCollection] =
-    useState<GiftsCollection | null>(null)
 
   const fetchGifts = async () => {
     try {
@@ -39,31 +36,23 @@ export const Gifts = ({
 
   useEffect(() => {
     if (giftsData?.length) {
+      const selectedCollectionId: string =
+        condition?.collectionId != null
+          ? String(condition.collectionId)
+          : (condition?.collection as GiftsCollection)?.id != null
+            ? String((condition?.collection as GiftsCollection).id)
+            : giftsData[0].id
+
       const updatedConditionState: Partial<Condition> = {
         type: 'gift_collection',
         category: null,
-        isEnabled: !!condition?.isEnabled || true,
-        collectionSlug:
-          condition?.collectionSlug ||
-          condition?.slug ||
-          (condition?.collection as GiftsCollection)?.slug ||
-          giftsData[0].slug,
-        model: condition?.model || null,
-        backdrop: condition?.backdrop || null,
-        pattern: condition?.pattern || null,
-        expected: condition?.expected || '',
+        isEnabled: condition?.isEnabled ?? true,
+        collectionId: selectedCollectionId,
+        model: condition?.model ?? null,
+        backdrop: condition?.backdrop ?? null,
+        pattern: condition?.pattern ?? null,
+        expected: condition?.expected ?? '',
       }
-
-      setCurrentCollection(
-        giftsData.find(
-          (collection) =>
-            collection.slug ===
-            (condition?.collectionSlug ||
-              condition?.slug ||
-              (condition?.collection as GiftsCollection)?.slug)
-        ) || giftsData[0]
-      )
-
       setInitialState(updatedConditionState as Partial<Condition>)
     }
   }, [giftsData?.length, condition, isNewCondition])
@@ -71,6 +60,12 @@ export const Gifts = ({
   if (!giftsData?.length || !conditionState?.type) {
     return <Skeleton />
   }
+
+  // derive currentCollection from the authoritative conditionState.collectionId
+  const currentCollection: GiftsCollection =
+    giftsData.find((collection) =>
+      collection.id === String(conditionState?.collectionId ?? giftsData[0].id)
+    ) || giftsData[0]
 
   return (
     <>
@@ -81,18 +76,22 @@ export const Gifts = ({
             after={
               <AppSelect
                 onChange={(value) => {
-                  setCurrentCollection(
-                    giftsData.find((collection) => collection.slug === value) ||
-                      giftsData[0]
-                  )
+                  const selectedIdStr = String(value)
+
+                  // reset dependent fields
                   handleChangeCondition('model', null)
                   handleChangeCondition('backdrop', null)
                   handleChangeCondition('pattern', null)
-                  handleChangeCondition('collectionSlug', value)
+
+                  // store selected collection id in condition state
+                  handleChangeCondition('collectionId', selectedIdStr)
                 }}
-                value={conditionState?.collectionSlug}
+                // the select value should reflect the selected collection id (string)
+                value={String(
+                  conditionState?.collectionId ?? currentCollection?.id ?? giftsData[0].id
+                )}
                 options={giftsData.map((collection) => ({
-                  value: collection.slug,
+                  value: collection.id,
                   name: collection.title,
                 }))}
               />
