@@ -36,6 +36,8 @@ async def index_whitelisted_gift_collections() -> list[GiftCollectionDTO]:
     :return: A list of `GiftCollectionDTO` objects representing the gift collections retrieved
         and indexed from the database.
     """
+    return []
+
     with DBService().db_session() as db_session:
         gift_collection_service = GiftCollectionService(db_session)
         collections = gift_collection_service.get_all(
@@ -164,6 +166,8 @@ def fetch_gift_ownership_details():
     Tasks will be retried automatically on session or phone-number-related errors
      up to a maximum defined limit.
     """
+    return
+
     collections = asyncio.run(index_whitelisted_gift_collections())
     for collection in collections:
         for i in range(

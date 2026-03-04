@@ -254,15 +254,15 @@ class TelegramChatStickerRuleCPO(BaseTelegramChatQuantityRuleCPO):
 
 
 class TelegramChatGiftRuleCPO(BaseTelegramChatQuantityRuleCPO):
-    collection_slug: str | None
+    collection_id: int | None
     model: str | None = None
     backdrop: str | None = None
     pattern: str | None = None
 
     @model_validator(mode="after")
     def validate_category_or_collection(self) -> Self:
-        if not self.category and not self.collection_slug:
-            raise ValueError("At least category of collection must be specified")
+        if not self.category and not self.collection_id:
+            raise ValueError("At least category or collection must be specified")
 
         return self
 
