@@ -60,8 +60,8 @@ async def test_refresh_external_sources__removed_user_is_kicked(
         await action.refresh_external_sources()
 
         # User 1002 was removed from the API response and should be kicked
-        assert mock_kick.call_count == 1
-        kicked_member = mock_kick.call_args.args[0]
+        mock_kick.assert_awaited_once()
+        kicked_member = mock_kick.await_args.args[0]
         assert kicked_member.user.telegram_id == 1002
         assert kicked_member.chat_id == chat.id
 
@@ -108,4 +108,4 @@ async def test_refresh_external_sources__no_removed_users__no_kicks(
     ) as mock_kick:
         await action.refresh_external_sources()
 
-        assert mock_kick.call_count == 0
+        mock_kick.assert_not_awaited()
