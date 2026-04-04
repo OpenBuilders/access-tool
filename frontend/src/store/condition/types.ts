@@ -104,11 +104,9 @@ export interface StickersCollection {
 export interface GiftsCollection {
   id: string,
   title: string
-  options: {
-    backdrops: string[]
-    models: string[]
-    patterns: string[]
-  }
+  backdrops: string[]
+  models: string[]
+  patterns: string[]
   previewUrl: string
   supply: number
   upgradedCount: number
