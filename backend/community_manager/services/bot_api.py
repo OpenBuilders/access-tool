@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from aiogram import Bot
@@ -49,20 +50,32 @@ class TelegramBotApiService:
             logger.error(f"BotAPI Error: {e}", exc_info=True)
             raise e
 
-    async def kick_chat_member(self, chat_id: int | str, user_id: int) -> bool:
+    async def kick_chat_member(
+        self, chat_id: int | str, user_id: int, ban_duration_minutes: int = 1
+    ) -> bool:
         """
-        Kicks a user from a chat (bans and then unbans to allow rejoining).
+        Kicks a user from a chat by temporarily banning them.
+
+        Args:
+            chat_id: The chat ID to kick the user from
+            user_id: The user ID to kick
+            ban_duration_minutes: Duration of the ban in minutes (default: 1)
         """
-        logger.info(f"Kicking user {user_id} from chat {chat_id}")
-        # Ban to remove
-        banned = await self._safe_request(
-            self.bot.ban_chat_member, chat_id=chat_id, user_id=user_id
+        logger.info(
+            f"Kicking user {user_id} from chat {chat_id} "
+            f"(temp ban for {ban_duration_minutes} minute(s))"
         )
-        # Unban to allow rejoining (classic 'kick')
-        unbanned = await self._safe_request(
-            self.bot.unban_chat_member, chat_id=chat_id, user_id=user_id
+        # Calculate temporary ban until date
+        until_date = datetime.now(timezone.utc) + timedelta(
+            minutes=ban_duration_minutes
         )
-        return banned and unbanned
+        # Temporarily ban the user (allows rejoining after ban_duration_minutes)
+        return await self._safe_request(
+            self.bot.ban_chat_member,
+            chat_id=chat_id,
+            user_id=user_id,
+            until_date=until_date,
+        )
 
     async def unban_chat_member(self, chat_id: int | str, user_id: int) -> bool:
         """
