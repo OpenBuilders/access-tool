@@ -21,7 +21,6 @@ from core.services.gift.collection import GiftCollectionService
 from core.utils.session import SessionLockManager, SessionUnavailableError
 from indexer_gifts.actions.collection import IndexerGiftCollectionAction
 from indexer_gifts.actions.item import IndexerGiftUniqueAction
-from indexer_gifts.actions.api import IndexerGiftChangesAction
 from indexer_gifts.celery_app import app
 from indexer_gifts.settings import gifts_indexer_settings
 
@@ -186,21 +185,3 @@ def fetch_gift_ownership_details():
                 ),
                 queue=CELERY_GIFT_FETCH_QUEUE_NAME,
             )
-
-
-@app.task(
-    name="sync-gift-collections-from-api",
-    queue=CELERY_GIFT_FETCH_QUEUE_NAME,
-    default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
-    retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
-    ignore_result=True,
-)
-def sync_gift_collections_from_api() -> None:
-    """
-    Hourly scheduled task that fetches all gift collections from the `changes.tg` API
-    and syncs them to the database. This fetches the `models`, `patterns`,
-    and `backdrops`, as well as standard properties without altering existing supplies.
-    """
-    with DBService().db_session() as db_session:
-        action = IndexerGiftChangesAction(db_session=db_session)
-        asyncio.run(action.index_all())
