@@ -998,6 +998,10 @@ class CommunityManagerTaskChatAction:
                 logger.warning(f"Validation for {source.url!r} failed. Continue...")
                 continue
 
+            # Update content before the eligibility check so that
+            # is_whitelisted reads the current list, not the stale one
+            telegram_chat_external_source_service.set_content(source, diff.current)
+
             if diff.removed:
                 logger.info(
                     f"Found {len(diff.removed)} removed members from the source {source.chat_id!r}"
@@ -1009,9 +1013,6 @@ class CommunityManagerTaskChatAction:
                 await community_user_action.kick_ineligible_chat_members(
                     chat_members=chat_members
                 )
-            # Set content only after the source was refreshed to ensure
-            # no new attempts to kick users that are already kicked will be made
-            telegram_chat_external_source_service.set_content(source, diff.current)
 
         logger.info("All enabled chat sources refreshed.")
 
