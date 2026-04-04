@@ -21,16 +21,20 @@ from tests.factories.user import UserFactory
 async def test_refresh_external_sources__removed_user_is_kicked(
     db_session: Session,
 ):
-    chat = TelegramChatFactory.create(is_full_control=True)
-    group = TelegramChatRuleGroupFactory.create(chat=chat)
+    chat = TelegramChatFactory.with_session(db_session).create(is_full_control=True)
+    group = TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
 
-    user_stays = UserFactory.create(telegram_id=1001)
-    user_removed = UserFactory.create(telegram_id=1002)
+    user_stays = UserFactory.with_session(db_session).create(telegram_id=1001)
+    user_removed = UserFactory.with_session(db_session).create(telegram_id=1002)
 
-    TelegramChatUserFactory.create(chat=chat, user=user_stays, is_managed=True)
-    TelegramChatUserFactory.create(chat=chat, user=user_removed, is_managed=True)
+    TelegramChatUserFactory.with_session(db_session).create(
+        chat=chat, user=user_stays, is_managed=True
+    )
+    TelegramChatUserFactory.with_session(db_session).create(
+        chat=chat, user=user_removed, is_managed=True
+    )
 
-    source = TelegramChatWhitelistExternalSourceFactory.create(
+    source = TelegramChatWhitelistExternalSourceFactory.with_session(db_session).create(
         chat=chat,
         group=group,
         content=[1001, 1002],
@@ -73,13 +77,15 @@ async def test_refresh_external_sources__removed_user_is_kicked(
 async def test_refresh_external_sources__no_removed_users__no_kicks(
     db_session: Session,
 ):
-    chat = TelegramChatFactory.create(is_full_control=True)
-    group = TelegramChatRuleGroupFactory.create(chat=chat)
+    chat = TelegramChatFactory.with_session(db_session).create(is_full_control=True)
+    group = TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat)
 
-    user = UserFactory.create(telegram_id=1001)
-    TelegramChatUserFactory.create(chat=chat, user=user, is_managed=True)
+    user = UserFactory.with_session(db_session).create(telegram_id=1001)
+    TelegramChatUserFactory.with_session(db_session).create(
+        chat=chat, user=user, is_managed=True
+    )
 
-    TelegramChatWhitelistExternalSourceFactory.create(
+    TelegramChatWhitelistExternalSourceFactory.with_session(db_session).create(
         chat=chat,
         group=group,
         content=[1001],
