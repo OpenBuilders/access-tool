@@ -12,7 +12,7 @@ class GiftCollectionService(BaseService):
         query = self.db_session.query(GiftCollection)
         if ids:
             query = query.filter(GiftCollection.id.in_(ids))
-        result = query.order_by(GiftCollection.id).all()
+        result = query.order_by(GiftCollection.title).all()
         return result
 
     def find(self, id: int) -> GiftCollection | None:
