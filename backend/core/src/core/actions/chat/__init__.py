@@ -14,7 +14,11 @@ from starlette.status import (
 from core.actions.authorization import AuthorizationAction
 from core.actions.base import BaseAction
 from core.actions.chat.base import ManagedChatBaseAction
-from core.constants import CELERY_SYSTEM_QUEUE_NAME
+from core.constants import (
+    CELERY_GATEWAY_INDEX_QUEUE_NAME,
+    CELERY_SYSTEM_QUEUE_NAME,
+)
+from core.dtos.gateway import IndexChatCommand
 from core.dtos.chat import (
     TelegramChatDTO,
     TelegramChatPovDTO,
@@ -318,6 +322,54 @@ class TelegramChatManageAction(ManagedChatBaseAction, TelegramChatAction):
                 detail="Something went wrong while changing the chat mode. Please, try again later.",
             )
         return TelegramChatDTO.from_object(chat)
+
+    async def refresh_participants(self) -> None:
+        """
+        Re-sync chat membership with Telegram and re-evaluate eligibility.
+
+        Enqueues an ``IndexChatCommand`` with ``cleanup=True`` for the gateway
+        service. The gateway re-runs ``get_participants``, removes stale rows
+        from ``telegram_chat_user`` (only if every participant indexed cleanly)
+        and triggers ``check-target-chat-members`` to kick ineligible members
+        based on the data already stored locally. On-chain refresh is not part
+        of this flow and is delivered through the regular tracker pipeline.
+
+        Rate-limited to once per 30 minutes per chat. On failure the rate-limit
+        key is removed so a transient error does not lock the chat out.
+
+        :raises HTTPException: 400 if the bot lacks privileges, 429 if the
+            rate-limit is active.
+        """
+        if self.chat.insufficient_privileges:
+            logger.warning(
+                "An attempt to refresh chat with insufficient privileges %d",
+                self.chat.id,
+            )
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail="Insufficient privileges for bot in the chat",
+            )
+
+        redis_service = RedisService()
+        if not redis_service.set(
+            f"refresh_chat_{self.chat.id}", "1", ex=1800, nx=True
+        ):
+            logger.warning(
+                "An attempt to spam refresh_participants in chat %d", self.chat.id
+            )
+            raise HTTPException(
+                status_code=HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests"
+            )
+
+        try:
+            command = IndexChatCommand(chat_id=self.chat.id, cleanup=True)
+            redis_service.rpush(
+                CELERY_GATEWAY_INDEX_QUEUE_NAME, command.model_dump_json()
+            )
+            logger.info(f"Refresh requested for chat {self.chat.id}")
+        except Exception:
+            redis_service.delete(f"refresh_chat_{self.chat.id}")
+            raise
 
     async def get_with_eligibility_rules(self) -> TelegramChatWithRulesDTO:
         """

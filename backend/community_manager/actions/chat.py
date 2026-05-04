@@ -19,8 +19,8 @@ from community_manager.dtos.chat import TargetChatMembersDTO
 from community_manager.events import ChatAdminChangeEventBuilder
 from community_manager.settings import community_manager_settings
 from community_manager.gateway.client import TelegramGatewayClient
-from community_manager.gateway.types import IndexChatCommand
 from community_manager.services.bot_api import TelegramBotApiService
+from core.dtos.gateway import IndexChatCommand
 from community_manager.utils import (
     is_chat_participant_admin,
     is_chat_participant_manager_admin,

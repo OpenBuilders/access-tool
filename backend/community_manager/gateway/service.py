@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from core.db import engine
 from core.actions.user import UserAction
 from core.services.chat.user import TelegramChatUserService
+from core.dtos.gateway import IndexChatCommand
 from core.dtos.user import TelegramUserDTO
 from core.services.superredis import RedisService
 from core.services.supertelethon import TelethonService
@@ -16,7 +17,6 @@ from core.constants import (
 )
 
 from community_manager.celery_app import app
-from community_manager.gateway.types import IndexChatCommand
 from community_manager.utils import (
     is_chat_participant_manager_admin,
     is_chat_participant_admin,
@@ -88,6 +88,7 @@ class TelegramGatewayService:
 
             processed_user_ids = []
             count = 0
+            errors_count = 0
 
             # TODO: We might need to handle flood waits here if iteration is fast?
             # Telethon handles it internally mostly.
@@ -117,13 +118,21 @@ class TelegramGatewayService:
                     processed_user_ids.append(user.id)
                     count += 1
                 except Exception as e:
+                    errors_count += 1
                     logger.error(
                         f"Failed to process user {participant_user.id}: {e}",
                         exc_info=True,
                     )
                     # begin_nested() automatically rolls back the savepoint on exception
 
-            if command.cleanup:
+            cleanup_safe = command.cleanup and errors_count == 0
+            if command.cleanup and not cleanup_safe:
+                logger.warning(
+                    f"Skipping cleanup for chat {chat_id}: {errors_count} users "
+                    f"failed to index, active_user_ids list is incomplete."
+                )
+
+            if cleanup_safe:
                 telegram_chat_user_service.delete_stale_participants(
                     chat_id=chat_id, active_user_ids=processed_user_ids
                 )
@@ -131,9 +140,7 @@ class TelegramGatewayService:
             db_session.commit()
             logger.info(f"Finished indexing chat {chat_id}. Found {count} members.")
 
-            # Trigger validation of chat members after indexing is complete
-            # This ensures that we check for eligibility once we have the latest data
-            if command.cleanup:
+            if cleanup_safe:
                 app.send_task(
                     "check-target-chat-members",
                     args=(chat_id,),
