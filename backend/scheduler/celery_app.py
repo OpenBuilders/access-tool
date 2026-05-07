@@ -5,8 +5,8 @@ from core.constants import (
     CELERY_NOTICED_WALLETS_UPLOAD_QUEUE_NAME,
     CELERY_SYSTEM_QUEUE_NAME,
     CELERY_STICKER_FETCH_QUEUE_NAME,
-    CELERY_GIFT_FETCH_QUEUE_NAME,
     CELERY_INDEX_PRICES_QUEUE_NAME,
+    CELERY_GIFT_FETCH_QUEUE_NAME,
 )
 from core.settings import core_settings
 
@@ -48,8 +48,13 @@ def create_app() -> Celery:
                     "schedule": crontab(minute="*/10"),  # Every 10 minutes
                     "options": {"queue": CELERY_STICKER_FETCH_QUEUE_NAME},
                 },
-                "fetch-gift-ownerships": {
-                    "task": "fetch-gift-ownership-details",
+                # "fetch-gift-ownerships": {
+                #     "task": "fetch-gift-ownership-details",
+                #     "schedule": crontab(hour="*/1", minute="0"),  # Every hour
+                #     "options": {"queue": CELERY_GIFT_FETCH_QUEUE_NAME},
+                # },
+                "sync-gift-collections-from-api": {
+                    "task": "sync-gift-collections-from-api",
                     "schedule": crontab(hour="*/1", minute="0"),  # Every hour
                     "options": {"queue": CELERY_GIFT_FETCH_QUEUE_NAME},
                 },

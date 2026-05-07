@@ -36,7 +36,7 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         self,
         chat_id: int,
         group_id: int,
-        collection_slug: str | None,
+        collection_id: int | None,
         category: str | None,
         entity_id: int | None = None,
     ) -> None:
@@ -47,7 +47,7 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
 
         :param chat_id: The unique identifier for the chat where the rule applies.
         :param group_id: The unique identifier for the group where the rule applies.
-        :param collection_slug: The slug identifying the collection; can be None if not applicable.
+        :param collection_id: The id identifying the collection; can be None if not applicable.
         :param category: The category to which the rule applies; can be None if not applicable.
         :param entity_id: Optional identifier for the specific entity to exclude from duplicate checks.
 
@@ -56,7 +56,7 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         existing_rules = self.service.find(
             chat_id=chat_id,
             group_id=group_id,
-            collection_slug=collection_slug,
+            collection_id=collection_id,
             category=category,
         )
         if next(filter(lambda rule: rule.id != entity_id, existing_rules), None):
@@ -67,41 +67,41 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
 
     def validate_params(
         self,
-        collection_slug: str | None,
+        collection_id: int | None,
         model: str | None,
         backdrop: str | None,
         pattern: str | None,
     ) -> None:
-        # If the collection slug is not set or attributes are not selected – no need to validate them
-        if not collection_slug or not any((model, backdrop, pattern)):
+        # If the collection id is not set or attributes are not selected – no need to validate them
+        if not collection_id or not any((model, backdrop, pattern)):
             return
 
-        options = self.gift_unique_service.get_unique_options(
-            collection_slug=collection_slug
-        )
+        # FIXME: Rewrite disabled for now since it needs refactoring
+        # options = self.gift_unique_service.get_unique_options("...")
+        options = {}
 
         if model and model not in options.get("models", []):
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,
-                detail=f"Model {model!r} is not available for the collection {collection_slug!r}.",
+                detail=f"Model {model!r} is not available for the collection {collection_id!r}.",
             )
 
         if backdrop and backdrop not in options.get("backdrops", []):
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,
-                detail=f"Backdrop {backdrop!r} is not available for the collection {collection_slug!r}.",
+                detail=f"Backdrop {backdrop!r} is not available for the collection {collection_id!r}.",
             )
 
         if pattern and pattern not in options.get("patterns", []):
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,
-                detail=f"Pattern {pattern!r} is not available for the collection {collection_slug!r}.",
+                detail=f"Pattern {pattern!r} is not available for the collection {collection_id!r}.",
             )
 
     async def create(
         self,
         group_id: int | None,
-        collection_slug: str | None,
+        collection_id: int | None,
         model: str | None,
         backdrop: str | None,
         pattern: str | None,
@@ -113,16 +113,16 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         self.check_duplicates(
             chat_id=self.chat.id,
             group_id=group_id,
-            collection_slug=collection_slug,
+            collection_id=collection_id,
             category=category,
         )
-        self.validate_params(collection_slug, model, backdrop, pattern)
+        self.validate_params(collection_id, model, backdrop, pattern)
 
         new_rule = self.service.create(
             CreateTelegramChatGiftCollectionRuleDTO(
                 chat_id=self.chat.id,
                 group_id=group_id,
-                collection_slug=collection_slug,
+                collection_id=collection_id,
                 model=model,
                 backdrop=backdrop,
                 pattern=pattern,
@@ -139,7 +139,7 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
     async def update(
         self,
         rule_id: int,
-        collection_slug: str | None,
+        collection_id: int | None,
         category: str | None,
         model: str | None,
         backdrop: str | None,
@@ -155,16 +155,16 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         self.check_duplicates(
             chat_id=self.chat.id,
             group_id=rule.group_id,
-            collection_slug=collection_slug,
+            collection_id=collection_id,
             category=category,
             entity_id=rule_id,
         )
-        self.validate_params(collection_slug, model, backdrop, pattern)
+        self.validate_params(collection_id, model, backdrop, pattern)
 
         updated_rule = self.service.update(
             rule=rule,
             dto=UpdateTelegramChatGiftCollectionRuleDTO(
-                collection_slug=collection_slug,
+                collection_id=collection_id,
                 category=category,
                 threshold=threshold,
                 is_enabled=is_enabled,

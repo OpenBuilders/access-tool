@@ -9,12 +9,13 @@ from telethon.tl.types import (
     StarGiftAttributePattern,
 )
 
+from core.dtos.fields import StringifiedInt
 from core.models.gift import GiftUnique
 
 
 class GiftUniqueDTO(BaseModel):
     slug: str
-    collection_slug: str
+    collection_id: StringifiedInt
     telegram_owner_id: int | None
     number: int
     blockchain_address: str | None
@@ -28,7 +29,7 @@ class GiftUniqueDTO(BaseModel):
     def from_orm(cls, obj: GiftUnique) -> Self:
         return cls(
             slug=obj.slug,
-            collection_slug=obj.collection_slug,
+            collection_id=obj.collection_id,
             telegram_owner_id=obj.telegram_owner_id,
             number=obj.number,
             blockchain_address=obj.blockchain_address,
@@ -40,7 +41,7 @@ class GiftUniqueDTO(BaseModel):
         )
 
     @classmethod
-    def from_telethon(cls, collection_slug: str, obj: StarGiftUnique) -> Self:
+    def from_telethon(cls, collection_id: int, obj: StarGiftUnique) -> Self:
         model_attribute = next(
             (
                 attribute
@@ -73,7 +74,7 @@ class GiftUniqueDTO(BaseModel):
 
         return cls(
             slug=obj.slug,
-            collection_slug=collection_slug,
+            collection_id=collection_id,
             telegram_owner_id=getattr(obj.owner_id, "user_id", None),
             number=obj.num,
             blockchain_address=obj.gift_address,

@@ -10,6 +10,7 @@ from core.actions.base import BaseAction
 from core.constants import GIFT_COLLECTIONS_METADATA_KEY
 from core.dtos.gift.collection import (
     GiftCollectionMetadataDTO,
+    GiftCollectionOptionsDTO,
     GiftCollectionsMetadataDTO,
     GiftFilterDTO,
     GiftFiltersDTO,
@@ -19,7 +20,6 @@ from core.models.gift import GiftUnique
 from core.services.gift.collection import GiftCollectionService
 from core.services.gift.item import GiftUniqueService
 from core.services.superredis import RedisService
-from core.settings import core_settings
 from core.utils.cache import cached_dto_result
 
 
@@ -33,30 +33,29 @@ class GiftUniqueAction(BaseAction):
     @cached_dto_result(
         cache_key=GIFT_COLLECTIONS_METADATA_KEY,
         response_model=GiftCollectionsMetadataDTO,
-        cache_ttl=60 * 60 * 24,  # 1-day cache
+        cache_ttl=60 * 5,  # 5-minute cache
     )
     def get_metadata(self) -> GiftCollectionsMetadataDTO:
-        all_collections = self.collection_service.get_all(
-            slugs=core_settings.whitelisted_gift_collections
-        )
+        all_collections = self.collection_service.get_all()
 
         collections_with_options = []
 
         for collection in all_collections:
-            options = self.service.get_unique_options(collection_slug=collection.slug)
+            options = collection.options
             collections_with_options.append(
                 GiftCollectionMetadataDTO(
-                    slug=collection.slug,
+                    id=collection.id,
                     title=collection.title,
                     preview_url=collection.preview_url,
                     supply=collection.supply,
                     upgraded_count=collection.upgraded_count,
-                    models=options["models"],
-                    backdrops=options["backdrops"],
-                    patterns=options["patterns"],
+                    options=GiftCollectionOptionsDTO(
+                        models=options["models"],
+                        backdrops=options["backdrops"],
+                        patterns=options["patterns"],
+                    ),
                 )
             )
-
         return GiftCollectionsMetadataDTO(collections=collections_with_options)
 
     @staticmethod
@@ -89,7 +88,7 @@ class GiftUniqueAction(BaseAction):
         for option in options:
             # Basic filtering logic (collection, model, backdrop, pattern)
             base_filter = and_(
-                GiftUnique.collection_slug == option.collection,
+                GiftUnique.collection_id == option.collection_id,
                 GiftUnique.telegram_owner_id.isnot(None),
                 *filter(
                     None.__ne__,
@@ -144,18 +143,18 @@ class GiftUniqueAction(BaseAction):
         result = self.db_session.execute(query).scalars().all()
         return result
 
-    def get_all(self, collection_slug: str) -> Sequence[GiftUniqueDTO]:
+    def get_all(self, collection_id: int) -> Sequence[GiftUniqueDTO]:
         """
         Fetches all unique items in a given collection.
         """
         try:
-            self.collection_service.get(slug=collection_slug)
+            self.collection_service.get(id=collection_id)
         except NoResultFound:
             raise HTTPException(
                 status_code=HTTP_404_NOT_FOUND,
-                detail=f"Collection {collection_slug!r} not found",
+                detail=f"Collection {collection_id!r} not found",
             )
         return [
             GiftUniqueDTO.from_orm(gift)
-            for gift in self.service.get_all(collection_slug=collection_slug)
+            for gift in self.service.get_all(collection_id=collection_id)
         ]
