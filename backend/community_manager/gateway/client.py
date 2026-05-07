@@ -1,8 +1,8 @@
 import logging
 
-from community_manager.gateway.types import GatewayCommand
-from core.services.superredis import RedisService
 from core.constants import CELERY_GATEWAY_INDEX_QUEUE_NAME
+from core.dtos.gateway import GatewayCommand
+from core.services.superredis import RedisService
 
 logger = logging.getLogger(__name__)
 
