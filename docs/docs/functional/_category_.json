@@ -1,0 +1,8 @@
+{
+    "label": "Functional Documentation",
+    "position": 2,
+    "link": {
+        "type": "generated-index",
+        "description": "How it works under-the-hood when it's not visible to the user."
+    }
+}
