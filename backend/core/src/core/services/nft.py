@@ -151,8 +151,14 @@ class NftItemService(BaseService):
 
     def bulk_create_or_update(
         self, nft_items: NftItems, whitelist_collection_addresses: list[str]
-    ) -> list[NftItem]:
+    ) -> tuple[list[NftItem], set[str]]:
+        """
+        Returns the persisted NFTs and the set of addresses that lost
+        ownership in this batch so callers can re-queue eligibility checks
+        for them.
+        """
         created_or_updated_nfts = []
+        previous_owners: set[str] = set()
         for nft_item in nft_items.nft_items:
             if (
                 not nft_item.collection
@@ -161,9 +167,18 @@ class NftItemService(BaseService):
             ):
                 continue
 
-            created_or_updated_nfts.append(self.create_or_update(nft_item))
+            try:
+                existing = self.get(address=nft_item.address.to_raw())
+                if existing.owner_address != nft_item.owner.address.to_raw():
+                    previous_owners.add(existing.owner_address)
+                created_or_updated_nfts.append(self._update(nft_item, existing))
+            except NoResultFound:
+                logger.info(
+                    f"No NFT Item for address {nft_item.address!r} found. Creating new NFT Item."
+                )
+                created_or_updated_nfts.append(self._create(nft_item))
         self.db_session.flush()
-        return created_or_updated_nfts
+        return created_or_updated_nfts, previous_owners
 
     def count(self) -> int:
         return self.db_session.query(NftItem).count()
