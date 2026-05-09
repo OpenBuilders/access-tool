@@ -83,4 +83,4 @@ async def delete_chat_jetton_rule(
         requestor=request.state.user,
         chat_slug=slug,
     )
-    await action.delete(rule_id=rule_id)
+    action.delete(rule_id=rule_id)

@@ -9,11 +9,15 @@ from starlette.status import (
 from fastapi import HTTPException
 
 from core.actions.chat import TelegramChatManageAction
+from core.dtos.gateway import GatewayCommands, IndexChatCommand
 from core.models.chat import TelegramChat
 from tests.factories import UserFactory, TelegramChatFactory, TelegramChatUserFactory
 
 
-from core.constants import CELERY_SYSTEM_QUEUE_NAME
+from core.constants import (
+    CELERY_GATEWAY_INDEX_QUEUE_NAME,
+    CELERY_SYSTEM_QUEUE_NAME,
+)
 
 
 @pytest.fixture
@@ -161,3 +165,76 @@ async def test_set_control_level_celery_failure(
         )
 
     assert exc.value.status_code == HTTP_502_BAD_GATEWAY
+
+
+@pytest.mark.asyncio
+async def test_refresh_participants_enqueues_gateway_command(
+    db_session: Session,
+    managed_chat_action: TelegramChatManageAction,
+    mocker: MockerFixture,
+) -> None:
+    """Refresh enqueues an IndexChatCommand with cleanup=True for the gateway."""
+    mock_redis = mocker.patch("core.actions.chat.RedisService")
+    mock_redis.return_value.set.return_value = True
+
+    await managed_chat_action.refresh_participants()
+
+    rpush_calls = mock_redis.return_value.rpush.call_args_list
+    assert len(rpush_calls) == 1
+    queue_arg, payload_arg = rpush_calls[0].args
+    assert queue_arg == CELERY_GATEWAY_INDEX_QUEUE_NAME
+
+    command = IndexChatCommand.model_validate_json(payload_arg)
+    assert command.chat_id == managed_chat_action.chat.id
+    assert command.cleanup is True
+    assert command.command_type == GatewayCommands.INDEX_CHAT
+
+
+@pytest.mark.asyncio
+async def test_refresh_participants_insufficient_privileges(
+    db_session: Session,
+    managed_chat_action: TelegramChatManageAction,
+) -> None:
+    managed_chat_action.chat.insufficient_privileges = True
+    db_session.flush()
+
+    with pytest.raises(HTTPException) as exc:
+        await managed_chat_action.refresh_participants()
+
+    assert exc.value.status_code == HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Insufficient privileges for bot in the chat"
+
+
+@pytest.mark.asyncio
+async def test_refresh_participants_rate_limit(
+    db_session: Session,
+    managed_chat_action: TelegramChatManageAction,
+    mocker: MockerFixture,
+) -> None:
+    mock_redis = mocker.patch("core.actions.chat.RedisService")
+    mock_redis.return_value.set.return_value = False
+
+    with pytest.raises(HTTPException) as exc:
+        await managed_chat_action.refresh_participants()
+
+    assert exc.value.status_code == HTTP_429_TOO_MANY_REQUESTS
+    assert exc.value.detail == "Too many requests"
+    mock_redis.return_value.rpush.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_refresh_participants_clears_lock_on_failure(
+    db_session: Session,
+    managed_chat_action: TelegramChatManageAction,
+    mocker: MockerFixture,
+) -> None:
+    mock_redis = mocker.patch("core.actions.chat.RedisService")
+    mock_redis.return_value.set.return_value = True
+    mock_redis.return_value.rpush.side_effect = RuntimeError("redis is down")
+
+    with pytest.raises(RuntimeError, match="redis is down"):
+        await managed_chat_action.refresh_participants()
+
+    mock_redis.return_value.delete.assert_any_call(
+        f"refresh_chat_{managed_chat_action.chat.id}"
+    )

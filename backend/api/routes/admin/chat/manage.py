@@ -102,3 +102,25 @@ async def update_chat_full_control(
         effective_in_days=chat.effective_in_days,
     )
     return TelegramChatFDO.model_validate(chat.model_dump())
+
+
+@admin_chat_manage_router.post(
+    "/refresh",
+    description=(
+        "Re-sync chat membership with Telegram and re-evaluate eligibility. "
+        "Re-indexes participants, removes stale rows when the index is complete, "
+        "and triggers a kick pass on the data already stored locally. "
+        "Rate-limited to once per 30 minutes per chat."
+    ),
+)
+async def refresh_chat_participants(
+    request: Request,
+    slug: str,
+    db_session: Session = Depends(get_db_session),
+) -> None:
+    telegram_chat_action = TelegramChatManageAction(
+        db_session=db_session,
+        requestor=request.state.user,
+        chat_slug=slug,
+    )
+    await telegram_chat_action.refresh_participants()
