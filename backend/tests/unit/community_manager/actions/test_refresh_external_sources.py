@@ -115,3 +115,66 @@ async def test_refresh_external_sources__no_removed_users__no_kicks(
         await action.refresh_external_sources()
 
         mock_kick.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_refresh_external_sources__only_considers_membership_in_source_chat(
+    db_session: Session,
+):
+    """
+    When a user is removed from an external whitelist, eligibility must be evaluated
+    only for the chat that owns the source — not for other chats where the same user
+    is a member.
+    """
+    chat_a = TelegramChatFactory.with_session(db_session).create(
+        is_full_control=True, title="Chat A"
+    )
+    chat_b = TelegramChatFactory.with_session(db_session).create(
+        is_full_control=True, title="Chat B"
+    )
+    group_a = TelegramChatRuleGroupFactory.with_session(db_session).create(chat=chat_a)
+
+    user_removed = UserFactory.with_session(db_session).create(telegram_id=2002)
+    TelegramChatUserFactory.with_session(db_session).create(
+        chat=chat_a, user=user_removed, is_managed=True
+    )
+    TelegramChatUserFactory.with_session(db_session).create(
+        chat=chat_b, user=user_removed, is_managed=True
+    )
+
+    TelegramChatWhitelistExternalSourceFactory.with_session(db_session).create(
+        chat=chat_a,
+        group=group_a,
+        content=[2002],
+        is_enabled=True,
+        url="https://example.com/api/whitelist-a",
+    )
+    db_session.flush()
+
+    mock_validate = AsyncMock(
+        return_value=WhitelistRuleItemsDifferenceDTO(
+            previous=[2002],
+            current=[],
+        )
+    )
+
+    captured: list = []
+
+    async def capture_kick_ineligible(self, chat_members):
+        captured.extend(chat_members)
+
+    action = CommunityManagerTaskChatAction(db_session)
+
+    with patch.object(
+        TelegramChatExternalSourceService,
+        "validate_external_source",
+        mock_validate,
+    ), patch.object(
+        CommunityManagerUserChatAction,
+        "kick_ineligible_chat_members",
+        capture_kick_ineligible,
+    ):
+        await action.refresh_external_sources()
+
+    assert len(captured) == 1
+    assert captured[0].chat_id == chat_a.id
