@@ -92,7 +92,9 @@ def fetch_wallet_details(address: str) -> None:
         jetton_wallet_service.delete_missing(address, active_jetton_wallets)
 
         nft_service = NftItemService(db_session)
-        nft_service.bulk_create_or_update(nft_items, whitelist_collection_addresses)
+        _, evicted_owners = nft_service.bulk_create_or_update(
+            nft_items, whitelist_collection_addresses
+        )
 
         active_nft_items = [item.address.to_raw() for item in nft_items.nft_items]
         nft_service.delete_missing(address, active_nft_items)
@@ -100,6 +102,8 @@ def fetch_wallet_details(address: str) -> None:
     logger.info(f"NFT items for {address!r} updated.")
     redis_service = RedisService()
     redis_service.add_to_set(UPDATED_WALLETS_SET_NAME, address)
+    for evicted_owner in evicted_owners - {address}:
+        redis_service.add_to_set(UPDATED_WALLETS_SET_NAME, evicted_owner)
 
 
 @app.task(
