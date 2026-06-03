@@ -86,6 +86,20 @@ export const ChatHeader = () => {
           </Text>
         </Block>
       )}
+      {chat?.insufficientPrivileges && (
+        <Block margin="top" marginValue={12}>
+          <List>
+            <ListItem
+              before={<span style={{ fontSize: '20px' }}>⚠️</span>}
+              text={
+                <Text type="text" color="danger">
+                  The bot lacks sufficient privileges to manage this chat. Please ensure the bot is an admin with all permissions.
+                </Text>
+              }
+            />
+          </List>
+        </Block>
+      )}
       <Block
         margin="top"
         marginValue={24}

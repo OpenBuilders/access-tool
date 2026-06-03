@@ -13,7 +13,11 @@ from telethon.errors import (
     RPCError,
 )
 from telethon.utils import get_peer_id
-from aiogram.utils.markdown import text as fmt_text, bold as fmt_bold
+from aiogram.utils.markdown import (
+    text as fmt_text,
+    bold as fmt_bold,
+    markdown_decoration,
+)
 
 from community_manager.dtos.chat import TargetChatMembersDTO
 from community_manager.events import ChatAdminChangeEventBuilder
@@ -344,7 +348,11 @@ class CommunityManagerChatAction(BaseAction):
             logger.warning(
                 f"Chat {chat.id!r} has insufficient permissions set. Disabling it..."
             )
-            self.telegram_chat_service.set_insufficient_privileges(chat_id=chat.id)
+            if not chat.insufficient_privileges:
+                self.telegram_chat_service.set_insufficient_privileges(chat_id=chat.id)
+                await self._notify_insufficient_privileges(
+                    chat_id=chat.id, chat_title=chat.title
+                )
             raise
 
         except (
@@ -629,10 +637,56 @@ class CommunityManagerChatAction(BaseAction):
                 self.telegram_chat_service.set_insufficient_privileges(
                     chat_id=chat.id, value=True
                 )
+                await self._notify_insufficient_privileges(
+                    chat_id=chat.id, chat_title=chat.title
+                )
         elif chat.insufficient_privileges:
             logger.info("Sufficient permissions for the bot in chat %d", chat.id)
             self.telegram_chat_service.set_insufficient_privileges(
                 chat_id=chat.id, value=False
+            )
+
+    async def _notify_insufficient_privileges(
+        self, chat_id: int, chat_title: str
+    ) -> None:
+        try:
+            managers = (
+                self.db_session.query(TelegramChatUser)
+                .filter(
+                    TelegramChatUser.chat_id == chat_id,
+                    TelegramChatUser.is_manager_admin.is_(True),
+                )
+                .all()
+            )
+            telegram_ids = [m.user.telegram_id for m in managers if m.user]
+
+            if not telegram_ids:
+                logger.warning(f"No manager admins found for chat {chat_id} to notify.")
+                return
+
+            text = fmt_text(
+                "⚠️ ",
+                fmt_bold("Insufficient Privileges"),
+                "\n\n",
+                "The bot no longer has sufficient administrative privileges to manage the chat ",
+                fmt_bold(chat_title),
+                " \\(ID: ",
+                markdown_decoration.quote(str(chat_id)),
+                "\\)\\.\n\n",
+                "Please ensure the bot is added as an administrator with the required permissions\\.",
+                sep="",
+            )
+            async with TelegramBotApiService() as bot_service:
+                for tg_id in telegram_ids:
+                    try:
+                        await bot_service.send_message(chat_id=tg_id, text=text)
+                    except Exception as e:
+                        logger.warning(
+                            f"Failed to notify manager {tg_id} for chat {chat_id}: {e}"
+                        )
+        except Exception as e:
+            logger.error(
+                f"Error in _notify_insufficient_privileges for chat {chat_id}: {e}"
             )
 
     async def on_join_request(
