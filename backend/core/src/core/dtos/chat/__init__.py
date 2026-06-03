@@ -34,10 +34,10 @@ class BaseTelegramChatDTO(TelegramChatPreviewDTO):
     username: str | None
     is_enabled: bool
     join_url: str | None = None
+    insufficient_privileges: bool
 
 
 class TelegramChatDTO(BaseTelegramChatDTO):
-    insufficient_privileges: bool
     is_full_control: bool
 
     @classmethod
@@ -128,6 +128,7 @@ class TelegramChatPovDTO(BaseTelegramChatDTO):
                 join_url=join_url,
                 members_count=members_count,
                 is_enabled=obj.is_enabled,
+                insufficient_privileges=obj.insufficient_privileges,
             )
         else:
             return cls(
@@ -143,6 +144,7 @@ class TelegramChatPovDTO(BaseTelegramChatDTO):
                 is_enabled=obj.is_enabled,
                 is_eligible=False,
                 join_url=None,
+                insufficient_privileges=obj.insufficient_privileges,
             )
 
 

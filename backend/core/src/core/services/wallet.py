@@ -101,7 +101,9 @@ class WalletService(BaseService):
         ).update({"hide_wallet": True})
         self.db_session.flush()
 
-    def set_balance(self, address_raw: str, balance: int) -> None:
+    def set_balance(
+        self, address_raw: str, balance: int, last_activity: int | None = None
+    ) -> None:
         """
         Updates the balance for a specific wallet address using the database session.
 
@@ -111,10 +113,15 @@ class WalletService(BaseService):
 
         :param address_raw: The wallet address whose balance needs to be updated.
         :param balance: The new balance to be set for the given wallet address in nano
+        :param last_activity: Optional last activity timestamp of the wallet
         """
+        updates = {"balance": balance}
+        if last_activity is not None:
+            updates["last_activity"] = last_activity
+
         self.db_session.query(UserWallet).filter(
             UserWallet.address == address_raw,
-        ).update({"balance": balance})
+        ).update(updates)
 
     def count(self) -> int:
         return self.db_session.query(UserWallet).count()

@@ -6,6 +6,8 @@ import {
   TelegramBackButton,
   TelegramMainButton,
   Text,
+  List,
+  ListItem,
 } from '@components'
 import { useError } from '@hooks'
 import { createMembersCount, goTo } from '@utils'
@@ -102,6 +104,20 @@ export const ClientJoinPage = () => {
           {chat.description}
         </Text>
       </Block>
+      {chat?.insufficientPrivileges && (
+        <Block margin="top" marginValue={16}>
+          <List>
+            <ListItem
+              before={<span style={{ fontSize: '20px' }}>⚠️</span>}
+              text={
+                <Text type="text" color="danger">
+                  The bot lacks sufficient privileges to manage that chat.
+                </Text>
+              }
+            />
+          </List>
+        </Block>
+      )}
     </PageLayout>
   )
 }

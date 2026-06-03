@@ -1,14 +1,12 @@
 import { ThemeContext } from '@context'
 import '@styles/index.scss'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
-import { checkIsMobile, checkStartAppParams } from '@utils'
+import { checkStartAppParams } from '@utils'
 import { useContext, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import config from '@config'
-import { AuthService } from '@services'
 import { useUser, useUserActions } from '@store'
-import { useAuthQuery } from '@store-new'
 
 import Routes from './Routes'
 
