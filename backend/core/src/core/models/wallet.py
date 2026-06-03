@@ -27,6 +27,11 @@ class UserWallet(Base):
     address = mapped_column(BlockchainAddressRawField, primary_key=True)
     user_id = mapped_column(ForeignKey("user.id"), nullable=False)
     balance = mapped_column(BIGINT, nullable=True, doc="Balance of the wallet in TONs")
+    last_activity = mapped_column(
+        BIGINT,
+        nullable=True,
+        doc="Last activity timestamp of the wallet on the blockchain",
+    )
     # DEPRECATED attribute
     hide_wallet = mapped_column(Boolean, default=False, nullable=False)
 

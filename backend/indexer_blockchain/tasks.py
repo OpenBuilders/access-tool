@@ -22,14 +22,14 @@ logger = get_task_logger(__name__)
 
 
 async def get_all_nfts_per_user(
-    blockchain_service: TonApiService, address: str, nft_collections: list[str]
+    blockchain_service: TonApiService, address: str
 ) -> NftItems:
     nft_items = []
-    for collection_address in nft_collections:
-        async for batch in blockchain_service.get_all_nft_items_for_user(
-            wallet_address=address, collection_address=collection_address
-        ):
-            nft_items.extend(batch.nft_items)
+    # Query all NFT items in paginated batches
+    async for batch in blockchain_service.get_all_nft_items_for_user(
+        wallet_address=address, collection_address=None
+    ):
+        nft_items.extend(batch.nft_items)
     return NftItems(nft_items=nft_items)
 
 
@@ -46,6 +46,20 @@ def fetch_wallet_details(address: str) -> None:
     blockchain_service = TonApiService()
 
     account_info = asyncio.run(blockchain_service.get_account_info(address))
+    current_last_activity = account_info.last_activity
+    raw_address = account_info.address.to_raw()
+
+    with DBService().db_session() as db_session:
+        wallet_service = WalletService(db_session)
+        wallet = wallet_service.get_user_wallet(raw_address)
+        stored_last_activity = wallet.last_activity if wallet else None
+
+    if stored_last_activity is not None and current_last_activity is not None:
+        if stored_last_activity == current_last_activity:
+            logger.info(
+                f"Skipping wallet {address!r} sync: last_activity has not changed ({current_last_activity})."
+            )
+            return
 
     jettons_balances: JettonsBalances = asyncio.run(
         blockchain_service.get_all_jetton_balances(address)
@@ -64,16 +78,25 @@ def fetch_wallet_details(address: str) -> None:
         get_all_nfts_per_user(
             blockchain_service=blockchain_service,
             address=address,
-            nft_collections=whitelist_collection_addresses,
         )
     )
+
+    # Pre-filter fetched NFT items against whitelisted collections in memory
+    whitelist_set = set(whitelist_collection_addresses)
+    filtered_nfts = [
+        item
+        for item in nft_items.nft_items
+        if item.collection and item.collection.address.to_raw() in whitelist_set
+    ]
+    nft_items = NftItems(nft_items=filtered_nfts)
 
     with DBService().db_session() as db_session:
         wallet_service = WalletService(db_session)
         wallet_service.set_balance(
-            account_info.address.to_raw(),
+            raw_address,
             # It already contains the balance in nano
             int(str(account_info.balance)),
+            last_activity=current_last_activity,
         )
 
         jetton_service = JettonService(db_session)

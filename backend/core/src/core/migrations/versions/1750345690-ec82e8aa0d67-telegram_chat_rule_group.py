@@ -138,6 +138,9 @@ def set_proper_rule_group_id_in_table(
         for chat_id, group_id in chat_id_group_id_mapping.items()
     ]
 
+    if not params:
+        return
+
     # Use executemany for better performance with many records
     connection.execute(
         sa.text(
