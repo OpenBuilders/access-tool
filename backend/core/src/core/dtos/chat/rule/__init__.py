@@ -2,6 +2,7 @@ import dataclasses
 from typing import Self
 
 from pydantic import BaseModel, computed_field, Field
+from pytonapi.utils import raw_to_userfriendly
 
 from core.constants import (
     PROMOTE_JETTON_TEMPLATE,
@@ -52,12 +53,22 @@ class ChatEligibilityRuleDTO(BaseModel):
     def promote_url(self) -> str | None:
         match self.type:
             case EligibilityCheckType.JETTON:
+                if not self.blockchain_address:
+                    return None
+
                 return PROMOTE_JETTON_TEMPLATE.format(
-                    jetton_master_address=self.blockchain_address
+                    jetton_master_address=raw_to_userfriendly(
+                        self.blockchain_address, is_bounceable=True
+                    )
                 )
             case EligibilityCheckType.NFT_COLLECTION:
+                if not self.blockchain_address:
+                    return None
+
                 return PROMOTE_NFT_COLLECTION_TEMPLATE.format(
-                    collection_address=self.blockchain_address
+                    collection_address=raw_to_userfriendly(
+                        self.blockchain_address, is_bounceable=True
+                    )
                 )
             case EligibilityCheckType.TONCOIN:
                 return BUY_TONCOIN_URL
