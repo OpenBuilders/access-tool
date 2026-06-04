@@ -54,6 +54,7 @@ PROJECT_ROOT = PACKAGE_ROOT.parent
 # ---------------- Static files ----------------
 STATIC_PATH = PACKAGE_ROOT / "static"
 CERTS_PATH = PACKAGE_ROOT.parent.parent / "config" / "certs"
+
 # ----------------- Requests -----------------
 REQUEST_TIMEOUT = 30
 CONNECT_TIMEOUT = 10
