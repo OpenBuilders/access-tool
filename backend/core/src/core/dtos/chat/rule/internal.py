@@ -1,10 +1,11 @@
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, ConfigDict, computed_field
 
 from core.enums.rule import EligibilityCheckType
 from core.dtos.gift.collection import GiftCollectionDTO
 from core.dtos.resource import NftCollectionDTO, JettonDTO
 from core.dtos.sticker import MinimalStickerCollectionDTO, MinimalStickerCharacterDTO
 from core.enums.nft import NftCollectionAsset
+from core.models.chat import TelegramChatUser
 
 
 class EligibilitySummaryInternalDTO(BaseModel):
@@ -110,3 +111,11 @@ class RulesEligibilitySummaryInternalDTO(BaseModel):
 
     def __repr__(self):
         return f"<{self.__class__.__name__} ({self.items=})>"
+
+
+class ChatMemberEligibilityResultDTO(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    member: TelegramChatUser
+    is_eligible: bool
+    summary: RulesEligibilitySummaryInternalDTO | None

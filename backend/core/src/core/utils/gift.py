@@ -15,7 +15,7 @@ def find_relevant_gift_items(
 
     This function iterates over a list of gift items and filters them according
     to the attributes defined in the provided rule object. Attributes such as
-    collection_slug, model, backdrop, and pattern are used to determine the
+    collection_id, model, backdrop, and pattern are used to determine the
     relevance of each item. Items that match the defined criteria are appended
     to a resulting list, which is then returned.
 
@@ -32,10 +32,7 @@ def find_relevant_gift_items(
             logger.warning(f"Trying to get gifts by category {rule.category!r}.")
             continue
 
-        if (
-            rule.collection_slug is not None
-            and rule.collection_slug != item.collection_slug
-        ):
+        if rule.collection_id is not None and rule.collection_id != item.collection_id:
             continue
 
         if rule.model is not None and rule.model != item.model:
