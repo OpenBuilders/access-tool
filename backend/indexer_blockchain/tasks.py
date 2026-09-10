@@ -68,10 +68,7 @@ def fetch_wallet_details(address: str) -> None:
     with DBService().db_session() as db_session:
         # Pre-calculate whitelist collection addresses for NFT fetch
         nft_collection_service = NftCollectionService(db_session)
-        whitelisted_nfts = nft_collection_service.get_whitelisted()
-        whitelist_collection_addresses = [
-            collection.address for collection in whitelisted_nfts
-        ]
+        whitelist_collection_addresses = nft_collection_service.get_whitelisted()
 
     # Perform async NFT fetch OUTSIDE the DB session
     nft_items: NftItems = asyncio.run(

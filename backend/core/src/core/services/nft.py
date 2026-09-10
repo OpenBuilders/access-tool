@@ -74,12 +74,20 @@ class NftCollectionService(BaseService):
             .one()
         )
 
-    def get_whitelisted(self) -> list[NFTCollection]:
-        return (
-            self.db_session.query(NFTCollection)
+    def get_whitelisted(self) -> list[str]:
+        """
+        Returns collection addresses only.
+
+        `blockchain_metadata` aggregates the names, descriptions and traits of
+        every item in a collection, so selecting whole rows here costs megabytes
+        per call.
+        """
+        return [
+            row[0]
+            for row in self.db_session.query(NFTCollection.address)
             .filter(NFTCollection.is_enabled.is_(True))
             .all()
-        )
+        ]
 
     def get_all(self, whitelisted_only: bool) -> list[NFTCollection]:
         query = self.db_session.query(NFTCollection)
