@@ -46,6 +46,7 @@ CELERY_INDEX_PRICES_QUEUE_NAME = "index-prices-queue"
 GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata-v3"
 CELERY_GIFT_FETCH_QUEUE_NAME = "gift-fetch-queue"
 CELERY_GIFT_USER_QUEUE_NAME = "gift-user-queue"
+USER_GIFT_REFRESH_COOLDOWN_SECONDS = 300
 CELERY_GIFT_BACKGROUND_QUEUE_NAME = "gift-background-queue"
 UPDATED_GIFT_USER_IDS = "updated_gift_user_ids"
 

@@ -8,7 +8,10 @@ from core.actions.base import BaseAction
 from core.dtos.user import TelegramUserDTO
 from core.models.user import User
 from core.services.superredis import RedisService
-from core.constants import CELERY_GIFT_USER_QUEUE_NAME
+from core.constants import (
+    CELERY_GIFT_USER_QUEUE_NAME,
+    USER_GIFT_REFRESH_COOLDOWN_SECONDS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,15 +22,14 @@ class UserAction(BaseAction):
 
     def refresh_gifts(self, user: User) -> str | None:
         """
-        Triggers user gift indexing if not rate-limited (5-minute cooldown).
+        Triggers user gift indexing if not rate-limited.
         Returns task_id if dispatched, None if rate-limited.
         """
-        if not user.telegram_id:
-            raise ValueError(f"User {user.id} has no linked Telegram ID")
-
         redis_service = RedisService()
         rate_limit_key = f"user-gift-refresh-{user.telegram_id}"
-        if not redis_service.set(rate_limit_key, "1", ex=300, nx=True):
+        if not redis_service.set(
+            rate_limit_key, "1", ex=USER_GIFT_REFRESH_COOLDOWN_SECONDS, nx=True
+        ):
             logger.info(f"User {user.telegram_id} gift refresh rate-limited.")
             return None
 

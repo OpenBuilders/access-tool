@@ -43,10 +43,9 @@ async def refresh_user_gifts(
     task_id = user_action.refresh_gifts(request.state.user)
 
     if task_id is None:
-        return RefreshUserGiftsFDO(
-            status="rate_limited",
-            task_id=None,
-            message="Gifts were recently indexed. Please wait 5 minutes.",
+        raise HTTPException(
+            status_code=429,
+            detail="Gifts were recently indexed. Please wait 5 minutes.",
         )
 
     return RefreshUserGiftsFDO(

@@ -2,7 +2,10 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from core.actions.user import UserAction
-from core.constants import CELERY_GIFT_USER_QUEUE_NAME
+from core.constants import (
+    CELERY_GIFT_USER_QUEUE_NAME,
+    USER_GIFT_REFRESH_COOLDOWN_SECONDS,
+)
 from tests.factories.user import UserFactory
 
 
@@ -26,7 +29,7 @@ def test_refresh_gifts_success(mock_redis_class, mock_send_task, db_session):
 
     assert task_id == "mock-task-123"
     mock_redis.set.assert_called_once_with(
-        "user-gift-refresh-555", "1", ex=300, nx=True
+        "user-gift-refresh-555", "1", ex=USER_GIFT_REFRESH_COOLDOWN_SECONDS, nx=True
     )
     mock_send_task.assert_called_once_with(
         "index-user-gifts",
@@ -51,7 +54,7 @@ def test_refresh_gifts_rate_limited(mock_redis_class, mock_send_task, db_session
 
     assert task_id is None
     mock_redis.set.assert_called_once_with(
-        "user-gift-refresh-555", "1", ex=300, nx=True
+        "user-gift-refresh-555", "1", ex=USER_GIFT_REFRESH_COOLDOWN_SECONDS, nx=True
     )
     mock_send_task.assert_not_called()
 
