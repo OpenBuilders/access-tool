@@ -14,6 +14,7 @@ from core.dtos.chat.rule.gift import (
 from core.models.user import User
 from core.services.chat.rule.gift import TelegramChatGiftCollectionService
 from core.services.gift.item import GiftUniqueService
+from core.services.gift.collection import GiftCollectionService
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         super().__init__(db_session, requestor, chat_slug)
         self.service = TelegramChatGiftCollectionService(db_session)
         self.gift_unique_service = GiftUniqueService(db_session)
+        self.gift_collection_service = GiftCollectionService(db_session)
 
     async def read(self, rule_id: int) -> GiftChatEligibilityRuleDTO:
         try:
@@ -76,9 +78,8 @@ class TelegramChatGiftCollectionAction(ManagedChatBaseAction):
         if not collection_id or not any((model, backdrop, pattern)):
             return
 
-        # FIXME: Rewrite disabled for now since it needs refactoring
-        # options = self.gift_unique_service.get_unique_options("...")
-        options = {}
+        collection = self.gift_collection_service.get(collection_id)
+        options = collection.options
 
         if model and model not in options.get("models", []):
             raise HTTPException(

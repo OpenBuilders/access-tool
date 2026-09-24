@@ -41,3 +41,9 @@ class UpdateUserWalletFDO(BaseFDO):
             ),
         ),
     ]
+
+
+class RefreshUserGiftsFDO(BaseFDO):
+    status: str
+    task_id: str | None = None
+    message: str
