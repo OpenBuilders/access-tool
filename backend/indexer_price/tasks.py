@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 async def refresh_toncoin_price():
     with DBService().db_session() as db_session:
         action = TonPriceIndexerAction(db_session=db_session)
-        logger.info("Started TON prices refreshing action")
+        logger.info("Started GRAM prices refreshing action")
         await action.refresh_toncoin_price()
-        logger.info("Successfully completed TON prices refreshing action")
+        logger.info("Successfully completed GRAM prices refreshing action")
 
 
 async def refresh_jettons_price():

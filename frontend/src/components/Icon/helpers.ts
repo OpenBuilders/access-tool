@@ -11,7 +11,7 @@ import {
   eyeCrossed,
   eye,
   connectWallet,
-  toncoin,
+  gram,
   premium,
   whitelist,
   externalSource,
@@ -54,8 +54,8 @@ export const getIcon = (name: IconTypeName) => {
       return eye
     case 'connectWallet':
       return connectWallet
-    case 'toncoin':
-      return toncoin
+    case 'gram':
+      return gram
     case 'premium':
       return premium
     case 'whitelist':

@@ -12,7 +12,7 @@ interface ConditionIconProps {
 }
 
 const ICONS = {
-  toncoin: 'toncoin',
+  toncoin: 'gram',
   'connect-wallet': 'connectWallet',
   premium: 'premium',
   whitelist: 'whitelist',

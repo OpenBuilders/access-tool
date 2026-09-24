@@ -2,7 +2,6 @@ import logging
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from celery import current_app as celery_app
 
 from core.actions.base import BaseAction
 from core.dtos.user import TelegramUserDTO
@@ -12,6 +11,7 @@ from core.constants import (
     CELERY_GIFT_USER_PRIORITY_QUEUE,
     USER_GIFT_REFRESH_COOLDOWN_SECONDS,
 )
+from core.utils.task import sender
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class UserAction(BaseAction):
             logger.info(f"User {user.telegram_id} gift refresh rate-limited.")
             return None
 
-        task_result = celery_app.send_task(
+        task_result = sender.send_task(
             "index-user-gifts",
             args=(user.telegram_id,),
             queue=CELERY_GIFT_USER_PRIORITY_QUEUE,

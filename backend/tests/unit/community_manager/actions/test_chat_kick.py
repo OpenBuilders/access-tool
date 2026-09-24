@@ -105,7 +105,7 @@ async def test_check_chat_members_compliance_dry_run_counters(db_session, caplog
                             id=1,
                             group_id=1,
                             type=EligibilityCheckType.TONCOIN,
-                            title="TON",
+                            title="GRAM",
                             actual=0.5,
                             expected=1.0,
                             is_enabled=True,
@@ -162,7 +162,7 @@ async def test_check_chat_members_compliance_dry_run_counters(db_session, caplog
     assert "Ineligible (non-managed): 1" in caplog.text
 
     assert (
-        'User 111 is ineligible for chat 1. Managed: True. Compliance summary: {"groups":[{"id":1,"items":[{"id":1,"group_id":1,"type":"toncoin","title":"TON","address_raw":null,"actual":0.5,"expected":1.0,"is_enabled":true,"category":null,"is_eligible":false}]}],"wallet":"EQD123"}'
+        'User 111 is ineligible for chat 1. Managed: True. Compliance summary: {"groups":[{"id":1,"items":[{"id":1,"group_id":1,"type":"toncoin","title":"GRAM","address_raw":null,"actual":0.5,"expected":1.0,"is_enabled":true,"category":null,"is_eligible":false}]}],"wallet":"EQD123"}'
         in caplog.text
     )
     assert (

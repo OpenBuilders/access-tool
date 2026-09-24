@@ -44,9 +44,9 @@ class TonPriceIndexerAction(PriceIndexerAction):
     async def refresh_toncoin_price(self) -> None:
         try:
             new_price = await self.indexer.index()
-            logger.info(f"Successfully refreshed TON price. New price: {new_price}")
+            logger.info(f"Successfully refreshed GRAM price. New price: {new_price}")
         except Exception as e:
-            logger.exception(f"Error occurred while refreshing TON price: {e}")
+            logger.exception(f"Error occurred while refreshing GRAM price: {e}")
 
 
 class JettonPriceIndexerAction(PriceIndexerAction):
@@ -150,7 +150,7 @@ class NftCollectionPriceIndexerAction(PriceIndexerAction):
     async def refresh_nft_collections_price(self) -> None:
         if not (ton_price := self.ton_price_manager.get_ton_price()):
             logger.warning(
-                "Cannot refresh NFT collections prices. TON price is not set"
+                "Cannot refresh NFT collections prices. GRAM price is not set"
             )
             return
 

@@ -3,7 +3,7 @@ import {
   Jettons,
   NFT,
   Premium,
-  Toncoin,
+  Gram,
   Whitelist,
   ExternalSource,
   Stickers,
@@ -17,7 +17,7 @@ export const CONDITION_TYPES = [
   },
   {
     value: 'toncoin',
-    name: 'Toncoin',
+    name: 'Gram',
   },
   {
     value: 'nft_collection',
@@ -53,7 +53,7 @@ export const CONDITION_COMPONENTS = {
   jetton: Jettons,
   nft_collection: NFT,
   whitelist: Whitelist,
-  toncoin: Toncoin,
+  toncoin: Gram,
   premium: Premium,
   emoji: Emoji,
   external_source: ExternalSource,
