@@ -9,7 +9,7 @@ from core.dtos.user import TelegramUserDTO
 from core.models.user import User
 from core.services.superredis import RedisService
 from core.constants import (
-    CELERY_GIFT_USER_QUEUE_NAME,
+    CELERY_GIFT_USER_PRIORITY_QUEUE,
     USER_GIFT_REFRESH_COOLDOWN_SECONDS,
 )
 
@@ -36,7 +36,7 @@ class UserAction(BaseAction):
         task_result = celery_app.send_task(
             "index-user-gifts",
             args=(user.telegram_id,),
-            queue=CELERY_GIFT_USER_QUEUE_NAME,
+            queue=CELERY_GIFT_USER_PRIORITY_QUEUE,
         )
         logger.info(
             f"Dispatched gift indexing task {task_result.id} for user {user.telegram_id}"

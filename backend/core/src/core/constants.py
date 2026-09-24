@@ -44,10 +44,10 @@ CELERY_GATEWAY_INDEX_QUEUE_NAME = "gateway-index-queue"
 CELERY_INDEX_PRICES_QUEUE_NAME = "index-prices-queue"
 # Gifts
 GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata-v3"
-CELERY_GIFT_FETCH_QUEUE_NAME = "gift-fetch-queue"
-CELERY_GIFT_USER_QUEUE_NAME = "gift-user-queue"
+CELERY_GIFT_COLLECTIONS_SYNC_QUEUE = "gift-collections-sync"
+CELERY_GIFT_USER_PRIORITY_QUEUE = "gift-user-priority"
 USER_GIFT_REFRESH_COOLDOWN_SECONDS = 300
-CELERY_GIFT_BACKGROUND_QUEUE_NAME = "gift-background-queue"
+CELERY_GIFT_USER_BATCH_QUEUE = "gift-user-batch"
 UPDATED_GIFT_USER_IDS = "updated_gift_user_ids"
 
 # ----------------- Paths ---------------------

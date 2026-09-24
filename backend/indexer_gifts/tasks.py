@@ -2,9 +2,9 @@ import asyncio
 from celery.utils.log import get_task_logger
 
 from core.constants import (
-    CELERY_GIFT_FETCH_QUEUE_NAME,
-    CELERY_GIFT_USER_QUEUE_NAME,
-    CELERY_GIFT_BACKGROUND_QUEUE_NAME,
+    CELERY_GIFT_COLLECTIONS_SYNC_QUEUE,
+    CELERY_GIFT_USER_PRIORITY_QUEUE,
+    CELERY_GIFT_USER_BATCH_QUEUE,
     DEFAULT_CELERY_TASK_RETRY_DELAY,
     DEFAULT_CELERY_TASK_MAX_RETRIES,
 )
@@ -22,7 +22,7 @@ DEFAULT_USER_GIFT_BATCH_SIZE = 25
 # === Flow A: Sync Collections ===
 @app.task(
     name="sync-gift-collections-from-api",
-    queue=CELERY_GIFT_FETCH_QUEUE_NAME,
+    queue=CELERY_GIFT_COLLECTIONS_SYNC_QUEUE,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
     ignore_result=True,
@@ -40,7 +40,7 @@ def sync_gift_collections_from_api() -> None:
 # === Flow B: Index User Gifts (High Priority Queue) ===
 @app.task(
     name="index-user-gifts",
-    queue=CELERY_GIFT_USER_QUEUE_NAME,
+    queue=CELERY_GIFT_USER_PRIORITY_QUEUE,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
 )
@@ -54,7 +54,7 @@ def index_user_gifts(telegram_user_id: int) -> bool:
 # === Flow C: Recurring Background User Gift Refresh (Batch Worker) ===
 @app.task(
     name="refresh-users-gifts-batch",
-    queue=CELERY_GIFT_BACKGROUND_QUEUE_NAME,
+    queue=CELERY_GIFT_USER_BATCH_QUEUE,
     default_retry_delay=DEFAULT_CELERY_TASK_RETRY_DELAY,
     retry_kwargs={"max_retries": DEFAULT_CELERY_TASK_MAX_RETRIES},
     ignore_result=True,
@@ -79,7 +79,7 @@ def refresh_users_gifts_batch(telegram_user_ids: list[int]) -> None:
 # === Flow C: Master Dispatcher Task ===
 @app.task(
     name="refresh-all-user-gifts",
-    queue=CELERY_GIFT_BACKGROUND_QUEUE_NAME,
+    queue=CELERY_GIFT_USER_BATCH_QUEUE,
     ignore_result=True,
 )
 def refresh_all_user_gifts() -> None:
@@ -101,5 +101,5 @@ def refresh_all_user_gifts() -> None:
         app.send_task(
             "refresh-users-gifts-batch",
             args=(chunk,),
-            queue=CELERY_GIFT_BACKGROUND_QUEUE_NAME,
+            queue=CELERY_GIFT_USER_BATCH_QUEUE,
         )

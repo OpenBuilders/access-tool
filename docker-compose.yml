@@ -114,7 +114,7 @@ services:
       "indexer_gifts.celery_app:app",
       "worker",
       "-Q",
-      "gift-user-queue,gift-fetch-queue,gift-background-queue",
+      "gift-user-priority,gift-collections-sync,gift-user-batch",
       "--loglevel=info"
     ]
     environment:
