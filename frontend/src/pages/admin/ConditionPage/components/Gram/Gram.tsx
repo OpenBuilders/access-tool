@@ -5,7 +5,7 @@ import { useConditionActions, ConditionCategory, Condition } from '@store'
 
 import { ConditionComponentProps } from '../types'
 
-export const Toncoin = ({
+export const Gram = ({
   isNewCondition,
   handleChangeCondition,
   conditionState,
@@ -90,7 +90,7 @@ export const Toncoin = ({
               textColor="tertiary"
               after={
                 <Text type="text" color="tertiary">
-                  TON
+                  GRAM
                 </Text>
               }
               value={conditionState?.expected}

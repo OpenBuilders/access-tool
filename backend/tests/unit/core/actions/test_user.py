@@ -9,7 +9,7 @@ from tests.factories.user import UserFactory
 
 
 def test_refresh_gifts_success(db_session):
-    with patch("core.actions.user.celery_app.send_task") as mock_send_task, patch(
+    with patch("core.actions.user.sender.send_task") as mock_send_task, patch(
         "core.actions.user.RedisService"
     ) as mock_redis_class:
         # Mock Redis to allow the request
@@ -39,7 +39,7 @@ def test_refresh_gifts_success(db_session):
 
 
 def test_refresh_gifts_rate_limited(db_session):
-    with patch("core.actions.user.celery_app.send_task") as mock_send_task, patch(
+    with patch("core.actions.user.sender.send_task") as mock_send_task, patch(
         "core.actions.user.RedisService"
     ) as mock_redis_class:
         # Mock Redis to block the request (nx=True returns False)

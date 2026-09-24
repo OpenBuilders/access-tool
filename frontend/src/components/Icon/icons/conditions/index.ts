@@ -1,5 +1,5 @@
 export * from './connectWallet'
-export * from './toncoin'
+export * from './gram'
 export * from './premium'
 export * from './whitelist'
 export * from './externalSource'
