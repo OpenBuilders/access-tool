@@ -16,6 +16,9 @@ from core.exceptions.wallet import (
     ProofValidationError,
     UserWalletNotConnectedError,
 )
+from api.pos.user import RefreshUserGiftsFDO
+from core.actions.user import UserAction
+
 
 user_router = APIRouter(prefix="/users")
 
@@ -25,6 +28,39 @@ async def get_user_data(
     request: Request,
 ) -> UserFDO:
     return UserFDO.from_orm(request.state.user)
+
+
+@user_router.post(
+    "/me/gifts/refresh",
+    name="Refresh current user's gifts",
+    tags=["User", "Gift"],
+)
+async def refresh_user_gifts(
+    request: Request,
+    db_session: Session = Depends(get_db_session),
+) -> RefreshUserGiftsFDO:
+    user = request.state.user
+    if not user.telegram_id:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="User has no linked Telegram ID",
+        )
+
+    user_action = UserAction(db_session)
+    task_id = user_action.refresh_gifts(user)
+
+    if task_id is None:
+        return RefreshUserGiftsFDO(
+            status="rate_limited",
+            task_id=None,
+            message="Gifts were recently indexed. Please wait 5 minutes.",
+        )
+
+    return RefreshUserGiftsFDO(
+        status="pending",
+        task_id=task_id,
+        message="Gift indexing started.",
+    )
 
 
 @user_router.post(
