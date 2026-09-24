@@ -5,6 +5,7 @@ from core.utils.misc import batched
 from pytonapi.schema.nft import NftItem as TONNftItem, NftItems
 from sqlalchemy import desc
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import load_only
 
 from core.models.blockchain import NFTCollection, NftItem
 from core.dtos.resource import (
@@ -75,8 +76,10 @@ class NftCollectionService(BaseService):
         )
 
     def get_whitelisted(self) -> list[NFTCollection]:
+        """Address only: whole rows carry a large `blockchain_metadata` blob."""
         return (
             self.db_session.query(NFTCollection)
+            .options(load_only(NFTCollection.address))
             .filter(NFTCollection.is_enabled.is_(True))
             .all()
         )

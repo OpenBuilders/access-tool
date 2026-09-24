@@ -88,7 +88,7 @@ export const WalletCondition = () => {
   }
 
   useEffect(() => {
-    tonConnectUI.onStatusChange(async (wallet) => {
+    const unsubscribe = tonConnectUI.onStatusChange(async (wallet) => {
       if (
         wallet?.connectItems?.tonProof &&
         'proof' in wallet.connectItems.tonProof &&
@@ -109,6 +109,10 @@ export const WalletCondition = () => {
         await fetchUserChat()
       }
     })
+
+    return () => {
+      unsubscribe()
+    }
   }, [tonConnectUI])
 
   useEffect(() => {
