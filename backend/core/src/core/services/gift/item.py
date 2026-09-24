@@ -9,44 +9,40 @@ OptionsTuple = namedtuple("OptionsTuple", ["model", "backdrop", "pattern"])
 
 
 class GiftUniqueService(BaseService):
-    def get(self, id: int) -> GiftUnique:
-        return self.db_session.query(GiftUnique).filter(GiftUnique.id == id).one()
+    def get(self, slug: str) -> GiftUnique:
+        return self.db_session.query(GiftUnique).filter(GiftUnique.slug == slug).one()
 
     def get_all(
         self,
         collection_id: int | None = None,
         telegram_user_id: int | None = None,
-        number_ge: int | None = None,
-        number_le: int | None = None,
     ) -> list[GiftUnique]:
         query = self.db_session.query(GiftUnique)
         if collection_id:
             query = query.filter(GiftUnique.collection_id == collection_id)
         if telegram_user_id:
             query = query.filter(GiftUnique.telegram_owner_id == telegram_user_id)
-        if number_ge:
-            query = query.filter(GiftUnique.number >= number_ge)
-        if number_le:
-            query = query.filter(GiftUnique.number <= number_le)
 
         return query.order_by(GiftUnique.number).all()
 
-    def find(self, id: int) -> GiftUnique | None:
-        return self.db_session.query(GiftUnique).filter(GiftUnique.id == id).first()
+    def find(self, slug: str) -> GiftUnique | None:
+        return self.db_session.query(GiftUnique).filter(GiftUnique.slug == slug).first()
 
     def create(
         self,
-        id: int,
+        slug: str,
+        collection_id: int,
         number: int,
-        model: str,
-        backdrop: str,
-        pattern: str,
-        telegram_owner_id: int | None,
-        blockchain_address: str | None,
-        owner_address: str | None,
+        model: str | None = None,
+        backdrop: str | None = None,
+        pattern: str | None = None,
+        telegram_owner_id: int | None = None,
+        blockchain_address: str | None = None,
+        owner_address: str | None = None,
     ) -> GiftUnique:
         new_unique = GiftUnique(
-            id=id,
+            slug=slug,
+            collection_id=collection_id,
             number=number,
             model=model,
             backdrop=backdrop,
@@ -61,16 +57,16 @@ class GiftUniqueService(BaseService):
 
     def update(
         self,
-        id: int,
+        slug: str,
         number: int,
-        model: str,
-        backdrop: str,
-        pattern: str,
-        telegram_owner_id: int | None,
-        blockchain_address: str | None,
-        owner_address: str | None,
+        model: str | None = None,
+        backdrop: str | None = None,
+        pattern: str | None = None,
+        telegram_owner_id: int | None = None,
+        blockchain_address: str | None = None,
+        owner_address: str | None = None,
     ) -> GiftUnique:
-        unique = self.get(id)
+        unique = self.get(slug)
         unique.number = number
         unique.model = model
         unique.backdrop = backdrop
@@ -84,12 +80,12 @@ class GiftUniqueService(BaseService):
 
     def update_ownership(
         self,
-        id: int,
-        telegram_owner_id: int,
+        slug: str,
+        telegram_owner_id: int | None,
         blockchain_address: str | None,
         owner_address: str | None,
     ) -> GiftUnique:
-        unique = self.get(id)
+        unique = self.get(slug)
         unique.telegram_owner_id = telegram_owner_id
         unique.blockchain_address = blockchain_address
         unique.owner_address = owner_address

@@ -15,6 +15,9 @@ class GiftCollectionService(BaseService):
         result = query.order_by(GiftCollection.title).all()
         return result
 
+    def get_all_ids(self) -> set[int]:
+        return {row[0] for row in self.db_session.query(GiftCollection.id).all()}
+
     def find(self, id: int) -> GiftCollection | None:
         return (
             self.db_session.query(GiftCollection)

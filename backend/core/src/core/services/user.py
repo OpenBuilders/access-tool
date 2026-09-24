@@ -22,6 +22,14 @@ class UserService(BaseService):
 
         return query.all()
 
+    def get_all_telegram_ids(self) -> list[int]:
+        return [
+            u.telegram_id
+            for u in self.db_session.query(User.telegram_id)
+            .filter(User.telegram_id.is_not(None))
+            .all()
+        ]
+
     def get_by_telegram_id(self, telegram_id: int) -> User:
         return (
             self.db_session.query(User)
