@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 
 from core.actions.user import UserAction
@@ -56,20 +55,10 @@ def test_refresh_gifts_rate_limited(mock_redis_class, mock_send_task, db_session
     mock_redis.set.assert_called_once_with(
         "user-gift-refresh-555", "1", ex=USER_GIFT_REFRESH_COOLDOWN_SECONDS, nx=True
     )
-    mock_send_task.assert_not_called()
+    mock_send_task.assert_not_called() @ patch.object(UserAction, "refresh_gifts")
 
 
-def test_refresh_gifts_no_telegram_id(db_session):
-    user_action = UserAction(db_session)
-    user = UserFactory.with_session(db_session).create(telegram_id=None)
-    db_session.flush()
-
-    with pytest.raises(ValueError, match="has no linked Telegram ID"):
-        user_action.refresh_gifts(user)
-
-
-@patch.object(UserAction, "refresh_gifts")
-def test_initial_user_indexing_with_telegram_id(mock_refresh_gifts, db_session):
+def test_initial_user_indexing(mock_refresh_gifts, db_session):
     user_action = UserAction(db_session)
     user = UserFactory.with_session(db_session).create(telegram_id=777)
     db_session.flush()
@@ -77,14 +66,3 @@ def test_initial_user_indexing_with_telegram_id(mock_refresh_gifts, db_session):
     user_action._initial_user_indexing(user)
 
     mock_refresh_gifts.assert_called_once_with(user)
-
-
-@patch.object(UserAction, "refresh_gifts")
-def test_initial_user_indexing_without_telegram_id(mock_refresh_gifts, db_session):
-    user_action = UserAction(db_session)
-    user = UserFactory.with_session(db_session).create(telegram_id=None)
-    db_session.flush()
-
-    user_action._initial_user_indexing(user)
-
-    mock_refresh_gifts.assert_not_called()

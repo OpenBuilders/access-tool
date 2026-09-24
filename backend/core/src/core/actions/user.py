@@ -49,8 +49,7 @@ class UserAction(BaseAction):
         intended for internal usage to initialize the indexing process for a user.
         """
         logger.debug(f"Indexing user {user.id!r} upon creation...")
-        if user.telegram_id:
-            self.refresh_gifts(user)
+        self.refresh_gifts(user)
 
     def create(self, telegram_user: TelegramUserDTO) -> User:
         user = self.user_service.create(telegram_user)
