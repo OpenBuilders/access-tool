@@ -39,15 +39,8 @@ async def refresh_user_gifts(
     request: Request,
     db_session: Session = Depends(get_db_session),
 ) -> RefreshUserGiftsFDO:
-    user = request.state.user
-    if not user.telegram_id:
-        raise HTTPException(
-            status_code=HTTP_400_BAD_REQUEST,
-            detail="User has no linked Telegram ID",
-        )
-
     user_action = UserAction(db_session)
-    task_id = user_action.refresh_gifts(user)
+    task_id = user_action.refresh_gifts(request.state.user)
 
     if task_id is None:
         return RefreshUserGiftsFDO(
