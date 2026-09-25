@@ -56,7 +56,7 @@ def create_app() -> Celery:
                 # },
                 "sync-gift-collections-from-api": {
                     "task": "sync-gift-collections-from-api",
-                    "schedule": crontab(hour="*/1", minute="0"),  # Every hour
+                    "schedule": crontab(hour="1", minute="0"),  # Daily at 1:00 AM
                     "options": {"queue": CELERY_GIFT_COLLECTIONS_SYNC_QUEUE},
                 },
                 "refresh-all-user-gifts": {
