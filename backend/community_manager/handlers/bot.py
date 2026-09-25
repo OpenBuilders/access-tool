@@ -1,5 +1,8 @@
 from telethon import events, types
 
+from core.services.db import DBService
+from core.services.user import UserService
+
 START_MESSAGE = """**Access bot**
 
 What I can do:
@@ -14,6 +17,11 @@ Open source for the community: [Github repository](https://github.com/OpenBuilde
 
 
 async def handle_start_message(event: events.NewMessage()) -> None:
+    # Mark user as writable since they interacted with the bot
+    with DBService().db_session() as db_session:
+        user_service = UserService(db_session)
+        user_service.mark_as_writable(event.sender_id)
+
     await event.respond(
         START_MESSAGE,
         buttons=types.ReplyInlineMarkup(
