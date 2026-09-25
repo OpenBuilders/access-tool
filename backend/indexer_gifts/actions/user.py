@@ -82,20 +82,18 @@ class IndexerUserGiftAction(BaseAction):
             existing = self.gift_service.find(ug.name)
 
             if existing:
-                # If it was owned by someone else, record they lost it
-                if (
-                    existing.telegram_owner_id
-                    and existing.telegram_owner_id != telegram_user_id
-                ):
-                    lost_ownership_user_ids.add(existing.telegram_owner_id)
+                # Only update if ownership actually changed
+                if existing.telegram_owner_id != telegram_user_id:
+                    if existing.telegram_owner_id:
+                        lost_ownership_user_ids.add(existing.telegram_owner_id)
 
-                self.gift_service.update_ownership(
-                    slug=ug.name,
-                    telegram_owner_id=telegram_user_id,
-                    blockchain_address=existing.blockchain_address,
-                    owner_address=existing.owner_address,
-                )
-                updated_count += 1
+                    self.gift_service.update_ownership(
+                        slug=ug.name,
+                        telegram_owner_id=telegram_user_id,
+                        blockchain_address=existing.blockchain_address,
+                        owner_address=existing.owner_address,
+                    )
+                    updated_count += 1
             else:
                 # Ensure collection exists using in-memory cache
                 collection_id = int(ug.gift_id)
