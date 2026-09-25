@@ -18,7 +18,7 @@ The frontend is a single-page application (SPA) built with React and Vite.
 - **State Management**: Zustand (Global state), TanStack Query (Server state).
 - **Routing**: React Router DOM.
 - **UI Libraries**:
-    - `@tonconnect/ui-react`: TON wallet connection.
+    - `@tonconnect/ui-react`: GRAM wallet connection.
     - `@dnd-kit`: Drag and drop functionality.
     - `react-lottie`: Lottie animations.
 

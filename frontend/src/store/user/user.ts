@@ -10,6 +10,7 @@ import {
   connectExistingWalletAPI,
   connectWalletAPI,
   fetchUserAPI,
+  refreshUserGiftsAPI,
 } from './api'
 import { User, WalletData } from './types'
 
@@ -31,6 +32,7 @@ interface UserActions {
       wallet: string
     ) => Promise<string>
     completeChatTaskAction: (taskId: string) => void
+    refreshUserGiftsAction: () => Promise<string | undefined>
   }
 }
 
@@ -94,6 +96,13 @@ const useUserStore = create<UserStore & UserActions>((set) => ({
       if (!ok) {
         throw new Error(error)
       }
+    },
+    refreshUserGiftsAction: async () => {
+      const { data, ok, error } = await refreshUserGiftsAPI()
+      if (!ok) {
+        throw new Error(error)
+      }
+      return data?.taskId
     },
   },
 }))

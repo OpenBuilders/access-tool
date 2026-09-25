@@ -112,9 +112,12 @@ _compile_requirements_community_manager:
 	pip-compile --no-emit-index-url backend/core/pyproject.toml backend/community_manager/pyproject.toml --output-file backend/community_manager/requirements.txt
 
 
-compile_requirements: _compile_requirements_api _compile_requirements_core _compile_requirements_test _compile_requirements_community_manager
+_compile_requirements_indexer_gifts:
+	pip-compile --no-emit-index-url backend/core/pyproject.toml backend/indexer_gifts/pyproject.toml --output-file backend/indexer_gifts/requirements.txt
+
+
+compile_requirements: _compile_requirements_api _compile_requirements_core _compile_requirements_test _compile_requirements_community_manager _compile_requirements_indexer_gifts
 	cp backend/core/requirements.txt backend/indexer_blockchain/requirements.txt
-	cp backend/core/requirements.txt backend/indexer_gifts/requirements.txt
 	cp backend/core/requirements.txt backend/indexer_price/requirements.txt
 	cp backend/core/requirements.txt backend/indexer_stickers/requirements.txt
 

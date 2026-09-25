@@ -1,6 +1,7 @@
-import { Block, List } from '@components'
+import { useState } from 'react'
+import { Block, List, useToast } from '@components'
 
-import { useChat } from '@store'
+import { useChat, useUserActions, useChatActions } from '@store'
 
 import { checkWalletRequirements } from '../../helpers'
 import { ChatConditionItem, WalletCondition } from './components'
@@ -9,8 +10,31 @@ const SEPARATOR_LEFT_GAP = 40
 
 export const ChatConditions = () => {
   const { chat, groups, rules } = useChat()
+  const { refreshUserGiftsAction, completeChatTaskAction } = useUserActions()
+  const { fetchUserChatAction } = useChatActions()
+  const { showToast } = useToast()
+  
+  const [isRefreshingGifts, setIsRefreshingGifts] = useState(false)
 
   const renderWallet = checkWalletRequirements(rules)
+
+  const handleRefreshGifts = async () => {
+    setIsRefreshingGifts(true)
+    try {
+      const taskId = await refreshUserGiftsAction()
+      if (taskId) {
+        await completeChatTaskAction(taskId)
+      }
+      if (chat?.slug) {
+        await fetchUserChatAction(chat.slug)
+      }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Failed to refresh gifts'
+      showToast({ type: 'error', message })
+    } finally {
+      setIsRefreshingGifts(false)
+    }
+  }
 
   return (
     <>
@@ -24,6 +48,9 @@ export const ChatConditions = () => {
                   condition={condition}
                   key={`${condition.id}-${condition.type}`}
                   chat={chat}
+                  disabled={isRefreshingGifts}
+                  onRefreshGifts={handleRefreshGifts}
+                  isRefreshingGifts={isRefreshingGifts}
                 />
               ))}
             </List>

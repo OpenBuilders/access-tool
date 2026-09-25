@@ -91,12 +91,12 @@ class TonPriceManager:
             # Handle Redis service unavailability gracefully
             raw_value = self.redis_service.get(TON_PRICE_CACHE_KEY)
             if raw_value is None:
-                logger.warning("TON price is not cached yet.")
+                logger.warning("GRAM price is not cached yet.")
                 return None
 
             return float(raw_value)
         except Exception as e:
-            logger.error("Failed to get TON price: %s", e)
+            logger.error("Failed to get GRAM price: %s", e)
             return None
 
     def set_ton_price(self, price: float) -> None:

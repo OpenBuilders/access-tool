@@ -1,6 +1,6 @@
 export * from './Jettons'
 export * from './NFT'
-export * from './Toncoin'
+export * from './Gram'
 export * from './Whitelist'
 export * from './Premium'
 export * from './Emoji'

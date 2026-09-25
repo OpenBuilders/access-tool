@@ -47,7 +47,7 @@ async def get_gifts_owners(
 
 
 @gift_router.get(
-    "/{collection_slug}",
+    "/{collection_id}",
     description="Returns an object of gift with their holders (telegram ID and blockchain address)",
     responses={
         HTTP_200_OK: {"model": GiftUniqueItemsFDO},
@@ -58,11 +58,11 @@ async def get_gifts_owners(
     },
 )
 async def get_collection_holders(
-    collection_slug: str,
+    collection_id: int,
     db_session: Session = Depends(get_db_session),
 ) -> GiftUniqueItemsFDO:
     gift_unique_action = GiftUniqueAction(db_session=db_session)
-    items = gift_unique_action.get_all(collection_slug=collection_slug)
+    items = gift_unique_action.get_all(collection_id=collection_id)
     return GiftUniqueItemsFDO(
         items=[GiftUniqueInfoFDO.from_dto(item) for item in items]
     )

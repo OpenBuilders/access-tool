@@ -11,7 +11,7 @@ import {
   eyeCrossed,
   eye,
   connectWallet,
-  toncoin,
+  gram,
   premium,
   whitelist,
   externalSource,
@@ -24,6 +24,7 @@ import {
   completed,
   sortArrows,
   checkmark,
+  refresh,
 } from './icons'
 import { IconTypeName } from './types'
 
@@ -53,8 +54,8 @@ export const getIcon = (name: IconTypeName) => {
       return eye
     case 'connectWallet':
       return connectWallet
-    case 'toncoin':
-      return toncoin
+    case 'gram':
+      return gram
     case 'premium':
       return premium
     case 'whitelist':
@@ -79,5 +80,7 @@ export const getIcon = (name: IconTypeName) => {
       return sortArrows
     case 'checkmark':
       return checkmark
+    case 'refresh':
+      return refresh
   }
 }

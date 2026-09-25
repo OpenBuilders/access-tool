@@ -4,49 +4,57 @@ from typing import Self
 from pydantic import BaseModel
 from telethon.tl.types import StarGiftUnique
 
+from core.dtos.fields import StringifiedInt
 from core.models.gift import GiftCollection
 
 
+class GiftCollectionOptionsDTO(BaseModel):
+    models: list[str]
+    backdrops: list[str]
+    patterns: list[str]
+
+
 class GiftCollectionDTO(BaseModel):
-    slug: str
+    id: StringifiedInt
     title: str
     preview_url: str | None
     supply: int
     upgraded_count: int
+    options: GiftCollectionOptionsDTO
     last_updated: datetime.datetime
 
     @classmethod
     def from_orm(cls, obj: GiftCollection) -> Self:
         return cls(
-            slug=obj.slug,
+            id=obj.id,
             title=obj.title,
             preview_url=obj.preview_url,
             supply=obj.supply,
             upgraded_count=obj.upgraded_count,
+            options=obj.options,
             last_updated=obj.last_updated,
         )
 
     @classmethod
-    def from_telethon(cls, slug: str, obj: StarGiftUnique, preview_url: str) -> Self:
+    def from_telethon(cls, id: int, obj: StarGiftUnique, preview_url: str) -> Self:
         return cls(
-            slug=slug,
+            id=id,
             title=obj.title,
             preview_url=preview_url,
             supply=obj.availability_total,
             upgraded_count=obj.availability_issued,
+            options=GiftCollectionOptionsDTO(models=[], backdrops=[], patterns=[]),
             last_updated=datetime.datetime.now(tz=datetime.UTC),
         )
 
 
 class GiftCollectionMetadataDTO(BaseModel):
-    slug: str
+    id: StringifiedInt
     title: str
     preview_url: str | None
     supply: int
     upgraded_count: int
-    models: list[str]
-    backdrops: list[str]
-    patterns: list[str]
+    options: GiftCollectionOptionsDTO
 
 
 class GiftCollectionsMetadataDTO(BaseModel):
@@ -54,7 +62,7 @@ class GiftCollectionsMetadataDTO(BaseModel):
 
 
 class GiftFilterDTO(BaseModel):
-    collection: str
+    collection_id: StringifiedInt
     model: str | None = None
     backdrop: str | None = None
     pattern: str | None = None
@@ -68,26 +76,31 @@ class GiftFiltersDTO(BaseModel):
     def validate_with_context(
         cls, objs: list[GiftFilterDTO], context: GiftCollectionsMetadataDTO
     ) -> Self:
-        context_by_slug = {
-            collection.slug: collection for collection in context.collections
+        context_by_id = {
+            collection.id: collection for collection in context.collections
         }
         for obj in objs:
-            if not (collection_metadata := context_by_slug.get(obj.collection)):
-                raise ValueError(f"Collection {obj.collection} not found in metadata")
-
-            if obj.model and obj.model not in collection_metadata.models:
+            if not (collection_metadata := context_by_id.get(obj.collection_id)):
                 raise ValueError(
-                    f"Model {obj.model} not found in collection {obj.collection}"
+                    f"Collection {obj.collection_id} not found in metadata"
                 )
 
-            if obj.backdrop and obj.backdrop not in collection_metadata.backdrops:
+            if obj.model and obj.model not in collection_metadata.options.models:
                 raise ValueError(
-                    f"Backdrop {obj.backdrop} not found in collection {obj.collection}"
+                    f"Model {obj.model} not found in collection {obj.collection_id}"
                 )
 
-            if obj.pattern and obj.pattern not in collection_metadata.patterns:
+            if (
+                obj.backdrop
+                and obj.backdrop not in collection_metadata.options.backdrops
+            ):
                 raise ValueError(
-                    f"Pattern {obj.pattern} not found in collection {obj.collection}"
+                    f"Backdrop {obj.backdrop} not found in collection {obj.collection_id}"
+                )
+
+            if obj.pattern and obj.pattern not in collection_metadata.options.patterns:
+                raise ValueError(
+                    f"Pattern {obj.pattern} not found in collection {obj.collection_id}"
                 )
 
         return cls(filters=objs)

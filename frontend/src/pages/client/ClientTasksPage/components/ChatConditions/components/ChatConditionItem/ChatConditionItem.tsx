@@ -1,4 +1,4 @@
-import { ConditionIcon, ListItem, Text } from '@components'
+import { ConditionIcon, ListItem, Text, Icon, Spinner } from '@components'
 import { createConditionName, goTo } from '@utils'
 import { createConditionDescription } from '@utils'
 
@@ -10,12 +10,16 @@ interface ChatConditionItemProps {
   condition: Condition
   chat: ChatInstance | null
   disabled?: boolean
+  onRefreshGifts?: () => void
+  isRefreshingGifts?: boolean
 }
 
 export const ChatConditionItem = ({
   condition,
   chat,
   disabled,
+  onRefreshGifts,
+  isRefreshingGifts,
 }: ChatConditionItemProps) => {
   const { isEligible, promoteUrl, type } = condition
 
@@ -85,14 +89,25 @@ export const ChatConditionItem = ({
     )
   }
 
+  const isGiftCondition = type === 'gift_collection'
+
   return (
     <ListItem
       padding="4px 16px"
       height={conditionDescription ? '60px' : '50px'}
-      chevron={!!promoteUrl && !disabled}
-      onClick={handleOpenLink}
+      chevron={!!promoteUrl && !disabled && !isGiftCondition}
+      onClick={isGiftCondition ? onRefreshGifts : handleOpenLink}
       before={<ConditionIcon condition={condition} />}
       disabled={disabled}
+      after={
+        isGiftCondition ? (
+          isRefreshingGifts ? (
+            <Spinner size={24} />
+          ) : (
+            <Icon name="refresh" size={24} color="tertiary" />
+          )
+        ) : undefined
+      }
       text={<Text type="text">{conditionName}</Text>}
       description={
         <Text type="caption2" color="tertiary">

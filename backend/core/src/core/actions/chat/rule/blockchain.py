@@ -551,11 +551,11 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
         logs the creation event and returns a data transfer object (DTO) that
         represents the newly created TON rule.
 
-        :param category: The currency category to associate with the new TON rule.
-        :param threshold: The minimum threshold value for the TON rule.
-        :param group_id: The group ID to associate with the new TON rule, if applicable.
+        :param category: The currency category to associate with the new GRAM rule.
+        :param threshold: The minimum threshold value for the GRAM rule.
+        :param group_id: The group ID to associate with the new GRAM rule, if applicable.
         :return: A DTO representing the chat eligibility rule created from the
-                 TON rule.
+                 GRAM rule.
         :raises HTTPException: If a duplicate rule of the specified type and category is found.
         """
         group_id = self.resolve_group_id(group_id=group_id)
@@ -569,7 +569,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
                 is_enabled=True,
             )
         )
-        logger.info(f"Chat {self.chat.id!r} linked to a new TON rule")
+        logger.info(f"Chat {self.chat.id!r} linked to a new GRAM rule")
         self.refresh_chat_floor_price()
         return ChatEligibilityRuleDTO.from_toncoin_rule(new_rule)
 
@@ -581,7 +581,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
         is_enabled: bool,
     ) -> ChatEligibilityRuleDTO:
         """
-        Updates an existing chat eligibility rule for TON based on the provided attributes.
+        Updates an existing chat eligibility rule for GRAM based on the provided attributes.
         Retrieves the rule by its ID and ensures it belongs to the current chat. Checks for
         duplicate rules before applying updates.
 
@@ -589,7 +589,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
         :param category: The category of the currency for the rule, or None if not applicable.
         :param threshold: The threshold value associated with the rule, could be an integer or float.
         :param is_enabled: A boolean indicating whether the rule is enabled or disabled.
-        :return: A data transfer object (DTO) representing the updated chat eligibility rule for TON.
+        :return: A data transfer object (DTO) representing the updated chat eligibility rule for GRAM.
         :raises HTTPException: If the rule with the provided ID does not exist,
             or if a duplicate rule of the specified type and category is found.
         """
@@ -615,7 +615,7 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
                 is_enabled=is_enabled,
             ),
         )
-        logger.info(f"Updated chat jetton rule {rule_id!r} for TON")
+        logger.info(f"Updated chat jetton rule {rule_id!r} for GRAM")
         self.refresh_chat_floor_price()
         return ChatEligibilityRuleDTO.from_toncoin_rule(updated_rule)
 
@@ -630,6 +630,6 @@ class TelegramChatToncoinAction(ManagedChatBaseAction):
                 status_code=HTTP_404_NOT_FOUND,
             )
         self.telegram_chat_toncoin_service.delete(rule_id, chat_id=self.chat.id)
-        logger.info(f"Deleted chat TON rule {rule_id!r}")
+        logger.info(f"Deleted chat GRAM rule {rule_id!r}")
         self.refresh_chat_floor_price()
         self.remove_group_if_empty(group_id=group_id)

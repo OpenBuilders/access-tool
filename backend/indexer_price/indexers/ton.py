@@ -17,17 +17,17 @@ class TonPriceIndexer:
 
     async def index(self) -> float:
         """
-        Fetches the latest price for the TON asset from the given API endpoint and sets
+        Fetches the latest price for the GRAM asset from the given API endpoint and sets
         the fetched price.
 
         This method performs an asynchronous GET request to obtain the current asset
-        quotation for TON and validates the response. Upon success, it updates the
-        price of TON and logs the operation.
+        quotation for GRAM and validates the response. Upon success, it updates the
+        price of GRAM and logs the operation.
 
         :raises HTTPError: If the HTTP request fails or returns an unsuccessful response code.
         :raises ValidationError: If the response cannot be validated against the TonPrice model.
 
-        :return: The latest price of the TON asset.
+        :return: The latest price of the GRAM asset.
         :rtype: float
         """
         response = await self.client.get(
@@ -35,6 +35,6 @@ class TonPriceIndexer:
         )
         response.raise_for_status()
         ton_data = TonPrice.model_validate(response.json())
-        logger.info(f"Got new price for TON: {ton_data.price}")
+        logger.info(f"Got new price for GRAM: {ton_data.price}")
         self.price_manager.set_ton_price(ton_data.price)
         return ton_data.price

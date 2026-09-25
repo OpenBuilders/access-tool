@@ -56,6 +56,21 @@ def check_target_chat_members_task(chat_id: int) -> None:
     async_to_sync(check_target_chat_members)(chat_id)
 
 
+async def check_target_chat_members_dry_run(chat_id: int) -> None:
+    with DBService().db_session() as db_session:
+        action = CommunityManagerUserChatAction(db_session)
+        await action.check_chat_members_compliance_dry_run(chat_id=chat_id)
+
+
+@app.task(
+    name="check-target-chat-members-dry-run",
+    queue=CELERY_SYSTEM_QUEUE_NAME,
+    ignore_result=True,
+)
+def check_target_chat_members_dry_run_task(chat_id: int) -> None:
+    async_to_sync(check_target_chat_members_dry_run)(chat_id)
+
+
 async def refresh_chat_external_sources_async() -> None:
     with DBService().db_session() as db_session:
         # BotAPI does not need a telethon client

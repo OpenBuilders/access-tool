@@ -1,10 +1,13 @@
-from typing import Iterable, Any
+import logging
+from typing import Any, Iterable
 
 from sqlalchemy.orm import joinedload, load_only, QueryableAttribute
 
 from core.dtos.user import TelegramUserDTO
 from core.models.user import User
 from core.services.base import BaseService
+
+logger = logging.getLogger(__name__)
 
 
 class UserService(BaseService):
@@ -21,6 +24,25 @@ class UserService(BaseService):
             query = query.options(load_only(*_load_attributes))
 
         return query.all()
+
+    def get_all_telegram_ids(self) -> list[int]:
+        return [
+            u.telegram_id
+            for u in self.db_session.query(User.telegram_id)
+            .filter(User.telegram_id.is_not(None))
+            .filter(User.is_blocked.is_(False))
+            .all()
+        ]
+
+    def mark_as_blocked(self, telegram_ids: list[int]) -> None:
+        if not telegram_ids:
+            return
+
+        logger.info(f"Marking {len(telegram_ids)} users as blocked.")
+        self.db_session.query(User).filter(User.telegram_id.in_(telegram_ids)).update(
+            {"is_blocked": True}, synchronize_session=False
+        )
+        self.db_session.flush()
 
     def get_by_telegram_id(self, telegram_id: int) -> User:
         return (

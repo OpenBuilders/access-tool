@@ -162,11 +162,12 @@ cython_debug/
 .idea/
 
 certs/
-core/static/jettons/*
-core/static/nfts/*
-core/static/chats/*
-core/static/avatars/*
 *.session
 
 
 frontend/public/settings.json
+
+
+# AI
+.agents/
+.antigravitycli/

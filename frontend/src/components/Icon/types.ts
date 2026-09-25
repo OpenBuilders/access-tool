@@ -5,7 +5,7 @@ export type IconTypeName =
   | 'pixel'
   | 'dogs'
   | 'notcoin'
-  | 'toncoin'
+  | 'gram'
   | 'forwardArrow'
   | 'gatewayBot'
   | 'doubleChevron'
@@ -17,7 +17,7 @@ export type IconTypeName =
   | 'eyeCrossed'
   | 'eye'
   | 'connectWallet'
-  | 'toncoin'
+  | 'gram'
   | 'premium'
   | 'whitelist'
   | 'externalSource'
@@ -30,5 +30,6 @@ export type IconTypeName =
   | 'completed'
   | 'sortArrows'
   | 'checkmark'
+  | 'refresh'
 
 export type IconSize = 112 | 100 | 40 | 28 | 24 | 20 | 18 | 16 | 12 | 7
