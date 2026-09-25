@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import AsyncGenerator
 
 from aiogram import Bot
@@ -59,7 +60,9 @@ class BotApiGiftIndexer:
 
             except Exception as e:
                 logger.error(f"Error fetching gifts for user {telegram_user_id}: {e}")
-                break
+                raise
 
     async def close(self):
         await self.bot.session.close()
+        # Allow underlying aiohttp SSL connections to close gracefully
+        await asyncio.sleep(0.250)
