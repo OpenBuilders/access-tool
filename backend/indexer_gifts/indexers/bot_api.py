@@ -1,14 +1,17 @@
-import logging
 import asyncio
-from typing import AsyncGenerator
+import logging
+from typing import Any, AsyncGenerator
 
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
+from aiogram.exceptions import TelegramRetryAfter
 from aiogram.types import OwnedGifts, OwnedGiftUnique
 
 from core.settings import core_settings
 
 logger = logging.getLogger(__name__)
+
+MAX_FLOOD_RETRIES = 3
 
 
 class BotApiGiftIndexer:
@@ -19,48 +22,62 @@ class BotApiGiftIndexer:
             default=DefaultBotProperties(parse_mode="HTML"),
         )
 
+    async def _safe_request(self, func, *args, **kwargs) -> Any:
+        """
+        Wraps a request with retry logic for Telegram flood control (429).
+        """
+        for attempt in range(1, MAX_FLOOD_RETRIES + 1):
+            try:
+                return await func(*args, **kwargs)
+            except TelegramRetryAfter as e:
+                if attempt == MAX_FLOOD_RETRIES:
+                    logger.error(
+                        f"Flood control: exceeded {MAX_FLOOD_RETRIES} retries, giving up."
+                    )
+                    raise
+                logger.warning(
+                    f"Flood control: sleeping {e.retry_after}s "
+                    f"(attempt {attempt}/{MAX_FLOOD_RETRIES})"
+                )
+                await asyncio.sleep(e.retry_after)
+        raise RuntimeError("Unexpected state in _safe_request")
+
     async def iter_user_gifts(
         self, telegram_user_id: int
     ) -> AsyncGenerator[OwnedGiftUnique, None]:
         """
         Yields OwnedGiftUnique objects owned by the user via pagination.
-        Handles rate limits or pagination as needed.
+        Handles flood control by sleeping and retrying up to MAX_FLOOD_RETRIES times.
         """
         offset = ""
         page_num = 1
         logger.info(f"Starting to fetch gifts for user {telegram_user_id}...")
         while True:
-            try:
-                logger.debug(
-                    f"Fetching page {page_num} for user {telegram_user_id} (offset: {offset!r})"
-                )
-                # get_user_gifts is available in aiogram 3.24.0
-                user_gifts: OwnedGifts = await self.bot.get_user_gifts(
-                    user_id=telegram_user_id, offset=offset, limit=100
-                )
+            user_gifts: OwnedGifts = await self._safe_request(
+                self.bot.get_user_gifts,
+                user_id=telegram_user_id,
+                offset=offset,
+                limit=100,
+            )
 
+            logger.info(
+                f"Fetched {len(user_gifts.gifts)} gifts for user "
+                f"{telegram_user_id} on page {page_num}."
+            )
+
+            for gift in user_gifts.gifts:
+                if isinstance(gift, OwnedGiftUnique):
+                    yield gift
+
+            if not user_gifts.next_offset:
                 logger.info(
-                    f"Fetched {len(user_gifts.gifts)} gifts for user {telegram_user_id} on page {page_num}."
+                    f"Finished fetching all gifts for user {telegram_user_id}. "
+                    f"Total count: {user_gifts.total_count}"
                 )
+                break
 
-                # Yield only unique gifts from the current page
-                for gift in user_gifts.gifts:
-                    if isinstance(gift, OwnedGiftUnique):
-                        yield gift
-
-                # Check if there are more pages
-                if not user_gifts.next_offset:
-                    logger.info(
-                        f"Finished fetching all gifts for user {telegram_user_id}. Total count: {user_gifts.total_count}"
-                    )
-                    break
-
-                offset = user_gifts.next_offset
-                page_num += 1
-
-            except Exception as e:
-                logger.error(f"Error fetching gifts for user {telegram_user_id}: {e}")
-                raise
+            offset = user_gifts.next_offset
+            page_num += 1
 
     async def __aenter__(self):
         return self
