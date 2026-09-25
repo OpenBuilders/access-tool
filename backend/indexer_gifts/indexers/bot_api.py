@@ -26,11 +26,12 @@ class BotApiGiftIndexer:
         """
         Wraps a request with retry logic for Telegram flood control (429).
         """
-        for attempt in range(1, MAX_FLOOD_RETRIES + 1):
+        attempt = 1
+        while True:
             try:
                 return await func(*args, **kwargs)
             except TelegramRetryAfter as e:
-                if attempt == MAX_FLOOD_RETRIES:
+                if attempt >= MAX_FLOOD_RETRIES:
                     logger.error(
                         f"Flood control: exceeded {MAX_FLOOD_RETRIES} retries, giving up."
                     )
@@ -40,7 +41,7 @@ class BotApiGiftIndexer:
                     f"(attempt {attempt}/{MAX_FLOOD_RETRIES})"
                 )
                 await asyncio.sleep(e.retry_after)
-        raise RuntimeError("Unexpected state in _safe_request")
+                attempt += 1
 
     async def iter_user_gifts(
         self, telegram_user_id: int
