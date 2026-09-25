@@ -102,7 +102,7 @@ const useUserStore = create<UserStore & UserActions>((set) => ({
       if (!ok) {
         throw new Error(error)
       }
-      return data?.task_id
+      return data?.taskId
     },
   },
 }))

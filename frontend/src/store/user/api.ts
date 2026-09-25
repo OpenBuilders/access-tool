@@ -73,8 +73,8 @@ export const completeChatTasksAPI = async (
   return response
 }
 
-export const refreshUserGiftsAPI = async (): Promise<ApiServiceResponse<{ status: string, task_id?: string, message: string }>> => {
-  const response = await ApiService.post<{ status: string, task_id?: string, message: string }>({
+export const refreshUserGiftsAPI = async (): Promise<ApiServiceResponse<{ status: string, taskId?: string, message: string }>> => {
+  const response = await ApiService.post<{ status: string, taskId?: string, message: string }>({
     endpoint: '/users/me/gifts/refresh',
   })
 
