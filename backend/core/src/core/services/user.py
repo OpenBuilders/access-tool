@@ -25,22 +25,30 @@ class UserService(BaseService):
 
         return query.all()
 
-    def get_all_telegram_ids(self) -> list[int]:
+    def get_all_writable_telegram_ids(self) -> list[int]:
         return [
             u.telegram_id
             for u in self.db_session.query(User.telegram_id)
             .filter(User.telegram_id.is_not(None))
-            .filter(User.is_blocked.is_(False))
+            .filter(User.allows_write_to_pm.is_(True))
             .all()
         ]
 
-    def mark_as_blocked(self, telegram_ids: list[int]) -> None:
+    def mark_as_not_writable(self, telegram_ids: list[int]) -> None:
         if not telegram_ids:
             return
 
-        logger.info(f"Marking {len(telegram_ids)} users as blocked.")
+        logger.info(
+            f"Marking {len(telegram_ids)} users as not writable (allows_write_to_pm=False)."
+        )
         self.db_session.query(User).filter(User.telegram_id.in_(telegram_ids)).update(
-            {"is_blocked": True}, synchronize_session=False
+            {"allows_write_to_pm": False}, synchronize_session=False
+        )
+        self.db_session.flush()
+
+    def mark_as_writable(self, telegram_id: int) -> None:
+        self.db_session.query(User).filter(User.telegram_id == telegram_id).update(
+            {"allows_write_to_pm": True}
         )
         self.db_session.flush()
 
@@ -88,7 +96,6 @@ class UserService(BaseService):
         user.last_name = telegram_user.last_name
         user.username = telegram_user.username
         user.is_premium = bool(telegram_user.is_premium)
-        user.allows_write_to_pm = telegram_user.allow_write_to_pm
         # TODO add photo_url
         self.db_session.add(user)
         self.db_session.flush()

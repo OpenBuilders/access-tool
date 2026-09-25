@@ -78,7 +78,7 @@ def refresh_all_user_gifts() -> None:
     """Master dispatcher: chunks all registered users and enqueues batch tasks."""
     with DBService().db_session() as db_session:
         user_service = UserService(db_session)
-        all_telegram_ids = user_service.get_all_telegram_ids()
+        all_telegram_ids = user_service.get_all_writable_telegram_ids()
 
     if not all_telegram_ids:
         logger.info("No registered Telegram users found for gift refresh.")

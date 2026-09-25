@@ -27,7 +27,8 @@ class IndexerUserGiftAction(BaseAction):
                 await self._sync_user_gifts(telegram_user_id, indexer=indexer)
             except Exception as e:
                 if "user not found" in str(e).lower():
-                    self.user_service.mark_as_blocked([telegram_user_id])
+                    self.user_service.mark_as_not_writable([telegram_user_id])
+                    return
                 raise
 
     async def sync_users_batch(
@@ -36,7 +37,7 @@ class IndexerUserGiftAction(BaseAction):
         existing_collection_ids: set[int] | None = None,
     ) -> None:
         """Public method for batch sync, manages a single indexer across multiple users."""
-        blocked_user_ids = []
+        not_writable_user_ids = []
         async with BotApiGiftIndexer() as indexer:
             for user_id in telegram_user_ids:
                 try:
@@ -48,10 +49,10 @@ class IndexerUserGiftAction(BaseAction):
                 except Exception as e:
                     logger.error(f"Error refreshing gifts for user {user_id}: {e}")
                     if "user not found" in str(e).lower():
-                        blocked_user_ids.append(user_id)
+                        not_writable_user_ids.append(user_id)
 
-        if blocked_user_ids:
-            self.user_service.mark_as_blocked(blocked_user_ids)
+        if not_writable_user_ids:
+            self.user_service.mark_as_not_writable(not_writable_user_ids)
 
     async def _sync_user_gifts(
         self,
@@ -95,20 +96,12 @@ class IndexerUserGiftAction(BaseAction):
                     )
                     updated_count += 1
             else:
-                # Ensure collection exists using in-memory cache
                 collection_id = int(ug.gift_id)
                 if collection_id not in existing_collection_ids:
-                    logger.info(
-                        f"Collection {collection_id} missing, creating stub collection."
+                    logger.debug(
+                        f"Skipping gift {ug.name}: collection {collection_id} not yet synced."
                     )
-                    self.gift_collection_service.create(
-                        id=collection_id,
-                        title=ug.base_name or f"Gift {collection_id}",
-                        preview_url=None,
-                        supply=0,
-                        upgraded_count=0,
-                    )
-                    existing_collection_ids.add(collection_id)
+                    continue
 
                 # Extract string identifiers for visual attributes if available
                 model_name = (
