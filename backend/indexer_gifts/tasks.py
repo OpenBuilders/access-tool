@@ -3,10 +3,10 @@ from celery.utils.log import get_task_logger
 
 from core.constants import (
     CELERY_GIFT_COLLECTIONS_SYNC_QUEUE,
-    CELERY_GIFT_USER_PRIORITY_QUEUE,
     CELERY_GIFT_USER_BATCH_QUEUE,
-    DEFAULT_CELERY_TASK_RETRY_DELAY,
+    CELERY_GIFT_USER_PRIORITY_QUEUE,
     DEFAULT_CELERY_TASK_MAX_RETRIES,
+    DEFAULT_CELERY_TASK_RETRY_DELAY,
 )
 from core.services.db import DBService
 from core.services.user import UserService
@@ -47,7 +47,7 @@ def sync_gift_collections_from_api() -> None:
 def index_user_gifts(telegram_user_id: int) -> bool:
     with DBService().db_session() as db_session:
         action = IndexerUserGiftAction(db_session)
-        asyncio.run(action.sync_user_gifts(telegram_user_id))
+        asyncio.run(action.sync_single_user_gifts(telegram_user_id))
     return True
 
 
@@ -65,15 +65,7 @@ def refresh_users_gifts_batch(telegram_user_ids: list[int]) -> None:
         action = IndexerUserGiftAction(db_session)
         existing_collection_ids = action.gift_collection_service.get_all_ids()
 
-        for user_id in telegram_user_ids:
-            try:
-                asyncio.run(
-                    action.sync_user_gifts(
-                        user_id, existing_collection_ids=existing_collection_ids
-                    )
-                )
-            except Exception as e:
-                logger.error(f"Error refreshing gifts for user {user_id}: {e}")
+        asyncio.run(action.sync_users_batch(telegram_user_ids, existing_collection_ids))
 
 
 # === Flow C: Master Dispatcher Task ===
