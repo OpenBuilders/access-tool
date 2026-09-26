@@ -4,6 +4,8 @@ export const API_VALIDATION_ERROR = 'Fill fields correctly'
 
 export const API_ERRORS = {}
 
+export const ASYNC_TASK_TIMEOUT_MS = 10000
+
 export const TANSTACK_KEYS = {
   AUTH: ['auth'],
   USER: ['user'],
