@@ -1,6 +1,6 @@
 // src/services/ApiService.ts
 import { getValidationError } from '@utils'
-import ky, { HTTPError, Options } from 'ky'
+import ky, { HTTPError, Options, TimeoutError } from 'ky'
 
 import config from '@config'
 
@@ -24,6 +24,7 @@ interface ApiOptions extends Options {
     statusCodes: number[]
   }
   cache?: 'force-cache' | 'no-cache' | 'no-store' | 'only-if-cached' | 'reload'
+  timeout?: number | false
 }
 
 type QueryParams = Record<string, string | number | boolean>
@@ -54,6 +55,14 @@ const handleError = async (
         status: err.response.status,
         error: 'Server error',
       }
+    }
+  }
+
+  if (err instanceof TimeoutError) {
+    return {
+      ok: false,
+      status: 408,
+      error: 'Request timed out',
     }
   }
 
@@ -107,9 +116,9 @@ export const ApiService = {
     host?: string
   }): Promise<ApiServiceResponse<T>> => {
     try {
-      const { retry, cache, signal, ...searchParams } = options
+      const { retry, cache, signal, timeout, ...searchParams } = options
       const searchParamsValue =
-        Object.keys(options).length > 0 ? searchParams : undefined
+        Object.keys(searchParams).length > 0 ? searchParams : undefined
       const response = await api
         .get(`${host ?? apiHost}${endpoint}`, {
           searchParams: searchParamsValue as QueryParams,
@@ -120,6 +129,7 @@ export const ApiService = {
           },
           cache,
           signal,
+          timeout,
         })
         .json<T>()
 
@@ -144,9 +154,9 @@ export const ApiService = {
     host?: string
   }): Promise<ApiServiceResponse<T>> => {
     try {
-      const { retry, cache, signal, ...searchParams } = options
+      const { retry, cache, signal, timeout, ...searchParams } = options
       const searchParamsValue =
-        Object.keys(options).length > 0 ? searchParams : undefined
+        Object.keys(searchParams).length > 0 ? searchParams : undefined
       const response = await api
         .post(`${host ?? apiHost}${endpoint}`, {
           json: data,
@@ -158,6 +168,7 @@ export const ApiService = {
           },
           cache,
           signal,
+          timeout,
         })
         .json<T>()
 
@@ -182,9 +193,9 @@ export const ApiService = {
     host?: string
   }): Promise<ApiServiceResponse<T>> => {
     try {
-      const { retry, cache, signal, ...searchParams } = options
+      const { retry, cache, signal, timeout, ...searchParams } = options
       const searchParamsValue =
-        Object.keys(options).length > 0 ? searchParams : undefined
+        Object.keys(searchParams).length > 0 ? searchParams : undefined
       const response = await api
         .put(`${host ?? apiHost}${endpoint}`, {
           json: data,
@@ -196,6 +207,7 @@ export const ApiService = {
           },
           cache,
           signal,
+          timeout,
         })
         .json<T>()
 
@@ -218,9 +230,9 @@ export const ApiService = {
     host?: string
   }): Promise<ApiServiceResponse<T>> => {
     try {
-      const { retry, cache, signal, ...searchParams } = options
+      const { retry, cache, signal, timeout, ...searchParams } = options
       const searchParamsValue =
-        Object.keys(options).length > 0 ? searchParams : undefined
+        Object.keys(searchParams).length > 0 ? searchParams : undefined
       const response = await api
         .delete(`${host ?? apiHost}${endpoint}`, {
           searchParams: searchParamsValue as QueryParams,
@@ -231,6 +243,7 @@ export const ApiService = {
           },
           cache,
           signal,
+          timeout,
         })
         .json<T>()
 

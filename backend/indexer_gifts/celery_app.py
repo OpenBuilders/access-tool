@@ -16,7 +16,8 @@ def create_app() -> Celery:
             "result_expires": 300,  # 5 minutes
             "include": ["indexer_gifts.tasks"],
             "worker_concurrency": gifts_indexer_settings.worker_concurrency,
-            "broker_transport_options": {"queue_order_strategy": "priority"},
+            "broker_transport_options": {"queue_order_strategy": "sorted"},
+            "task_acks_late": True,
             "worker_prefetch_multiplier": 1,
         }
     )

@@ -16,6 +16,7 @@ ASYNC_TASK_REDIS_PREFIX = "atask"
 
 DEFAULT_CELERY_TASK_RETRY_DELAY = 60
 DEFAULT_CELERY_TASK_MAX_RETRIES = 5
+DEFAULT_ASYNC_TASK_WAIT_TIMEOUT_SECONDS: float = 9.5
 
 # Performance
 DEFAULT_BATCH_PROCESSING_SIZE = 5_000
@@ -44,10 +45,10 @@ CELERY_GATEWAY_INDEX_QUEUE_NAME = "gateway-index-queue"
 CELERY_INDEX_PRICES_QUEUE_NAME = "index-prices-queue"
 # Gifts
 GIFT_COLLECTIONS_METADATA_KEY = "gifts-metadata-v3"
-CELERY_GIFT_COLLECTIONS_SYNC_QUEUE = "gift-collections-sync"
-CELERY_GIFT_USER_PRIORITY_QUEUE = "gift-user-priority"
+CELERY_GIFT_COLLECTIONS_SYNC_QUEUE = "1-gift-collections-sync"
+CELERY_GIFT_USER_PRIORITY_QUEUE = "0-gift-user-priority"
 USER_GIFT_REFRESH_COOLDOWN_SECONDS = 300
-CELERY_GIFT_USER_BATCH_QUEUE = "gift-user-batch"
+CELERY_GIFT_USER_BATCH_QUEUE = "2-gift-user-batch"
 UPDATED_GIFT_USER_IDS = "updated_gift_user_ids"
 
 # ----------------- Paths ---------------------
