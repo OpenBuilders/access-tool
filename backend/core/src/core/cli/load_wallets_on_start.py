@@ -7,7 +7,7 @@ from core.constants import DEFAULT_WALLET_TRACK_EXPIRATION
 from core.services.db import DBService
 from core.services.superredis import RedisService
 from core.services.wallet import WalletService
-from indexer.tasks import fetch_wallet_details
+from indexer_blockchain.tasks import fetch_wallet_details
 
 logger = logging.getLogger(__name__)
 
