@@ -1,0 +1,76 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-heavy websites.
+ */
+
+/* Define Access Tool design tokens */
+:root {
+  --ifm-color-primary: #007aff;
+  --ifm-color-primary-dark: #006ee6;
+  --ifm-color-primary-darker: #0068da;
+  --ifm-color-primary-darkest: #0056b3;
+  --ifm-color-primary-light: #1a87ff;
+  --ifm-color-primary-lighter: #268dff;
+  --ifm-color-primary-lightest: #4da3ff;
+
+  --ifm-font-family-base: -apple-system, 'SF Pro Text', 'SF UI Text', system-ui, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For dark mode */
+[data-theme='dark'] {
+  --ifm-color-primary: #0a84ff;
+  --ifm-color-primary-dark: #0074e8;
+  --ifm-color-primary-darker: #006ddb;
+  --ifm-color-primary-darkest: #005ab5;
+  --ifm-color-primary-light: #2490ff;
+  --ifm-color-primary-lighter: #3196ff;
+  --ifm-color-primary-lightest: #57aaff;
+
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
+  --ifm-background-color: #000000;
+  --ifm-navbar-background-color: #111112;
+  --ifm-footer-background-color: #111112;
+}
+
+.hero--primary {
+  --ifm-hero-background-color: var(--ifm-color-primary);
+  --ifm-hero-text-color: #fff;
+}
+
+[data-theme='dark'] .hero--primary {
+  --ifm-hero-background-color: #111112;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.button--secondary {
+  --ifm-button-background-color: #fff;
+  --ifm-button-border-color: #fff;
+  --ifm-button-color: var(--ifm-color-primary);
+}
+
+[data-theme='dark'] .button--secondary {
+  --ifm-button-background-color: var(--ifm-color-primary);
+  --ifm-button-border-color: var(--ifm-color-primary);
+  --ifm-button-color: #fff;
+}
+
+/* Custom styles for a premium feel */
+.navbar {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme='dark'] .navbar {
+  background-color: rgba(17, 17, 18, 0.8) !important;
+}
+
+.footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
