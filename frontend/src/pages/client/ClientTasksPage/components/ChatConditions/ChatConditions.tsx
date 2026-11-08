@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Block, List, useToast } from '@components'
 
-import { TaskTimeoutError, useChat, useUserActions, useChatActions } from '@store'
+import { useChat, useUserActions, useChatActions } from '@store'
 
 import { checkWalletRequirements } from '../../helpers'
 import { ChatConditionItem, WalletCondition } from './components'
@@ -28,25 +28,9 @@ export const ChatConditions = () => {
       if (chat?.slug) {
         await fetchUserChatAction(chat.slug)
       }
-      showToast({
-        type: 'success',
-        message: 'Gifts refreshed successfully',
-      })
     } catch (e: unknown) {
-      if (e instanceof TaskTimeoutError) {
-        showToast({
-          type: 'warning',
-          message:
-            'Your request to refresh gifts was submitted, but took longer than expected. Please, wait for 5 minutes or try again',
-        })
-        if (chat?.slug) {
-          await fetchUserChatAction(chat.slug)
-        }
-      } else {
-        const message =
-          e instanceof Error ? e.message : 'Failed to refresh gifts'
-        showToast({ type: 'error', message })
-      }
+      const message = e instanceof Error ? e.message : 'Failed to refresh gifts'
+      showToast({ type: 'error', message })
     } finally {
       setIsRefreshingGifts(false)
     }

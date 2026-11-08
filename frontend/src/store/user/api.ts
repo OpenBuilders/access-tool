@@ -1,5 +1,4 @@
 import { ApiService, ApiServiceResponse } from '@services'
-import { ASYNC_TASK_TIMEOUT_MS } from '@utils'
 
 import { AuthenticatedUser, ChatTaskComplete, User, WalletData } from './types'
 
@@ -69,9 +68,6 @@ export const completeChatTasksAPI = async (
 ): Promise<ApiServiceResponse<ChatTaskComplete>> => {
   const response = await ApiService.get<ChatTaskComplete>({
     endpoint: `/system/async-tasks/${taskId}`,
-    options: {
-      timeout: ASYNC_TASK_TIMEOUT_MS,
-    },
   })
 
   return response

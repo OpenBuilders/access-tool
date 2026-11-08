@@ -2,11 +2,7 @@ import random
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from starlette.status import (
-    HTTP_200_OK,
-    HTTP_408_REQUEST_TIMEOUT,
-    HTTP_502_BAD_GATEWAY,
-)
+from starlette.status import HTTP_502_BAD_GATEWAY, HTTP_200_OK
 
 from api.deps import get_db_session
 from api.pos.base import BaseExceptionFDO
@@ -23,27 +19,16 @@ system_non_authenticated_router = APIRouter(prefix="/system", tags=["System"])
     "/async-tasks/{task_id}",
     responses={
         HTTP_200_OK: {"model": StatusFDO},
-        HTTP_408_REQUEST_TIMEOUT: {
-            "description": "Occurs when the task took longer than expected to complete",
-            "model": BaseExceptionFDO,
-        },
         HTTP_502_BAD_GATEWAY: {
             "description": "Occurs when the system failed to complete the task",
             "model": BaseExceptionFDO,
         },
     },
 )
-async def get_task_status(
+async def get_task_status_status(
     task_id: str,
 ) -> StatusFDO:
-    try:
-        is_successful = await wait_for_task(task_id=task_id)
-    except TimeoutError:
-        raise HTTPException(
-            detail="Task took longer than expected",
-            status_code=HTTP_408_REQUEST_TIMEOUT,
-        )
-
+    is_successful = await wait_for_task(task_id=task_id)
     if is_successful:
         return StatusFDO(status="success", message="Task is completed successfully")
     else:

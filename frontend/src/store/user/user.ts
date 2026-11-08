@@ -36,14 +36,6 @@ interface UserActions {
   }
 }
 
-export class TaskTimeoutError extends Error {
-  isTimeout = true
-  constructor(message = 'Task took longer than expected') {
-    super(message)
-    this.name = 'TaskTimeoutError'
-  }
-}
-
 const webApp = window.Telegram?.WebApp
 
 const useUserStore = create<UserStore & UserActions>((set) => ({
@@ -99,12 +91,9 @@ const useUserStore = create<UserStore & UserActions>((set) => ({
       return data?.taskId
     },
     completeChatTaskAction: async (taskId: string) => {
-      const { ok, status, error } = await completeChatTasksAPI(taskId)
+      const { ok, error } = await completeChatTasksAPI(taskId)
 
       if (!ok) {
-        if (status === 408) {
-          throw new TaskTimeoutError(error)
-        }
         throw new Error(error)
       }
     },
